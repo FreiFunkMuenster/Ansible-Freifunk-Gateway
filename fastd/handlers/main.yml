@@ -1,4 +1,4 @@
 ---
-- name: restart ntpd
-  service: name=ntpd state=restarted
+- name: restart fastd
+  service: name=fastd state=restarted
   
