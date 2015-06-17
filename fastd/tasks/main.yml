@@ -1,15 +1,16 @@
 ---
-# Fastd-Daemon für Gateway Server  
+# Fastd-Daemon fuer Gateway Server
 
-- name: install fastd 
+- name: install fastd
   apt: pkg=fastd state=installed
 
-- name: create dummy peer 
+- name: create dummy peer
   template: src=dummy.j2 dest=/etc/fastd/vpn/peers/dummy
   notify:
     - restart fastd
 
-- name: enable fastd 
+- name: enable fastd
   service: name=fastd state=running enabled=yes
 
-  
+
+
