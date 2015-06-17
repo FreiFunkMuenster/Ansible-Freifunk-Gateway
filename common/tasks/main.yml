@@ -1,4 +1,3 @@
----
 # Allgemeine Konfigurationen für alle Server
 
 - name: create motd file
