@@ -6,8 +6,8 @@
 
 - name: create dummy peer
   template: src=dummy.j2 dest=/etc/fastd/vpn/peers/dummy
-  notify:
-    - restart fastd
+#  notify:
+#    - restart fastd
 
 - name: enable fastd
   service: name=fastd state=running enabled=yes

@@ -1,0 +1,32 @@
+---
+# Collectd-Daemon fuer Gateway Server
+
+- name: install collectd
+  apt: pkg=collectd state=installed
+
+- name: deploy collectd.conf 
+  template: src=collectd.conf.j2 dest=/etc/collectd/collectd.conf 
+  notify:
+    - restart collectd
+
+- name: deploy collection.conf
+  template: src=collection.conf.j2 dest=/etc/collectd/collection.conf
+  notify:
+    - restart collectd
+
+- name: deploy filters.conf
+  template: src=filters.conf.j2 dest=/etc/collectd/filters.conf
+  notify:
+    - restart collectd
+
+- name: deploy thresholds.conf
+  template: src=thresholds.conf.j2 dest=/etc/collectd/thresholds.conf
+  notify:
+    - restart collectd
+
+
+- name: enable collectd
+  service: name=collectd state=running enabled=yes
+
+
+
