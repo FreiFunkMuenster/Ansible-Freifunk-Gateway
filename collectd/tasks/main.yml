@@ -24,6 +24,10 @@
   notify:
     - restart collectd
 
+- name: deploy collectd_fastd.py
+  template: src=collectd_fastd.py.j2 dest=/opt/collectd-python/collectd_fastd.py
+  notify:
+    - restart collectd
 
 - name: enable collectd
   service: name=collectd state=running enabled=yes

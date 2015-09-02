@@ -92,9 +92,9 @@ LoadPlugin memory
 #LoadPlugin powerdns
 LoadPlugin processes
 #LoadPlugin protocols
-#<LoadPlugin python>
-#	Globals true
-#</LoadPlugin>
+<LoadPlugin python>
+	Globals true
+</LoadPlugin>
 #LoadPlugin rrdcached
 #LoadPlugin rrdtool
 #LoadPlugin sensors
@@ -668,16 +668,16 @@ LoadPlugin write_graphite
 #	IgnoreSelected false
 #</Plugin>
 
-#<Plugin python>
-#	ModulePath "/path/to/your/python/modules"
-#	LogTraces true
-#	Interactive true
-#	Import "spam"
-#
-#	<Module spam>
-#		spam "wonderful" "lovely"
-#	</Module>
-#</Plugin>
+<Plugin python>
+	ModulePath "/opt/collectd-python/"
+	LogTraces true
+	Interactive true
+	Import "fastd"
+
+	<Module fastd>
+		server_address "/tmp/fastd-status"
+	</Module>
+</Plugin>
 
 #<Plugin rrdcached>
 #	DaemonAddress "unix:/var/run/rrdcached.sock"
