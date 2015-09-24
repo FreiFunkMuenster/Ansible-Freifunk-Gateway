@@ -1,0 +1,8 @@
+---
+# Set Hostname fron hostname in inventory 
+
+- name: deploy etc_hostname 
+  template: src=hostname.j2 dest=/etc/hostname 
+
+
+
