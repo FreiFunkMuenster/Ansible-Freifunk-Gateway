@@ -1,8 +1,10 @@
 ---
 # Collectd-Daemon fuer Gateway Server
 
-- name: install collectd
-  apt: pkg=collectd state=installed
+- name: create config directory
+  file: path=/etc/collectd state=directory
+  notify:
+    - restart collectd
 
 - name: deploy collectd.conf 
   template: src=collectd.conf.j2 dest=/etc/collectd/collectd.conf 
@@ -24,10 +26,18 @@
   notify:
     - restart collectd
 
+- name: create plugins directory
+  file: path=/opt/collectd-python state=directory
+  notify:
+    - restart collectd
+
 - name: deploy collectd_fastd.py
   template: src=collectd_fastd.py.j2 dest=/opt/collectd-python/collectd_fastd.py
   notify:
     - restart collectd
+
+- name: install collectd
+  apt: pkg=collectd state=installed
 
 - name: enable collectd
   service: name=collectd state=running enabled=yes
