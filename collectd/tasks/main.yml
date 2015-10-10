@@ -31,10 +31,16 @@
   notify:
     - restart collectd
 
-- name: deploy collectd_fastd.py
-  template: src=collectd_fastd.py.j2 dest=/opt/collectd-python/collectd_fastd.py
+- name: remove collectd_fastd.py
+  file: path=/opt/collectd-python/collectd_fastd.py state=absent
   notify:
     - restart collectd
+
+- name: deploy fastd.py
+  template: src=fastd.py.j2 dest=/opt/collectd-python/fastd.py
+  notify:
+    - restart collectd
+
 
 - name: install collectd
   apt: pkg=collectd state=installed
