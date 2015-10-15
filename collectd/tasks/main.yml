@@ -1,6 +1,16 @@
 ---
 # Collectd-Daemon fuer Gateway Server
 
+- name: install collectd
+  apt: pkg=collectd state=installed 
+  notify:
+    - restart collectd 
+
+- name: enable collectd
+  service: name=collectd enabled=yes    
+  notify:
+    - restart collectd 
+
 - name: create config directory
   file: path=/etc/collectd state=directory
   notify:
@@ -40,13 +50,6 @@
   template: src=fastd.py.j2 dest=/opt/collectd-python/fastd.py
   notify:
     - restart collectd
-
-
-- name: install collectd
-  apt: pkg=collectd state=installed
-
-- name: enable collectd
-  service: name=collectd state=running enabled=yes
 
 
 
