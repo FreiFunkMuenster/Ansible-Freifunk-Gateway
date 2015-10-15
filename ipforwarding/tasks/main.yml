@@ -3,5 +3,6 @@
 
 - name: deploy forwarding.conf
   template: src=forwarding.conf.j2 dest=/etc/sysctl.d/forwarding.conf
-
+  notify:
+    - restart sysctl
 
