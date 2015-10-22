@@ -3,6 +3,10 @@
 - name: install fastd
   apt: pkg=fastd state=installed
 
+- name: create config directory
+  file: path=/etc/fastd/vpn state=directory
+
+
 # generate new fastd keypair if no fastd_key file exists
 # new key will only be generated, if no secret,key file exists (public key doesn't matter)
 - name: generate fastd key (if not exists)
@@ -18,6 +22,9 @@
   when: fastd_key_generated|changed
 - template: src=public.key.j2 dest=/etc/fastd/vpn/public.key
   when: fastd_key_generated|changed
+
+- name: create dummy peer directory
+  file: path=/etc/fastd/vpn/peers state=directory
 
 # create dummy peer file
 - name: create dummy peer
