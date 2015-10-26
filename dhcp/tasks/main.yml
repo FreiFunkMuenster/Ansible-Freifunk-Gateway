@@ -1,0 +1,42 @@
+# DHCP Setup
+---
+- name: install isc-dhcp-server
+  apt: pkg=isc-dhcp-server state=installed
+
+- name: create dhcp defaults 
+  template: src=isc-dhcp-server.j2 dest=/etc/default/isc-dhcp-server
+  notify:
+    - restart isc-dhcp-server
+  
+- name: create dhcp config
+  template: src=dhcpd.conf.j2 dest=/etc/dhcp/dhcpd.conf
+  notify:
+    - restart isc-dhcp-server
+
+- name: create dhcp lease file
+  command: touch /var/lib/dhcp/dhcpd.leases
+  notify:
+    - restart isc-dhcp6-server
+
+- name: create dhcp6 defaults 
+  template: src=isc-dhcp6-server.j2 dest=/etc/default/isc-dhcp6-server
+  notify:
+    - restart isc-dhcp6-server
+
+- name: create dhcp6 config
+  template: src=dhcpd6.conf.j2 dest=/etc/dhcp/dhcpd6.conf
+  notify:
+    - restart isc-dhcp6-server
+
+- name: create dhcp6 init script
+  copy: src=isc-dhcp6-server.init dest=/etc/init.d/isc-dhcp6-server owner=root group=root mode=751
+  notify:
+    - restart isc-dhcp6-server
+
+- name: link dhcp6 init script 
+  shell: update-rc.d isc-dhcp6-server defaults
+
+- name: create dhcp6 lease file
+  command: touch /var/lib/dhcp/dhcpd6.leases
+  notify:
+    - restart isc-dhcp6-server
