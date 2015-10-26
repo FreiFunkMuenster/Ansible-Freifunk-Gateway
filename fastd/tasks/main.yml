@@ -1,11 +1,16 @@
 ---
+# Prüfe Repo-Quelle
+- name: Schlüssel hinzufügen
+  apt_key: keyserver=keyserver.ubuntu.com  id=16EF3F64CB201D9C
+
+- name: set fastd-repo
+  apt_repository: repo='deb http://repo.universe-factory.net/debian/ sid main' state=present
+
 # Fastd-Daemon
 - name: install fastd
-  apt: pkg=fastd state=installed
-
+  apt: pkg=fastd state=installed update_cache=yes
 - name: create config directory
   file: path=/etc/fastd/vpn state=directory
-
 
 # generate new fastd keypair if no fastd_key file exists
 # new key will only be generated, if no secret,key file exists (public key doesn't matter)
