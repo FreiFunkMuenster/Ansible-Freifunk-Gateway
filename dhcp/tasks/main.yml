@@ -29,7 +29,7 @@
     - restart isc-dhcp6-server
 
 - name: create dhcp6 init script
-  copy: src=isc-dhcp6-server.init dest=/etc/init.d/isc-dhcp6-server owner=root group=root mode=751
+  template: src=isc-dhcp6-server.init.j2 dest=/etc/init.d/isc-dhcp6-server owner=root group=root mode=751
   notify:
     - restart isc-dhcp6-server
 
