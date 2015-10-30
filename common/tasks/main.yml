@@ -4,4 +4,22 @@
 - name: create motd file
   template: src=motd.j2 dest=/etc/motd
 
+- name: add default repo
+  #Freifunk- und Rollen-Repos erst in den jeweiligen Rollen
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items:
+    - "deb http://ftp.de.debian.org/debian/ {{ ansible_distribution_release }} main"
+    - "deb http://ftp.de.debian.org/debian/ {{ ansible_distribution_release }}-updates main"
+    - "deb http://security.debian.org/ {{ ansible_distribution_release }}/updates main"
+  when: ansible_distribution == "Debian"
 
+- name: install common packages
+  apt:
+    pkg: "{{ item }}"
+    update_cache: yes
+    state: installed
+  with_items:
+    - vim
+    - wget
