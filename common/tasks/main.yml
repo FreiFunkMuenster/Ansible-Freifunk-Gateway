@@ -1,8 +1,8 @@
 ---
 # Allgemeine Konfigurationen für alle Server
 
-#- name: create motd file
-#  template: src=motd.j2 dest=/etc/motd
+- name: create motd file
+  template: src=motd.j2 dest=/etc/motd
 
 - name: add default repo
   #Freifunk- und Rollen-Repos erst in den jeweiligen Rollen
