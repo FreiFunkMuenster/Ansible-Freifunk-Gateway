@@ -1,16 +1,17 @@
 
      ///////  ///////  ////   ////    /////////
-    ///////  ///////  // //  // //     ///
-   //       //       //  // //  //       ////
+    //       //       // //  // //     ///
+   ///////  ///////  //  // //  //       ////
   //       //       //    ///    //        ///
  //       //       //     //     //  /////////
  
- Freifunk Muensterland 
+ Freifunk Münsterland 
  
- Server:  So ein Server  
- Owner:   koennte FanLin sein 
+ Server:  {{ ansible_hostname }}
+ Besitzer: {{ server_besitzer }}
 
- Public IP: 333.525.23.123 / GG::fe4b::3
- FF     IP: 10.43.333.333 / ....
+ Öffentliche IPs: {{ansible_eth0.ipv4.address}} / {{ansible_eth0.ipv6[0].address}}
+ Freifunk IP:     {{ff_network.v4_network | ipaddr(server_id) | ipaddr('address') }} / {{ff_network.v6_network | ipaddr(server_id) | ipaddr('address') }}
 
- 
+ Domäne: {{ group_names }}
+

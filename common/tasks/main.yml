@@ -1,7 +1,7 @@
 ---
 # Allgemeine Konfigurationen für alle Server
 
-#- name: create motd file
-#  template: src=motd.j2 dest=/etc/motd
+- name: create motd file
+  template: src=motd.j2 dest=/etc/motd
 
 
