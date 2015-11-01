@@ -13,8 +13,12 @@
   notify:
     - restart isc-dhcp-server
 
+- stat: path=/var/lib/dhcp/dhcpd.leases
+  register: leases4_file
+
 - name: create dhcp lease file
   command: touch /var/lib/dhcp/dhcpd.leases
+  when: leases4_file.stat.exists == False
   notify:
     - restart isc-dhcp6-server
 
@@ -33,10 +37,14 @@
   notify:
     - restart isc-dhcp6-server
 
-- name: link dhcp6 init script 
-  shell: update-rc.d isc-dhcp6-server defaults
+- stat: path=/var/lib/dhcp/dhcpd6.leases
+  register: leases6_file
 
 - name: create dhcp6 lease file
-  command: touch /var/lib/dhcp/dhcpd6.leases
+  file: path=/var/lib/dhcp/dhcpd6.leases state=touch
+  when: leases6_file.stat.exists == False
   notify:
     - restart isc-dhcp6-server
+
+- name: Set isc-dhcp6-server enabled
+  service: name=isc-dhcp6-server enabled=yes

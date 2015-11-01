@@ -14,3 +14,4 @@ iface br0 inet static
 iface br0 inet6 static
         address {{ff_network.v6_network | ipaddr(server_id) | ipaddr('address')}}
         netmask {{ff_network.v6_network | ipaddr('prefix')}}
+
