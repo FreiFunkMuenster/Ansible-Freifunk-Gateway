@@ -9,6 +9,6 @@
 
 #append line in interfaces file for reading additional config files
 - name: let read interfaces from interfaces
-  lineinfile: dest="/etc/network/interfaces" line="source /etc/network/interfaces.d/*.cfg"
+  lineinfile: dest="/etc/network/interfaces" line="source /etc/network/interfaces.d/*"
   notify:
     - restart networking
