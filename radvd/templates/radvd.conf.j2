@@ -1,0 +1,23 @@
+# {{ ansible_managed }}
+interface br0
+{
+    AdvSendAdvert on;
+    IgnoreIfMissing on;
+
+    AdvManagedFlag off;
+    AdvOtherConfigFlag on;
+    AdvLinkMTU {{radvd.mtu}};
+
+
+    prefix {{ff_network.v6_network | ipaddr('net')}}
+    {
+                AdvOnLink on;
+                AdvAutonomous on;
+                AdvRouterAddr on;
+
+    };
+
+    RDNSS {{ff_network.v6_network | ipaddr(server_id) | ipaddr('address')}} {
+    };
+
+};
