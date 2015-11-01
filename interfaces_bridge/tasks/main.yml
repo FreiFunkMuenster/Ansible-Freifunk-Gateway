@@ -7,7 +7,7 @@
 
 # creating bridge interface
 - name: Create interfaces - bridge file
-  template: src="bridge.j2" dest="/etc/network/interfaces.d/10_bridge.cfg"
+  template: src="bridge.j2" dest="/etc/network/interfaces.d/20_bridge.cfg"
   notify:
     - restart networking
 
