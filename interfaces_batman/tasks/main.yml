@@ -1,6 +1,26 @@
----
-# Tasks for bat0 interface
 
+- name: DKMS und Abhängigkeiten installieren
+  apt:
+    pkg: "{{ item }}"
+    state: installed
+  with_items:
+    - dkms
+    - build-essential
+    - linux-headers-{{ansible_kernel | regex_replace("^[0-9\.-]+", "")}}
+
+- name: Batman-Quellen laden und entpacken
+  unarchive: src=batman-adv-2015.1.tar.gz dest=/usr/src
+
+- name: dkms.conf kopieren
+  copy: src=dkms.conf dest=/usr/src/batman-adv-2015.1/
+
+- stat: path=/lib/modules/{{ansible_kernel}}/updates/dkms/batman-adv.ko
+  register: batman_adv_file
+
+- name: Batman bauen
+  shell: "dkms add -m batman-adv -v 2015.1 && dkms build -m batman-adv -v 2015.1 && dkms install -m batman-adv -v 2015.1"
+  when: batman_adv_file.stat.exists == False
+    
 # creating batman interface
 - name: Create interfaces - batman file
   template: src="batman.j2" dest="/etc/network/interfaces.d/10_batman.cfg"
