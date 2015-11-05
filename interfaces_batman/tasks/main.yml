@@ -7,6 +7,7 @@
     - dkms
     - build-essential
     - linux-headers-{{ansible_kernel | regex_replace("^[0-9\.-]+", "")}}
+    - checkinstall
 
 - name: Batman-Quellen laden und entpacken
   unarchive: src=batman-adv-2015.1.tar.gz dest=/usr/src
@@ -20,6 +21,18 @@
 - name: Batman bauen
   shell: "dkms add -m batman-adv -v 2015.1 && dkms build -m batman-adv -v 2015.1 && dkms install -m batman-adv -v 2015.1"
   when: batman_adv_file.stat.exists == False
+
+- name: batctl-Quellen laden und entpacken
+  unarchive: src=batctl-2015.1.tar.gz dest=/usr/src
+
+- stat: path=/usr/local/sbin
+  register: batctl
+
+- name: batctl bauen
+  shell: "make && checkinstall -y make install"
+  args:
+    chdir: /usr/src/batctl-2015.1
+  when: batctl.stat.exists == False
     
 # creating batman interface
 - name: Create interfaces - batman file
