@@ -22,6 +22,9 @@
   with_items:
     - vim
     - wget
+    - vnstat
+    - tmux
+    - pastebinit
 
 - name: add sshkeys for server
   authorized_key: 
