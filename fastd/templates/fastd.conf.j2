@@ -51,10 +51,7 @@ on up "
   chmod ugo+rw /tmp/fastd-status
   ip link set dev $INTERFACE address de:ad:be:ef:43:{{server_id}}
   ip link set dev $INTERFACE up
-  ifup bat0
   batctl if add $INTERFACE
-  batctl gw server {{batman.downstream}}/{{batman.upstream}}
-  batctl vm server
 {% if fastd.ip_rule_42 %}
   ip rule add from {{server_ipv4_nat}} lookup 42
   ip -6 rule add from {{ff_network.v6_network}} lookup 42
