@@ -8,7 +8,7 @@
 
 - name: Bird installieren
   apt:
-        repo: "{{item}}"
+        pkg: "{{item}}"
         update_cache: yes
         state: installed
   with_items:
