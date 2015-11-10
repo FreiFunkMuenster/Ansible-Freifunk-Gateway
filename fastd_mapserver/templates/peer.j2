@@ -1,0 +1,3 @@
+# {{ ansible_managed }}
+key "{{ item.value.key }}";
+remote ipv4 "{{ item.value.ipv4 }}" port {{ item.value.port }};

@@ -1,0 +1,47 @@
+---
+# Prüfe Repo-Quelle
+- name: Schlüssel hinzufügen
+  apt_key: keyserver=keyserver.ubuntu.com  id=16EF3F64CB201D9C
+
+- name: set fastd-repo
+  apt_repository: repo='deb http://repo.universe-factory.net/debian/ sid main' state=present
+
+# Fastd-Daemon
+- name: install fastd
+  apt: pkg=fastd state=installed update_cache=yes
+
+# generate new fastd keypair if no fastd_key file exists
+# new key will only be generated, if no secret.key file exists (public key doesn't matter)
+- name: generate fastd key (if not exists)
+  shell: fastd --generate-key
+  register: fastd_key_generated
+  args:
+    creates: /etc/fastd/secret.key
+  notify:
+    - restart fastd
+
+# write public & private key to seperate keyfiles, if new fastd key is generated
+- template: src=secret.key.j2 dest=/etc/fastd/secret.key owner=root group=root mode=0600
+  when: fastd_key_generated|changed
+- template: src=public.key.j2 dest=/etc/fastd/public.key
+  when: fastd_key_generated|changed
+
+- name: create config directory
+  file: path=/etc/fastd/vpn{{ item.value.number }} state=directory
+  with_dict: "{{ ff_instances }}"
+
+- name: create peer directories
+  file: path=/etc/fastd/vpn{{ item.value.number }}/peers state=directory
+  with_dict: "{{ ff_instances }}"
+
+# create peer files
+- name: create dummy peer
+  template: src=peer.j2 dest=/etc/fastd/vpn{{ item.value.instance }}/peers/{{ item.key }}
+  with_dict: "{{ ff_peers }}"
+
+# create fastd config
+- name: create config
+  template: src=fastd.conf.j2 dest=/etc/fastd/vpn{{ item.value.number }}/fastd.conf
+  with_dict: "{{ ff_instances }}"
+  notify:
+    - restart fastd
