@@ -6,9 +6,17 @@
 - name: set fastd-repo
   apt_repository: repo='deb http://repo.universe-factory.net/debian/ sid main' state=present
 
-# Fastd-Daemon
-- name: install fastd
-  apt: pkg=fastd state=installed update_cache=yes
+# Fastd-Daemon, Habeged-Daemon
+
+- name: install fastd (vpn daemon) and haveged (entropy daemon)
+  apt:
+    pkg: "{{ item }}"
+    update_cache: yes
+    state: installed
+  with_items:
+    - fastd
+    - haveged
+
 - name: create config directory
   file: path=/etc/fastd/vpn state=directory
 
@@ -40,3 +48,14 @@
   template: src=fastd.conf.j2 dest=/etc/fastd/vpn/fastd.conf
   notify:
     - restart fastd
+
+# todo: bessere location wählen
+- name: create verify script (blacklisting)
+  template: src=verify.sh.j2 dest=/var/gateway-ffms/fastd/verify.sh
+
+- stat: path=/var/gateway-ffms/fastd/blacklist
+  register: blacklist_file
+
+- name: create blacklist file (if not exists)
+  file: path=path=/var/gateway-ffms/fastd/blacklist state=touch
+  when: blacklist_file.stat.exists == False
