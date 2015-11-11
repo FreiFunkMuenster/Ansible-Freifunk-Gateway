@@ -49,6 +49,9 @@
   notify:
     - restart fastd
 
+- name: create verify directory
+  file: path=/var/gateway-ffms/fastd/ state=directory
+
 # todo: bessere location wählen
 - name: create verify script (blacklisting)
   template: src=verify.sh.j2 dest=/var/gateway-ffms/fastd/verify.sh
@@ -57,5 +60,5 @@
   register: blacklist_file
 
 - name: create blacklist file (if not exists)
-  file: path=path=/var/gateway-ffms/fastd/blacklist state=touch
+  file: path=/var/gateway-ffms/fastd/blacklist state=touch
   when: blacklist_file.stat.exists == False
