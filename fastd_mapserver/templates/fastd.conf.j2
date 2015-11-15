@@ -24,7 +24,10 @@ include "../secret.key";
 log to syslog level debug;
 
 # Include peers from our git-repos
-include peers from "/etc/fastd/vpn{{ item.value.number }}/peers/";
+peer group "vpn{{ item.value.number }}" {
+    peer limit 1;
+    include peers from "/etc/fastd/vpn{{ item.value.number }}/peers/";
+}
 
 # Status Socket
 status socket "/tmp/fastd-status{{ item.value.number }}";
