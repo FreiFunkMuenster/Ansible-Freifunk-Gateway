@@ -17,5 +17,5 @@
   git: repo=https://github.com/FreiFunkMuenster/tools.git dest=/usr/src/tools version=master
 
 - name: cron für ffmap-backend
-  cron: name="ffmap-backend" minute="*" job="/usr/src/tools/create_map_data.sh >/dev/null 2>&1"
+  cron: name="ffmap-backend" minute="*" job="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin /usr/src/tools/create_map_data.sh >/dev/null 2>&1"
 
