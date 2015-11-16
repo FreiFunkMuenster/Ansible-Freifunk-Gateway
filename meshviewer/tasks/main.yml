@@ -1,0 +1,40 @@
+---
+# Pakete installieren
+
+- name: Abhängigkeiten von meshviewer installieren
+  apt:
+    pkg: "{{ item }}"
+    update_cache: yes
+    state: installed
+  with_items:
+    - git
+    - nginx
+    - npm
+    - ruby-sass
+
+- name: git für meshviewer
+  git: repo=https://github.com/FreiFunkMuenster/meshviewer.git dest=/usr/src/meshviewer version=multi-domaenen-mapserver
+
+- name: node-Abhängigkeiten aus package.json installieren
+  npm: path=/usr/src/meshviewer
+
+- name: Zusätzliche node-Abhängigkeiten von meshviewer installieren
+  npm: path=/usr/src/meshviewer name=grunt-cli
+
+- stat: path=/usr/src/meshviewer/build_ok
+  register: build_ok
+
+- name: meshviewer build
+  shell: rm build_ok; nodejs node_modules/.bin/grunt && cp -a /usr/src/meshviewer/build/. /var/www/html/map && touch build_ok
+  args:
+    chdir: /usr/src/meshviewer
+  when: build_ok.stat.exists == False
+
+- name: config.json kopieren
+  copy: src=config.json dest=/var/www/html/map
+
+- name: nginx-config kopieren
+  copy: src=map.conf dest=/etc/nginx/conf.d
+  notify:
+    - restart nginx
+
