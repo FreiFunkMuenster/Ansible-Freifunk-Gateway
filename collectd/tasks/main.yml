@@ -51,5 +51,10 @@
   notify:
     - restart collectd
 
+- name: deploy dhcp.py
+  template: src=dhcp.py.j2 dest=/opt/collectd-python/dhcp.py
+  notify:
+    - restart collectd
+
 
 
