@@ -1,16 +1,37 @@
 ---
-# Fastd-Daemon fuer Gateway Server
-
+# Fastd-Daemon
 - name: install fastd
   apt: pkg=fastd state=installed
 
-- name: create dummy peer
-  template: src=dummy.j2 dest=/etc/fastd/vpn/peers/dummy
+- name: create config directory
+  file: path=/etc/fastd/vpn state=directory
+
+
+# generate new fastd keypair if no fastd_key file exists
+# new key will only be generated, if no secret,key file exists (public key doesn't matter)
+- name: generate fastd key (if not exists)
+  shell: fastd --generate-key
+  register: fastd_key_generated
+  args:
+    creates: /etc/fastd/vpn/secret.key
   notify:
     - restart fastd
 
-- name: enable fastd
-  service: name=fastd state=running enabled=yes
+# write public & private key to seperate keyfiles, if new fastd key is generated
+- template: src=secret.key.j2 dest=/etc/fastd/vpn/secret.key owner=root group=root mode=0600
+  when: fastd_key_generated|changed
+- template: src=public.key.j2 dest=/etc/fastd/vpn/public.key
+  when: fastd_key_generated|changed
 
+- name: create dummy peer directory
+  file: path=/etc/fastd/vpn/peers state=directory
 
+# create dummy peer file
+- name: create dummy peer
+  template: src=dummy.j2 dest=/etc/fastd/vpn/peers/dummy
 
+# create fastd config
+- name: create config
+  template: src=fastd.conf.j2 dest=/etc/fastd/vpn/fastd.conf
+  notify:
+    - restart fastd
