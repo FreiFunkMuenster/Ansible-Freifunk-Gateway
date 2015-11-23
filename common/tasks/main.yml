@@ -32,3 +32,4 @@
     user: root 
     key: "{{ lookup('file', 'keyfiles/' + item + '.pub') }}"
   with_items: "{{ administratorenteam }}"
+  when: administratorenteam
