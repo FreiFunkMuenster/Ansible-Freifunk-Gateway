@@ -1,43 +1,43 @@
 
-- name: DKMS und Abhängigkeiten installieren
-  apt:
-    pkg: "{{ item }}"
-    state: installed
-  with_items:
-    - dkms
-    - build-essential
-    - linux-headers-{{ansible_kernel | regex_replace("^[0-9\.-]+", "")}}
-    - checkinstall
-    - pkg-config
-    - libnl-3-dev
+#- name: DKMS und Abhängigkeiten installieren
+#  apt:
+#    pkg: "{{ item }}"
+#    state: installed
+#  with_items:
+#    - dkms
+#    - build-essential
+#    - linux-headers-{{ansible_kernel | regex_replace("^[0-9\.-]+", "")}}
+#    - checkinstall
+#    - pkg-config
+#    - libnl-3-dev
 
-- name: Batman-Quellen laden und entpacken
-  unarchive: src=batman-adv-2015.1.tar.gz dest=/usr/src
-
-- name: dkms.conf kopieren
-  copy: src=dkms.conf dest=/usr/src/batman-adv-2015.1/
-
-- stat: path=/lib/modules/{{ansible_kernel}}/updates/dkms/batman-adv.ko
-  register: batman_adv_file
-
-- name: Batman bauen
-  shell: "dkms add -m batman-adv -v 2015.1 && dkms build -m batman-adv -v 2015.1 && dkms install -m batman-adv -v 2015.1"
-  when: batman_adv_file.stat.exists == False
-
-- name: batctl-Quellen laden und entpacken
-  unarchive: src=batctl-2015.1.tar.gz dest=/usr/src
-
-- stat: path=/usr/local/sbin/batctl
-  register: batctl
-
-- name: batctl bauen
-  shell: "make && checkinstall -y make install"
-  args:
-    chdir: /usr/src/batctl-2015.1
-  notify:
-   - restart networking
-   - restart fastd
-  when: batctl.stat.exists == False
+#- name: Batman-Quellen laden und entpacken
+#  unarchive: src=batman-adv-2015.1.tar.gz dest=/usr/src
+#
+#- name: dkms.conf kopieren
+#  copy: src=dkms.conf dest=/usr/src/batman-adv-2015.1/
+#
+#- stat: path=/lib/modules/{{ansible_kernel}}/updates/dkms/batman-adv.ko
+#  register: batman_adv_file
+#
+#- name: Batman bauen
+#  shell: "dkms add -m batman-adv -v 2015.1 && dkms build -m batman-adv -v 2015.1 && dkms install -m batman-adv -v 2015.1"
+#  when: batman_adv_file.stat.exists == False
+#
+#- name: batctl-Quellen laden und entpacken
+#  unarchive: src=batctl-2015.1.tar.gz dest=/usr/src
+#
+#- stat: path=/usr/local/sbin/batctl
+#  register: batctl
+#
+#- name: batctl bauen
+#  shell: "make && checkinstall -y make install"
+#  args:
+#    chdir: /usr/src/batctl-2015.1
+#  notify:
+#   - restart networking
+#   - restart fastd
+#  when: batctl.stat.exists == False
     
 # creating batman interface
 - name: Create interfaces - batman file
