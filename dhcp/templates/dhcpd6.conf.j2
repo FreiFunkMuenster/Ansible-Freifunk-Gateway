@@ -1,0 +1,8 @@
+# Enable RFC 5007 support (same than for DHCPv4)
+allow leasequery;
+
+# Global definitions for name server address(es)
+option dhcp6.name-servers {{ff_network.v6_network | ipaddr(server_id) | ipaddr('address')}};
+
+  subnet6 {{ff_network.v6_network}} {
+}
