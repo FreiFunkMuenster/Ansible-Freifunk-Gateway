@@ -1,5 +1,5 @@
 
-- name: DKMS und Abhängigkeiten installieren
+- name: benötigte Pakete installieren
   apt:
     pkg: "{{ item }}"
     state: installed
@@ -9,6 +9,7 @@
     - pkg-config
     - libcap-dev
     - libgps-dev
+    - git
 
 - name: alfred-Quellen laden und entpacken
   unarchive: src=alfred-2015.1.tar.gz dest=/usr/src
