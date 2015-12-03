@@ -1,0 +1,21 @@
+---
+# Pakete installieren
+
+- name: Abhängigkeiten von ffmap-backend installieren
+  apt:
+    pkg: "{{ item }}"
+    update_cache: yes
+    state: installed
+  with_items:
+    - python3
+    - python3-networkx
+
+- name: git für ffmap-backend
+  git: repo=https://github.com/FreiFunkMuenster/ffmap-backend.git dest=/usr/src/ffmap-backend version=multi-domaenen-mapserver
+
+- name: git für tools
+  git: repo=https://github.com/FreiFunkMuenster/tools.git dest=/usr/src/tools version=master
+
+- name: cron für ffmap-backend
+  cron: name="ffmap-backend" minute="*" job="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin /usr/src/tools/create_map_data.sh >/dev/null 2>&1"
+

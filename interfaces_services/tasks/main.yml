@@ -1,0 +1,39 @@
+
+- name: DKMS und Abhängigkeiten installieren
+  apt:
+    pkg: "{{ item }}"
+    state: installed
+  with_items:
+    - build-essential
+    - checkinstall
+    - pkg-config
+    - libcap-dev
+    - libgps-dev
+
+- name: alfred-Quellen laden und entpacken
+  unarchive: src=alfred-2015.1.tar.gz dest=/usr/src
+
+- stat: path=/usr/local/sbin/alfred
+  register: alfred
+
+- name: alfred bauen
+  shell: "make && checkinstall -y make install"
+  args:
+    chdir: /usr/src/alfred-2015.1
+  notify:
+   - restart networking
+   - restart fastd
+  when: alfred.stat.exists == False
+    
+# creating batman interfaces
+- name: Create interfaces - batman file
+  template: src="batman.j2" dest="/etc/network/interfaces.d/bat{{ item.value.number }}.cfg"
+  with_dict: "{{ ff_instances }}"
+  notify:
+    - restart networking
+
+#append line in interfaces file for reading additional config files
+- name: let read interfaces from interfaces
+  lineinfile: dest="/etc/network/interfaces" line="source /etc/network/interfaces.d/*"
+  notify:
+    - restart networking
