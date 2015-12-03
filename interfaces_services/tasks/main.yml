@@ -23,7 +23,6 @@
     chdir: /usr/src/alfred-2015.1
   notify:
    - restart networking
-   - restart fastd
   when: alfred.stat.exists == False
     
 # creating batman interfaces
