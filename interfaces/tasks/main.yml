@@ -28,11 +28,6 @@
   notify:
     - restart networking
 
-- name: Create interfaces - gretap file
-  template: src="gretap.j2" dest="/etc/network/interfaces.d/30_gretap.cfg"
-  notify:
-    - restart networking
-
 # creating gretap tunnels to ffrl
 - name: Create interfaces - gretap to ffrl
   template: src="gre_ffrl.j2" dest="/etc/network/interfaces.d/40_gre_ffrl.cfg"
