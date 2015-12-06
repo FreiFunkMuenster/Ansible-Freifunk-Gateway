@@ -1,0 +1,15 @@
+# Pakete installieren
+- name: nginx installieren
+  apt:
+    pkg: "{{ item }}"
+    update_cache: yes
+    state: installed
+  with_items:
+    - nginx
+
+# nginx konfigurieren
+- name: Konfig-Datei kopieren
+  copy: src={{inventory_hostname}}.conf dest=/etc/nginx/sites-available/default
+  notify:
+    - restart nginx
+

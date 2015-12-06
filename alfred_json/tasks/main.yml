@@ -10,7 +10,7 @@
     - git
 
 - name: git für alfred-json
-  git: repo=https://github.com/FreiFunkMuenster/alfred-json.git dest=/usr/src/alfred-json version=master
+  git: repo=https://github.com/FreiFunkMuenster/alfred-json.git dest=/usr/src/alfred-json version=32922616e7aff4616a255d5e6a2931d68fe2d394
 
 - stat: path=/usr/local/bin/alfred-json
   register: alfred_json

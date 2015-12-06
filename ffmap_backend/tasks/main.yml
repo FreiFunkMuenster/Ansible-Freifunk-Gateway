@@ -11,10 +11,10 @@
     - python3-networkx
 
 - name: git für ffmap-backend
-  git: repo=https://github.com/FreiFunkMuenster/ffmap-backend.git dest=/usr/src/ffmap-backend version=multi-domaenen-mapserver
+  git: repo=https://github.com/FreiFunkMuenster/ffmap-backend.git dest=/usr/src/ffmap-backend version=dcd6609030e32ebbf73692e78e7a2426ab1efdc4
 
 - name: git für tools
-  git: repo=https://github.com/FreiFunkMuenster/tools.git dest=/usr/src/tools version=master
+  git: repo=https://github.com/FreiFunkMuenster/tools.git dest=/usr/src/tools version=2acd7ed71d730e7213b2348528a75c0c3235769d
 
 - name: cron für ffmap-backend
   cron: name="ffmap-backend" minute="*" job="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin /usr/src/tools/create_map_data.sh >/dev/null 2>&1"
