@@ -1,0 +1,21 @@
+---
+# Sample config needs to be set in host_vars of backbone server only
+# ffms_tun_to:
+# - host_name: remue-01
+#   v4routing_net: 10.43.1.4/30
+#   v6routing_net: 2a03:2260:115:ffa0::4/126
+# - host_name: test-des1
+#   v4routing_net: 10.43.1.8/30
+#   v6routing_net: 2a03:2260:115:ffa0::8/126
+
+# creating gretap tunnels to ffms
+- name: Create interfaces - tunnels to ffms supernodes
+  template: src="gre_ffms.j2" dest="/etc/network/interfaces.d/40_gre_ffms.cfg"
+  notify:
+    - restart networking
+
+#append line in interfaces file for reading additional config files
+- name: let read interfaces from interfaces
+  lineinfile: dest="/etc/network/interfaces" line="source /etc/network/interfaces.d/*"
+  notify:
+    - restart networking
