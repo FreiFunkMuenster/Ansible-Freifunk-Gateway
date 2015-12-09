@@ -2,7 +2,7 @@
 # Sample config needs to be set in host_vars of backbone server only
 # creating gretap tunnels to ffms
 - name: Create interfaces - tunnels to ffms backbone
-  template: src="gre_ffms.j2" dest="/etc/network/interfaces.d/40_gre_ffms.cfg"
+  template: src="gre_ffms.j2" dest="/etc/network/interfaces.d/41_gre_ffms.cfg"
   notify:
     - restart networking
 
