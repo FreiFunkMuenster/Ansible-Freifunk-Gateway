@@ -1,0 +1,103 @@
+# This file is managed by ansible, don't make changes here - they will be overwritten.
+log syslog { debug, trace, info, remote, warning, error, auth, fatal, bug };
+
+router id {{ff_network.v4_network | ipaddr(server_id) | ipaddr('address') }};
+
+table ffnet;
+
+filter freifunk {
+        if net ~ {{ffms_routing.net}} then accept;
+        reject;
+};
+
+protocol direct {
+        interface "lo";
+        interface "tun-*";
+        interface "gre-*";  
+        table ffnet;
+}
+
+
+protocol kernel {
+        device routes;
+        import all;
+        export all;                     # Default is export none
+        table ffnet;
+        kernel table 42;                # Kernel table to synchronize with (default: main)
+}
+
+protocol device {
+        scan time 10;                   # Scan interfaces every 10 seconds
+}
+
+filter default_originate {
+     if ( net = ::/0 ) then {
+         print "default net accepted:", net;
+         accept;
+     }
+     reject;
+}
+
+
+protocol ospf 'p6-ospf-ffnet' {
+  table ffnet;
+  import filter freifunk;
+  export filter default_originate;
+
+  area 0.0.0.0 {
+   interface "gre-*"  {
+        bfd;
+   };
+ };
+};
+
+function is_default() {
+        return (net ~ [::/0]);
+}
+
+filter hostroute {
+{% for domaene in ffms_routing.domaenen %}
+        if net ~ {{domaene.v6_net}} then accept;
+{% endfor %}
+        reject;
+}
+{% for domaene in ffms_routing.domaenen %}
+
+protocol static static_{{domaene.group_name | replace("-","")}} {
+        table ffnet;
+        route {{domaene.v6_net}} reject;
+}
+{% endfor %}
+
+# ibgp zwischen den gateways
+template bgp internal {
+        table ffnet;
+        local as {{ff_network.as_number}};
+        import filter {
+                preference = 99;
+                accept;
+        };
+        export where source = RTS_BGP;
+        gateway direct;
+        direct;
+        next hop self;
+};
+
+
+# Uplink zum FF Rheinland
+template bgp uplink {
+        table ffnet;
+        local as {{ff_network.as_number}};
+        import where is_default();
+        export filter hostroute;
+        gateway recursive;
+}
+
+{% for tun in ffrl_tun %}
+protocol bgp ffrl_{{tun.name}} from uplink {
+        description "Rheinland Backbone";
+        source address {{tun.v6_local | ipaddr('address')}};
+        neighbor {{tun.v6_remote | ipaddr('address')}} as 201701;
+};
+
+{% endfor %}
