@@ -18,12 +18,12 @@
          - bird6
 
  - name: configure bird.conf
-   template: src=bird.conf.j2 dest=/tmp/etc/bird/bird.conf
+   template: src=bird.conf.j2 dest=/etc/bird/bird.conf
    notify:
     - restart bird
 
  - name: configure bird6.conf
-   template: src=bird6.conf.j2 dest=/tmp/etc/bird/bird6.conf
+   template: src=bird6.conf.j2 dest=/etc/bird/bird6.conf
    notify:
     - restart bird6
 
