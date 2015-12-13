@@ -22,29 +22,29 @@
   notify:
     - restart isc-dhcp6-server
 
-- name: create dhcp6 defaults 
-  template: src=isc-dhcp6-server.j2 dest=/etc/default/isc-dhcp6-server
-  notify:
-    - restart isc-dhcp6-server
-
-- name: create dhcp6 config
-  template: src=dhcpd6.conf.j2 dest=/etc/dhcp/dhcpd6.conf
-  notify:
-    - restart isc-dhcp6-server
-
-- name: create dhcp6 init script
-  template: src=isc-dhcp6-server.init.j2 dest=/etc/init.d/isc-dhcp6-server owner=root group=root mode=751
-  notify:
-    - restart isc-dhcp6-server
-
-- stat: path=/var/lib/dhcp/dhcpd6.leases
-  register: leases6_file
-
-- name: create dhcp6 lease file
-  file: path=/var/lib/dhcp/dhcpd6.leases state=touch
-  when: leases6_file.stat.exists == False
-  notify:
-    - restart isc-dhcp6-server
-
-- name: Set isc-dhcp6-server enabled
-  service: name=isc-dhcp6-server enabled=yes
+#- name: create dhcp6 defaults 
+#  template: src=isc-dhcp6-server.j2 dest=/etc/default/isc-dhcp6-server
+#  notify:
+#    - restart isc-dhcp6-server
+#
+#- name: create dhcp6 config
+#  template: src=dhcpd6.conf.j2 dest=/etc/dhcp/dhcpd6.conf
+#  notify:
+#    - restart isc-dhcp6-server
+#
+#- name: create dhcp6 init script
+#  template: src=isc-dhcp6-server.init.j2 dest=/etc/init.d/isc-dhcp6-server owner=root group=root mode=751
+#  notify:
+#    - restart isc-dhcp6-server
+#
+#- stat: path=/var/lib/dhcp/dhcpd6.leases
+#  register: leases6_file
+#
+#- name: create dhcp6 lease file
+#  file: path=/var/lib/dhcp/dhcpd6.leases state=touch
+#  when: leases6_file.stat.exists == False
+#  notify:
+#    - restart isc-dhcp6-server
+#
+#- name: Set isc-dhcp6-server enabled
+#  service: name=isc-dhcp6-server enabled=yes
