@@ -32,3 +32,5 @@
     user: root 
     key: "{{ lookup('file', 'keyfiles/' + item + '.pub') }}"
   with_items: "{{ administratorenteam }}"
+
+- locale_gen: name=de_DE.UTF-8 state=present
