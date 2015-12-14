@@ -39,8 +39,7 @@
     
 # creating batman interfaces
 - name: Create interfaces - batman file
-  template: src="batman.j2" dest="/etc/network/interfaces.d/bat{{ item.value.number }}.cfg"
-  with_dict: "{{ ff_instances }}"
+  template: src="batman.j2" dest="/etc/network/interfaces.d/30_batman.cfg"
   notify:
     - restart networking
 

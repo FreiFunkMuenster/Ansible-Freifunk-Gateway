@@ -1,21 +1,64 @@
 # This file is managed by ansible, don't make changes here - they will be overwritten.
 
-# Batman Interface 
-# - Erstellt das virtuelle Inteface fuer das Batman-Modul und bindet dieses an die Netzwerkbruecke 
-# - Die unten angelegte Routing-Tabelle wird spaeter fuer das Routing innerhalb von Freifunk (Router/VPN) verwendet 
+{% set indexer = 0 -%}
 
-auto bat{{item.value.number}}
-iface bat{{item.value.number}} inet6 static
-        address {{item.value.ipv6}}
+# Durchlauf der ff-Instanzen die angebunden werden  
+
+{% for ff_instance in ff_instances %}
+# BEGIN: Instanz: {{ ff_instance }}
+
+{% set indexer = indexer + 1 -%}
+
+# BATMAN Interface fuer {{ ff_instance }}
+# - Der Name des Interfaces wird aus der Nummer abgeleitet 
+# - Beim Start des Interfaces wird versucht alle zugehoerigen Tunnel hinzuzufuegen 
+# - Der Alfrred-Daemen wird mit dem Interface gestartet / gestoppt 
+# - Der batadv-Vis Daemon wird mit dem Interface gestartet / gestoppt 
+
+auto bat{{ '%02d' % ff_instances[ff_instance].number }}
+iface bat{{ '%02d' % ff_instances[ff_instance].number }} inet6 static
+        address fe80::20e9:a1ff:fe76:45{{ '%02d' % ff_instances[ff_instance].number }}
         netmask 64
         pre-up modprobe batman-adv
-	pre-up ip link add bat{{item.value.number}} type batadv
-	post-up ip link set address {{item.value.mac}} dev bat{{item.value.number}}
-        post-up ip link set dev bat{{item.value.number}} up
-        post-up batctl -m bat{{item.value.number}} it 10000
-	post-up pgrep -a -x -f "alfred -i bat{{item.value.number}}.*" || alfred -i bat{{item.value.number}} -b bat{{item.value.number}} -u /run/alfred{{item.value.number}}.sock -m >/dev/null&
-	post-up pgrep -a -x -f "batadv-vis -i bat{{item.value.number}}.*" || batadv-vis -i bat{{item.value.number}} -u /run/alfred{{item.value.number}}.sock -s >/dev/null 2>&1&
-        pre-down pkill -x -f "alfred -i bat{{item.value.number}}.*" ||:
-        pre-down pkill -x -f "batadv-vis -i bat{{item.value.number}}.*" ||:
-        post-down ip link del bat{{item.value.number}}
+	pre-up ip link add bat{{ '%02d' % ff_instances[ff_instance].number }} type batadv
+	post-up ip link set address de:ad:be:ef:{{ '%02d' % indexer }}:{{server_id}} dev bat{{ '%02d' % ff_instances[ff_instance].number }}
+        post-up ip link set dev bat{{ '%02d' % ff_instances[ff_instance].number }} up
+        post-up batctl -m bat{{ '%02d' % ff_instances[ff_instance].number }} it 10000
+{% for host in groups[ff_instance] %}
+        post-up batctl -m bat{{ '%02d' % ff_instances[ff_instance].number }} if add tun{{ '%02d' % ff_instances[ff_instance].number }}-{{ host }} ||:
+{% endfor %}
+	post-up pgrep -a -x -f "alfred -i bat{{ '%02d' % ff_instances[ff_instance].number }}.*" || alfred -i bat{{ '%02d' % ff_instances[ff_instance].number }} -b bat{{ '%02d' % ff_instances[ff_instance].number }} -u /run/alfred.{{ '%02d' % ff_instances[ff_instance].number }}.sock -m >/dev/null&
+	post-up pgrep -a -x -f "batadv-vis -i bat{{ '%02d' % ff_instances[ff_instance].number }}.*" || batadv-vis -i bat{{ '%02d' % ff_instances[ff_instance].number }} -u /run/batadvvis.{{ '%02d' % ff_instances[ff_instance].number }}.sock -s >/dev/null 2>&1&
+        pre-down pkill -x -f "alfred -i bat{{ '%02d' % ff_instances[ff_instance].number }}.*" ||:
+        pre-down pkill -x -f "batadv-vis -i bat{{ '%02d' % ff_instances[ff_instance].number }}.*" ||:
+        post-down ip link del bat{{ '%02d' % ff_instances[ff_instance].number }}
+
+
+# Tunnel-Inerfaces fuer {{ ff_instance }}
+
+{% for host in groups[ff_instance] %}
+# BEGIN: Instanz: {{ ff_instance }} / Tunnel {{ host }}
+
+{% if ansible_ssh_host != hostvars[host].ansible_ssh_host %}
+
+{% set indexer = indexer + 1 -%}
+
+# Tunnel-Interface zu dem Host {{ host }} 
+# - Beim Start des Interfaces wird versucht den Tunnel zu den zugehoerigen BATMAN Interface hinzuzufuegen 
+
+auto tun{{ '%02d' % ff_instances[ff_instance].number }}-{{ host }}
+iface tun{{ '%02d' % ff_instances[ff_instance].number }}-{{ host }} inet manual
+        pre-up ip link add $IFACE type gretap local {{ansible_ssh_host}} remote {{hostvars[host].ansible_ssh_host}} dev eth0
+        pre-up ip link set dev $IFACE address de:ad:be:ef:{{ '%02d' % indexer }}:{{server_id}}
+        pre-up ip link set $IFACE up
+        post-up batctl -m bat{{ '%02d' % ff_instances[ff_instance].number }} if add $IFACE ||:
+        pre-down batctl if del $IFACE
+        post-down ip link del $IFACE
+{% endif %}
+
+# END: Instanz: {{ ff_instance }} / Tunnel {{ host }}
+{% endfor %}
+
+# END: Instanz: {{ ff_instance }}
+{% endfor %} 
 
