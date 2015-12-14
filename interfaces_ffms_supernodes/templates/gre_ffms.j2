@@ -1,7 +1,8 @@
 # This file is managed by ansible, don't make changes here - they will be overwritten.
 {% for host in groups['backbone'] %}
+{% if 'ffms_tun_to' in hostvars[host] %}
 {% for link in hostvars[host].ffms_tun_to%}
-{% if link.host_name == inventory_hostname %}
+{% if 'host_name' in link and link.host_name == inventory_hostname %}
 
 
 # GRE Tunnel to host {{host}} ({{hostvars[link.host_name].ansible_ssh_host}})
@@ -21,4 +22,5 @@ iface gre-zu-{{host}} inet6 static
         pre-down ip -6 rule del iif $IFACE table ffnet
 {% endif %}
 {% endfor %}
+{% endif %}
 {% endfor %}
