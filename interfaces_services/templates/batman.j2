@@ -17,7 +17,7 @@
 
 auto bat{{ '%02d' % ff_instances[ff_instance].number }}
 iface bat{{ '%02d' % ff_instances[ff_instance].number }} inet6 static
-        address fe80::20e9:a1ff:fe76:45{{ '%02d' % ff_instances[ff_instance].number }}
+        address fe80::dcad:beff:feef:{{ '%02d' % indexer }}{{'%02d' % server_id}}
         netmask 64
         pre-up modprobe batman-adv
 	pre-up ip link add bat{{ '%02d' % ff_instances[ff_instance].number }} type batadv
