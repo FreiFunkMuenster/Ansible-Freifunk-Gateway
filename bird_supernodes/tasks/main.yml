@@ -1,4 +1,10 @@
 ---
+ - name: radvd abschalten
+   service: name=radvd state=stopped enabled=no
+
+ - name: dhcp6 abschalten
+   service: name=isc-dhcp6-server state=stopped enabled=no
+
  - name: Schlüssel für Bird hinzufügen
    apt_key: keyserver=keyserver.ubuntu.com id=AC0E47584A7A714D
 
