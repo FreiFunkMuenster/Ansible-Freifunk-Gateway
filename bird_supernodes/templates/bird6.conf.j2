@@ -21,9 +21,9 @@ protocol kernel 'p-ffnet-k' {
 };
 
 
-protocol radv 'p-radv-ffnet' {
-        table ffnet;
+protocol radv {
         interface "bat0" {
+	  max ra interval 20;
           link mtu 1280;
           prefix {{ff_network.v6_network}} {
           };
