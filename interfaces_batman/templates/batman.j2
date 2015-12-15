@@ -13,6 +13,7 @@ iface bat0 inet static
         post-up ip link set dev bat0 up
         post-up batctl it 10000
 	post-up batctl gw server {{batman.downstream}}/{{batman.upstream}}
+	post-up batctl if add mesh-vpn ||:
         post-up ip rule add from all fwmark 0x1 table ffnet
         post-up ip rule add iif bat0 table ffnet
         post-up ip rule add iif lo lookup ffnet suppress_prefixlength 0
