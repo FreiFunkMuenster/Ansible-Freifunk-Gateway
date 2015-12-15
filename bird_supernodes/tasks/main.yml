@@ -32,3 +32,8 @@
    notify:
     - restart bird6
 
+ - name: bird aktivieren und starten
+   service: name=bird state=started enabled=yes
+
+ - name: bird6 aktivieren und starten
+   service: name=bird6 state=started enabled=yes
