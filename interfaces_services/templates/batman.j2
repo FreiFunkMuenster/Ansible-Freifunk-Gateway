@@ -46,8 +46,8 @@ iface bat{{ '%02d' % ff_instances[ff_instance].number }} inet6 static
 # Tunnel-Interface zu dem Host {{ host }} 
 # - Beim Start des Interfaces wird versucht den Tunnel zu den zugehoerigen BATMAN Interface hinzuzufuegen 
 
-auto tun{{ '%02d' % ff_instances[ff_instance].number }}-{{ host }}
-iface tun{{ '%02d' % ff_instances[ff_instance].number }}-{{ host }} inet manual
+auto tun-{{ host }}
+iface tun-{{ host }} inet manual
         pre-up ip link add $IFACE type gretap local {{ansible_ssh_host}} remote {{hostvars[host].ansible_ssh_host}} dev eth0
         pre-up ip link set dev $IFACE address de:ad:be:ef:{{ '%02d' % indexer }}:{{server_id}}
         pre-up ip link set $IFACE up
