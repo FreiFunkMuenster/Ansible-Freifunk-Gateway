@@ -1,4 +1,4 @@
-# {{ ansible_managed }}
+# This file is managed by ansible, don't make changes here - they will be overwritten.
 # Config file for collectd(1).
 #
 # Some plugins need additional configuration and are disabled by default.
@@ -92,9 +92,11 @@ LoadPlugin memory
 #LoadPlugin powerdns
 LoadPlugin processes
 #LoadPlugin protocols
+{% if collectd.collect_dhcp or collectd.collect_fastd %}
 <LoadPlugin python>
 	Globals true
 </LoadPlugin>
+{% endif %}
 #LoadPlugin rrdcached
 #LoadPlugin rrdtool
 #LoadPlugin sensors
@@ -667,18 +669,22 @@ LoadPlugin write_graphite
 #	Value "/^Tcp:/"
 #	IgnoreSelected false
 #</Plugin>
-
+{% if collectd.collect_dhcp or collectd.collect_fastd %}
 <Plugin python>
 	ModulePath "/opt/collectd-python/"
 	LogTraces true
 	Interactive false
-	Import "fastd"
+{% if collectd.collect_dhcp%}
 	Import "dhcp"
-
+{% endif %}
+{% if collectd.collect_fastd%}
+	Import "fastd"
 	<Module fastd>
 		server_address "/tmp/fastd-status"
 	</Module>
+{% endif %}
 </Plugin>
+{% endif %}
 
 #<Plugin rrdcached>
 #	DaemonAddress "unix:/var/run/rrdcached.sock"

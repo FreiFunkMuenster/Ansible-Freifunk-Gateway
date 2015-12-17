@@ -50,11 +50,13 @@
   template: src=fastd.py.j2 dest=/opt/collectd-python/fastd.py
   notify:
     - restart collectd
+  when: collectd.collect_fastd
 
 - name: deploy dhcp.py
   template: src=dhcp.py.j2 dest=/opt/collectd-python/dhcp.py
   notify:
     - restart collectd
+  when: collectd.collect_dhcp
 
 
 
