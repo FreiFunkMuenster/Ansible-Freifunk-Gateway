@@ -14,7 +14,7 @@ iface bat{{item.value.number}} inet6 static
         post-up ip link set dev bat{{item.value.number}} up
 	post-up batctl -m bat{{item.value.number}} if add mesh-vpn{{item.value.number}} ||:
         post-up batctl -m bat{{item.value.number}} it 10000
-	post-up pgrep -a -x -f "alfred -i bat{{item.value.number}}.*" || alfred -i bat{{item.value.number}} -b bat{{item.value.number}} -u /run/alfred{{item.value.number}}.sock -m >/dev/null&
+	post-up pgrep -a -x -f "alfred -i bat{{item.value.number}}.*" || alfred -i bat{{item.value.number}} -b bat{{item.value.number}} -u /run/alfred{{item.value.number}}.sock >/dev/null&
 	post-up pgrep -a -x -f "batadv-vis -i bat{{item.value.number}}.*" || batadv-vis -i bat{{item.value.number}} -u /run/alfred{{item.value.number}}.sock -s >/dev/null 2>&1&
 	pre-down pkill -x -f "alfred -i bat{{item.value.number}}.*" ||:
 	pre-down pkill -x -f "batadv-vis -i bat{{item.value.number}}.*" ||:
