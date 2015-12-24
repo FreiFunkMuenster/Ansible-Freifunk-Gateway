@@ -26,6 +26,10 @@
     - vnstat
     - tmux
     - pastebinit
+    - htop
+    - jnettop
+    - iotop
+    - tcpdump
 
 - name: add sshkeys for server
   authorized_key: 
