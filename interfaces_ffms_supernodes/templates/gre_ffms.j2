@@ -14,12 +14,12 @@ iface gre-zu-{{host}} inet static
         pre-up ip link set $IFACE up multicast on
         post-up ip rule add iif $IFACE table ffnet
         pre-down ip rule del iif $IFACE table ffnet
-        post-down ip link delete $IFACE
 iface gre-zu-{{host}} inet6 static
         address {{link.v6routing_net | ipaddr('2') | ipaddr('address')}}
         netmask 126
         post-up ip -6 rule add iif $IFACE table ffnet
         pre-down ip -6 rule del iif $IFACE table ffnet
+        post-down ip link delete $IFACE
 {% endif %}
 {% endfor %}
 {% endif %}
