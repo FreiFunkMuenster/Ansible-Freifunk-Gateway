@@ -1,0 +1,32 @@
+zone "ffms." {
+{% if bind.ffms_zone_type == "master" %}
+        type master;
+{% for group in bind.ffms_for_groups %}   
+view "{{group}}" {
+    match-clients { 
+       {{hostvars[groups[group][0]].ff_network.v4_network}};
+       {{hostvars[groups[group][0]].ff_network.v6_network}};
+    };
+    file "/etc/bind/db.{{group}}.ffms";
+
+};
+{% endfor %}
+        
+        allow-transfer {
+{% for group in bind.ffms_for_groups %}
+{% for host in groups[group] %}
+{% if hostvars[host].ff_network.v4_network != ff_network.v4_network or hostvars[host].server_id != server_id %}
+            {{hostvars[host].ff_network.v4_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }};
+{% endif %}
+{% endfor %}
+{% endfor %}
+        };
+{% else %}
+        type slave;
+        masters {
+{% for master in bind.ffms_zone_masters %} 
+            {{master}};
+{% endfor %}
+        };
+{% endif %}
+};

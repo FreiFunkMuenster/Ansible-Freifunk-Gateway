@@ -12,3 +12,22 @@
   template: src=named.conf.options.j2 dest=/etc/bind/named.conf.options
   notify:
     - restart bind9
+
+- name: create named.conf.ffms
+  template: src=named.conf.ffms.j2 dest=/etc/bind/named.conf.ffms
+  notify:
+    - restart bind9
+  when: bind and "ffms_zone_type" in bind and (bind.ffms_zone_type == "master" or bind.ffms_zone_type == "slave")
+
+- name: create own db file for each subdomaene
+  template: src=db.ffms.j2 dest=/etc/bind/db.{{item}}.ffms
+  notify:
+    - restart bind9
+  when: bind and "ffms_zone_type" in bind and bind.ffms_zone_type == "master"
+  with_items: bind.ffms_for_groups
+
+- name: add additional configfile to named.conf
+  lineinfile: dest="/etc/bind/named.conf" line='include "/etc/bind/named.conf.ffms";'
+  notify:
+    - restart bind9
+  when: bind and "ffms_zone_type" in bind and bind.ffms_zone_type == "master"
