@@ -1,5 +1,5 @@
 # install bind9 service 
----
+# ---
 - name: install bind9
   apt: pkg=bind9 state=installed
 
@@ -17,7 +17,18 @@
   template: src=named.conf.ffms.j2 dest=/etc/bind/named.conf.ffms
   notify:
     - restart bind9
-  when: bind and "ffms_zone_type" in bind and (bind.ffms_zone_type == "master" or bind.ffms_zone_type == "slave")
+  when: bind and "ffms_zone_type" in bind and (bind.ffms_zone_type == "slave" or bind.ffms_zone_type == "master")
+
+- name: create named.conf
+  template: src=named.conf.j2 dest=/etc/bind/named.conf
+  notify:
+    - restart bind9
+
+- name: create db file for other ffms access
+  template: src=db.other.j2 dest=/etc/bind/db.other.ffms
+  notify:
+    - restart bind9
+  when: bind and "ffms_zone_type" in bind and bind.ffms_zone_type == "master"
 
 - name: create own db file for each subdomaene
   template: src=db.ffms.j2 dest=/etc/bind/db.{{item}}.ffms
@@ -25,9 +36,3 @@
     - restart bind9
   when: bind and "ffms_zone_type" in bind and bind.ffms_zone_type == "master"
   with_items: bind.ffms_for_groups
-
-- name: add additional configfile to named.conf
-  lineinfile: dest="/etc/bind/named.conf" line='include "/etc/bind/named.conf.ffms";'
-  notify:
-    - restart bind9
-  when: bind and "ffms_zone_type" in bind and bind.ffms_zone_type == "master"

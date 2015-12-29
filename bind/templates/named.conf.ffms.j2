@@ -1,32 +1,64 @@
-zone "ffms." {
 {% if bind.ffms_zone_type == "master" %}
-        type master;
-{% for group in bind.ffms_for_groups %}   
+{% for group in bind.ffms_for_groups -%}   
 view "{{group}}" {
-    match-clients { 
-       {{hostvars[groups[group][0]].ff_network.v4_network}};
-       {{hostvars[groups[group][0]].ff_network.v6_network}};
-    };
-    file "/etc/bind/db.{{group}}.ffms";
-
-};
+	match-clients {
+		{{hostvars[groups[group][0]].ff_network.v4_network}};
+		{{hostvars[groups[group][0]].ff_network.v6_network}};
+{% for host in groups['backbone'] %}
+{% if 'ffms_tun_to' in hostvars[host] %}
+{% for link in hostvars[host].ffms_tun_to%}
+{% if group in hostvars[link.host_name].group_names %}
+		{{link.v4routing_net | ipaddr('2') | ipaddr('address')}};
+{% endif %}
 {% endfor %}
-        
-        allow-transfer {
-{% for group in bind.ffms_for_groups %}
+{% endif %}
+{% endfor %}
+	};
+	include "/etc/bind/named.conf.local";
+	include "/etc/bind/named.conf.default-zones";
+	zone "ffms." {
+		type master;
+		file "/etc/bind/db.{{group}}.ffms";
+		allow-transfer {
 {% for host in groups[group] %}
 {% if hostvars[host].ff_network.v4_network != ff_network.v4_network or hostvars[host].server_id != server_id %}
-            {{hostvars[host].ff_network.v4_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }};
+			{{hostvars[host].ff_network.v4_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }};
 {% endif %}
 {% endfor %}
-{% endfor %}
-        };
-{% else %}
-        type slave;
-        masters {
-{% for master in bind.ffms_zone_masters %} 
-            {{master}};
-{% endfor %}
-        };
+{% for host in groups['backbone'] %}
+{% if 'ffms_tun_to' in hostvars[host] %}
+{% for link in hostvars[host].ffms_tun_to%}
+{% if group in hostvars[link.host_name].group_names %}
+			{{link.v4routing_net | ipaddr('2') | ipaddr('address')}};
 {% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+		};
+	};
 };
+{% endfor %}
+view "external-view" {
+	match-clients {
+		any;
+{% for group in bind.ffms_for_groups %}
+		!{{hostvars[groups[group][0]].ff_network.v4_network}};
+		!{{hostvars[groups[group][0]].ff_network.v6_network}};
+{% endfor %}
+	};
+	include "/etc/bind/named.conf.local";
+	include "/etc/bind/named.conf.default-zones";
+};
+{% else %}
+include "/etc/bind/named.conf.local";
+include "/etc/bind/named.conf.default-zones";
+zone "ffms." {
+	type slave;
+	masters {
+{% for master in bind.ffms_zone_masters %} 
+		{{master}};
+{% endfor %}
+	};
+};
+{% endif %}
+
