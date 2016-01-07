@@ -1,3 +1,4 @@
+# This file is managed by ansible, don't make changes here - they will be overwritten.
 default-lease-time {{dhcp_global.lease_default}};
 max-lease-time {{dhcp_global.lease_max}};
 
@@ -10,3 +11,14 @@ subnet {{ff_network.v4_network | ipaddr('network')}} netmask {{ff_network.v4_net
     option domain-name-servers {{ff_network.v4_network | ipaddr(server_id) | ipaddr('address') }};
     option interface-mtu {{dhcp_global.mtu}};
 }
+{% if "static_hosts" in hostvars[inventory_hostname] %}
+
+{% for host in static_hosts %}
+
+host {{host.name}} {
+    hardware ethernet {{host.mac_address}};
+    fixed-address {{host.v4_address}};
+}
+{% endfor %}
+{% endif %}
+
