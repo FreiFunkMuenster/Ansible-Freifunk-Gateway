@@ -8,8 +8,18 @@
     - nginx
 
 # nginx konfigurieren
-- name: Konfig-Datei kopieren
-  copy: src={{inventory_hostname}}.conf dest=/etc/nginx/sites-available/default
+- name: Konfig-Datei default kopieren
+  copy: src=default dest=/etc/nginx/sites-available/default
+  notify:
+    - restart nginx
+
+- name: Konfig-Datei karte.freifunk-muensterland.org kopieren
+  copy: src=karte.freifunk-muensterland.org dest=/etc/nginx/sites-available/karte.freifunk-muensterland.org
+  notify:
+    - restart nginx
+
+- name: Konfig-Datei karte.freifunk-muensterland.org aktivieren
+  file: src=/etc/nginx/sites-available/karte.freifunk-muensterland.org dest=/etc/nginx/sites-enabled/karte.freifunk-muensterland.org state=link
   notify:
     - restart nginx
 

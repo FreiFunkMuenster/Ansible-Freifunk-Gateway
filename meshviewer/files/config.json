@@ -1,5 +1,5 @@
 {
-  "dataPath": "/data/",
+  "dataPath": "../data/",
   "siteName": "Freifunk Münsterland",
   "mapSigmaScale": 0.5,
   "showContact": false,
