@@ -1,0 +1,26 @@
+; zonefile for servers.ffms.
+$TTL    86400
+@       IN      SOA     servers.ffms. root.servers.ffms. (
+                              1         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                          86400 )       ; Negative Cache TTL
+;
+@			IN      NS      {{bind.ns_name}}.servers.ffms.
+{{bind.ns_name}}			IN      A       {{ff_network.v4_network | ipaddr(server_id) | ipaddr('address') }}
+{% if bind.ffms_gw == True%}
+{% for group in bind.ffms_for_groups %}
+{% for host in groups[group] %}
+{{host}}	IN      A       {{hostvars[host].ff_network.v4_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }};
+{{host}}	IN      AAAA    {{hostvars[host].ff_network.v6_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }};
+{% endfor %}
+{% endfor %}
+{% endif %}
+{% if bind.ffms_bb == True%}
+{% for host in groups['backbone'] %}
+{{host}}	IN      A       {{hostvars[host].ff_network.v4_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }};
+{{host}}	IN      AAAA    {{hostvars[host].ff_network.v6_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }};
+{% endfor %}
+{% endif %}
+
