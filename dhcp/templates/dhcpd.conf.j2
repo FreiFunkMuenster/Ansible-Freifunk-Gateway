@@ -13,10 +13,6 @@ subnet {{ff_network.v4_network | ipaddr('network')}} netmask {{ff_network.v4_net
     option domain-name-servers {{ff_network.v4_network | ipaddr(server_id) | ipaddr('address') }};
     option interface-mtu {{dhcp_global.mtu}};
 }
-host badguy {
-     hardware ethernet bc:cf:cc:4e:64:57;
-     ignore booting;
-}
 {% if "static_hosts" in hostvars[inventory_hostname] %}
 
 {% for host in static_hosts %}
