@@ -1,4 +1,3 @@
-#(broadcast-)domain specific view
 {% if bind.ffms_zone_type == "master" %}
 {% for group in bind.ffms_for_groups -%}
 
@@ -7,15 +6,6 @@ view "{{group}}" {
 	match-clients {
 		{{hostvars[groups[group][0]].ff_network.v4_network}};
 		{{hostvars[groups[group][0]].ff_network.v6_network}};
-{% for host in groups['backbone'] %}
-{% if 'ffms_tun_to' in hostvars[host] %}
-{% for link in hostvars[host].ffms_tun_to%}
-{% if group in hostvars[link.host_name].group_names %}
-		192.168.{{hostvars[link.host_name].domaenen_id*10 + hostvars[host].server_id}}.{{hostvars[link.host_name].server_id*4+2}};
-{% endif %}
-{% endfor %}
-{% endif %}
-{% endfor %}
 	};
 	include "/etc/bind/named.conf.local";
 	include "/etc/bind/named.conf.default-zones";
@@ -23,60 +13,21 @@ view "{{group}}" {
 		type master;
 		file "/etc/bind/db.{{group}}.ffms";
 		allow-transfer {
-{% for host in groups[group] %}
-{% if hostvars[host].ff_network.v4_network != ff_network.v4_network or hostvars[host].server_id != server_id %}
-			{{hostvars[host].ff_network.v4_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }};
-{% endif %}
-{% endfor %}
-{% for host in groups['backbone'] %}
-{% if 'ffms_tun_to' in hostvars[host] %}
-{% for link in hostvars[host].ffms_tun_to%}
-{% if group in hostvars[link.host_name].group_names %}
-			192.168.{{hostvars[link.host_name].domaenen_id*10 + hostvars[host].server_id}}.{{hostvars[link.host_name].server_id*4+2}};
-{% endif %}
-{% endfor %}
-{% endif %}
-{% endfor %}
+			{{hostvars[groups[group][0]].ff_network.v4_network | ipsubnet(28,0)}};
 		};
 	};
 	zone "servers.ffms." {
 		type master;
 		file "/etc/bind/db.servers.ffms";
 		allow-transfer {
-{% for host in groups[group] %}
-{% if hostvars[host].ff_network.v4_network != ff_network.v4_network or hostvars[host].server_id != server_id %}
-			{{hostvars[host].ff_network.v4_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }};
-{% endif %}
-{% endfor %}
-{% for host in groups['backbone'] %}
-{% if 'ffms_tun_to' in hostvars[host] %}
-{% for link in hostvars[host].ffms_tun_to%}
-{% if group in hostvars[link.host_name].group_names %}
-			192.168.{{hostvars[link.host_name].domaenen_id*10 + hostvars[host].server_id}}.{{hostvars[link.host_name].server_id*4+2}};
-{% endif %}
-{% endfor %}
-{% endif %}
-{% endfor %}
+			{{hostvars[groups[group][0]].ff_network.v4_network | ipsubnet(28,0)}};
 		};
 	};
 	zone "services.ffms." {
 		type master;
 		file "/etc/bind/db.services.ffms";
 		allow-transfer {
-{% for host in groups[group] %}
-{% if hostvars[host].ff_network.v4_network != ff_network.v4_network or hostvars[host].server_id != server_id %}
-			{{hostvars[host].ff_network.v4_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }};
-{% endif %}
-{% endfor %}
-{% for host in groups['backbone'] %}
-{% if 'ffms_tun_to' in hostvars[host] %}
-{% for link in hostvars[host].ffms_tun_to%}
-{% if group in hostvars[link.host_name].group_names %}
-			192.168.{{hostvars[link.host_name].domaenen_id*10 + hostvars[host].server_id}}.{{hostvars[link.host_name].server_id*4+2}};
-{% endif %}
-{% endfor %}
-{% endif %}
-{% endfor %}
+			{{hostvars[groups[group][0]].ff_network.v4_network | ipsubnet(28,0)}};
 		};
 	};
 };

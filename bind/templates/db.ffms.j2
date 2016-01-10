@@ -8,7 +8,7 @@ $TTL    86400
                           86400 )       ; Negative Cache TTL
 ;
 @			IN      NS      {{bind.ns_name}}.ffms.
-{{bind.ns_name}}			IN      A       {{ff_network.v4_network | ipaddr(server_id) | ipaddr('address') }}
+{{bind.ns_name}}			IN      A       {{hostvars[groups[item][0]].ff_network.v4_network | ipaddr(server_id) | ipaddr('address') }}
 node			IN      A       {{hostvars[groups[item][0]].ff_network.v4_network | ipaddr(1) | ipaddr('address')}}
 node			IN      AAAA    {{hostvars[groups[item][0]].ff_network.v6_network | ipaddr(1) | ipaddr('address')}}
 firmware	IN      A       144.76.30.226

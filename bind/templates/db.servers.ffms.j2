@@ -8,7 +8,7 @@ $TTL    86400
                           86400 )       ; Negative Cache TTL
 ;
 @			IN      NS      {{bind.ns_name}}.servers.ffms.
-{{bind.ns_name}}			IN      A       {{ff_network.v4_network | ipaddr(server_id) | ipaddr('address') }}
+{{bind.ns_name}}			IN      A       {{ansible_default_ipv4.address}}
 {% if bind.ffms_gw == True%}
 {% for group in bind.ffms_for_groups %}
 {% for host in groups[group] %}
