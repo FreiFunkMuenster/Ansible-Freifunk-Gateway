@@ -8,12 +8,11 @@
     state: installed
   with_items:
     - git
-    - nginx
     - npm
     - ruby-sass
 
 - name: git für meshviewer
-  git: repo=https://github.com/FreiFunkMuenster/meshviewer.git dest=/usr/src/meshviewer version=multi-domaenen-mapserver
+  git: repo=https://github.com/FreiFunkMuenster/meshviewer.git dest=/usr/src/meshviewer version=e1b6737bd6c429bd58d8b0723172d512a6d6a012
 
 - name: node-Abhängigkeiten aus package.json installieren
   npm: path=/usr/src/meshviewer
@@ -25,16 +24,11 @@
   register: build_ok
 
 - name: meshviewer build
-  shell: rm build_ok; nodejs node_modules/.bin/grunt && cp -a /usr/src/meshviewer/build/. /var/www/html/map && touch build_ok
+  shell: rm build_ok; nodejs node_modules/.bin/grunt && mkdir -p /var/www/html/maps/map && cp -a /usr/src/meshviewer/build/. /var/www/html/maps/map && touch build_ok
   args:
     chdir: /usr/src/meshviewer
   when: build_ok.stat.exists == False
 
 - name: config.json kopieren
-  copy: src=config.json dest=/var/www/html/map
-
-- name: nginx-config kopieren
-  copy: src=map.conf dest=/etc/nginx/conf.d
-  notify:
-    - restart nginx
+  copy: src=config.json dest=/var/www/html/maps/map
 
