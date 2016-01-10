@@ -13,13 +13,13 @@ iface gre-zu-{{host}} inet static
         pre-up ip link add $IFACE type gre remote {{hostvars[host].ansible_ssh_host}} local {{ansible_default_ipv4.address}} ttl 255
         pre-up ip link set $IFACE up multicast on
         post-up ip rule add iif $IFACE table ffnet
-        pre-down ip rule del iif $IFACE table ffnet
 iface gre-zu-{{host}} inet6 static
-        address 2a03:2260:115:ffa0:192:168:{{domaenen_id*10 + hostvars[host].server_id}}:{{server_id*4+2}}
+        address 2a03:2260:115:ffa0:{{domaenen_id}}:{{hostvars[host].server_id}}:{{server_id}}:2
         netmask 126
         post-up ip -6 rule add iif $IFACE table ffnet
         pre-down ip -6 rule del iif $IFACE table ffnet
         post-down ip link delete $IFACE
+        pre-down ip rule del iif $IFACE table ffnet
 {% endif %}
 {% endfor %}
 {% endif %}
