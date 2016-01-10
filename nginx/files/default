@@ -1,0 +1,21 @@
+server {
+	listen 80;
+	listen [::]:80;
+	server_name _;
+	root /var/www/html;
+	index index.html;
+        location / {
+                # First attempt to serve request as file, then
+                # as directory, then fall back to displaying a 404.
+                try_files $uri $uri/ =404;
+                gzip_types text/plain text/css application/json application/javascript;
+        }
+
+        location /data {
+                expires 0;
+                add_header Cache-Control private;
+                add_header Vary Accept-Encoding;
+                access_log off;
+		gzip_types text/plain application/json;
+        }
+}

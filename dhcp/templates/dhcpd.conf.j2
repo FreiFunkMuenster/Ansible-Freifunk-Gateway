@@ -2,6 +2,8 @@
 default-lease-time {{dhcp_global.lease_default}};
 max-lease-time {{dhcp_global.lease_max}};
 
+authoritative;
+
 log-facility local7;
 
 subnet {{ff_network.v4_network | ipaddr('network')}} netmask {{ff_network.v4_network | ipaddr('netmask')}} {
