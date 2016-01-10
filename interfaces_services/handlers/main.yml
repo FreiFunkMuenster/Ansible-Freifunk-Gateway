@@ -1,6 +1,6 @@
 ---
 - name: restart networking
-  service: name=networking state=restarted
+  shell: systemctl restart networking && if systemctl -q is-active isc-dhcp-server; then systemctl restart isc-dhcp-server; fi
 
 - name: restart fastd
   service: name=fastd state=restarted
