@@ -11,7 +11,7 @@ view "{{group}}" {
 {% if 'ffms_tun_to' in hostvars[host] %}
 {% for link in hostvars[host].ffms_tun_to%}
 {% if group in hostvars[link.host_name].group_names %}
-		{{link.v4routing_net | ipaddr('2') | ipaddr('address')}};
+		192.168.{{hostvars[link.host_name].domaenen_id*10 + hostvars[host].server_id}}.{{hostvars[link.host_name].server_id*4+2}};
 {% endif %}
 {% endfor %}
 {% endif %}
@@ -32,7 +32,7 @@ view "{{group}}" {
 {% if 'ffms_tun_to' in hostvars[host] %}
 {% for link in hostvars[host].ffms_tun_to%}
 {% if group in hostvars[link.host_name].group_names %}
-			{{link.v4routing_net | ipaddr('2') | ipaddr('address')}};
+			192.168.{{hostvars[link.host_name].domaenen_id*10 + hostvars[host].server_id}}.{{hostvars[link.host_name].server_id*4+2}};
 {% endif %}
 {% endfor %}
 {% endif %}
@@ -52,7 +52,7 @@ view "{{group}}" {
 {% if 'ffms_tun_to' in hostvars[host] %}
 {% for link in hostvars[host].ffms_tun_to%}
 {% if group in hostvars[link.host_name].group_names %}
-			{{link.v4routing_net | ipaddr('2') | ipaddr('address')}};
+			192.168.{{hostvars[link.host_name].domaenen_id*10 + hostvars[host].server_id}}.{{hostvars[link.host_name].server_id*4+2}};
 {% endif %}
 {% endfor %}
 {% endif %}
@@ -72,7 +72,7 @@ view "{{group}}" {
 {% if 'ffms_tun_to' in hostvars[host] %}
 {% for link in hostvars[host].ffms_tun_to%}
 {% if group in hostvars[link.host_name].group_names %}
-			{{link.v4routing_net | ipaddr('2') | ipaddr('address')}};
+			192.168.{{hostvars[link.host_name].domaenen_id*10 + hostvars[host].server_id}}.{{hostvars[link.host_name].server_id*4+2}};
 {% endif %}
 {% endfor %}
 {% endif %}

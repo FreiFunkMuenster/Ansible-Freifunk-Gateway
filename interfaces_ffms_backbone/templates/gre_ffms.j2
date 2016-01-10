@@ -5,15 +5,15 @@
 # GRE Tunnel to host {{host.host_name}} ({{hostvars[host.host_name].ansible_ssh_host}})
 auto gre-zu-{{host.host_name}}
 iface gre-zu-{{host.host_name}} inet manual
-        address {{host.v4routing_net | ipaddr('1') | ipaddr('address')}}
-        netmask {{host.v4routing_net | ipaddr('prefix')}}
+        address 192.168.{{hostvars[host.host_name].domaenen_id*10 + server_id}}.{{hostvars[host.host_name].server_id*4+1}}
+        netmask 30
         pre-up ip link add $IFACE type gre local {{ansible_default_ipv4.address}} remote {{hostvars[host.host_name].ansible_ssh_host}} ttl 255
         pre-up ip link set $IFACE up multicast on
         post-up ip rule add iif $IFACE table ffnet
         pre-down ip rule del iif $IFACE table ffnet
 iface gre-zu-{{host.host_name}} inet6 static
-        address {{host.v6routing_net | ipaddr('1') | ipaddr('address')}}
-        netmask {{host.v6routing_net | ipaddr('prefix')}}
+        address 2a03:2260:115:ffa0:192:168:{{hostvars[host.host_name].domaenen_id*10 + server_id}}:{{hostvars[host.host_name].server_id*4+1}}
+        netmask 126
         post-up ip -6 rule add iif $IFACE table ffnet
         pre-down ip -6 rule del iif $IFACE table ffnet
         post-down ip link delete $IFACE
