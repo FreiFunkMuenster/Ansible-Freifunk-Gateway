@@ -6,6 +6,9 @@
   notify:
     - restart networking
 
+- name: Routingtabelle 42 auch ffnet nennen
+  lineinfile: dest="/etc/iproute2/rt_tables" line="42   ffnet"
+
 #append line in interfaces file for reading additional config files
 - name: let read interfaces from interfaces
   lineinfile: dest="/etc/network/interfaces" line="source /etc/network/interfaces.d/*"

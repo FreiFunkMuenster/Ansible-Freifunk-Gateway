@@ -3,20 +3,13 @@
 {% if ansible_ssh_host != hostvars[host].ansible_ssh_host %}
 
 # GRETAP Tunnel to {{host}} ({{hostvars[host].ansible_ssh_host}})
-{% if "backbone" in hostvars[host].group_names %}
-{%set type = "-gw"%}
-{% elif "supernode" in hostvars[host].group_names %}
-{%set type = "-sn"%}
-{% else %}
-{%set type = ""%}
-{% endif %}
-auto tun{{type}}-{{host}}
-iface tun{{type}}-{{host}} inet manual
+auto tap-{{host}}
+iface tap-{{host}} inet manual
         pre-up ip link add $IFACE type gretap local {{ansible_ssh_host}} remote {{hostvars[host].ansible_ssh_host}} dev eth0
         pre-up ip link set dev $IFACE address de:ad:be:ef:{{loop.index + 43}}:{{server_id}}
         pre-up ip link set $IFACE up
-        post-up batctl if add $IFACE
-        pre-down batctl if del $IFACE
+        post-up batctl if add $IFACE ||:
+        pre-down batctl if del $IFACE ||:
         post-down ip link del $IFACE
 {% endif %}
 {% endfor %}

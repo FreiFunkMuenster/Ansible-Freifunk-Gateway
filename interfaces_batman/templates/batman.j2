@@ -14,12 +14,17 @@ iface bat0 inet static
         post-up batctl it 10000
 	post-up batctl gw server {{batman.downstream}}/{{batman.upstream}}
 	post-up batctl if add mesh-vpn ||:
+{% for host in gre_ffms.groups %}
+{% if ansible_ssh_host != hostvars[host].ansible_ssh_host %}
+	post-up batctl if add tap-{{host}} ||:
+{% endif %}
+{% endfor %}
         post-up ip rule add from all fwmark 0x1 table ffnet
         post-up ip rule add iif bat0 table ffnet
         post-up ip rule add iif lo lookup ffnet suppress_prefixlength 0
-        post-down ip rule del from all fwmark 0x1 table ffnet
-        post-down ip rule del iif bat0 table ffnet
-        post-down ip rule del iif lo lookup ffnet suppress_prefixlength 0
+        post-down ip rule del from all fwmark 0x1 table ffnet ||:
+        post-down ip rule del iif bat0 table ffnet ||:
+        post-down ip rule del iif lo lookup ffnet suppress_prefixlength 0 ||:
 
 iface bat0 inet6 static
         address {{ff_network.v6_network | ipaddr(server_id) | ipaddr('address')}}
@@ -27,7 +32,7 @@ iface bat0 inet6 static
         post-up ip -6 rule add from all fwmark 0x1 table ffnet
         post-up ip -6 rule add iif bat0 table ffnet
         post-up ip -6 rule add iif lo lookup ffnet suppress_prefixlength 0 
-        post-down ip -6 rule del from all fwmark 0x1 table ffnet
-        post-down ip -6 rule del iif bat0 table ffnet
-        post-down ip -6 rule del iif lo lookup ffnet suppress_prefixlength 0
+        post-down ip -6 rule del from all fwmark 0x1 table ffnet ||:
+        post-down ip -6 rule del iif bat0 table ffnet ||:
+        post-down ip -6 rule del iif lo lookup ffnet suppress_prefixlength 0 ||:
 	post-down modprobe -r batman-adv
