@@ -30,6 +30,7 @@
     - jnettop
     - iotop
     - tcpdump
+    - screen
 
 - name: add sshkeys for server
   authorized_key: 
