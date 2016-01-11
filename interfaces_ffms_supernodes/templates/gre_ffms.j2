@@ -4,7 +4,7 @@
 {% for link in hostvars[host].ffms_tun_to%}
 {% if 'host_name' in link and link.host_name == inventory_hostname %}
 
-# GRE Tunnel to host {{host}} ({{hostvars[link.host_name].ansible_ssh_host}})
+# GRE Tunnel to host {{host}} ({{hostvars[host].ansible_ssh_host}})
 auto gre-{{host}}
 iface gre-{{host}} inet static
         address 192.168.{{domaenen_id*10 + hostvars[host].server_id}}.{{server_id*4+2}}

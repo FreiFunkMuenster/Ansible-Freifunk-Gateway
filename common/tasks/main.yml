@@ -33,6 +33,8 @@
     - screen
     - strace
     - socat
+    - dnsutils
+    - host
 
 - name: add sshkeys for server
   authorized_key: 

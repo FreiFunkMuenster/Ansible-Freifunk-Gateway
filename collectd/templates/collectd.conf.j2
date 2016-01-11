@@ -679,7 +679,6 @@ LoadPlugin write_graphite
 {% endif %}
 {% if collectd.collect_fastd%}
 	Import "fastd"
-	Import "dhcp"
 	<Module fastd>
 		server_address "/tmp/fastd-status"
 	</Module>

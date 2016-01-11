@@ -30,19 +30,10 @@ protocol device {
         scan time 10;                   # Scan interfaces every 10 seconds
 }
 
-filter default_originate {
-     if ( net = ::/0 ) then {
-         print "default net accepted:", net;
-         accept;
-     }
-     reject;
-}
-
-
 protocol ospf 'p6-ospf-ffnet' {
   table ffnet;
   import filter freifunk;
-  export filter default_originate;
+  export all;
 
   area 0.0.0.0 {
    interface "gre-*"  {
