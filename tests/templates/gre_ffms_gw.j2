@@ -1,0 +1,13 @@
+#!/bin/sh
+{% for host in groups['backbone'] %}
+{% if 'ffms_tun_to' in hostvars[host] %}
+{% for link in hostvars[host].ffms_tun_to%}
+{% if 'host_name' in link and link.host_name == inventory_hostname %}
+ip=192.168.{{domaenen_id*10 + hostvars[host].server_id}}.{{server_id*4+1}} 
+ping -c1 $ip >/dev/null 2>&1 && echo Tunnel ok: {{host}}/$ip || echo Tunnel failed: {{host}}/$ip
+ip=2a03:2260:115:ffa0:{{domaenen_id}}:{{hostvars[host].server_id}}:{{server_id}}:1
+ping6 -c1 $ip >/dev/null 2>&1 && echo Tunnel ok: {{host}}/$ip || echo Tunnel failed: {{host}}/$ip
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}

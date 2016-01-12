@@ -1,5 +1,7 @@
 #!/bin/sh
 {% for host in ffms_tun_to%}
-ping -c1 192.168.{{hostvars[host.host_name].domaenen_id*10 + server_id}}.{{hostvars[host.host_name].server_id*4+2}} || exit 1
-ping6 -c1 2a03:2260:115:ffa0:{{hostvars[host.host_name].domaenen_id}}:{{server_id}}:{{hostvars[host.host_name].server_id}}:2 || exit 1
+ip=192.168.{{hostvars[host.host_name].domaenen_id*10 + server_id}}.{{hostvars[host.host_name].server_id*4+2}} 
+ping -c1 $ip >/dev/null 2>&1 && echo Tunnel ok: {{host}}/$ip || echo Tunnel failed: {{host}}/$ip
+ip=2a03:2260:115:ffa0:{{hostvars[host.host_name].domaenen_id}}:{{server_id}}:{{hostvars[host.host_name].server_id}}:2
+ping6 -c1 $ip >/dev/null 2>&1 && echo Tunnel ok: {{host}}/$ip || echo Tunnel failed: {{host}}/$ip
 {% endfor %}

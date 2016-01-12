@@ -1,8 +1,27 @@
 ---
-- name: create tunnel test script
+- name: create bb tunnel test script
   template: src="gre_ffms.j2" dest="/tmp/gre_ffms.sh"
   when: "'backbone' in group_names"
 
-- name: execute tunnel test
-  shell: sh /tmp/gre_ffms.sh
+- name: execute bb tunnel test
+  command: sh /tmp/gre_ffms.sh
+  register: bb_tunnel_test
   when: "'backbone' in group_names"
+
+- name: bb tunnel test output
+  debug: var=bb_tunnel_test.stdout_lines
+  when: "'backbone' in group_names" 
+
+- name: create gw tunnel test script
+  template: src="gre_ffms_gw.j2" dest="/tmp/gre_ffms_gw.sh"
+  when: group_names[0] | match("domaene-.*")
+
+- name: execute gw tunnel test
+  command: sh /tmp/gre_ffms_gw.sh
+  register: bb_tunnel_test
+  when: group_names[0] | match("domaene-.*")
+
+- name: gw tunnel test output
+  debug: var=bb_tunnel_test.stdout_lines
+  when: group_names[0] | match("domaene-.*")
+
