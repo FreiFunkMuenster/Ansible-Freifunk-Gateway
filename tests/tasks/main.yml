@@ -1,0 +1,8 @@
+---
+- name: create tunnel test script
+  template: src="gre_ffms.j2" dest="/tmp/gre_ffms.sh"
+  when: "'backbone' in group_names"
+
+- name: execute tunnel test
+  shell: sh /tmp/gre_ffms.sh
+  when: "'backbone' in group_names"
