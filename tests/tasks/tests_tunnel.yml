@@ -1,0 +1,17 @@
+---
+- name: create gretunnel test script on backbones
+  template: src="test_gretunnel_source_bb_target_gw.j2" dest="/tmp/test_gretunnel_source_bb_target_gw.sh"
+  when: "'backbone' in group_names"
+
+- name: execute gretunnel test script on backbones
+  command: sh /tmp/test_gretunnel_source_bb_target_gw.sh
+  when: "'backbone' in group_names"
+
+- name: create gretunnel test script on gateways
+  template: src="test_gretunnel_source_gw_target_bb.j2" dest="/tmp/test_gretunnel_source_gw_target_bb.sh"
+  when: group_names[0] | match("domaene-.*")
+
+- name: execute gretunnel test script on gateways
+  command: sh /tmp/test_gretunnel_source_gw_target_bb.sh
+  when: group_names[0] | match("domaene-.*")
+

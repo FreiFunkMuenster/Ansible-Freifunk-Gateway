@@ -1,4 +1,5 @@
 #!/bin/sh
+# Script zum Prüfen der Tunnel von Gateway-Servern zu den Backbone-Servern per ICMP Ping
 failed=0
 echo
 {% for host in groups['backbone'] %}
@@ -6,9 +7,9 @@ echo
 {% for link in hostvars[host].ffms_tun_to%}
 {% if 'host_name' in link and link.host_name == inventory_hostname %}
 ip=192.168.{{domaenen_id*10 + hostvars[host].server_id}}.{{server_id*4+1}} 
-ping -c1 $ip >/dev/null 2>&1 && echo Tunnel ok: {{host}}/$ip ||{ echo Tunnel failed: {{host}}/$ip && failed=1;}
+ping -c1 $ip >/dev/null 2>&1 && echo Tunnel ok: Von {{inventory_hostname}} zu {{host}}/$ip ||{ echo Tunnel failed: Von {{inventory_hostname}} zu {{host}}/$ip && failed=1;}
 ip=2a03:2260:115:ffa0:{{domaenen_id}}:{{hostvars[host].server_id}}:{{server_id}}:1
-ping6 -c1 $ip >/dev/null 2>&1 && echo Tunnel ok: {{host}}/$ip ||{ echo Tunnel failed: {{host}}/$ip && failed=1;}
+ping6 -c1 $ip >/dev/null 2>&1 && echo Tunnel ok: Von {{inventory_hostname}} zu {{host}}/$ip ||{ echo Tunnel failed: Von {{inventory_hostname}} zu {{host}}/$ip && failed=1;}
 {% endif %}
 {% endfor %}
 {% endif %}
