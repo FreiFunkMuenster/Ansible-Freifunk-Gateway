@@ -1,10 +1,10 @@
 ---
 - name: create gretunnel test script on backbones
-  template: src="test_gretunnel_source_bb_target_gw.j2" dest="/tmp/test_gretunnel_source_bb_target_gw.sh"
+  template: src="test_gretunnel_source_bb_target_gw_rl.j2" dest="/tmp/test_gretunnel_source_bb_target_gw_rl.sh"
   when: "'backbone' in group_names"
 
 - name: execute gretunnel test script on backbones
-  command: sh /tmp/test_gretunnel_source_bb_target_gw.sh
+  command: sh /tmp/test_gretunnel_source_bb_target_gw_rl.sh
   when: "'backbone' in group_names"
 
 - name: create gretunnel test script on gateways
