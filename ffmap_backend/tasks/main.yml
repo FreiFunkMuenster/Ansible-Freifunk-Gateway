@@ -9,13 +9,14 @@
   with_items:
     - python3
     - python3-networkx
+    - jq
 
 - name: git für ffmap-backend
   git: repo=https://github.com/FreiFunkMuenster/ffmap-backend.git dest=/usr/src/ffmap-backend version=dcd6609030e32ebbf73692e78e7a2426ab1efdc4
 
-- name: git für tools
-  git: repo=https://github.com/FreiFunkMuenster/tools.git dest=/usr/src/tools version=27d8c4d1c973b865d63b110dbf6ea7704fb5ab68
+- name: create_map_data.sh kopieren
+  copy: src=create_map_data.sh dest=/usr/local/bin/create_map_data.sh mode=0755
 
-- name: cron für ffmap-backend
-  cron: name="ffmap-backend" minute="*" job="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin /usr/src/tools/create_map_data.sh >/dev/null 2>&1"
+- name: cron für create_map_data.sh
+  cron: name="ffmap-backend" minute="*" job="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin /usr/local/bin/create_map_data.sh >/dev/null 2>&1"
 
