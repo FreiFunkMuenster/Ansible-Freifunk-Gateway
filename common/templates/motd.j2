@@ -15,5 +15,5 @@
  Freifunk IP:     {{ff_network.v4_network | ipaddr(server_id) | ipaddr('address') }} / {{ff_network.v6_network | ipaddr(server_id) | ipaddr('address') }}
 {% endif %}
 
- Domäne: {{ group_names[0] }}
+ Domäne: {{ group_names | last }}
 
