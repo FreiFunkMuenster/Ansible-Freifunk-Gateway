@@ -7,19 +7,41 @@
   with_items:
     - nginx
 
-# nginx konfigurieren
-- name: Konfig-Datei default kopieren
-  copy: src=default dest=/etc/nginx/sites-available/default
-  notify:
-    - restart nginx
+- stat: path=/etc/ssl/fullchain.pem
+  register: sslcert
 
-- name: Konfig-Datei karte.freifunk-muensterland.org kopieren
-  copy: src=karte.freifunk-muensterland.org dest=/etc/nginx/sites-available/karte.freifunk-muensterland.org
-  notify:
-    - restart nginx
+# nginx konfigurieren
+- name: Konfig-Datei default-init kopieren
+  copy: src=default-init dest=/etc/nginx/sites-available/default
+  notify: restart nginx
+  when: sslcert.stat.exists == False
+
+- name: Konfig-Datei karte.freifunk-muensterland.org-init kopieren
+  copy: src=karte.freifunk-muensterland.org-init dest=/etc/nginx/sites-available/karte.freifunk-muensterland.org
+  notify: restart nginx
+  when: sslcert.stat.exists == False
 
 - name: Konfig-Datei karte.freifunk-muensterland.org aktivieren
   file: src=/etc/nginx/sites-available/karte.freifunk-muensterland.org dest=/etc/nginx/sites-enabled/karte.freifunk-muensterland.org state=link
-  notify:
-    - restart nginx
+  notify: restart nginx
+
+- name: nginx restarten wenn initial
+  meta: flush_handlers
+  when: sslcert.stat.exists == False
+
+- name: Letsencrypt-Zertifikat beantragen und installieren
+  shell: cd /usr/src && if [ ! -e simp_le ]; then git clone https://github.com/kuba/simp_le; fi && cd simp_le && ./bootstrap.sh && if [ ! -e venv/bin/python ]; then ./venv.sh; fi && export PATH=/usr/src/simp_le/venv/bin:$PATH && cd /etc/ssl && simp_le --email info@freifunk-muensterland.de -f account_key.json -f key.pem -f fullchain.pem -d service.freifunk-muensterland.de:/var/www/html -d karte.freifunk-muensterland.org:/var/www/html/maps
+  notify: restart nginx
+  when: sslcert.stat.exists == False
+
+- name: Konfig-Datei default kopieren
+  copy: src=default dest=/etc/nginx/sites-available/default
+  notify: restart nginx
+
+- name: Konfig-Datei karte.freifunk-muensterland.org kopieren
+  copy: src=karte.freifunk-muensterland.org dest=/etc/nginx/sites-available/karte.freifunk-muensterland.org
+  notify: restart nginx
+
+- name: Cronjob für Zertifikatserneuerung
+  cron: name="simp_le" weekday="2" hour="20" minute="0" job="cd /etc/ssl && PATH=/usr/src/simp_le/venv/bin:/usr/sbin:/usr/bin:/sbin:/bin simp_le --email info@freifunk-muensterland.de -f account_key.json -f key.pem -f fullchain.pem -d service.freifunk-muensterland.de:/var/www/html -d karte.freifunk-muensterland.org:/var/www/html/maps && systemctl reload nginx"
 
