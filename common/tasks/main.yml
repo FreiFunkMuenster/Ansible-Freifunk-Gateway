@@ -35,6 +35,7 @@
     - socat
     - dnsutils
     - host
+    - ipcalc
 
 - name: add sshkeys for server
   authorized_key: 
@@ -46,4 +47,4 @@
 - locale_gen: name=de_DE.UTF-8 state=present
 
 - name: status.pl nach /root kopieren
-  copy: src=files/status.pl dest=/root/status.pl owner=root group=root mode=0755
+  copy: src=status.pl dest=/root/status.pl owner=root group=root mode=0755

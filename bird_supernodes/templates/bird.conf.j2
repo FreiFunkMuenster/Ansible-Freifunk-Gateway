@@ -35,12 +35,22 @@ protocol device {
         scan time 10;           # Scan interfaces every 10 seconds
 };
 
+protocol static dhcp_Bereich {
+	table ffnet;
+{% for line in spezifische_Routen['stdout_lines'] %}
+	{{line}}
+{% endfor %}
+}
+
 
 protocol ospf 'p-ffnet-o' {
   table ffnet;
 #  rfc1583compat yes;
   import all;
-  export none;
+  export filter {
+	if source=RTS_STATIC_DEVICE then accept;
+	else reject;
+  };
 
   area 0.0.0.0 {
    interface "bat0" {
