@@ -37,6 +37,7 @@ protocol device {
 
 protocol static dhcp_Bereich {
 	table ffnet;
+	route {{ff_network.v4_network | ipaddr(server_id) | ipaddr('address') }}/32 via "bat0";
 {% for line in spezifische_Routen['stdout_lines'] %}
 	{{line}}
 {% endfor %}
