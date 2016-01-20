@@ -17,8 +17,8 @@ done
 
 # Daten der Legacy-Domäne per wget holen
 mkdir -p /var/ffmap/data_legacy /var/www/html/maps/data_legacy
-wget https://freifunk-muensterland.de/map/data_alt/nodes.json -O /var/ffmap/data_legacy/nodes.json
-wget https://freifunk-muensterland.de/map/data_alt/graph.json -O /var/ffmap/data_legacy/graph.json
+wget http://192.168.43.3/map/data/nodes.json -O /var/ffmap/data_legacy/nodes.json
+wget http://192.168.43.3/map/data//graph.json -O /var/ffmap/data_legacy/graph.json
 mv /var/ffmap/data_legacy/* /var/www/html/maps/data_legacy
 
 # Daten mit merge_map_data.py zuammenfügen
