@@ -1,13 +1,13 @@
 # This file is managed by ansible, don't make changes here - they will be overwritten.
 
-{% set indexer = 0 -%}
+{% set indexer = [0] -%}
 
 # Durchlauf der ff-Instanzen die angebunden werden  
 
 {% for ff_instance in ff_instances %}
 # BEGIN: Instanz: {{ ff_instance }}
 
-{% set indexer = indexer + 1 -%}
+{% if indexer.append(indexer.pop() + 1) %}{% endif %} {# increment indexer by 1 #}
 
 # BATMAN Interface fuer {{ ff_instance }}
 # - Der Name des Interfaces wird aus der Nummer abgeleitet 
@@ -17,15 +17,15 @@
 
 auto bat{{ '%02d' % ff_instances[ff_instance].number }}
 iface bat{{ '%02d' % ff_instances[ff_instance].number }} inet6 static
-        address fe80::dcad:beff:feef:{{ '%02d' % indexer }}{{'%02d' % server_id}}
+        address fe80::dcad:beff:feef:{{ '%02d' % indexer[0] }}{{'%02d' % server_id}}
         netmask 64
         pre-up modprobe batman-adv
 	pre-up ip link add bat{{ '%02d' % ff_instances[ff_instance].number }} type batadv
-	post-up ip link set address de:ad:be:ef:{{ '%02d' % indexer }}:{{server_id}} dev bat{{ '%02d' % ff_instances[ff_instance].number }}
+	post-up ip link set address de:ad:be:ef:{{ '%02d' % indexer[0] }}:{{server_id}} dev bat{{ '%02d' % ff_instances[ff_instance].number }}
         post-up ip link set dev bat{{ '%02d' % ff_instances[ff_instance].number }} up
         post-up batctl -m bat{{ '%02d' % ff_instances[ff_instance].number }} it 10000
 {% for host in groups[ff_instance] %}
-        post-up batctl -m bat{{ '%02d' % ff_instances[ff_instance].number }} if add tun{{ '%02d' % ff_instances[ff_instance].number }}-{{ host }} ||:
+        post-up batctl -m bat{{ '%02d' % ff_instances[ff_instance].number }} if add tap-{{ host }} ||:
 {% endfor %}
 	post-up ip -6 addr add {{ ff_instances[ff_instance].ipv6 }}/64 dev bat{{ '%02d' % ff_instances[ff_instance].number }}
 	post-up pgrep -a -x -f "alfred -i bat{{ '%02d' % ff_instances[ff_instance].number }}.*" || alfred -i bat{{ '%02d' % ff_instances[ff_instance].number }} -b bat{{ '%02d' % ff_instances[ff_instance].number }} -u /run/alfred.{{ '%02d' % ff_instances[ff_instance].number }}.sock -m >/dev/null&
@@ -50,7 +50,7 @@ iface bat{{ '%02d' % ff_instances[ff_instance].number }} inet static
 
 {% if ansible_ssh_host != hostvars[host].ansible_ssh_host %}
 
-{% set indexer = indexer + 1 -%}
+{% if indexer.append(indexer.pop() + 1) %}{% endif %} {# increment indexer by 1 #}
 
 # Tunnel-Interface zu dem Host {{ host }} 
 # - Beim Start des Interfaces wird versucht den Tunnel zu den zugehoerigen BATMAN Interface hinzuzufuegen 
@@ -58,7 +58,7 @@ iface bat{{ '%02d' % ff_instances[ff_instance].number }} inet static
 auto tap-{{ host }}
 iface tap-{{ host }} inet manual
         pre-up ip link add $IFACE type gretap local {{ansible_ssh_host}} remote {{hostvars[host].ansible_ssh_host}} dev eth0
-        pre-up ip link set dev $IFACE address de:ad:be:ef:{{ '%02d' % indexer }}:{{server_id}}
+        pre-up ip link set dev $IFACE address de:ad:be:ef:{{ '%02d' % indexer[0] }}:{{server_id}}
         pre-up ip link set $IFACE up
         post-up batctl -m bat{{ '%02d' % ff_instances[ff_instance].number }} if add $IFACE ||:
         pre-down batctl if del $IFACE
