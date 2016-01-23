@@ -58,8 +58,8 @@
     - restart collectd
   when: collectd.collect_dhcp
 
-- name: deploy dhcp.py
-  template: src=dhcp.py.j2 dest=/opt/collectd-python/dhcp.py
+- name: deploy ipv4ipv6.py
+  template: src=ipv4ipv6.py.j2 dest=/opt/collectd-python/ipv4ipv6.py
   notify:
     - restart collectd
 
