@@ -20,7 +20,9 @@
    service: name=bird6 enabled=yes
 
  - name: Spezifischere Routen aus DHCP-Bereich berechnen
-   shell: 'ipcalc {{ dhcp.range_start }} - {{ dhcp.range_end}} |grep -v "deaggregate"|sed -e ''s/\(^.*$\)/route \1 via "bat0";/g'''
+   local_action: shell ipcalc {{ dhcp.range_start }} - {{ dhcp.range_end}} |grep -v "deaggregate"|sed -e 's/\(^.*$\)/route \1 via "bat0";/g'
+   always_run: yes
+   changed_when: false
    register: spezifische_Routen
    
  - name: configure bird.conf
