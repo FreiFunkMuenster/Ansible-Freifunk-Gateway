@@ -1,7 +1,7 @@
 #!/bin/bash
 
 TEMPLATE=/usr/src/services-ffms/apifile/ffapi-template.json
-APIFILE=/var/www/html/ffapi.json
+APIFILE=/var/www/html/freifunk/ffapi.json
 NODES=/var/www/html/maps/data/nodes.json
 
 NUMNODES=$(jq '.nodes|.[]|.flags|.online' < $NODES | grep true | wc -l)

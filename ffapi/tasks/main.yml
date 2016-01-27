@@ -1,6 +1,9 @@
 - name: git für ffapi
   git: repo=https://github.com/FreiFunkMuenster/services-ffms.git dest=/usr/src/services-ffms force=yes version=master
 
+- name: Verzeichnis für ffapi.json
+  file: path=/var/www/html/freifunk state=directory mode=0755
+
 - name: ffapi-update-nodes.sh kopieren
   copy: src=ffapi-update-nodes.sh dest=/usr/local/bin/ffapi-update-nodes.sh mode=0755
 
