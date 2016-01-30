@@ -35,7 +35,7 @@
     - socat
     - dnsutils
     - host
-    - ipcalc
+    - apt-transport-https
 
 - name: add sshkeys for server
   authorized_key: 

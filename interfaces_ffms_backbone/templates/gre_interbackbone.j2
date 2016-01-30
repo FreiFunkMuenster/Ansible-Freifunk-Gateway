@@ -1,0 +1,28 @@
+# This file is managed by ansible, don't make changes here - they will be overwritten.
+{% for host in groups['backbone'] %}
+{% if host != inventory_hostname %}
+auto bck-{{host}}
+iface bck-{{host}} inet static
+{% if hostvars[host].server_id < server_id %}
+        address 192.168.0.{{hostvars[host].server_id*20 + server_id*2}}
+{% else %}
+        address 192.168.0.{{server_id*20 + hostvars[host].server_id*2 + 1}}
+{% endif %}
+        netmask 31
+        pre-up ip link add $IFACE type gre local {{ansible_default_ipv4.address}} remote {{hostvars[host].ansible_ssh_host}} ttl 255
+        pre-up ip link set $IFACE up multicast on
+        post-up ip rule add iif $IFACE table ffnet
+        pre-down ip rule del iif $IFACE table ffnet ||:
+iface bck-{{host}} inet6 static
+{% if hostvars[host].server_id < server_id %}
+        address 2a03:2260:115:ffa1::{{hostvars[host].server_id}}:{{server_id}}:0
+{% else %}
+        address 2a03:2260:115:ffa1::{{server_id}}:{{hostvars[host].server_id}}:1
+{% endif %}
+        netmask 127
+        post-up ip -6 rule add iif $IFACE table ffnet
+        pre-down ip -6 rule del iif $IFACE table ffnet ||:
+        post-down ip link delete $IFACE
+
+{% endif %}
+{% endfor %}

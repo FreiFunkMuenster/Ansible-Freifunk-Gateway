@@ -32,8 +32,8 @@
   ],
   "nodeInfos": [
     { "name": "Clientstatistik",
-      "href": "https://freifunk-muensterland.de:8443/render/render?format=png&from=-24h&target=node.{NODE_ID}.count&height=600&width=800",
-      "thumbnail": "https://freifunk-muensterland.de:8443/render/render?format=png&from=-24h&target=node.{NODE_ID}.count&height=300&width=400",
+      "href": "https://freifunk-muensterland.de:8443/render/render?format=png&from=-24h&target=node.{NODE_ID}.count&yMin=0&height=600&width=800",
+      "thumbnail": "https://freifunk-muensterland.de:8443/render/render?format=png&from=-24h&target=node.{NODE_ID}.count&yMin=0&height=300&width=400",
       "caption": "Knoten {NODE_ID}"
     }
   ]
