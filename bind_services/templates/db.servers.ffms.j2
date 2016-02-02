@@ -1,7 +1,7 @@
 ; zonefile for servers.ffms.
 $TTL    86400
 @       IN      SOA     servers.ffms. root.servers.ffms. (
-                              1         ; Serial
+                     {{ansible_date_time.epoch}}         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
                         2419200         ; Expire

@@ -17,7 +17,6 @@
   template: src=named.conf.ffms.j2 dest=/etc/bind/named.conf.ffms
   notify:
     - restart bind9
-  when: bind and "ffms_zone_type" in bind and (bind.ffms_zone_type == "slave" or bind.ffms_zone_type == "master")
 
 - name: create named.conf
   template: src=named.conf.j2 dest=/etc/bind/named.conf
@@ -28,23 +27,19 @@
   template: src=db.other.j2 dest=/etc/bind/db.other.ffms
   notify:
     - restart bind9
-  when: bind and "ffms_zone_type" in bind and bind.ffms_zone_type == "master"
 
 - name: create own db file for each subdomaene
   template: src=db.ffms.j2 dest=/etc/bind/db.{{item}}.ffms
   notify:
     - restart bind9
-  when: bind and "ffms_zone_type" in bind and bind.ffms_zone_type == "master"
   with_items: bind.ffms_for_groups
 
 - name: create own db file for gateway servers and backbone servers
   template: src=db.servers.ffms.j2 dest=/etc/bind/db.servers.ffms
   notify:
     - restart bind9
-  when: bind and "ffms_zone_type" in bind and bind.ffms_zone_type == "master"
 
 - name: create own db file for services
   template: src=db.services.ffms.j2 dest=/etc/bind/db.services.ffms
   notify:
     - restart bind9
-  when: bind and "ffms_zone_type" in bind and bind.ffms_zone_type == "master"
