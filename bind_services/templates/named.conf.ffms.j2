@@ -6,6 +6,7 @@ view "{{group}}" {
 		{{hostvars[groups[group][0]].ff_network.v4_network}};
 		{{hostvars[groups[group][0]].ff_network.v6_network}};
 	};
+	include "/etc/bind/named.conf.freifunk-muensterland";
 	include "/etc/bind/named.conf.local";
 	include "/etc/bind/named.conf.default-zones";
 	zone "ffms." {
@@ -41,6 +42,7 @@ view "external-view" {
 		!{{hostvars[groups[group][0]].ff_network.v6_network}};
 {% endfor %}
 	};
+        include "/etc/bind/named.conf.freifunk-muensterland";
 	include "/etc/bind/named.conf.local";
 	include "/etc/bind/named.conf.default-zones";
 };
