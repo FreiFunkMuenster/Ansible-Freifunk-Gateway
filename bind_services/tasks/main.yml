@@ -58,3 +58,8 @@
   template: src=db.freifunk-muenster.de.j2 dest=/etc/bind/db.freifunk-muenster.de
   notify:
     - restart bind9
+
+- name: create own db file for gw.freifunk-muenster.de
+  template: src=db.gw.freifunk-muenster.de.j2 dest=/etc/bind/db.gw.freifunk-muenster.de
+  notify:
+    - restart bind9
