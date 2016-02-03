@@ -52,30 +52,3 @@ zone "gw.freifunk-muenster.de." IN {
 {% endfor %}
 	};
 };
-//zone "servers.freifunk-muenster.de." IN {
-//	type master;
-//	file "/etc/bind/db.servers.freifunk-muenster.de";
-//	allow-transfer {
-//{% for host in groups['backbone'] %}
-//           {{hostvars[host].ansible_ssh_host }};
-//{% endfor %}
-//	};
-//};
-//zone "services.freifunk-muenster.de." IN {
-//	type master;
-//	file "/etc/bind/db.services.freifunk-muenster.de";
-//	allow-transfer {
-//{% for host in groups['backbone'] %}
-//           {{hostvars[host].ansible_ssh_host }};
-//{% endfor %}
-//	};
-//};
-//zone "knoten.freifunk-muenster.de." IN {
-//	type master;
-//	file "/etc/bind/db.knoten.freifunk-muenster.de";
-//	allow-transfer {
-//{% for host in groups['backbone'] %}
-//           {{hostvars[host].ansible_ssh_host }};
-//{% endfor %}
-//	};
-//};
