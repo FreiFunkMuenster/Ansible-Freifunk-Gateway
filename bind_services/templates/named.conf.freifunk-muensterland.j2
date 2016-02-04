@@ -7,24 +7,24 @@ zone "freifunk-muensterland.de." IN {
 {% endfor %}
 	};
 };
-//zone "servers.freifunk-muensterland.de." IN {
-//	type master;
-//	file "/etc/bind/db.servers.freifunk-muensterland.de";
-//	allow-transfer {
-//{% for host in groups['backbone'] %}
-//           {{hostvars[host].ansible_ssh_host }};
-//{% endfor %}
-//	};
-//};
-//zone "services.freifunk-muensterland.de." IN {
-//	type master;
-//	file "/etc/bind/db.services.freifunk-muensterland.de";
-//	allow-transfer {
-//{% for host in groups['backbone'] %}
-//           {{hostvars[host].ansible_ssh_host }};
-//{% endfor %}
-//	};
-//};
+zone "servers.freifunk-muensterland.de." IN {
+	type master;
+	file "/etc/bind/db.servers.freifunk-muensterland.de";
+	allow-transfer {
+{% for host in groups['backbone'] %}
+           {{hostvars[host].ansible_ssh_host }};
+{% endfor %}
+	};
+};
+zone "services.freifunk-muensterland.de." IN {
+	type master;
+	file "/etc/bind/db.services.freifunk-muensterland.de";
+	allow-transfer {
+{% for host in groups['backbone'] %}
+           {{hostvars[host].ansible_ssh_host }};
+{% endfor %}
+	};
+};
 //zone "knoten.freifunk-muensterland.de." IN {
 //	type master;
 //	file "/etc/bind/db.knoten.freifunk-muensterland.de";

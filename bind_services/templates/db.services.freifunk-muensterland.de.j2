@@ -1,15 +1,12 @@
-; zonefile for services.ffms.
+; zonefile for services.freifunk-muensterland.de.
 $TTL    86400
-@       IN      SOA     services.ffms. info.freifunk-muensterland.de. (
+@       IN      SOA     services.freifunk-muensterland.de. info.freifunk-muensterland.de. (
                      {{ansible_date_time.epoch}}         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
                         2419200         ; Expire
                           86400 )       ; Negative Cache TTL
 ;
-@			IN      NS      {{bind.ns_name}}.services.ffms.
-{{bind.ns_name}}			IN      A       {{ansible_default_ipv4.address}}
-{% if bind.ffms_services == True %}
 {% for group in bind.ffms_for_groups %}
 {% if "static_hosts" in hostvars[groups[group][0]] %}
 {% for host in hostvars[groups[group][0]].static_hosts %}
@@ -17,4 +14,3 @@ $TTL    86400
 {% endfor %}
 {% endif %}
 {% endfor %}
-{% endif %}

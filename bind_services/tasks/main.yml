@@ -54,6 +54,16 @@
   notify:
     - restart bind9
 
+- name: create own db file for servers.freifunk-muensterland.de
+  template: src=db.servers.freifunk-muensterland.de.j2 dest=/etc/bind/db.servers.freifunk-muensterland.de
+  notify:
+    - restart bind9
+
+- name: create own db file for services.freifunk-muensterland.de
+  template: src=db.services.freifunk-muensterland.de.j2 dest=/etc/bind/db.services.freifunk-muensterland.de
+  notify:
+    - restart bind9
+
 - name: create own db file for freifunk-muenster.de
   template: src=db.freifunk-muenster.de.j2 dest=/etc/bind/db.freifunk-muenster.de
   notify:

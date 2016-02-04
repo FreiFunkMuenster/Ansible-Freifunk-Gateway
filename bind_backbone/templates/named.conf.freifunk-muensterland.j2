@@ -1,0 +1,51 @@
+# Slaveserver configuration
+include "/etc/bind/named.conf.local";
+include "/etc/bind/named.conf.default-zones";
+zone "freifunk-muensterland.de." IN {
+	type slave;
+	masters {
+{% for master in bind.ffms_zone_masters %}
+		{{master}};
+{% endfor %}
+	};
+};
+zone "servers.freifunk-muensterland.de." IN {
+	type slave;
+	masters {
+{% for master in bind.ffms_zone_masters %}
+		{{master}};
+{% endfor %}
+	};
+};
+zone "services.freifunk-muensterland.de." IN {
+	type slave;
+	masters {
+{% for master in bind.ffms_zone_masters %}
+		{{master}};
+{% endfor %}
+	};
+};
+//zone "knoten.freifunk-muensterland.de." IN {
+//	type slave;
+//	masters {
+{% for master in bind.ffms_zone_masters %}
+//		{{master}};
+{% endfor %}
+//	};
+//};
+zone "freifunk-muenster.de." IN {
+	type slave;
+	masters {
+{% for master in bind.ffms_zone_masters %}
+		{{master}};
+{% endfor %}
+	};
+};
+zone "gw.freifunk-muenster.de." IN {
+	type slave;
+	masters {
+{% for master in bind.ffms_zone_masters %}
+		{{master}};
+{% endfor %}
+	};
+};
