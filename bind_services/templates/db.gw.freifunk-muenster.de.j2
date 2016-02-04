@@ -1,6 +1,6 @@
 ; zonefile for freifunk-muenster.de.
 $TTL    86400
-@       IN      SOA     freifunk-muenster.de. info.freifunk-muensterland.de. (
+@       IN      SOA     service.freifunk-muensterland.de. info.freifunk-muensterland.de. (
                      {{ansible_date_time.epoch}}         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
@@ -14,7 +14,7 @@ ns{{i[0]}}	IN 	A	{{hostvars[host].ansible_ssh_host }}
 {% endfor %}
 
 ;GW01
-fanlin                          A       89.163.221.125 
+fanlin                          A       89.163.221.125
 fanlin                          AAAA    2001:4ba0:fff1:49::2
 
 ;GW02

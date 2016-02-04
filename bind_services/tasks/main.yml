@@ -1,7 +1,13 @@
-# install bind9 service 
+# install bind9 service
 # ---
 - name: install bind9
   apt: pkg=bind9 state=installed
+
+- name: copy create_db_knoten.py
+  copy: src=create_db_knoten.py dest=/usr/local/bin/create_db_knoten.py mode=755
+
+- name: copy create_db_knoten.sh
+  copy: src=create_db_knoten.sh dest=/usr/local/bin/create_db_knoten.sh mode=755
 
 - name: deploy named.conf.local
   template: src=named.conf.local.j2 dest=/etc/bind/named.conf.local

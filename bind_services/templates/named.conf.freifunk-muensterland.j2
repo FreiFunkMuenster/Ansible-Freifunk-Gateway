@@ -25,15 +25,15 @@ zone "services.freifunk-muensterland.de." IN {
 {% endfor %}
 	};
 };
-//zone "knoten.freifunk-muensterland.de." IN {
-//	type master;
-//	file "/etc/bind/db.knoten.freifunk-muensterland.de";
-//	allow-transfer {
-//{% for host in groups['backbone'] %}
-//           {{hostvars[host].ansible_ssh_host }};
-//{% endfor %}
-//	};
-//};
+zone "knoten.freifunk-muensterland.de." IN {
+	type master;
+	file "/etc/bind/db.knoten.freifunk-muensterland.de";
+	allow-transfer {
+{% for host in groups['backbone'] %}
+           {{hostvars[host].ansible_ssh_host }};
+{% endfor %}
+	};
+};
 zone "freifunk-muenster.de." IN {
 	type master;
 	file "/etc/bind/db.freifunk-muenster.de";
