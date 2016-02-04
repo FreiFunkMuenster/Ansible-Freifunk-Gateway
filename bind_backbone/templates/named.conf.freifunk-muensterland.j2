@@ -25,14 +25,14 @@ zone "services.freifunk-muensterland.de." IN {
 {% endfor %}
 	};
 };
-//zone "knoten.freifunk-muensterland.de." IN {
-//	type slave;
-//	masters {
+zone "knoten.freifunk-muensterland.de." IN {
+	type slave;
+	masters {
 {% for master in bind.ffms_zone_masters %}
-//		{{master}};
+		{{master}};
 {% endfor %}
-//	};
-//};
+	};
+};
 zone "freifunk-muenster.de." IN {
 	type slave;
 	masters {
