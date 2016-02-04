@@ -18,10 +18,19 @@ nodes = {}
 jnodes = json.load(open(file_nodes, 'r'))
 for node in jnodes['nodes'].values():
     try:
-        hostname = re.sub(r'[^a-z0-9\-]',"", node["nodeinfo"]["hostname"].lower())
+        hostname = re.sub(r'[^a-z0-9\-]',"", node["nodeinfo"]["hostname"].lower())[0:63]
         for address in node["nodeinfo"]["network"]["addresses"]:
             if address.lower().startswith(prefix6):
-                nodes[hostname[0:63]] = address
+                online = node['flags']['online']
+                lastseen = node['lastseen']
+                if hostname in nodes:
+                    if not online and nodes[hostname][1]:
+                        continue
+                    if not online and nodes[hostname][2] > lastseen:
+                        continue
+                    if (online == nodes[hostname][1]) and nodes[hostname][0] > address:
+                        continue
+                nodes[hostname] = (address, online, lastseen)
     except:
         pass
 
@@ -39,5 +48,5 @@ $TTL    86400
 for line in open(file_db, 'r'):
     if re.search('IN\s*NS', line):
         print(line, end="")
-for hostname in nodes.keys():
-    print(hostname + "  AAAA    " + nodes[hostname])
+for hostname in sorted(nodes):
+    print(hostname + "  AAAA    " + nodes[hostname][0])
