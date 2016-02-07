@@ -1,0 +1,45 @@
+#!/usr/bin/python
+
+import datetime, collectd, os.path
+
+def getStats():
+	stats = {
+		'v4' : {},
+		'v6' : {}
+	}
+	prc = open('/proc/net/netstat', 'r')
+	for line in prc.readlines():
+		if 'IpExt' in line and 'InOctets' not in line:
+			line = line.split()
+			stats['v4']['rx'] = line[7]
+			stats['v4']['tx'] = line[8]
+			break
+	prc.close()
+	prc = open('/proc/net/snmp6', 'r')
+	for line in prc.readlines():
+		if 'Ip6InOctets' in line:
+			stats['v6']['rx'] = line.split()[1]
+		elif 'Ip6OutOctets' in line:
+			stats['v6']['tx'] = line.split()[1]
+	prc.close()
+	return stats
+
+def read(data=None):
+	stats = getStats()
+	vl = collectd.Values(type='if_octets')
+	vl.plugin='ip_traffic'
+	vl.type_instance = 'v4'
+	vl.dispatch(values=[stats['v4']['rx'], stats['v4']['tx']])
+	vl = collectd.Values(type='if_octets')
+	vl.plugin='ip_traffic'
+	vl.type_instance = 'v6'
+	vl.dispatch(values=[stats['v6']['rx'], stats['v6']['tx']])
+
+
+def write(vl, data=None):
+	for i in vl.values:
+		print "%s (%s): %f" % (vl.plugin, vl.type, i)
+
+collectd.register_read(read)
+collectd.register_write(write);
+

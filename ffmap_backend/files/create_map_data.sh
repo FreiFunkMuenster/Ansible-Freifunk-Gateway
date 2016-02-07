@@ -52,3 +52,6 @@ EOF
 EOF
     fi
 done
+
+# DNS-Einträge für Knoten erzeugen
+create_db_knoten.sh

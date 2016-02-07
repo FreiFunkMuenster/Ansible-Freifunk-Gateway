@@ -16,6 +16,7 @@ filter freifunk {
 protocol direct {
   interface "lo";
   interface "gre-*";
+  interface "bck-*";
   interface "tun-*";
   table ffnet;
 };
@@ -23,6 +24,7 @@ protocol direct {
 
 protocol bfd 'p4-bfd-ffnet' {
   interface "gre-*";
+  interface "bck-*";
   multihop {
     passive;
   };
@@ -35,6 +37,8 @@ protocol ospf 'p-ospf-ffnet' {
   export all;
   area 0.0.0.0 {
     interface "gre-*" {
+    };
+    interface "bck-*" {
     };
   };
 };

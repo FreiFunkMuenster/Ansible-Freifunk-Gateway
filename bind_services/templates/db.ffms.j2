@@ -1,7 +1,7 @@
 ; zonefile for ffms. for {{item}}
 $TTL    86400
-@       IN      SOA     ffms. root.ffms. (
-                              1         ; Serial
+@       IN      SOA     service.freifunk-muensterland.de. info.freifunk-muensterland.de. (
+                     {{ansible_date_time.epoch}}         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
                         2419200         ; Expire

@@ -1,0 +1,20 @@
+; zonefile for services.freifunk-muensterland.de.
+$TTL    86400
+@       IN      SOA     service.freifunk-muensterland.de. info.freifunk-muensterland.de. (
+                     {{ansible_date_time.epoch}}         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                          86400 )       ; Negative Cache TTL
+{% set i = [1] %}
+{% for host in groups['backbone'] %}
+@       IN      NS      ns{{i[0]}}.freifunk-muensterland.de.
+{% if i.append(i.pop() + 1) %}{% endif %}
+{% endfor %}
+{% for group in bind.ffms_for_groups %}
+{% if "static_hosts" in hostvars[groups[group][0]] %}
+{% for host in hostvars[groups[group][0]].static_hosts %}
+{{host.name}}		IN      A       {{host.v4_address}}
+{% endfor %}
+{% endif %}
+{% endfor %}
