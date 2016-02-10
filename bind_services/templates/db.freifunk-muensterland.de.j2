@@ -16,4 +16,11 @@ ns{{i[0]}}	IN 	A	{{hostvars[host].ansible_ssh_host }}
 @	IN	MX	10 mail.warpzone.ms.
 www	IN      A       89.163.231.227
 service IN	A	89.163.231.228
-forum   IN  A   212.47.229.243
+forum   IN  A   fb159b86-2cfd-493e-92ee-08cf0f9c99a0.pub.cloud.scaleway.com
+imap    IN  CNAME   mail.warpzone.ms
+pop3    IN  CNAME   mail.warpzone.ms
+smtp    IN  CNAME   mail.warpzone.ms
+*.freifunk-muensterland.de   IN  MX  20  mail.warpzone.ms  
+forum.freifunk-muensterland.de   IN  MX  10  fb159b86-2cfd-493e-92ee-08cf0f9c99a0.pub.cloud.scaleway.com
+forum.freifunk-muensterland.de   IN  TXT
+  
