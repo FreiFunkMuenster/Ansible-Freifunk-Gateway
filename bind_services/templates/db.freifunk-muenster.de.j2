@@ -15,3 +15,7 @@ ns{{i[0]}}	IN 	A	{{hostvars[host].ansible_ssh_host }}
 @	IN      A       89.163.231.227
 @	IN	MX	10 mail.warpzone.ms.
 www	IN      A       89.163.231.227
+imap    IN	CNAME   mail.warpzone.ms.
+pop3    IN	CNAME   mail.warpzone.ms.
+smtp    IN	CNAME   mail.warpzone.ms.
+*	IN	MX  20  mail.warpzone.ms.
