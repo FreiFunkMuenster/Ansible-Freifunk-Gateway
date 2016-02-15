@@ -18,4 +18,9 @@
   with_items:
     - docker-engine
     - python 
-    - python-docker
+    - python-pip
+
+- name: install docker-py
+  pip: 
+    name: docker-py 	
+    state: present
