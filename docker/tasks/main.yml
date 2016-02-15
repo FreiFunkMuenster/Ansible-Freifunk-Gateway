@@ -1,5 +1,10 @@
 ---
 
+- name: add docker repo
+  apt_repository:
+    repo: "deb http://apt.dockerproject.org/repo debian-jessie main"
+    state: present
+	
 - name: add docker repo key
   apt_key:
     keyserver=hkp://p80.pool.sks-keyservers.net:80
