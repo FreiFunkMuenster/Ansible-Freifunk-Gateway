@@ -9,7 +9,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN \
   apt-get update && \
   apt-get install -y --force-yes build-essential locales git curl supervisor libreadline-dev zlib1g zlib1g-dev libbz2-dev libffi-dev libsqlite3-dev libssl-dev  && \
-  locale-gen en_US.UTF-8 \
+  locale-gen en_US.UTF-8 && \
   rm -fr /var/lib/apt/lists/*
 
 ENV PATH /opt/python/bin:/usr/local/bin:$PATH
