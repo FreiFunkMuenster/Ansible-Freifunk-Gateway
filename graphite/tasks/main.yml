@@ -1,0 +1,33 @@
+---
+
+- name: create graphite data directory
+  file: dest=/mnt/data/graphite state=directory
+
+- name: create build directory
+  file: dest=/var/lib/docker/build/graphite state=directory
+
+- name: copy image files 
+  copy: src={{ item }} dest=/var/lib/docker/build/graphite 
+  with_fileglob:
+    - ./*
+        
+- name: build docker image 
+  docker_image: 
+    name: graphite
+    path: /var/lib/docker/build/graphite
+    state: present
+     
+- name: start docker image 
+  docker: 
+    name: graphite
+    image: graphite
+    state: reloaded
+    restart_policy: always
+    ports:
+      - 0.0.0.0:8000:8000
+      - 0.0.0.0:2003:2003
+      - 0.0.0.0:2004:2004
+    volumes:
+      - /mnt/data/graphite:/var/lib/graphite/storage 
+      - /mnt/data/graphite/whisper:/var/lib/graphite/storage/whisper
+ 
