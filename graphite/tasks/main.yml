@@ -1,33 +1,45 @@
 ---
 
-- name: create graphite data directory
-  file: dest=/var/graphite state=directory
-
-- name: create build directory
-  file: dest=/var/lib/docker/build/graphite state=directory
-
-- name: copy image files 
-  copy: src={{ item }} dest=/var/lib/docker/build/graphite 
-  with_fileglob:
-    - ./*
-        
-- name: build docker image 
-  docker_image: 
-    name: graphite
-    path: /var/lib/docker/build/graphite
+- name: install apt packages
+  apt:
+    pkg: "{{ item }}"
+    update_cache: yes
+    state: installed
+  with_items:
+    - python 
+    - python-pip
+    - python-devel
+    
+- name: install whisper
+  pip: 
+    name: whisper 
+    version: 0.9.15
+    state: present 
+    extra_args: '--install-option="--prefix=/var/lib/graphite" --install-option="--install-lib=/var/lib/graphite/lib" '
+    
+- name: install carbon
+  pip: 
+    name: whisper 
+    version: 0.9.15
     state: present
-     
-- name: start docker image 
-  docker: 
-    name: graphite
-    image: graphite
-    state: reloaded
-    restart_policy: always
-    ports:
-      - 0.0.0.0:8000:8000
-      - 0.0.0.0:2003:2003
-      - 0.0.0.0:2004:2004
-    volumes:
-      - /var/graphite:/var/lib/graphite/storage 
-      - /var/graphite/whisper:/var/lib/graphite/storage/whisper
- 
+    extra_args: '--install-option="--prefix=/var/lib/graphite" --install-option="--install-lib=/var/lib/graphite/lib" '
+
+- name: install graphite-web
+  pip: 
+    name: whisper 
+    version: 0.9.15
+    state: present
+    extra_args: '--install-option="--prefix=/var/lib/graphite" --install-option="--install-lib=/var/lib/graphite/lib" '
+
+- name: copy file 
+  copy: src=carbon.conf dest=/var/lib/graphite/conf/ 
+
+- name: copy file 
+  copy: src=storage-schemas.conf dest=/var/lib/graphite/conf/ 
+
+- name: copy file 
+  copy: src=graphite.wsgi dest=/var/lib/graphite/conf/ 
+
+- name: copy file 
+  copy: src=local_settings.py dest=/var/lib/graphite/lib/graphite/ 
+
