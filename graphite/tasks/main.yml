@@ -19,14 +19,14 @@
     
 - name: install carbon
   pip: 
-    name: whisper 
+    name: carbon 
     version: 0.9.15
     state: present
     extra_args: '--install-option="--prefix=/var/lib/graphite" --install-option="--install-lib=/var/lib/graphite/lib" '
 
 - name: install graphite-web
   pip: 
-    name: whisper 
+    name: graphite-web 
     version: 0.9.15
     state: present
     extra_args: '--install-option="--prefix=/var/lib/graphite" --install-option="--install-lib=/var/lib/graphite/lib" '
