@@ -1,7 +1,7 @@
 server {
 	listen 80;
 	listen [::]:80;
-	server_name karte.freifunk-muensterland.org;
+	server_name karte.freifunk-muensterland.de karte.freifunk-muensterland.org;
 	root /var/www/html/maps;
 	index index.html;
         location / {
