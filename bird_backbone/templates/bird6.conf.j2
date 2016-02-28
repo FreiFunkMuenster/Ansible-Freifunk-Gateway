@@ -51,18 +51,35 @@ function is_default() {
 }
 
 filter hostroute {
-{% for domaene in ffms_routing.domaenen %}
-        if net ~ {{domaene.v6_net}} then accept;
+{% if 'ffms_tun_to' in hostvars[inventory_hostname] %}
+{% for domaene in range(01,99) %}
+{% set step = 0 %}
+{% for host in ffms_tun_to %}
+{% if 'domaene-'+'%02d' % domaene in hostvars[host.host_name].group_names and step == 0 %}
+        if net ~ {{hostvars[host.host_name].ff_network.v6_network | regex_replace('/\d+$','/56')}} then accept;
+{% set step = 1 %}
+{% endif %}
 {% endfor %}
+{% endfor %}
+{% endif %}
         reject;
 }
-{% for domaene in ffms_routing.domaenen %}
 
-protocol static static_{{domaene.group_name | replace("-","")}} {
+{% if 'ffms_tun_to' in hostvars[inventory_hostname] %}
+{% for domaene in range(01,99) %}
+{% set step = 0 %}
+{% for host in ffms_tun_to %}
+{% if 'domaene-'+'%02d' % domaene in hostvars[host.host_name].group_names and step == 0 %}
+protocol static static_domaene{{'%02d'%domaene}} {
         table ffnet;
-        route {{domaene.v6_net}} reject;
+        route {{hostvars[host.host_name].ff_network.v6_network | regex_replace('/\d+$','/56')}} reject;
 }
+
+{% set step = 1 %}
+{% endif %}
 {% endfor %}
+{% endfor %}
+{% endif %}
 
 # ibgp zwischen den gateways
 template bgp internal {
