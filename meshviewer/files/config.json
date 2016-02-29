@@ -16,6 +16,16 @@
       }
     },
     {
+      "name": "OSM Mapnik",
+      "url": "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      "config": {
+        "subdomains": "abc",
+        "type": "osm",
+        "attribution": "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>",
+        "maxZoom": 19
+      }
+    },
+    {
       "name": "Stamen.TonerLite"
     }
   ],
