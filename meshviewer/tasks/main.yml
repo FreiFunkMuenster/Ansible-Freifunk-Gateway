@@ -12,7 +12,7 @@
     - ruby-sass
 
 - name: git für meshviewer
-  git: repo=https://github.com/FreiFunkMuenster/meshviewer.git dest=/usr/src/meshviewer version=e1b6737bd6c429bd58d8b0723172d512a6d6a012
+  git: repo=https://github.com/FreiFunkMuenster/meshviewer.git dest=/usr/src/meshviewer version=plumpudding force=yes
 
 - name: node-Abhängigkeiten aus package.json installieren
   npm: path=/usr/src/meshviewer

@@ -36,6 +36,8 @@
     { "site": "ffmsd04", "name": "Domäne 04" },
     { "site": "ffmsd05", "name": "Domäne 05" },
     { "site": "ffmsd06", "name": "Domäne 06" },
+    { "site": "ffmsd07", "name": "Domäne 07" },
+    { "site": "ffmsd14", "name": "Domäne 14" },
     { "site": "ffmstd", "name": "Testdomäne" },
     { "site": "ffwaf", "name": "Domäne Warendorf" },
     { "site": "ffms", "name": "Legacy Domäne" }

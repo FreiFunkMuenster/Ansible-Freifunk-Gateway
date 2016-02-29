@@ -2,8 +2,10 @@
 # Shellskript zum Erzeugen vom Kartendaten
 
 # Domänentexte
-declare -A text
-text=([00]=Test [01]=Münster [02]="Kreis Coesfeld" [03]="Kreis Steinfurt West" [04]="Kreis Steinfurt Ost" [05]="Münster Süd" [06]=Westmünsterland [14]="Kreis Warendorf")
+declare -A text scale
+text=([00]=Test [01]=Münster [02]="Kreis Coesfeld" [03]="Kreis Steinfurt West" [04]="Kreis Steinfurt Ost" [05]="Münster Süd" [06]=Westmünsterland [07]="L2TP" [14]="Kreis Warendorf" [15]="Kreis Warendorf Test")
+scale=([00]=0.9 [01]=0.9 [02]=1.1 [03]=1.1 [04]=1.1 [05]=1.0 [06]=1.0 [07]=0.8 [14]=1.6 [15]=0.6)
+
 
 # Daten mit ffmap-backend aus Alfred auslesen und owner entfernen
 for i in /proc/sys/net/ipv4/conf/bat*; do
@@ -28,9 +30,10 @@ mkdir -p /var/www/html/maps/data
 # meshviewer-Daten kopien/verlinken, wenn noch nicht vorhanden und index.html erzeugen
 for i in /var/www/html/maps/data?*; do
     suf=${i#*data}
-    if [ ! -e /var/www/html/maps/map${suf} ]; then
+    if [ ! -e /var/www/html/maps/map${suf} -o "$1" = "-f" ]; then
         name=$(echo $suf | sed -e s/_legacy/Legacy/)
-        mkdir /var/www/html/maps/map${suf} && cd /var/www/html/maps/map${suf} && ln -s ../map/* . && rm config.json && sed -e "s#/data/#/data$suf/#" -e "s#Münsterland#Münsterland - Domäne ${name}#" <../map/config.json >config.json
+        mkdir /var/www/html/maps/map${suf} && cd /var/www/html/maps/map${suf} && ln -s ../map/* . 
+	cd /var/www/html/maps/map${suf} && rm config.json && sed -e "s#/data/#/data$suf/#" -e "s#Münsterland#Münsterland - Domäne ${name}#" -e "s#0.5#${scale[$suf]-0.5}#" <../map/config.json >config.json
         cat <<EOF > /var/www/html/maps/index.html
 <html>
 <head>
