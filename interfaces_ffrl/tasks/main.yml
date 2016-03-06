@@ -8,8 +8,25 @@
      regexp='^[ \t]+up ip address add.*$'
      insertafter='^iface lo inet loopback.*$'
      line='        up ip address add {{server_ipv4_nat}} dev lo'
-  notify:
-    - restart networking
+
+- name: Create interfaces - add ffrl-rule to loopback
+  lineinfile: 
+     dest='/etc/network/interfaces'
+     regexp='^[ \t]+up ip rule add from.*$'
+     insertafter='^[ \t]+up ip address add.*$'
+     line='        up ip rule add from {{server_ipv4_nat}} table ffnet'
+
+- name: Create interfaces - add suppress_prefixlength-rule
+  lineinfile: 
+     dest='/etc/network/interfaces'
+     insertafter='^[ \t]+up ip rule add from.*$'
+     line='        up ip rule add iif lo table ffnet suppress_prefixlength 0'
+
+- name: Create interfaces - add v6 suppress_prefixlength-rule
+  lineinfile: 
+     dest='/etc/network/interfaces'
+     insertafter='^[ \t]+up ip rule add iif lo table ffnet suppress_prefixlength 0.*$'
+     line='        up ip -6 rule add iif lo table ffnet suppress_prefixlength 0'
 
 # creating gretap tunnels to ffrl
 - name: Create interfaces - gretap to ffrl
