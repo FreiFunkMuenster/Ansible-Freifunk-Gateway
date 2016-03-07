@@ -5,10 +5,11 @@ After=network.target
 [Service]
 Type=forking
 User=www-data
+RuntimeDirectory=carbon-cache
 StandardOutput=syslog
 StandardError=syslog
-ExecStart=/var/lib/graphite/bin/carbon-cache.py --config=/var/lib/graphite/conf/carbon.conf --pidfile=/var/run/carbon-cache.pid --logdir=/var/log/carbon/ start
-PIDFile=/var/run/carbon-cache.pid
+ExecStart=/var/lib/graphite/bin/carbon-cache.py --config=/var/lib/graphite/conf/carbon.conf --pidfile=/var/run/carbon-cache/carbon-cache.pid --logdir=/var/log/carbon/ start
+PIDFile=/var/run/carbon-cache/carbon-cache.pid
 
 [Install]
 WantedBy=multi-user.target
