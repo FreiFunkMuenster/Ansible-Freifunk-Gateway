@@ -10,6 +10,12 @@
     - python-pip
     - python-devel
     
+- name: install zope.interface
+  pip: 
+    name: zope.interface 
+    version: >= 3.6.0
+    state: present 
+
 - name: install whisper
   pip: 
     name: whisper 
