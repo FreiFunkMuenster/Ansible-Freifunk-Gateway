@@ -3,8 +3,7 @@ Description=Graphite Carbon Cache
 After=network.target
 
 [Service]
-User=www-data
-RuntimeDirectory=carbon-cache
+Type=forking
 StandardOutput=syslog
 StandardError=syslog
 ExecStart=/var/lib/graphite/bin/carbon-cache.py --config=/var/lib/graphite/conf/carbon.conf --pidfile=/var/run/carbon-cache/carbon-cache.pid --logdir=/var/log/carbon/ start
