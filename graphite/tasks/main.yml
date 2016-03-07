@@ -49,3 +49,5 @@
 - name: copy file 
   copy: src=local_settings.py dest=/var/lib/graphite/lib/graphite/ 
 
+- name: copy file 
+  copy: src=carbon-cache.service dest=/lib/systemd/system/ 
