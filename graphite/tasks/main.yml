@@ -8,7 +8,7 @@
   with_items:
     - python 
     - python-pip
-    - python-devel
+    - python-dev
     
 - name: install whisper
   pip: 
