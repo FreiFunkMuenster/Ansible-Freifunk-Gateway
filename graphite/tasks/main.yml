@@ -48,10 +48,10 @@
     - restart carbon-cache
 
 - name: create log directory
-  file: path=/var/log/carbon state=directory mode=0755 owner=www-data:www-data
+  file: path=/var/log/carbon state=directory mode=0755 owner=www-data 
 
 - name: create storage directory
-  file: path=/var/lib/graphite/storage state=directory mode=0755 owner=www-data:www-data
+  file: path=/var/lib/graphite/storage state=directory mode=0755 owner=www-data
 
 - name: copy file carbon.conf
   copy: src=carbon.conf dest=/var/lib/graphite/conf/ 
