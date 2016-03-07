@@ -9,12 +9,16 @@
     - python 
     - python-pip
     - python-dev
+  notify:
+    - restart carbon-cache
     
 - name: install zope.interface
   pip: 
     name: zope.interface 
     version: 3.6.0
     state: present 
+  notify:
+    - restart carbon-cache
 
 - name: install whisper
   pip: 
@@ -22,6 +26,8 @@
     version: 0.9.15
     state: present 
     extra_args: '--install-option="--prefix=/var/lib/graphite" --install-option="--install-lib=/var/lib/graphite/lib" '
+  notify:
+    - restart carbon-cache
     
 - name: install carbon
   pip: 
@@ -29,6 +35,8 @@
     version: 0.9.15
     state: present
     extra_args: '--install-option="--prefix=/var/lib/graphite" --install-option="--install-lib=/var/lib/graphite/lib" '
+  notify:
+    - restart carbon-cache
 
 - name: install graphite-web
   pip: 
@@ -36,18 +44,34 @@
     version: 0.9.15
     state: present
     extra_args: '--install-option="--prefix=/var/lib/graphite" --install-option="--install-lib=/var/lib/graphite/lib" '
+  notify:
+    - restart carbon-cache
 
-- name: copy file 
+- name: copy file carbon.conf
   copy: src=carbon.conf dest=/var/lib/graphite/conf/ 
+  notify:
+    - restart carbon-cache
 
-- name: copy file 
+- name: copy file storage-schemas.conf
   copy: src=storage-schemas.conf dest=/var/lib/graphite/conf/ 
+  notify:
+    - restart carbon-cache
 
-- name: copy file 
+- name: copy file graphite.wsgi
   copy: src=graphite.wsgi dest=/var/lib/graphite/conf/ 
+  notify:
+    - restart carbon-cache
 
-- name: copy file 
+- name: copy file local_settings.py
   copy: src=local_settings.py dest=/var/lib/graphite/lib/graphite/ 
+  notify:
+    - restart carbon-cache
 
-- name: copy file 
+- name: copy file carbon-cache.service
   copy: src=carbon-cache.service dest=/lib/systemd/system/ 
+  notify:
+    - restart carbon-cache
+
+- name: enable carbon-cache
+  service: name=carbon-cache enabled=yes
+  
