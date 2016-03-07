@@ -3,7 +3,6 @@ Description=Graphite Carbon Cache
 After=network.target
 
 [Service]
-Type=forking
 User=www-data
 RuntimeDirectory=carbon-cache
 StandardOutput=syslog
