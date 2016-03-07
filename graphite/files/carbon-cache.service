@@ -7,7 +7,7 @@ Type=forking
 User=www-data
 StandardOutput=syslog
 StandardError=syslog
-ExecStart=/var/lib/graphite/bin/carbon-cache.py --config=/var/lib/graphite/conf/ --pidfile=/var/run/carbon-cache.pid --logdir=/var/log/carbon/ start
+ExecStart=/var/lib/graphite/bin/carbon-cache.py --config=/var/lib/graphite/conf/carbon.conf --pidfile=/var/run/carbon-cache.pid --logdir=/var/log/carbon/ start
 PIDFile=/var/run/carbon-cache.pid
 
 [Install]
