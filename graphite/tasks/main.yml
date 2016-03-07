@@ -81,4 +81,6 @@
 
 - name: enable carbon-cache
   service: name=carbon-cache enabled=yes
-  
+    notify:
+    - restart carbon-cache
+    
