@@ -9,9 +9,18 @@
     - python 
     - python-pip
     - python-dev
+	- uwsgi
+	- uwsgi-plugin-python 
   notify:
     - restart carbon-cache
     
+- name: install django
+  pip: 
+    name: django 
+    state: present 
+  notify:
+    - restart carbon-cache
+
 - name: install zope.interface
   pip: 
     name: zope.interface 
@@ -19,7 +28,7 @@
     state: present 
   notify:
     - restart carbon-cache
-
+	
 - name: install whisper
   pip: 
     name: whisper 
@@ -49,6 +58,9 @@
 
 - name: create log directory
   file: path=/var/log/carbon state=directory mode=0755 owner=www-data 
+
+- name: create log directory
+  file: path=/var/log/graphite state=directory mode=0755 owner=www-data 
 
 - name: create storage directory
   file: path=/var/lib/graphite/storage state=directory mode=0755 owner=www-data
