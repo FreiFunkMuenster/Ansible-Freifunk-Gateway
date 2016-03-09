@@ -19,7 +19,7 @@
     name: django 
     state: present 
   notify:
-    - restart carbon-cache
+    - restart uwsgi
 
 - name: install zope.interface
   pip: 
@@ -75,6 +75,11 @@
   notify:
     - restart carbon-cache
 
+- name: copy file graphite.conf
+  copy: src=graphite.conf dest=/etc/uwsgi/apps-enabled/ 
+  notify:
+    - restart uwsgi
+	
 - name: copy file graphite.wsgi
   copy: src=graphite.wsgi dest=/var/lib/graphite/conf/ 
   notify:
@@ -95,4 +100,9 @@
   service: name=carbon-cache enabled=yes
   notify:
     - restart carbon-cache
+
+- name: enable uwsgi
+  service: name=uwsgi enabled=yes
+  notify:
+    - restart uwsgi
     
