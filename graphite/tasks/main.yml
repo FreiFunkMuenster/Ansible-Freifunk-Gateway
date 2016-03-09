@@ -105,4 +105,3 @@
   service: name=uwsgi enabled=yes
   notify:
     - restart uwsgi
-    
