@@ -13,7 +13,10 @@ protocol kernel 'p-ffnet-k' {
                                 # nur Auswirkungen auf Einträge, die nicht auf
                                 # Interface-Ebene wirken. Bisher kein effekt
                                 # beobachtet.
-        export all;             # Default is export none
+	export filter {
+		if net ~ [{{ ff_network.v4_network }}{ {{- ff_network.v4_network | ipaddr('prefix') + 1 }},32}] then reject;
+		accept;
+	};
         table ffnet;            # ... und deswegen muss der hier nicht angegeben werden.
         kernel table 42;        # Kernel table to synchronize with (default: main)
         device routes;
@@ -46,26 +49,23 @@ protocol static dhcp_Bereich {
 
 protocol ospf 'p-ffnet-o' {
   table ffnet;
-#  rfc1583compat yes;
-  import all;
-  export filter {
-	if source=RTS_STATIC_DEVICE then accept;
-	else reject;
+  import filter {
+	if net ~ [192.168.0.0/16+] then reject;
+	accept;
   };
-
+  export filter {
+	if net ~ [192.168.0.0/16+] then reject;
+	accept;
+  };
   area 0.0.0.0 {
    interface "bat0" {
+	stub;
    };
    interface "gre-*" {
    };
 
   };
 };
-
-
-# Turn on global debugging of all protocols
-#debug protocols all;
-
 
 
 protocol kernel 'p-master-k' {
