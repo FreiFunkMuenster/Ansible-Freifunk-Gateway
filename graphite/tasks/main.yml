@@ -9,8 +9,8 @@
     - python 
     - python-pip
     - python-dev
-	- uwsgi
-	- uwsgi-plugin-python 
+    - uwsgi
+    - uwsgi-plugin-python 
   notify:
     - restart carbon-cache
     
@@ -22,10 +22,21 @@
   notify:
     - restart uwsgi
 
-- name: install django-tagging
+- name: install requirements for graphite-web
   pip: 
-    name: django-tagging
+    name: "{{ item }}"
     state: present 
+  with_items:
+    - python-memcached
+    - txAMQP
+    - simplejson
+    - django-tagging
+    - gunicorn
+    - pytz
+    - sphinx
+    - sphinx_rtd_theme
+    - cairocffi
+    - whitenoise
   notify:
     - restart uwsgi
 
@@ -36,7 +47,7 @@
     state: present 
   notify:
     - restart carbon-cache
-	
+
 - name: install whisper
   pip: 
     name: whisper 
@@ -83,11 +94,11 @@
   notify:
     - restart carbon-cache
 
-- name: copy file graphite.conf
-  copy: src=graphite.conf dest=/etc/uwsgi/apps-enabled/ 
+- name: copy file graphite.ini
+  copy: src=graphite.ini dest=/etc/uwsgi/apps-enabled/ 
   notify:
     - restart uwsgi
-	
+
 - name: copy file graphite.wsgi
   copy: src=graphite.wsgi dest=/var/lib/graphite/conf/ 
   notify:
