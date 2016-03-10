@@ -17,6 +17,14 @@
 - name: install django
   pip: 
     name: django 
+    version: 1.8.11
+    state: present 
+  notify:
+    - restart uwsgi
+
+- name: install django-tagging
+  pip: 
+    name: django-tagging
     state: present 
   notify:
     - restart uwsgi
