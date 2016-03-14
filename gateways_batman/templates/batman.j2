@@ -1,0 +1,46 @@
+# This file is managed by ansible, don't make changes here - they will be overwritten.
+
+# Batman Interface 
+# - Erstellt das virtuelle Inteface fuer das Batman-Modul und bindet dieses an die Netzwerkbruecke 
+# - Die unten angelegte Routing-Tabelle wird spaeter fuer das Routing innerhalb von Freifunk (Router/VPN) verwendet 
+
+{% for item in domaenenliste|dictsort %}
+auto bat{{item[0]}}
+iface bat{{item[0]}} inet static
+        address {{domaenen[item[0]].ffv4_network | ipaddr(item[1].server_id) | ipaddr('address') }}
+        netmask {{domaenen[item[0]].ffv4_network | ipaddr('netmask')}}
+        pre-up modprobe batman-adv
+	pre-up ip link add bat{{item[0]}} type batadv
+        post-up ip link set dev bat{{item[0]}} up
+        post-up batctl it 10000
+	post-up batctl gw server {{batman.downstream}}/{{batman.upstream}}
+	post-up batctl if add br{{item[0]}} ||:
+{% for host in groups['gateways'] %}
+{% if host != inventory_hostname %}
+{% for item2 in hostvars[host].domaenenliste|dictsort %}
+{% if item[0] == item2[0] %}
+	post-up batctl if add t{{item[0]}}-{{host}} ||:
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+        post-up ip rule add from all fwmark 0x1 table ffnet
+        post-up ip rule add iif bat{{item[0]}} table ffnet
+        post-up ip rule add iif lo lookup ffnet suppress_prefixlength 0
+        post-down ip rule del from all fwmark 0x1 table ffnet ||:
+        post-down ip rule del iif bat{{item[0]}} table ffnet ||:
+        post-down ip rule del iif lo lookup ffnet suppress_prefixlength 0 ||:
+
+iface bat{{item[0]}} inet6 static
+        address {{domaenen[item[0]].ffv6_network | ipaddr(item[1].server_id) | ipaddr('address') }}
+        netmask {{domaenen[item[0]].ffv6_network | ipaddr('prefix')}}
+        post-up ip -6 rule add from all fwmark 0x1 table ffnet
+        post-up ip -6 rule add iif bat{{item[0]}} table ffnet
+        post-up ip -6 rule add iif lo lookup ffnet suppress_prefixlength 0 
+	post-up ip -6 rule add from {{domaenen[item[0]].ffv6_network | ipaddr(item[1].server_id) | ipaddr('address') }} lookup ffnet
+        post-down ip -6 rule del from all fwmark 0x1 table ffnet ||:
+        post-down ip -6 rule del iif bat{{item[0]}} table ffnet ||:
+        post-down ip -6 rule del iif lo lookup ffnet suppress_prefixlength 0 ||:
+	post-down ip -6 rule del from {{domaenen[item[0]].ffv6_network | ipaddr(item[1].server_id) | ipaddr('address') }} lookup ffnet ||:
+	post-down modprobe -r batman-adv
+{% endfor %}
