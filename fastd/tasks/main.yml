@@ -62,3 +62,7 @@
 - name: create blacklist file (if not exists)
   file: path=/var/gateway-ffms/fastd/blacklist state=touch
   when: blacklist_file.stat.exists == False
+
+- name: status.pl nach /root kopieren
+  copy: src=status.pl dest=/root/status.pl owner=root group=root mode=0755
+
