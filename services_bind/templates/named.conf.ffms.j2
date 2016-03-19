@@ -1,33 +1,33 @@
-{% for group in bind.ffms_for_groups -%}
+{% for domaene in domaenen|dictsort -%}
 
-#view for (broadcast-)domain {{group}}   
-view "{{group}}" {
+#view for (broadcast-)domain domaene-{{domaene[0]}}   
+view "domaene-{{domaene[0]}}" {
 	match-clients {
-		{{hostvars[groups[group][0]].ff_network.v4_network}};
-		{{hostvars[groups[group][0]].ff_network.v6_network}};
+		{{domaene[1].ffv4_network}};
+		{{domaene[1].ffv6_network}};
 	};
 	include "/etc/bind/named.conf.freifunk-muensterland";
 	include "/etc/bind/named.conf.local";
 	include "/etc/bind/named.conf.default-zones";
 	zone "ffms." {
 		type master;
-		file "/etc/bind/db.{{group}}.ffms";
+		file "/etc/bind/db.domaene-{{domaene[0]}}.ffms";
 		allow-transfer {
-			{{hostvars[groups[group][0]].ff_network.v4_network | ipsubnet(28,0)}};
+			{{domaene[1].ffv4_network | ipsubnet(28,0)}};
 		};
 	};
 	zone "servers.ffms." {
 		type master;
 		file "/etc/bind/db.servers.ffms";
 		allow-transfer {
-			{{hostvars[groups[group][0]].ff_network.v4_network | ipsubnet(28,0)}};
+			{{domaene[1].ffv4_network | ipsubnet(28,0)}};
 		};
 	};
 	zone "services.ffms." {
 		type master;
 		file "/etc/bind/db.services.ffms";
 		allow-transfer {
-			{{hostvars[groups[group][0]].ff_network.v4_network | ipsubnet(28,0)}};
+			{{domaene[1].ffv4_network | ipsubnet(28,0)}};
 		};
 	};
 };
@@ -37,9 +37,9 @@ view "{{group}}" {
 view "external-view" {
 	match-clients {
 		any;
-{% for group in bind.ffms_for_groups %}
-		!{{hostvars[groups[group][0]].ff_network.v4_network}};
-		!{{hostvars[groups[group][0]].ff_network.v6_network}};
+{% for domaene in domaenen|dictsort %}
+		!{{domaene[1].ffv4_network}};
+		!{{domaene[1].ffv6_network}};
 {% endfor %}
 	};
         include "/etc/bind/named.conf.freifunk-muensterland";
