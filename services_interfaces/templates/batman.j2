@@ -1,73 +1,77 @@
 # This file is managed by ansible, don't make changes here - they will be overwritten.
 
 {% set indexer = [0] -%}
+{% for domaene in domaenen|dictsort %}
 
-# Durchlauf der ff-Instanzen die angebunden werden  
+{% set group = "gateways" -%}
+{% if domaene[0] == "00" -%}
+{% set group = "domaene-test" -%}
+{% endif -%}
+{% if "domaene-"+domaene[0] in groups -%}
+{% set group = "domaene-"+domaene[0] -%}
+{% endif -%}
 
-{% for ff_instance in ff_instances %}
-# BEGIN: Instanz: {{ ff_instance }}
-
-{% if indexer.append(indexer.pop() + 1) %}{% endif %} {# increment indexer by 1 #}
-
-# BATMAN Interface fuer {{ ff_instance }}
-# - Der Name des Interfaces wird aus der Nummer abgeleitet 
-# - Beim Start des Interfaces wird versucht alle zugehoerigen Tunnel hinzuzufuegen 
-# - Der Alfrred-Daemen wird mit dem Interface gestartet / gestoppt 
-# - Der batadv-Vis Daemon wird mit dem Interface gestartet / gestoppt 
-
-auto bat{{ '%02d' % ff_instances[ff_instance].number }}
-iface bat{{ '%02d' % ff_instances[ff_instance].number }} inet6 static
+# BEGIN: Domäne-{{domaene[0]}}
+{% if indexer.append(indexer.pop() + 1) %}{% endif %}{# increment indexer by 1 #}
+# BATMAN Interface für Domäne-{{domaene[0]}}
+auto bat{{domaene[0]}}
+iface bat{{domaene[0]}} inet6 static
         address fe80::dcad:beff:feef:{{ '%02d' % indexer[0] }}{{'%02d' % server_id}}
         netmask 64
         pre-up modprobe batman-adv
-	pre-up ip link add bat{{ '%02d' % ff_instances[ff_instance].number }} type batadv
-	post-up ip link set address de:ad:be:ef:{{ '%02d' % indexer[0] }}:{{server_id}} dev bat{{ '%02d' % ff_instances[ff_instance].number }}
-        post-up ip link set dev bat{{ '%02d' % ff_instances[ff_instance].number }} up
-        post-up batctl -m bat{{ '%02d' % ff_instances[ff_instance].number }} it 10000
-{% for host in groups[ff_instance] %}
-        post-up batctl -m bat{{ '%02d' % ff_instances[ff_instance].number }} if add tap-{{ host }} ||:
-{% endfor %}
-	post-up ip -6 addr add {{ ff_instances[ff_instance].ipv6 }}/64 dev bat{{ '%02d' % ff_instances[ff_instance].number }}
-	post-up pgrep -a -x -f "alfred -i bat{{ '%02d' % ff_instances[ff_instance].number }}.*" || alfred -i bat{{ '%02d' % ff_instances[ff_instance].number }} -b bat{{ '%02d' % ff_instances[ff_instance].number }} -u /run/alfred.{{ '%02d' % ff_instances[ff_instance].number }}.sock -m >/dev/null&
-	post-up pgrep -a -x -f "batadv-vis -i bat{{ '%02d' % ff_instances[ff_instance].number }}.*" || batadv-vis -i bat{{ '%02d' % ff_instances[ff_instance].number }} -u /run/batadvvis.{{ '%02d' % ff_instances[ff_instance].number }}.sock -s >/dev/null 2>&1&
-        pre-down pkill -x -f "alfred -i bat{{ '%02d' % ff_instances[ff_instance].number }}.*" ||:
-        pre-down pkill -x -f "batadv-vis -i bat{{ '%02d' % ff_instances[ff_instance].number }}.*" ||:
-
-iface bat{{ '%02d' % ff_instances[ff_instance].number }} inet static
-{% if ff_instances[ff_instance].number == 0 %}
-	address 10.1.160.11
-	netmask 255.255.240.0
-{% else %}
-        address 10.43.{{ ff_instances[ff_instance].number * 8}}.11
-	netmask 255.255.248.0
+	pre-up ip link add bat{{domaene[0]}} type batadv
+	post-up ip link set address de:ad:be:ef:{{ '%02d' % indexer[0] }}:{{server_id}} dev bat{{domaene[0]}}
+        post-up ip link set dev bat{{domaene[0]}} up
+        post-up batctl -m bat{{domaene[0]}} it 10000
+{% for host in groups[group] %}
+{% if group == "gateways" %}
+{% if domaene[0] in hostvars[host].domaenenliste %}
+	post-up batctl -m bat{{domaene[0]}} if add t{{domaene[0]}}-{{ host }} ||:
 {% endif %}
-        post-down ip link del bat{{ '%02d' % ff_instances[ff_instance].number }}
+{% else %}
+        post-up batctl -m bat{{domaene[0]}} if add tap-{{ host }} ||:
+{% endif %}
+{% endfor %}
+	post-up ip -6 addr add {{domaene[1].ffv6_network | ipaddr(server_id) | ipaddr('address')}}/64 dev bat{{domaene[0]}}
+	post-up pgrep -a -x -f "alfred -i bat{{domaene[0]}}.*" || alfred -i bat{{domaene[0]}} -b bat{{domaene[0]}} -u /run/alfred.{{domaene[0]}}.sock -m >/dev/null&
+	post-up pgrep -a -x -f "batadv-vis -i bat{{domaene[0]}}.*" || batadv-vis -i bat{{domaene[0]}} -u /run/batadvvis.{{domaene[0]}}.sock -s >/dev/null 2>&1&
+        pre-down pkill -x -f "alfred -i bat{{domaene[0]}}.*" ||:
+        pre-down pkill -x -f "batadv-vis -i bat{{domaene[0]}}.*" ||:
 
-# Tunnel-Interfaces fuer {{ ff_instance }}
+iface bat{{domaene[0]}} inet static
+        address {{domaene[1].ffv4_network | ipaddr(server_id) | ipaddr('address') }}
+        netmask {{domaene[1].ffv4_network | ipaddr('netmask')}}
+        post-down ip link del bat{{domaene[0]}}
 
-{% for host in groups[ff_instance] %}
-# BEGIN: Instanz: {{ ff_instance }} / Tunnel {{ host }}
+# Tunnel-Interfaces für Domäne-{{domaene[0]}}
+{% for host in groups[group] %}
+{% if group == "gateways" %}
+{% if domaene[0] in hostvars[host].domaenenliste %}
+{% if indexer.append(indexer.pop() + 1) %}{% endif %}{# increment indexer by 1 #}
+auto t{{domaene[0]}}-{{ host }}
+iface t{{domaene[0]}}-{{ host }} inet manual
+        pre-up ip link add $IFACE type gretap local {{ansible_ssh_host}} remote {{hostvars[host].ansible_ssh_host}} dev eth0 key {{domaene[0]|int}}
+        pre-up ip link set dev $IFACE address de:ad:be:ef:{{ '%02d' % indexer[0] }}:{{server_id}}
+        pre-up ip link set $IFACE up
+        post-up batctl -m bat{{domaene[0]}} if add $IFACE ||:
+        pre-down batctl if del $IFACE
+        post-down ip link del $IFACE
 
-{% if ansible_ssh_host != hostvars[host].ansible_ssh_host %}
-
-{% if indexer.append(indexer.pop() + 1) %}{% endif %} {# increment indexer by 1 #}
-
-# Tunnel-Interface zu dem Host {{ host }} 
-# - Beim Start des Interfaces wird versucht den Tunnel zu den zugehoerigen BATMAN Interface hinzuzufuegen 
-
+{% endif %}
+{% else %}
+{% if indexer.append(indexer.pop() + 1) %}{% endif %}{# increment indexer by 1 #}
 auto tap-{{ host }}
 iface tap-{{ host }} inet manual
         pre-up ip link add $IFACE type gretap local {{ansible_ssh_host}} remote {{hostvars[host].ansible_ssh_host}} dev eth0
         pre-up ip link set dev $IFACE address de:ad:be:ef:{{ '%02d' % indexer[0] }}:{{server_id}}
         pre-up ip link set $IFACE up
-        post-up batctl -m bat{{ '%02d' % ff_instances[ff_instance].number }} if add $IFACE ||:
+        post-up batctl -m bat{{domaene[0]}} if add $IFACE ||:
         pre-down batctl if del $IFACE
         post-down ip link del $IFACE
+
 {% endif %}
-
-# END: Instanz: {{ ff_instance }} / Tunnel {{ host }}
 {% endfor %}
+# END: Domäne-{{domaene[0]}}
 
-# END: Instanz: {{ ff_instance }}
 {% endfor %} 
 
