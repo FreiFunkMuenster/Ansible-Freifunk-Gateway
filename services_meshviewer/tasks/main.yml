@@ -30,5 +30,13 @@
   when: build_ok.stat.exists == False
 
 - name: config.json kopieren
-  copy: src=config.json dest=/var/www/html/maps/map
+  template: src=config.json.j2 dest=/var/www/html/maps/map/config.json
+  notify: recreate_map_data
+
+- name: create_map_data.sh kopieren
+  template: src=create_map_data.sh.j2 dest=/usr/local/bin/create_map_data.sh mode=0755
+  notify: recreate_map_data
+
+- name: cron für create_map_data.sh
+  cron: name="ffmap-backend" minute="*" job="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin /usr/local/bin/create_map_data.sh >/dev/null 2>&1"
 

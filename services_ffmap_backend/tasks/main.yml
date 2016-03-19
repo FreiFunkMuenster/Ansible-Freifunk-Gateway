@@ -17,9 +17,3 @@
 - name: git für tools
   git: repo=https://github.com/FreiFunkMuenster/tools.git dest=/usr/src/tools force=yes version=c6cad7f46d44859174faf47f388ff8183ab45273
 
-- name: create_map_data.sh kopieren
-  copy: src=create_map_data.sh dest=/usr/local/bin/create_map_data.sh mode=0755
-
-- name: cron für create_map_data.sh
-  cron: name="ffmap-backend" minute="*" job="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin /usr/local/bin/create_map_data.sh >/dev/null 2>&1"
-

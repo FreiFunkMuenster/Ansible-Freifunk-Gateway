@@ -30,16 +30,10 @@
     }
   ],
   "siteNames": [
-    { "site": "ffmsd01", "name": "Domäne 01" },
-    { "site": "ffmsd02", "name": "Domäne 02" },
-    { "site": "ffmsd03", "name": "Domäne 03" },
-    { "site": "ffmsd04", "name": "Domäne 04" },
-    { "site": "ffmsd05", "name": "Domäne 05" },
-    { "site": "ffmsd06", "name": "Domäne 06" },
-    { "site": "ffmsd07", "name": "Domäne 07" },
-    { "site": "ffmsd14", "name": "Domäne 14" },
+{% for domaene in domaenen|dictsort %}
+    { "site": "ffmsd{{domaene[0]}}", "name": "Domäne {{domaene[0]}} - {{domaene[1].name}}" },
+{% endfor %}
     { "site": "ffmstd", "name": "Testdomäne" },
-    { "site": "ffwaf", "name": "Domäne Warendorf" },
     { "site": "ffms", "name": "Legacy Domäne" }
   ],
   "nodeInfos": [

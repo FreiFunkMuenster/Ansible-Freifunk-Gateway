@@ -3,16 +3,15 @@
 
 # Domänentexte
 declare -A text scale
-text=([00]=Test [01]=Münster [02]="Kreis Coesfeld" [03]="Kreis Steinfurt West" [04]="Kreis Steinfurt Ost" [05]="Münster Süd" [06]=Westmünsterland [07]="L2TP" [14]="Kreis Warendorf" [15]="Kreis Warendorf Test")
-scale=([00]=0.9 [01]=0.9 [02]=1.1 [03]=1.1 [04]=1.1 [05]=1.0 [06]=1.0 [07]=0.8 [14]=1.6 [15]=0.6)
-
+text=({% for domaene in domaenen|dictsort %}[{{domaene[0]}}]="{{domaene[1].name}}" {% endfor %})
+scale=({% for domaene in domaenen|dictsort %}[{{domaene[0]}}]={{domaene[1].map_scale}} {% endfor %})
 
 # Daten mit ffmap-backend aus Alfred auslesen und owner entfernen
 for i in /proc/sys/net/ipv4/conf/bat*; do
     num=${i#*bat}
     mkdir -p /var/ffmap/data${num}
     mkdir -p /var/www/html/maps/data${num}
-    /usr/src/ffmap-backend/backend.py -d /var/ffmap/data${num} -m bat${num}:/run/alfred.$(printf %02d ${num}).sock
+    /usr/src/ffmap-backend/backend.py -d /var/ffmap/data${num} -m bat${num}:/run/alfred.${num}.sock
     jq '.nodes = (.nodes | with_entries(del(.value.nodeinfo.owner)))' < /var/ffmap/data${num}/nodes.json > /var/www/html/maps/data${num}/nodes.json
     cp /var/ffmap/data${num}/graph.json /var/www/html/maps/data${num}/graph.json
 done
