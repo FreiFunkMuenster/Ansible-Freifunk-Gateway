@@ -40,10 +40,10 @@
     - restart bind9
 
 - name: create own db file for each subdomaene
-  template: src=db.ffms.j2 dest=/etc/bind/db.{{item}}.ffms
+  template: src=db.ffms.j2 dest=/etc/bind/db.domaene-{{item}}.ffms
   notify:
     - restart bind9
-  with_items: bind.ffms_for_groups
+  with_items: domaenen
 
 - name: create own db file for gateway servers and backbone servers
   template: src=db.servers.ffms.j2 dest=/etc/bind/db.servers.ffms
