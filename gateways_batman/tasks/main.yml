@@ -21,7 +21,6 @@
     chdir: /usr/src/batctl-2015.1
   notify:
    - restart networking
-   - restart fastd
   when: batctl.stat.exists == False
     
 # creating batman interface
