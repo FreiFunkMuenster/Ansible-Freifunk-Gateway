@@ -1,0 +1,22 @@
+---
+- name: Ramdisk in fstab eintragen
+  mount: name=/var/lib/dhcp src=tmpfs fstype=tmpfs opts='defaults,size=100M' state=mounted
+  notify:
+    - restart isc-dhcp-server
+
+- name: install isc-dhcp-server
+  apt: pkg=isc-dhcp-server state=installed
+
+- name: create dhcp defaults 
+  template: src=isc-dhcp-server.j2 dest=/etc/default/isc-dhcp-server
+  notify:
+    - restart isc-dhcp-server
+  
+- name: create dhcp config
+  template: src=dhcpd.conf.j2 dest=/etc/dhcp/dhcpd.conf
+  notify:
+    - restart isc-dhcp-server
+
+- stat: path=/var/lib/dhcp/dhcpd.leases
+  register: leases4_file
+
