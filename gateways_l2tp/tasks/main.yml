@@ -26,7 +26,7 @@
   copy: src=addif.sh dest=/srv/tunneldigger/broker/scripts mode=0755
 
 - name: delif.sh kopieren
-  copy: src=addif.sh dest=/srv/tunneldigger/broker/scripts mode=0755
+  copy: src=delif.sh dest=/srv/tunneldigger/broker/scripts mode=0755
 
 - name: tunneldigger.conf kopieren
   copy: src=tunneldigger.conf dest=/etc/modules-load.d/tunneldigger.conf mode=0755
