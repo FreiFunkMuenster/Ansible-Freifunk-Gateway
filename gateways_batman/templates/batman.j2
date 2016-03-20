@@ -12,9 +12,9 @@ iface bat{{item[0]}} inet static
         pre-up modprobe batman-adv
 	pre-up ip link add bat{{item[0]}} type batadv
         post-up ip link set dev bat{{item[0]}} up
-        post-up batctl it 10000
-	post-up batctl gw server {{batman.downstream}}/{{batman.upstream}}
-	post-up batctl if add br{{item[0]}} ||:
+        post-up batctl -m bat{{item[0]}} it 10000
+	post-up batctl -m bat{{item[0]}} gw server {{batman.downstream}}/{{batman.upstream}}
+	post-up batctl -m bat{{item[0]}} if add br{{item[0]}} ||:
 {% for host in groups['gateways'] %}
 {% if host != inventory_hostname %}
 {% for item2 in hostvars[host].domaenenliste|dictsort %}
