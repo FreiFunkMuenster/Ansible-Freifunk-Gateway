@@ -54,7 +54,7 @@ iface t{{domaene[0]}}-{{ host }} inet manual
         pre-up ip link set dev $IFACE address de:ad:be:ef:{{ '%02d' % indexer[0] }}:{{server_id}}
         pre-up ip link set $IFACE up
         post-up batctl -m bat{{domaene[0]}} if add $IFACE ||:
-        pre-down batctl if del $IFACE
+        pre-down batctl -m bat{{domaene[0]}} if del $IFACE ||:
         post-down ip link del $IFACE
 
 {% endif %}
@@ -66,7 +66,7 @@ iface tap-{{ host }} inet manual
         pre-up ip link set dev $IFACE address de:ad:be:ef:{{ '%02d' % indexer[0] }}:{{server_id}}
         pre-up ip link set $IFACE up
         post-up batctl -m bat{{domaene[0]}} if add $IFACE ||:
-        pre-down batctl if del $IFACE
+        pre-down batctl -m bat{{domaene[0]}} if del $IFACE ||:
         post-down ip link del $IFACE
 
 {% endif %}
