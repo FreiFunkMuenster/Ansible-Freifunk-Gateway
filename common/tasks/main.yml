@@ -36,6 +36,11 @@
     - dnsutils
     - host
     - apt-transport-https
+    - tshark
+    - dwdiff
+    - molly-guard
+    - git
+    - iperf
 
 - name: add sshkeys for server
   authorized_key: 
