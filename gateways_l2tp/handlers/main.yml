@@ -1,0 +1,12 @@
+- name: reload systemd
+  shell: systemctl daemon-reload 
+   
+- name: restart tunneldigger
+  service: name=tunneldigger state=restarted enabled=yes
+
+- name: load kernel modules
+  shell: /etc/init.d/kmod start || true
+
+- name: restart networking
+  shell: systemctl restart networking && if systemctl -q is-active isc-dhcp-server; then systemctl restart isc-dhcp-server; fi
+
