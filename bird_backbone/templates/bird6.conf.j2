@@ -52,11 +52,15 @@ function is_default() {
 
 filter hostroute {
 {% if 'ffms_tun_to' in hostvars[inventory_hostname] %}
-{% for domaene in range(01,99) %}
+{% for domaene in domaenen|dictsort %}
 {% set step = 0 %}
 {% for host in ffms_tun_to %}
-{% if 'domaene-'+'%02d' % domaene in hostvars[host.host_name].group_names and step == 0 %}
-        if net ~ {{hostvars[host.host_name].ff_network.v6_network | regex_replace('/\d+$','/56')}} then accept;
+{% if 'domaene-'+domaene[0] in hostvars[host.host_name].group_names and step == 0 %}
+        if net ~ {{hostvars[host.host_name].ff_network.v6_network | regex_replace('..::/\d+$','00::/56')}} then accept;
+{% set step = 1 %}
+{% endif %}
+{% if "domaenenliste" in hostvars[host.host_name] and domaene[0] in hostvars[host.host_name].domaenenliste and step == 0 %}
+        if net ~ {{domaene[1].ffv6_network | regex_replace('..::/\d+$','00::/56')}} then accept;
 {% set step = 1 %}
 {% endif %}
 {% endfor %}
@@ -66,13 +70,21 @@ filter hostroute {
 }
 
 {% if 'ffms_tun_to' in hostvars[inventory_hostname] %}
-{% for domaene in range(01,99) %}
+{% for domaene in domaenen|dictsort %}
 {% set step = 0 %}
 {% for host in ffms_tun_to %}
-{% if 'domaene-'+'%02d' % domaene in hostvars[host.host_name].group_names and step == 0 %}
-protocol static static_domaene{{'%02d'%domaene}} {
+{% if 'domaene-'+domaene[0] in hostvars[host.host_name].group_names and step == 0 %}
+protocol static static_domaene{{domaene[0]}} {
         table ffnet;
-        route {{hostvars[host.host_name].ff_network.v6_network | regex_replace('/\d+$','/56')}} reject;
+        route {{hostvars[host.host_name].ff_network.v6_network | regex_replace('..::/\d+$','00::/56')}} reject;
+}
+
+{% set step = 1 %}
+{% endif %}
+{% if "domaenenliste" in hostvars[host.host_name] and domaene[0] in hostvars[host.host_name].domaenenliste and step == 0 %}
+protocol static static_domaene{{domaene[0]}} {
+        table ffnet;
+        route {{domaene[1].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject;
 }
 
 {% set step = 1 %}

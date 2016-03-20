@@ -4,7 +4,7 @@
 # GRE Tunnel to host {{host.host_name}} ({{hostvars[host.host_name].ansible_ssh_host}})
 auto gre-{{host.host_name}}
 iface gre-{{host.host_name}} inet static
-{% if "domaenenliste" in hostvars[host.host_name] %}
+{% if host.host_name in groups['gateways'] %}
         address 192.168.{{vm_id}}.{{hostvars[host.host_name].vm_id*4+1}}
 {% else %}
         address 192.168.{{hostvars[host.host_name].domaenen_id*10 + server_id}}.{{hostvars[host.host_name].server_id*4+1}}
@@ -15,7 +15,7 @@ iface gre-{{host.host_name}} inet static
         post-up ip rule add iif $IFACE table ffnet
         pre-down ip rule del iif $IFACE table ffnet ||:
 iface gre-{{host.host_name}} inet6 static
-{% if "domaenenliste" in hostvars[host.host_name] %}
+{% if host.host_name in groups['gateways'] %}
         address 2a03:2260:115:ffa0::{{vm_id}}:{{hostvars[host.host_name].vm_id}}:1
 {% else %}
         address 2a03:2260:115:ffa0:{{hostvars[host.host_name].domaenen_id}}:{{server_id}}:{{hostvars[host.host_name].server_id}}:1
