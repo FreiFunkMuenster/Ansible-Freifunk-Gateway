@@ -19,7 +19,7 @@ iface bat{{item[0]}} inet static
 {% if host != inventory_hostname %}
 {% for item2 in hostvars[host].domaenenliste|dictsort %}
 {% if item[0] == item2[0] %}
-	post-up batctl if add t{{item[0]}}-{{host}} ||:
+	post-up batctl -m bat{{item[0]}} if add t{{item[0]}}-{{host}} ||:
 {% endif %}
 {% endfor %}
 {% endif %}
