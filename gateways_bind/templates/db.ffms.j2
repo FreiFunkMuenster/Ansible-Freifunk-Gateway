@@ -1,0 +1,15 @@
+; zonefile for ffms. for domaene-{{item}}
+$TTL    86400
+@       IN      SOA     service.freifunk-muensterland.de. info.freifunk-muensterland.de. (
+                     {{ansible_date_time.epoch}}         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                          86400 )       ; Negative Cache TTL
+;
+@			IN      NS      ns01.ffms.
+ns01			IN      A       {{domaenen[item].ffv4_network | ipaddr(domaenenliste[item].server_id) | ipaddr('address') }}
+node			IN      A       {{domaenen[item].ffv4_network | ipaddr(1) | ipaddr('address')}}
+node			IN      AAAA    {{domaenen[item].ffv6_network | ipaddr(1) | ipaddr('address')}}
+firmware	IN      A       144.76.30.226
+firmware	IN      AAAA    2a01:4f8:191:21e1::23

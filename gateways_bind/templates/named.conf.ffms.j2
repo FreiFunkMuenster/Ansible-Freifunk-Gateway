@@ -1,0 +1,27 @@
+{% for domaene in domaenen|dictsort -%}
+#view for (broadcast-)domain domaene-{{domaene[0]}}   
+view "domaene-{{domaene[0]}}" {
+        match-clients {
+                {{domaene[1].ffv4_network}};
+                {{domaene[1].ffv6_network}};
+        };
+	include "/etc/bind/named.conf.local";
+	include "/etc/bind/named.conf.default-zones";
+	zone "ffms." {
+		type master;
+		file "/etc/bind/db.domaene-{{domaene[0]}}.ffms";
+	};
+	zone "servers.ffms." {
+		type slave;
+		masters {
+			{{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars['services'].vm_id) | ipaddr('address')}};
+		};
+	};
+	zone "services.ffms." {
+		type slave;
+		masters {
+			{{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars['services'].vm_id) | ipaddr('address')}};
+		};
+	};
+};
+{% endfor %}
