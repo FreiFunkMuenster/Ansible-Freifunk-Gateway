@@ -1,0 +1,41 @@
+- name: Abhängigkeiten installieren
+  apt:
+    pkg: "{{ item }}"
+    state: installed
+  with_items:
+    - bridge-utils
+    - ebtables
+    - git
+    - iproute
+    - libevent-dev
+    - libnetfilter-conntrack3
+    - python-dev
+    - python-virtualenv
+
+- name: git für tunneldigger
+  git: repo=https://github.com/ffrl/tunneldigger dest=/srv/tunneldigger force=yes version=f820d65e57098094231083c2e83ed4983d2be049
+
+- name: Python-Abhängigkeiten installieren
+  pip: requirements=/srv/tunneldigger/broker/requirements.txt virtualenv=/srv/tunneldigger
+
+- name: tunneldigger.service kopieren
+  copy: src=tunneldigger.service dest=/etc/systemd/system
+  notify: reload systemd
+
+- name: addif.sh kopieren
+  copy: src=addif.sh dest=/srv/tunneldigger/broker/scripts mode=0755
+
+- name: delif.sh kopieren
+  copy: src=addif.sh dest=/srv/tunneldigger/broker/scripts mode=0755
+
+- name: tunneldigger.conf kopieren
+  copy: src=tunneldigger.conf dest=/etc/modules-load.d/tunneldigger.conf mode=0755
+  notify: load kernel modules
+
+- name: l2tp_broker.cfg kopieren
+  template: src=l2tp_broker.cfg.j2 dest=/srv/tunneldigger/broker/l2tp_broker.cfg mode=0755
+  notify: restart tunneldigger
+
+- name: l2tp-bridge einrichten
+  template: src=l2tp_bridge.j2 dest=/etc/network/interfaces.d/20_l2tp_bridge.cfg
+  notify: restart networking
