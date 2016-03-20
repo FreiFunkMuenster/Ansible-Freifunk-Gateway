@@ -16,7 +16,7 @@ $TTL    86400
 {{host}}	IN      A       {{hostvars[host].ansible_ssh_host}};
 {% endfor %}
 {% endfor %}
-{% for host in groups['gateways'] %}
+{% for host in groups['gateways']+groups['gateways-waf'] %}
 {{host}}	IN      A       {{hostvars[host].ansible_ssh_host}};
 {% endfor %}
 {% for host in groups['backbone'] %}

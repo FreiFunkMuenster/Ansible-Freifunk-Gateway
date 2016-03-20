@@ -4,6 +4,9 @@
 {% for domaene in domaenen|dictsort %}
 
 {% set group = "gateways" -%}
+{% if domaene[0] == "14" or domaene[0] == "15" -%}
+{% set group = "gateways-waf" -%}
+{% endif -%}  
 {% if domaene[0] == "00" -%}
 {% set group = "domaene-test" -%}
 {% endif -%}
@@ -24,7 +27,7 @@ iface bat{{domaene[0]}} inet6 static
         post-up ip link set dev bat{{domaene[0]}} up
         post-up batctl -m bat{{domaene[0]}} it 10000
 {% for host in groups[group] %}
-{% if group == "gateways" %}
+{% if group == "gateways" or group == "gateways-waf" %}
 {% if domaene[0] in hostvars[host].domaenenliste %}
 	post-up batctl -m bat{{domaene[0]}} if add t{{domaene[0]}}-{{ host }} ||:
 {% endif %}
@@ -45,7 +48,7 @@ iface bat{{domaene[0]}} inet static
 
 # Tunnel-Interfaces für Domäne-{{domaene[0]}}
 {% for host in groups[group] %}
-{% if group == "gateways" %}
+{% if group == "gateways" or group == "gateways-waf" %}
 {% if domaene[0] in hostvars[host].domaenenliste %}
 {% if indexer.append(indexer.pop() + 1) %}{% endif %}{# increment indexer by 1 #}
 auto t{{domaene[0]}}-{{ host }}
