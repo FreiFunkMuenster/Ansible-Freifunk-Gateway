@@ -1,0 +1,25 @@
+# This file is managed by ansible, don't make changes here - they will be overwritten.
+{% for host in groups['backbone'] %}
+{% if 'ffms_tun_to' in hostvars[host] %}
+{% for link in hostvars[host].ffms_tun_to%}
+{% if 'host_name' in link and link.host_name == inventory_hostname %}
+
+# GRE Tunnel to host {{host}} ({{hostvars[host].ansible_ssh_host}})
+auto gre-{{host}}
+iface gre-{{host}} inet static
+        address 192.168.{{hostvars[host].vm_id}}.{{vm_id*4+2}}
+        netmask 30
+        pre-up ip link add $IFACE type gre remote {{hostvars[host].ansible_ssh_host}} local {{ansible_default_ipv4.address}} ttl 255
+        pre-up ip link set $IFACE up multicast on
+        post-up ip rule add iif $IFACE table ffnet
+iface gre-{{host}} inet6 static
+        address 2a03:2260:115:ffa0::{{hostvars[host].vm_id}}:{{vm_id}}:2
+        netmask 126
+        post-up ip -6 rule add iif $IFACE table ffnet
+        pre-down ip -6 rule del iif $IFACE table ffnet ||:
+        pre-down ip rule del iif $IFACE table ffnet ||:
+        post-down ip link delete $IFACE
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}

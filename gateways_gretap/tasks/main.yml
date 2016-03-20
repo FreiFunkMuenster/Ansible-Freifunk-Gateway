@@ -1,0 +1,14 @@
+---
+# Tasks for getap network interfaces
+
+# create file for gre interfaces
+- name: Create interfaces - inter_gre file
+  template: src="gretap.j2" dest="/etc/network/interfaces.d/30_gretap.cfg"
+  notify:
+    - restart networking
+
+#append line in interfaces file for reading additional config files
+- name: let read interfaces from interfaces
+  lineinfile: dest="/etc/network/interfaces" line="source /etc/network/interfaces.d/*"
+  notify:
+    - restart networking
