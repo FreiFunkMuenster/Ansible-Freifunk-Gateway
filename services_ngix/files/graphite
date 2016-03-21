@@ -16,7 +16,7 @@ server {
 	index index.html;
 	charset     utf-8;
 	location / {
-		uwsgi_pass  unix:/tmp/uwsgi.sock;
+		uwsgi_pass  unix:/run/uwsgi/app/graphite/socket;
 		include     uwsgi_params;
 	}
 	location /content/ {
