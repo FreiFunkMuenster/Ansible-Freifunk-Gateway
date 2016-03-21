@@ -1,0 +1,130 @@
+---
+
+- name: install apt packages
+  apt:
+    pkg: "{{ item }}"
+    update_cache: yes
+    state: installed
+  with_items:
+    - python 
+    - python-pip
+    - python-dev
+    - uwsgi
+    - uwsgi-plugin-python
+    - libffi-dev 
+  notify:
+    - restart carbon-cache
+    
+- name: install django
+  pip: 
+    name: django 
+    version: 1.8.11
+    state: present 
+  notify:
+    - restart uwsgi
+
+- name: install requirements for graphite-web
+  pip: 
+    name: "{{ item }}"
+    state: present 
+  with_items:
+    - python-memcached
+    - txAMQP
+    - simplejson
+    - django-tagging
+    - gunicorn
+    - pytz
+    - sphinx
+    - sphinx_rtd_theme
+    - cairocffi
+    - whitenoise
+  notify:
+    - restart uwsgi
+
+- name: install zope.interface
+  pip: 
+    name: zope.interface 
+    version: 3.6.0
+    state: present 
+  notify:
+    - restart carbon-cache
+
+- name: install whisper
+  pip: 
+    name: whisper 
+    version: 0.9.15
+    state: present 
+    extra_args: '--install-option="--prefix=/var/lib/graphite" --install-option="--install-lib=/var/lib/graphite/lib" '
+  notify:
+    - restart carbon-cache
+    
+- name: install carbon
+  pip: 
+    name: carbon 
+    version: 0.9.15
+    state: present
+    extra_args: '--install-option="--prefix=/var/lib/graphite" --install-option="--install-lib=/var/lib/graphite/lib" '
+  notify:
+    - restart carbon-cache
+
+- name: install graphite-web
+  pip: 
+    name: graphite-web 
+    version: 0.9.15
+    state: present
+    extra_args: '--install-option="--prefix=/var/lib/graphite" --install-option="--install-lib=/var/lib/graphite/lib" '
+  notify:
+    - restart carbon-cache
+
+- name: create log directory
+  file: path=/var/log/carbon state=directory mode=0755 owner=www-data 
+
+- name: create log directory
+  file: path=/var/log/graphite state=directory mode=0755 owner=www-data 
+
+- name: create storage directory
+  file: path=/var/lib/graphite/storage state=directory mode=0755 owner=www-data
+
+- name: create run directory
+  file: path=/var/run/carbon-cache state=directory mode=0755
+
+- name: copy file carbon.conf
+  copy: src=carbon.conf dest=/var/lib/graphite/conf/ 
+  notify:
+    - restart carbon-cache
+
+- name: copy file storage-schemas.conf
+  copy: src=storage-schemas.conf dest=/var/lib/graphite/conf/ 
+  notify:
+    - restart carbon-cache
+
+- name: copy file graphite.ini
+  copy: src=graphite.ini dest=/etc/uwsgi/apps-enabled/ 
+  notify:
+    - restart uwsgi
+
+- name: copy file graphite.wsgi
+  copy: src=graphite.wsgi dest=/var/lib/graphite/conf/ 
+  notify:
+    - restart carbon-cache
+
+- name: copy file local_settings.py
+  copy: src=local_settings.py dest=/var/lib/graphite/lib/graphite/ 
+  notify:
+    - restart carbon-cache
+
+- name: copy file carbon-cache.service
+  copy: src=carbon-cache.service dest=/lib/systemd/system/ 
+  notify:
+    - reload systemd
+    - restart carbon-cache
+
+- name: enable carbon-cache
+  service: name=carbon-cache enabled=yes
+  notify:
+    - restart carbon-cache
+
+- name: enable uwsgi
+  service: name=uwsgi enabled=yes
+  notify:
+    - restart uwsgi
