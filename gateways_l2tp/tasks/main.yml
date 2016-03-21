@@ -13,7 +13,10 @@
     - python-virtualenv
 
 - name: git für tunneldigger
-  git: repo=https://github.com/ffrl/tunneldigger dest=/srv/tunneldigger force=yes version=f820d65e57098094231083c2e83ed4983d2be049
+  git: repo=https://github.com/ffrl/tunneldigger dest=/srv/tunneldigger force=no update=no version=f820d65e57098094231083c2e83ed4983d2be049
+
+- name: patch für l2tp_broker.py
+  patch: src=l2tp_broker.py.patch dest=/srv/tunneldigger/broker/l2tp_broker.py
 
 - name: Python-Abhängigkeiten installieren
   pip: requirements=/srv/tunneldigger/broker/requirements.txt virtualenv=/srv/tunneldigger
