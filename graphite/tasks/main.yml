@@ -10,7 +10,8 @@
     - python-pip
     - python-dev
     - uwsgi
-    - uwsgi-plugin-python 
+    - uwsgi-plugin-python
+    - libffi-dev 
   notify:
     - restart carbon-cache
     
@@ -83,6 +84,9 @@
 
 - name: create storage directory
   file: path=/var/lib/graphite/storage state=directory mode=0755 owner=www-data
+
+- name: create run directory
+  file: path=/var/run/carbon-cache state=directory mode=0755
 
 - name: copy file carbon.conf
   copy: src=carbon.conf dest=/var/lib/graphite/conf/ 
