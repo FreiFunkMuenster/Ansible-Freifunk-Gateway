@@ -37,18 +37,23 @@ for i in /var/www/html/maps/data?*; do
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Freifunk Münsterland</title>
+<title>Freifunk Münsterland - Karten</title>
 </head>
 <body>
 <h1>Freifunk Münsterland - Karten</h1>
 <p><a href="map/">Gesamtkarte</a></p>
+<p>
 EOF
 	for j in /var/www/html/maps/data?*; do
 	    suf2=${j#*data}
 	    name=$(echo $suf2 ${text[$suf2]:+-} ${text[$suf2]}| sed -e s/_legacy/Legacy/)
-	    echo "<p><a href=\"map$suf2/\">Domäne $name</a></p>" >> /var/www/html/maps/index.html
+	    echo "<a href=\"map$suf2/\">Domäne $name</a><br>" >> /var/www/html/maps/index.html
         done
         cat <<EOF >> /var/www/html/maps/index.html
+</p>
+<hr>
+<p><a href="http://umap.openstreetmap.fr/de/map/ffms-domanen_62931">Gebiete der Domänen</a></p>
+<p><a href="https://freifunk-muensterland.de/wiki/doku.php?id=technik:ip-aufteilung">IP-Aufteilung und Status der Domänen</a></p>
 </body>
 </html>
 EOF
