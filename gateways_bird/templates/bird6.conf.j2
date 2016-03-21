@@ -17,20 +17,22 @@ protocol kernel 'kernel_ffnet' {
         device routes;
 };
 
+protocol radv {
 {% for domaene in domaenenliste|dictsort %}
-protocol radv 'radvd_bat{{domaene[0]}}' {
 	interface "bat{{domaene[0]}}" {
 		max ra interval 20;
 		link mtu 1280;
 		prefix {{domaenen[domaene[0]].ffv6_network}} {
 		};
 	};
+{% endfor %}
 	rdnss {
+{% for domaene in domaenenliste|dictsort %}
 		ns {{domaenen[domaene[0]].ffv6_network | ipaddr(domaene[1].server_id) | ipaddr('address') }};
+{% endfor %}
 	};
 };
 
-{% endfor %}
 
 protocol bfd {
         table ffnet;
