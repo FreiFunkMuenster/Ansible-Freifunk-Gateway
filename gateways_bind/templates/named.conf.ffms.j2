@@ -1,9 +1,9 @@
-{% for domaene in domaenen|dictsort -%}
+{% for domaene in domaenenliste|dictsort -%}
 #view for (broadcast-)domain domaene-{{domaene[0]}}   
 view "domaene-{{domaene[0]}}" {
         match-clients {
-                {{domaene[1].ffv4_network}};
-                {{domaene[1].ffv6_network}};
+                {{domaenen[domaene[0]].ffv4_network}};
+                {{domaenen[domaene[0]].ffv6_network}};
         };
 	include "/etc/bind/named.conf.local";
 	include "/etc/bind/named.conf.default-zones";
