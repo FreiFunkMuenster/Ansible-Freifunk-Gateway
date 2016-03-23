@@ -875,9 +875,13 @@ LoadPlugin write_graphite
 
 <Plugin write_graphite>
 	<Carbon>
-		Host "{{ graphite_data_target.host }}"
-		Port "{{ graphite_data_target.port }}"
-		Prefix "{{ collectd.graphite_prefix }}"
+{% if group_names[0].startswith('domaene-') %}
+		Host "{{ff_network.v4_network | ipaddr('11') | ipaddr('address')}}"
+{% else %}
+		Host "89.163.231.228"
+{% endif %}
+		Port "2003"
+		Prefix "{{ group_names[0] }}."
 		Postfix ""
 		StoreRates false
 		AlwaysAppendDS false
