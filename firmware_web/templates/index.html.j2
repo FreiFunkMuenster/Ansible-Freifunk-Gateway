@@ -1,0 +1,27 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Freifunk Münsterland - Firmware</title>
+</head>
+<body>
+    <h1>Freifunk Münsterland - Firmware</h1>
+    <p>Im Januar 2016 haben wir das Netzwerk umstrukturiert. Seitdem gibt es für die verschiedenen Bereiche (Domänen) unterschiedliche Firmware. Es gibt die folgenden Methoden, die passende Firmware zu finden:</p>
+    <ol>
+	<li>Den <a href="md-fw-dl/">Firmware Download Assitenten</a> verwenden.</li>
+        <li>Wähle eine Domäne, um zum Verzeichnisbaum mit passender Firmware zu gelangen:
+	    <ul>
+{% for domaene in domaenen|dictsort %}
+{% if "firmware" in domaene[1] %}
+		<li><a href="{{domaene[1].firmware}}">Domäne {{domaene[0]}}</a> - {{domaene[1].name}}</li>
+{% endif %}
+{% endfor %}
+	    </ul>
+	</li>
+        <li>Klicke auf das passende Gebiet in der Karte unten und folge dem Link "Firmware-Download".
+	    (<a href="http://umap.openstreetmap.fr/de/map/ffms-domanen_62931">Hier</a> gibt es die Karte mit der Aufteilung der Domänen im Vollbildmodus.)
+	</li>
+    </ol>
+    <iframe width="900px" height="400px" frameBorder="0" src="//umap.openstreetmap.fr/de/map/ffms-domanen_62931?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&allowEdit=false&moreControl=true&datalayersControl=true&onLoadPanel=undefined&captionBar=false"></iframe>
+</body>
+</html>
+

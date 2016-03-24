@@ -1,0 +1,2 @@
+- name: index.html erzeugen
+  template: src=index.html.j2 dest=/var/www/html/index.html
