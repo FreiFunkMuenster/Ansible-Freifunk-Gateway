@@ -15,11 +15,11 @@
 {% for domaene in domaenenliste|dictsort %}
  Domäne-{{domaene[0]}}: {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }} / {{domaenen[domaene[0]].ffv6_network | ipaddr(domaene[1].server_id) | ipaddr('address') }}
 {% endfor %}
-{% else %}
-{% if 'backbone' not in group_names %}
+{% elif group_names[0].startswith('domaene-') %}
  Freifunk IP:     {{ff_network.v4_network | ipaddr(server_id) | ipaddr('address') }} / {{ff_network.v6_network | ipaddr(server_id) | ipaddr('address') }}
-{% endif %}
 
  Domäne: {{ group_names | last }}
+{% else %}
+ Aufgabe: {{ group_names | last }}
 {% endif %}
 
