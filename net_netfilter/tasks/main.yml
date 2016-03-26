@@ -1,0 +1,20 @@
+---
+
+- name: Enable nf_conntrack module
+  modprobe: name=nf_conntrack state=present
+
+- name: Enable nf_conntrack on system startup
+  lineinfile: dest=/etc/modules line="nf_conntrack"
+
+- name: Set nf_conntrack_max to a higher value
+  sysctl: name="net.netfilter.nf_conntrack_max" value=262144 sysctl_set=yes state=present reload=yes
+
+- name: Get current nf_conntrack hashsize
+  shell: "cat /sys/module/nf_conntrack/parameters/hashsize"
+  register: nf_conntrack_hashsize
+  changed_when: false
+  always_run: yes
+
+- name: Set nf_conntrack hashsize to a higher value
+  shell: "echo 16384 > /sys/module/nf_conntrack/parameters/hashsize"
+  when: "nf_conntrack_hashsize.stdout != '16384'"
