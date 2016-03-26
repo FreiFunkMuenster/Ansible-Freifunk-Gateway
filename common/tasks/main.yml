@@ -4,6 +4,19 @@
 - name: create motd file
   template: src=motd.j2 dest=/etc/motd
 
+- name: Enable syntax highlighting in vim by default
+  lineinfile: 
+    dest=~/.vimrc
+    regexp='^syntax '
+    line='syntax on'
+    owner=root
+    group=root
+    mode=0644
+    create=yes
+
+- name: Update .bash_profile file
+  template: src=bash_profile.j2 dest=~/.bash_profile
+
 - name: add default repo
   #Freifunk- und Rollen-Repos erst in den jeweiligen Rollen
   apt_repository:

@@ -14,14 +14,14 @@
   lineinfile:
     dest: /etc/hosts
     regexp: "^127.0.0.1"
-    line: "127.0.0.1{{'\t'}}{{inventory_hostname}}{% if inventory_hostname != inventory_hostname_short %}{{'\t'}}{{inventory_hostname_short}}{% endif %}{{'\t'}}localhost"
+    line: "127.0.0.1{{'\t'}}{{inventory_hostname}}{{'\t'}}{{inventory_hostname_short}}{{hostname_suffix}}{% if inventory_hostname != inventory_hostname_short %}{{'\t'}}{{inventory_hostname_short}}{% endif %}{{'\t'}}localhost"
     state: present
 
 - name: Hostname für IPv6 in /etc/hosts setzen
   lineinfile:
     dest: /etc/hosts
     regexp: "^::1"
-    line: "::1{{'\t\t'}}{{inventory_hostname}}{% if inventory_hostname != inventory_hostname_short %}{{'\t'}}{{inventory_hostname_short}}{% endif %}{{'\t'}}localhost ip6-localhost ip6-loopback"
+    line: "::1{{'\t\t'}}{{inventory_hostname}}{{'\t'}}{{inventory_hostname_short}}{{hostname_suffix}}{% if inventory_hostname != inventory_hostname_short %}{{'\t'}}{{inventory_hostname_short}}{% endif %}{{'\t'}}localhost ip6-localhost ip6-loopback"
     state: present
 
 
