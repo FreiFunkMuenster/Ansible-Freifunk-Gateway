@@ -6,6 +6,7 @@ After=network.target
 Type=forking
 StandardOutput=syslog
 StandardError=syslog
+RuntimeDirectory=carbon-cache
 ExecStart=/var/lib/graphite/bin/carbon-cache.py --config=/var/lib/graphite/conf/carbon.conf --pidfile=/var/run/carbon-cache/carbon-cache.pid --logdir=/var/log/carbon/ start
 PIDFile=/var/run/carbon-cache/carbon-cache.pid
 
