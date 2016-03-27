@@ -1,0 +1,16 @@
+---
+- name: Install iptables-persistent
+  apt:
+    pkg: "iptables-persistent"
+    update_cache: yes
+    state: installed
+
+- name: Create rules.v4 file
+  template: src=rules.v4.j2 dest=/etc/iptables/rules.v4
+  notify:
+   - iptables-restore
+
+- name: Create rules.v6 file
+  template: src=rules.v6.j2 dest=/etc/iptables/rules.v6
+  notify:
+   - ip6tables-restore

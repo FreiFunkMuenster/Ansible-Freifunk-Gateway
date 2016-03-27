@@ -1,0 +1,6 @@
+---
+- name: iptables-restore
+  shell: iptables-restore < /etc/iptables/rules.v4
+
+- name: ip6tables-restore
+  shell: ip6tables-restore < /etc/iptables/rules.v6

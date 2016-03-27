@@ -1,35 +1,38 @@
 ---
 
- - name: Schlüssel für Bird hinzufügen
-   apt_key: keyserver=keyserver.ubuntu.com id=AC0E47584A7A714D
+- name: Fire all previous handlers
+  meta: flush_handlers
 
- - name: Bird-Repo hinzufügen
-   apt_repository:
-         repo: "deb http://bird.network.cz/debian/ jessie main"
-         state: present
+- name: Schlüssel für Bird hinzufügen
+  apt_key: keyserver=keyserver.ubuntu.com id=AC0E47584A7A714D
 
- - name: Bird installieren
-   apt:
-         pkg: "{{item}}"
-         update_cache: yes
-         state: installed
-   with_items:
-         - bird
-         - bird6
+- name: Bird-Repo hinzufügen
+  apt_repository:
+        repo: "deb http://bird.network.cz/debian/ jessie main"
+        state: present
 
- - name: configure bird.conf
-   template: src=bird.conf.j2 dest=/etc/bird/bird.conf
-   notify:
-    - restart bird
+- name: Bird installieren
+  apt:
+        pkg: "{{item}}"
+        update_cache: yes
+        state: installed
+  with_items:
+        - bird
+        - bird6
 
- - name: configure bird6.conf
-   template: src=bird6.conf.j2 dest=/etc/bird/bird6.conf
-   notify:
-    - restart bird6
+- name: configure bird.conf
+  template: src=bird.conf.j2 dest=/etc/bird/bird.conf
+  notify:
+   - restart bird
 
- - name: bird aktivieren und starten
-   service: name=bird state=started enabled=yes
+- name: configure bird6.conf
+  template: src=bird6.conf.j2 dest=/etc/bird/bird6.conf
+  notify:
+   - restart bird6
 
- - name: bird6 aktivieren und starten
-   service: name=bird6 state=started enabled=yes
+- name: bird aktivieren und starten
+  service: name=bird state=started enabled=yes
+
+- name: bird6 aktivieren und starten
+  service: name=bird6 state=started enabled=yes
 
