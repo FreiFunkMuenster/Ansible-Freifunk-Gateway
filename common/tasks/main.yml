@@ -55,6 +55,14 @@
     - git
     - iperf
 
+- name: deinstall unneeded packages
+  apt:
+    pkg: "{{ item }}"
+    update_cache: yes
+    state: absent
+  with_items:
+    - rpcbind
+
 - name: add sshkeys for server
   authorized_key: 
     user: root 
