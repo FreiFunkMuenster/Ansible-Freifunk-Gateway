@@ -54,6 +54,8 @@
     - molly-guard
     - git
     - iperf
+    - chkconfig
+    - logwatch
 
 - name: deinstall unneeded packages
   apt:
