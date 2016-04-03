@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import datetime, collectd, os.path
+import datetime, collectd, os.path, ipaddress
 
 def parse_leases(lease_file):
 	leases = {}
@@ -8,7 +8,6 @@ def parse_leases(lease_file):
 	in_lease = False
 	for line in lease_file:
 		if line.lstrip().startswith('#'):
-
 			continue
 		tokens = line.split()
 
@@ -36,35 +35,96 @@ def parse_leases(lease_file):
 
 	return leases
 
-def count_active_leases(all_leases, now):
+def parse_dhcpd_conf(config_file):
+	in_config = False
+	subnet = {}
+	subnets = {}
+	for line in config_file:
+		line = line.strip().rstrip(';')
+		if line.startswith('#'):
+			continue
+		tokens = line.split()
+
+		if len(tokens) == 0:
+			continue
+		key = tokens[0].lower()
+
+		if key == 'subnet':
+			if in_config:
+				raise Exception('Parsing error')
+			else:
+				in_config = True
+				net = ipaddress.ip_network(unicode(tokens[1]+'/'+tokens[3]))
+				subnet = {'netaddr_str' : tokens[1], 'netaddr_int' : int(net.network_address), 'netmask_str' : tokens[3], 'netmask_int' : int(net.netmask)}
+		elif key == 'interface':
+			if not in_config:
+				raise Exception('Parsing error')
+			else:
+				subnet['interface'] = tokens[1]
+
+		elif key == '}':
+			in_config = False
+			subnets[subnet['interface']] = subnet
+			subnet = {}
+
+	return subnets
+
+def count_active_leases(all_leases, now, subnets):
 	count_active = 0
 	count_all = 0
+	subnet_counter = {}
+	for interface in subnets.iterkeys():
+		subnet_counter[interface] = {'count_active': 0, 'count_all': 0, 'count_touch': 0}
+
 	for lease in all_leases.itervalues():
-		count_all += 1
-		if timestamp_inbetween(now, lease['starts'], lease['ends']):
-			count_active += 1
+		addr = int(ipaddress.ip_address(unicode(lease['id'])))
+		for subnet in subnets.itervalues():
+			if (addr & subnet['netmask_int']) == subnet['netaddr_int']:
+				subnet_counter[subnet['interface']]['count_all'] += 1
+				count_all += 1
+				if timestamp_inbetween(now, lease['starts'], lease['ends']):
+					subnet_counter[subnet['interface']]['count_active'] += 1
+					count_active += 1
+				break
+
+	for subnet in subnet_counter.itervalues():
+			subnet['count_touch'] = subnet['count_all'] - subnet['count_active']
 	count_touch = count_all - count_active
-	return count_active, count_touch
+
+	return count_active, count_touch, subnet_counter
 
 
 def timestamp_inbetween(now, start, end):
 	return start < now < end
 
 def read(data=None):
-	leasefile = '/var/lib/dhcp/dhcpd.leases'
-	if os.path.isfile(leasefile):
-		lfile = open(leasefile, 'r')
-		all_leases = parse_leases(lfile)
-		lfile.close()
-		count_active, count_touch = count_active_leases(all_leases, datetime.datetime.utcnow())
-		vl = collectd.Values(type='gauge')
-		vl.plugin='dhcp_leases'
-		vl.type_instance = 'active'
-		vl.dispatch(values=[count_active])
-		vl = collectd.Values(type='gauge')
-		vl.plugin='dhcp_leases'
-		vl.type_instance = 'touched'
-		vl.dispatch(values=[count_touch])
+	configfile = '/etc/dhcp/dhcpd.conf'
+	if os.path.isfile(configfile):
+		cfile = open(configfile, 'r')
+		config = parse_dhcpd_conf(cfile)
+		leasefile = '/var/lib/dhcp/dhcpd.leases'
+		if os.path.isfile(leasefile):
+			lfile = open(leasefile, 'r')
+			all_leases = parse_leases(lfile)
+			lfile.close()
+			count_active, count_touch, subnet_counter = count_active_leases(all_leases, datetime.datetime.utcnow(), config)
+			vl = collectd.Values(type='gauge')
+			vl.plugin='dhcp_leases.all'
+			vl.type_instance = 'active'
+			vl.dispatch(values=[count_active])
+			vl = collectd.Values(type='gauge')
+			vl.plugin='dhcp_leases.all'
+			vl.type_instance = 'touched'
+			vl.dispatch(values=[count_touch])
+			for k, v in subnet_counter.iteritems():
+				vl = collectd.Values(type='gauge')
+				vl.plugin='dhcp_leases.'+k
+				vl.type_instance = 'active'
+				vl.dispatch(values=[v['count_active']])
+				vl = collectd.Values(type='gauge')
+				vl.plugin='dhcp_leases.'+k
+				vl.type_instance = 'touched'
+				vl.dispatch(values=[v['count_touch']])
 
 
 def write(vl, data=None):
@@ -73,4 +133,3 @@ def write(vl, data=None):
 
 collectd.register_read(read)
 collectd.register_write(write);
-
