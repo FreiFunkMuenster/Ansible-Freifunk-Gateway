@@ -108,23 +108,16 @@ def read(data=None):
 			all_leases = parse_leases(lfile)
 			lfile.close()
 			count_active, count_touch, subnet_counter = count_active_leases(all_leases, datetime.datetime.utcnow(), config)
-			vl = collectd.Values(type='gauge')
-			vl.plugin='dhcp_leases.all'
-			vl.type_instance = 'active'
-			vl.dispatch(values=[count_active])
-			vl = collectd.Values(type='gauge')
-			vl.plugin='dhcp_leases.all'
-			vl.type_instance = 'touched'
-			vl.dispatch(values=[count_touch])
+			vl = collectd.Values(type='dhcp_leases')
+			vl.plugin='dhcp'
+			vl.type_instance = 'all_interfaces'
+			vl.dispatch(values=[count_active, count_touch])
 			for k, v in subnet_counter.iteritems():
-				vl = collectd.Values(type='gauge')
-				vl.plugin='dhcp_leases.'+k
-				vl.type_instance = 'active'
-				vl.dispatch(values=[v['count_active']])
-				vl = collectd.Values(type='gauge')
-				vl.plugin='dhcp_leases.'+k
-				vl.type_instance = 'touched'
-				vl.dispatch(values=[v['count_touch']])
+				vl = collectd.Values(type='dhcp_leases')
+				vl.plugin='dhcp'
+				vl.type_instance = k
+				vl.dispatch(values=[v['count_active'], v['count_touch']])
+				vl = collectd.Values(type='dhcp_leases')
 
 
 def write(vl, data=None):
