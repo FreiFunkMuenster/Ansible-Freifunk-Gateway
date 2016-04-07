@@ -2,9 +2,14 @@
 # Shellskript zum Erzeugen vom Kartendaten
 
 # Domänentexte
-declare -A text scale
+declare -A text scale community members
 text=({% for domaene in domaenen|dictsort %}[{{domaene[0]}}]="{{domaene[1].name}}" {% endfor %})
 scale=({% for domaene in domaenen|dictsort %}[{{domaene[0]}}]={{domaene[1].map_scale}} {% endfor %})
+community=({% for domaene in domaenen|dictsort %}{% if "community" in domaene[1] %}[{{domaene[0]}}]="{{domaene[1].community}}" {% endif %}{% endfor %})
+for i in "${!community[@]}"; do
+    j=${community[$i]}
+    members[$j]="${members[$j]} $i"
+done
 
 # Daten mit ffmap-backend aus Alfred auslesen und owner entfernen
 for i in /proc/sys/net/ipv4/conf/bat*; do
@@ -26,13 +31,27 @@ mv /var/ffmap/data_legacy/* /var/www/html/maps/data_legacy
 mkdir -p /var/www/html/maps/data
 /usr/src/tools/merge_map_data.py -o /var/www/html/maps/data /var/www/html/maps/data?*
 
+for com in "${!members[@]}"; do
+    dir=/var/www/html/maps/data_${com//" "/_}
+    mkdir $dir
+    unset src
+    for i in ${members["$com"]}; do
+	src="$src /var/www/html/maps/data$i"
+    done
+    /usr/src/tools/merge_map_data.py -o $dir $src
+done
+
 # meshviewer-Daten kopien/verlinken, wenn noch nicht vorhanden und index.html erzeugen
 for i in /var/www/html/maps/data?*; do
     suf=${i#*data}
     if [ ! -e /var/www/html/maps/map${suf} -o "$1" = "-f" ]; then
-        name=$(echo $suf | sed -e s/_legacy/Legacy/)
+	case $suf in
+            ??)      name="Domäne $suf" ;;
+            _legacy) name="Domäne Legacy" ;;
+            *)       name="Community${suf//_/" "}" ;;
+        esac
         mkdir /var/www/html/maps/map${suf} && cd /var/www/html/maps/map${suf} && ln -s ../map/* . 
-	cd /var/www/html/maps/map${suf} && rm config.json && sed -e "s#/data/#/data$suf/#" -e "s#Münsterland#Münsterland - Domäne ${name}#" -e "s#0.5#${scale[$suf]-0.5}#" <../map/config.json >config.json
+	cd /var/www/html/maps/map${suf} && rm config.json && sed -e "s#/data/#/data$suf/#" -e "s#Münsterland#Münsterland - ${name}#" -e "s#0.5#${scale[$suf]-1.0}#" <../map/config.json >config.json
         cat <<EOF > /var/www/html/maps/index.html
 <html>
 <head>
@@ -44,10 +63,18 @@ for i in /var/www/html/maps/data?*; do
 <p><a href="map/">Gesamtkarte</a></p>
 <p>
 EOF
-	for j in /var/www/html/maps/data?*; do
+	for j in /var/www/html/maps/data??; do
 	    suf2=${j#*data}
-	    name=$(echo $suf2 ${text[$suf2]:+-} ${text[$suf2]}| sed -e s/_legacy/Legacy/)
-	    echo "<a href=\"map$suf2/\">Domäne $name</a><br>" >> /var/www/html/maps/index.html
+	    name="Domäne $suf2 ${text[$suf2]:+-} ${text[$suf2]}"
+	    echo "<a href=\"map$suf2/\">$name</a><br>" >> /var/www/html/maps/index.html
+        done
+	echo "<a href=\"map_legacy/\">Domäne Legacy</a></p><p>" >> /var/www/html/maps/index.html
+	for j in /var/www/html/maps/data_*; do
+	    suf2=${j#*data}
+            if [ $suf2 != _legacy ]; then
+		name="Community${suf2//_/" "}"
+	        echo "<a href=\"map$suf2/\">$name</a><br>" >> /var/www/html/maps/index.html
+            fi
         done
         cat <<EOF >> /var/www/html/maps/index.html
 </p>
