@@ -1,0 +1,153 @@
+# This file is managed by ansible, don't make changes here - they will be overwritten.
+log syslog all;
+router id {{ vm_id }};
+
+table ffnet;
+
+protocol kernel 'kernel_ffnet' {
+        scan time 20;
+        import all;
+	export filter {
+{% if domaenenliste is defined %}
+{% for domaene in domaenenliste|dictsort %}
+		if net ~ [{{ domaenen[domaene[0]].ffv4_network }}{ {{- domaenen[domaene[0]].ffv4_network | ipaddr('prefix') + 1 }},32}] then reject;
+{% endfor %}
+{% endif %}
+		accept;
+	};
+        table ffnet;
+        kernel table 42;
+        device routes;
+};
+
+protocol bfd {
+        interface "gre*";
+	interface "bck-*";
+        multihop {
+		passive;
+        };
+};
+
+protocol device {
+        scan time 10;
+};
+
+{% if domaenenliste is defined %}
+protocol static dhcp_Bereich {
+	table ffnet;
+{% for domaene in domaenenliste|dictsort %}
+	route {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }}/32 via "bat{{domaene[0]}}";
+{% endfor %}
+{% for result in spezifische_Routen.results %}
+{% for line in result['stdout_lines'] %}
+	{{line}}
+{% endfor %}
+{% endfor %}
+}
+{% endif %}
+
+filter freifunk {
+	if net ~ [10.43.0.0/16+] then accept;
+	if net ~ [185.66.193.48/29+] then accept;
+	if net ~ [185.66.195.20/30+] then accept;
+	if net ~ [192.168.0.0/16+] then reject;
+	if net ~ [10.0.0.0/16+] then reject;
+	reject;
+};
+
+
+protocol ospf {
+	table ffnet;
+	import filter freifunk;
+	export filter {
+		if net ~ [192.168.0.0/16+] then reject;
+		accept;
+	};
+	area 0.0.0.0 {
+		interface "bat*" {
+			stub;
+		};
+		interface "gre-*";
+		interface "bck-*";
+{% if ffms_tun_to is defined %}
+		interface "lo" {
+			stub;
+		};
+{% endif %}
+	};
+};
+
+protocol kernel 'kernel_master' {
+        scan time 20;
+        table master;
+        kernel table 254;
+        import all;
+        export all;
+};
+
+protocol static {
+        table master;
+        import all;
+        export none;
+};
+
+
+{% if ffrl_tun is defined %}
+function is_default() {
+	return (net ~ [0.0.0.0/0]);
+};
+
+
+filter hostroute {
+	if net ~ {{server_ipv4_nat | ipaddr('address')}}/32 then accept;
+	reject;
+};
+
+
+template bgp internal {
+	table ffnet;
+	local as {{ff_network.as_number}};
+	import filter {
+		preference = 99;
+		accept;
+	};
+	export where source = RTS_BGP;
+	gateway direct;
+	direct;
+	next hop self;
+};
+
+template bgp uplink {
+	table ffnet;
+	local as {{ff_network.as_number}};
+	import where is_default();
+	export filter hostroute;
+	next hop self;
+	multihop 64;
+	default bgp_local_pref 200;
+	default bgp_med 1;
+};
+
+{% for tun in ffrl_tun %}
+protocol bgp ffrl_{{tun.name}} from uplink {
+	source address {{tun.v4_local | ipaddr('address')}};
+	neighbor {{tun.v4_remote | regex_replace("^(\d+\.\d+\.\d+\.\d+)/\d+$","\\1")}} as 201701;
+{% if loop.first %}
+	default bgp_local_pref 201;
+	default bgp_med 1;
+{% endif %}
+};
+
+{% endfor %}
+
+{% for host in groups['gateways']+groups['backbone'] %}
+protocol bgp ibgp_{{host}} from internal {
+{% if hostvars[host].vm_id < vm_id %}
+        neighbor 192.168.0.{{vm_id*20 + hostvars[host].vm_id*2 + 1}} as {{ff_network.as_number}};
+{% else %}
+        neighbor 192.168.0.{{hostvars[host].vm_id*20 + vm_id*2}} as {{ff_network.as_number}};
+{% endif %}
+}
+
+{% endfor %}
+{% endif %}
