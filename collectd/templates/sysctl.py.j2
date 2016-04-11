@@ -1,0 +1,23 @@
+#!/usr/bin/python
+import subprocess, collectd
+
+def getStats(entries):
+	sysctl = ['sysctl', '-n']
+	return dict(zip(entries, subprocess.check_output(sysctl + entries).split('\n')))
+
+
+def read(data=None):
+	stats = getStats(['net.netfilter.nf_conntrack_max', 'net.netfilter.nf_conntrack_count'])
+	for k,v in stats.iteritems():
+		vl = collectd.Values(type='gauge')
+		vl.plugin='sysctl'
+		vl.type_instance = k
+		vl.dispatch(values=[v])
+
+
+def write(vl, data=None):
+	for i in vl.values:
+		print "%s (%s): %f" % (vl.plugin, vl.type, i)
+
+collectd.register_read(read)
+collectd.register_write(write)
