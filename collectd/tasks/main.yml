@@ -87,5 +87,7 @@
   notify:
     - restart collectd
 
-
-
+- name: deploy sysctl.py
+  template: src=sysctl.py.j2 dest=/opt/collectd-python/sysctl.py
+  notify:
+    - restart collectd

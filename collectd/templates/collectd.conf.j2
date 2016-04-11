@@ -92,7 +92,7 @@ LoadPlugin memory
 #LoadPlugin powerdns
 LoadPlugin processes
 #LoadPlugin protocols
-{% if collectd.collect_dhcp or collectd.collect_fastd or collectd.collect_l2tp or collectd.collect_ipv4ipv6 %}
+{% if collectd.collect_dhcp or collectd.collect_fastd or collectd.collect_l2tp or collectd.collect_ipv4ipv6 or collectd.collect_sysctl %}
 <LoadPlugin python>
 	Globals true
 </LoadPlugin>
@@ -669,7 +669,7 @@ LoadPlugin write_graphite
 #	Value "/^Tcp:/"
 #	IgnoreSelected false
 #</Plugin>
-{% if collectd.collect_dhcp or collectd.collect_fastd or collectd.collect_l2tp or collectd.collect_ipv4ipv6 %}
+{% if collectd.collect_dhcp or collectd.collect_fastd or collectd.collect_l2tp or collectd.collect_ipv4ipv6 or collectd.collect_sysctl %}
 <Plugin python>
 	ModulePath "/opt/collectd-python/"
 	LogTraces true
@@ -682,6 +682,9 @@ LoadPlugin write_graphite
 {% endif %}
 {% if collectd.collect_l2tp %}
 	Import "l2tp"
+{% endif %}
+{% if collectd.collect_sysctl %}
+	Import "sysctl"
 {% endif %}
 {% if collectd.collect_fastd%}
 	Import "fastd"
