@@ -141,6 +141,7 @@ protocol bgp ffrl_{{tun.name}} from uplink {
 {% endfor %}
 
 {% for host in groups['gateways']+groups['backbone'] %}
+{% if 'ffrl_tun' in hostvars[host] %}
 protocol bgp ibgp_{{host}} from internal {
 {% if hostvars[host].vm_id < vm_id %}
         neighbor 192.168.0.{{vm_id*20 + hostvars[host].vm_id*2 + 1}} as {{ff_network.as_number}};
@@ -149,5 +150,6 @@ protocol bgp ibgp_{{host}} from internal {
 {% endif %}
 }
 
+{% endif %}
 {% endfor %}
 {% endif %}
