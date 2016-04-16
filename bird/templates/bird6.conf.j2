@@ -60,7 +60,7 @@ protocol ospf {
 		};
 		interface "gre-*";
 		interface "bck-*";
-{% if ffms_tun_to is defined %}
+{% if ffrl_tun is defined %}
 		interface "lo" {
 			stub;
 		}
@@ -72,9 +72,8 @@ function is_default() {
 	return (net ~ [::/0]);
 }
 
-{% if ffms_tun_to is defined %}
+{% if ffrl_tun is defined %}
 filter hostroute {
-{% if 'ffms_tun_to' in hostvars[inventory_hostname] %}
 {% for domaene in domaenen|dictsort %}
 {% set step = 0 %}
 {% for host in ffms_tun_to %}
@@ -87,12 +86,13 @@ filter hostroute {
 {% set step = 1 %}
 {% endif %}
 {% endfor %}
-{% endfor %}
+{% if domaenenliste is defined and domaene[0] in domaenenliste and step == 0 %}
+        if net ~ {{domaene[1].ffv6_network | regex_replace('..::/\d+$','00::/56')}} then accept;
 {% endif %}
+{% endfor %}
         reject;
 }
 
-{% if 'ffms_tun_to' in hostvars[inventory_hostname] %}
 {% for domaene in domaenen|dictsort %}
 {% set step = 0 %}
 {% for host in ffms_tun_to %}
@@ -113,8 +113,14 @@ protocol static static_domaene{{domaene[0]}} {
 {% set step = 1 %}
 {% endif %}
 {% endfor %}
-{% endfor %}
+{% if domaenenliste is defined and domaene[0] in domaenenliste and step == 0 %}
+protocol static static_domaene{{domaene[0]}} {
+        table ffnet;
+        route {{domaene[1].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject;
+}
+
 {% endif %}
+{% endfor %}
 {% endif %}
 
 protocol kernel 'kernel_master' {
@@ -139,7 +145,7 @@ protocol direct {
 	table ffnet;
 }
 
-{% if ffms_tun_to is defined %}
+{% if ffrl_tun is defined %}
 template bgp internal {
         table ffnet;
         local as {{ff_network.as_number}};

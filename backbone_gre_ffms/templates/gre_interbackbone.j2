@@ -1,6 +1,6 @@
 # This file is managed by ansible, don't make changes here - they will be overwritten.
-{% for host in groups['backbone'] %}
-{% if host != inventory_hostname %}
+{% for host in groups['backbone']+groups['gateways'] %}
+{% if host != inventory_hostname and 'ffrl_tun' in hostvars[host] %}
 auto bck-{{host}}
 iface bck-{{host}} inet static
 {% if hostvars[host].vm_id < vm_id %}
