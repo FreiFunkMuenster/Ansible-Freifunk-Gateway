@@ -5,7 +5,7 @@ router id {{ vm_id }};
 table ffnet;
 
 filter freifunk {
-	if net ~ {{ffms_routing.net}} then accept;
+	if net ~ {{ff_network.v6_network}} then accept;
 	reject;
 }
 
@@ -63,7 +63,7 @@ protocol ospf {
 {% if ffrl_tun is defined %}
 		interface "lo" {
 			stub;
-		}
+		};
 {% endif %}
 	};
 };
@@ -76,6 +76,7 @@ function is_default() {
 filter hostroute {
 {% for domaene in domaenen|dictsort %}
 {% set step = 0 %}
+{% if ffms_tun_to is defined %}
 {% for host in ffms_tun_to %}
 {% if 'domaene-'+domaene[0] in hostvars[host.host_name].group_names and step == 0 %}
         if net ~ {{hostvars[host.host_name].ff_network.v6_network | regex_replace('..::/\d+$','00::/56')}} then accept;
@@ -86,6 +87,7 @@ filter hostroute {
 {% set step = 1 %}
 {% endif %}
 {% endfor %}
+{% endif %}
 {% if domaenenliste is defined and domaene[0] in domaenenliste and step == 0 %}
         if net ~ {{domaene[1].ffv6_network | regex_replace('..::/\d+$','00::/56')}} then accept;
 {% endif %}
@@ -95,6 +97,7 @@ filter hostroute {
 
 {% for domaene in domaenen|dictsort %}
 {% set step = 0 %}
+{% if ffms_tun_to is defined %}
 {% for host in ffms_tun_to %}
 {% if 'domaene-'+domaene[0] in hostvars[host.host_name].group_names and step == 0 %}
 protocol static static_domaene{{domaene[0]}} {
@@ -113,6 +116,7 @@ protocol static static_domaene{{domaene[0]}} {
 {% set step = 1 %}
 {% endif %}
 {% endfor %}
+{% endif %}
 {% if domaenenliste is defined and domaene[0] in domaenenliste and step == 0 %}
 protocol static static_domaene{{domaene[0]}} {
         table ffnet;
@@ -178,13 +182,11 @@ protocol bgp ffrl_{{tun.name}} from uplink {
 
 {% for host in groups['gateways']+groups['backbone'] %}
 {% if 'ffrl_tun' in hostvars[host] %}
-protocol bgp ibgp_{{host}} from internal {
+protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 {% if hostvars[host].server_id < server_id %}
         neighbor 2a03:2260:115:ffa1::{{server_id}}:{{hostvars[host].server_id}}:1 as {{ff_network.as_number}};
 {% else %}
         neighbor 2a03:2260:115:ffa1::{{hostvars[host].server_id}}:{{server_id}}:0 as {{ff_network.as_number}};
-{% endif %}
-
 {% endif %}
 }
 

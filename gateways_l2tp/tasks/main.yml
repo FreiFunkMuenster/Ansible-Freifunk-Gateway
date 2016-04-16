@@ -42,3 +42,6 @@
 - name: l2tp-bridge einrichten
   template: src=l2tp_bridge.j2 dest=/etc/network/interfaces.d/20_l2tp_bridge.cfg
   notify: restart networking
+
+- name: tunneldigger enablen
+  service: name=tunneldigger enabled=yes  
