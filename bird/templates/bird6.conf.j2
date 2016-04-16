@@ -1,14 +1,15 @@
 # This file is managed by ansible, don't make changes here - they will be overwritten.
 log syslog { debug, trace, info, remote, warning, error, auth, fatal, bug };
 router id {{ vm_id }};
-{#router id {{ff_network.v4_network | ipaddr(server_id) | ipaddr('address') }};#}
 
 table ffnet;
 
-#
-# namen hinter protokollen definiene auch die symbole
-#
-protocol kernel 'kernel_ffnet' {
+filter freifunk {
+	if net ~ {{ffms_routing.net}} then accept;
+	reject;
+}
+
+protocol kernel {
         scan time 20;
         import all;
         export all;
@@ -17,6 +18,7 @@ protocol kernel 'kernel_ffnet' {
         device routes;
 };
 
+{% if domaenenliste is defined %}
 protocol radv {
 {% for domaene in domaenenliste|dictsort %}
 	interface "bat{{domaene[0]}}" {
@@ -32,13 +34,15 @@ protocol radv {
 {% endfor %}
 	};
 };
+{% endif %}
 
 
 protocol bfd {
         table ffnet;
-        interface "gre*" {
-        };
+        interface "gre*";
+        interface "bck*";
         multihop {
+		passive;
         };
 };
 
@@ -48,15 +52,70 @@ protocol device {
 
 protocol ospf {
 	table ffnet;
-	import all;
-	export none;
+	import filter freifunk;
+	export all;
 	area 0.0.0.0 {
 		interface "bat*" {
+			stub;
 		};
-		interface "gre-*" {
-		};
+		interface "gre-*";
+		interface "bck-*";
+{% if ffms_tun_to is defined %}
+		interface "lo" {
+			stub;
+		}
+{% endif %}
 	};
 };
+
+function is_default() {
+	return (net ~ [::/0]);
+}
+
+{% if ffms_tun_to is defined %}
+filter hostroute {
+{% if 'ffms_tun_to' in hostvars[inventory_hostname] %}
+{% for domaene in domaenen|dictsort %}
+{% set step = 0 %}
+{% for host in ffms_tun_to %}
+{% if 'domaene-'+domaene[0] in hostvars[host.host_name].group_names and step == 0 %}
+        if net ~ {{hostvars[host.host_name].ff_network.v6_network | regex_replace('..::/\d+$','00::/56')}} then accept;
+{% set step = 1 %}
+{% endif %}
+{% if "domaenenliste" in hostvars[host.host_name] and domaene[0] in hostvars[host.host_name].domaenenliste and step == 0 %}
+        if net ~ {{domaene[1].ffv6_network | regex_replace('..::/\d+$','00::/56')}} then accept;
+{% set step = 1 %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endif %}
+        reject;
+}
+
+{% if 'ffms_tun_to' in hostvars[inventory_hostname] %}
+{% for domaene in domaenen|dictsort %}
+{% set step = 0 %}
+{% for host in ffms_tun_to %}
+{% if 'domaene-'+domaene[0] in hostvars[host.host_name].group_names and step == 0 %}
+protocol static static_domaene{{domaene[0]}} {
+        table ffnet;
+        route {{hostvars[host.host_name].ff_network.v6_network | regex_replace('..::/\d+$','00::/56')}} reject;
+}
+
+{% set step = 1 %}
+{% endif %}
+{% if "domaenenliste" in hostvars[host.host_name] and domaene[0] in hostvars[host.host_name].domaenenliste and step == 0 %}
+protocol static static_domaene{{domaene[0]}} {
+        table ffnet;
+        route {{domaene[1].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject;
+}
+
+{% set step = 1 %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endif %}
+{% endif %}
 
 protocol kernel 'kernel_master' {
         scan time 20;
@@ -71,3 +130,58 @@ protocol static {
         import all;
         export none;
 };
+
+protocol direct {
+	interface "lo";
+	interface "tun-*";
+	interface "gre-*";
+	interface "bck-*";
+	table ffnet;
+}
+
+{% if ffms_tun_to is defined %}
+template bgp internal {
+        table ffnet;
+        local as {{ff_network.as_number}};
+        import filter {
+                preference = 99;
+                accept;
+        };
+        export where source = RTS_BGP;
+        gateway direct;
+        direct;
+        next hop self;
+};
+
+template bgp uplink {
+        table ffnet;
+        local as {{ff_network.as_number}};
+        import where is_default();
+        export filter hostroute;
+        gateway recursive;
+}
+
+{% for tun in ffrl_tun %}
+protocol bgp ffrl_{{tun.name}} from uplink {
+        description "Rheinland Backbone";
+        source address {{tun.v6_local | ipaddr('address')}};
+        neighbor {{tun.v6_remote | ipaddr('address')}} as 201701;
+};
+
+{% endfor %}
+
+{% for host in groups['gateways']+groups['backbone'] %}
+{% if 'ffrl_tun' in hostvars[host] %}
+protocol bgp ibgp_{{host}} from internal {
+{% if hostvars[host].server_id < server_id %}
+        neighbor 2a03:2260:115:ffa1::{{server_id}}:{{hostvars[host].server_id}}:1 as {{ff_network.as_number}};
+{% else %}
+        neighbor 2a03:2260:115:ffa1::{{hostvars[host].server_id}}:{{server_id}}:0 as {{ff_network.as_number}};
+{% endif %}
+
+{% endif %}
+}
+
+{% endif %}
+{% endfor %}
+{% endif %}
