@@ -1,0 +1,3 @@
+---
+- name: update-grub
+  shell: update-grub2
