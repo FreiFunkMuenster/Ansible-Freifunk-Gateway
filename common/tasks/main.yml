@@ -57,7 +57,7 @@
     - chkconfig
     - logwatch
 
-- name: deinstall unneeded packages
+- name: uninstall unneeded packages
   apt:
     pkg: "{{ item }}"
     update_cache: yes
