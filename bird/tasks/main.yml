@@ -26,7 +26,8 @@
    always_run: yes
    changed_when: false
    register: spezifische_Routen
-   with_items: "{{domaenenliste}}"
+   with_items: "{{domaenenliste | default([])}}"
+   when: domaenenliste is defined
 
  - name: configure bird.conf
    template: src=bird.conf.j2 dest=/etc/bird/bird.conf

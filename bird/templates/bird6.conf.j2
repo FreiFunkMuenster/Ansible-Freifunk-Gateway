@@ -16,6 +16,7 @@ protocol kernel {
         table ffnet;
         kernel table 42;
         device routes;
+	persist;
 };
 
 {% if domaenenliste is defined %}
@@ -133,6 +134,7 @@ protocol kernel 'kernel_master' {
         kernel table 254;
         import all;
         export all;
+	persist;
 };
 
 protocol static {
@@ -181,12 +183,12 @@ protocol bgp ffrl_{{tun.name}} from uplink {
 {% endfor %}
 
 {% for host in groups['gateways']+groups['backbone'] %}
-{% if 'ffrl_tun' in hostvars[host] %}
+{% if 'ffrl_tun' in hostvars[host] and hostvars[host].vm_id != vm_id %}
 protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
-{% if hostvars[host].server_id < server_id %}
-        neighbor 2a03:2260:115:ffa1::{{server_id}}:{{hostvars[host].server_id}}:1 as {{ff_network.as_number}};
+{% if hostvars[host].vm_id < vm_id %}
+        neighbor 2a03:2260:115:ffa1::{{hostvars[host].vm_id}}:{{vm_id}}:1 as {{ff_network.as_number}};
 {% else %}
-        neighbor 2a03:2260:115:ffa1::{{hostvars[host].server_id}}:{{server_id}}:0 as {{ff_network.as_number}};
+        neighbor 2a03:2260:115:ffa1::{{vm_id}}:{{hostvars[host].vm_id}}:0 as {{ff_network.as_number}};
 {% endif %}
 }
 
