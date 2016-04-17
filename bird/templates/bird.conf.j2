@@ -20,6 +20,14 @@ protocol kernel 'kernel_ffnet' {
         device routes;
 };
 
+protocol direct {
+        interface "lo";
+        interface "gre-*";
+        interface "bck-*";
+        interface "tun-*";
+        table ffnet;
+}
+
 protocol bfd {
         interface "gre*";
 	interface "bck-*";
