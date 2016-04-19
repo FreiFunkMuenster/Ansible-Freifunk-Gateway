@@ -24,9 +24,9 @@ iface bat{{item[0]}} inet static
 {% endfor %}
 {% endif %}
 {% endfor %}
-        post-up ip rule add from all fwmark 0x1 table ffnet
-        post-up ip rule add iif bat{{item[0]}} table ffnet
-        post-up ip rule add iif lo lookup ffnet suppress_prefixlength 0
+        post-up ip rule add from all fwmark 0x1 table ffnet pref 16000
+        post-up ip rule add iif bat{{item[0]}} table ffnet pref 16000
+        post-up ip rule add iif lo lookup ffnet suppress_prefixlength 0 pref 16500
         post-down ip rule del from all fwmark 0x1 table ffnet ||:
         post-down ip rule del iif bat{{item[0]}} table ffnet ||:
         post-down ip rule del iif lo lookup ffnet suppress_prefixlength 0 ||:
@@ -34,10 +34,10 @@ iface bat{{item[0]}} inet static
 iface bat{{item[0]}} inet6 static
         address {{domaenen[item[0]].ffv6_network | ipaddr(item[1].server_id) | ipaddr('address') }}
         netmask {{domaenen[item[0]].ffv6_network | ipaddr('prefix')}}
-        post-up ip -6 rule add from all fwmark 0x1 table ffnet
-        post-up ip -6 rule add iif bat{{item[0]}} table ffnet
-        post-up ip -6 rule add iif lo lookup ffnet suppress_prefixlength 0 
-	post-up ip -6 rule add from {{domaenen[item[0]].ffv6_network | ipaddr(item[1].server_id) | ipaddr('address') }} lookup ffnet
+        post-up ip -6 rule add from all fwmark 0x1 table ffnet pref 16000
+        post-up ip -6 rule add iif bat{{item[0]}} table ffnet pref 16000
+        post-up ip -6 rule add iif lo lookup ffnet suppress_prefixlength 0 pref 16500
+	post-up ip -6 rule add from {{domaenen[item[0]].ffv6_network | ipaddr(item[1].server_id) | ipaddr('address') }} lookup ffnet pref 16000
         post-down ip -6 rule del from all fwmark 0x1 table ffnet ||:
         post-down ip -6 rule del iif bat{{item[0]}} table ffnet ||:
         post-down ip -6 rule del iif lo lookup ffnet suppress_prefixlength 0 ||:
