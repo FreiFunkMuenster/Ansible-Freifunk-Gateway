@@ -29,7 +29,7 @@ mv /var/ffmap/data_legacy/* /var/www/html/maps/data_legacy
 
 # Daten mit merge_map_data.py zuammenfügen
 mkdir -p /var/www/html/maps/data
-/usr/src/tools/merge_map_data.py -o /var/www/html/maps/data /var/www/html/maps/data?*
+/usr/src/tools/merge_map_data.py -o /var/www/html/maps/data /var/www/html/maps/data?? /var/www/html/maps/data_legacy
 
 for com in "${!members[@]}"; do
     dir=/var/www/html/maps/data_${com//" "/_}
