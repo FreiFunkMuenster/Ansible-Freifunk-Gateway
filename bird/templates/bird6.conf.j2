@@ -7,7 +7,7 @@ table ffnet;
 filter freifunk {
 	if net ~ {{ff_network.v6_network}} then accept;
 {% if not ffrl_tun is defined %}
-	if is_default() then accept;
+	if net ~ [::/0] then accept;
 {% endif %}
 	reject;
 }
