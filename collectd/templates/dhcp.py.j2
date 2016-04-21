@@ -70,7 +70,9 @@ def parse_dhcpd_conf(config_file):
 	return subnets
 
 def subnet_add(subnets, subnet):
-	sub_name = subnet['interface'] if 'interface' in subnet else 'global'
+	if 'interface' not in subnet:
+		subnet['interface'] = 'global'
+	sub_name = subnet['interface']
 	if sub_name not in subnets:
 		subnets[sub_name] = subnet
 	else:
