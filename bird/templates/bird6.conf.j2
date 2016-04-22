@@ -13,12 +13,12 @@ filter freifunk {
 }
 
 protocol kernel {
-        scan time 20;
-        import all;
-        export all;
-        table ffnet;
-        kernel table 42;
-        device routes;
+	scan time 20;
+	import all;
+	export all;
+	table ffnet;
+	kernel table 42;
+	device routes;
 	persist;
 };
 
@@ -30,28 +30,26 @@ protocol radv {
 		link mtu 1280;
 		prefix {{domaenen[domaene[0]].ffv6_network}} {
 		};
+		rdnss {
+			ns {{domaenen[domaene[0]].ffv6_network | ipaddr(domaene[1].server_id) | ipaddr('address') }};
+		};
 	};
 {% endfor %}
-	rdnss {
-{% for domaene in domaenenliste|dictsort %}
-		ns {{domaenen[domaene[0]].ffv6_network | ipaddr(domaene[1].server_id) | ipaddr('address') }};
-{% endfor %}
-	};
 };
 {% endif %}
 
 
 protocol bfd {
-        table ffnet;
-        interface "gre*";
-        interface "bck*";
-        multihop {
+	table ffnet;
+	interface "gre*";
+	interface "bck*";
+	multihop {
 		passive;
-        };
+	};
 };
 
 protocol device {
-        scan time 10;
+	scan time 10;
 };
 
 protocol ospf {
@@ -83,20 +81,20 @@ filter hostroute {
 {% if ffms_tun_to is defined %}
 {% for host in ffms_tun_to %}
 {% if 'domaene-'+domaene[0] in hostvars[host.host_name].group_names and step == 0 %}
-        if net ~ {{hostvars[host.host_name].ff_network.v6_network | regex_replace('..::/\d+$','00::/56')}} then accept;
+	if net ~ {{hostvars[host.host_name].ff_network.v6_network | regex_replace('..::/\d+$','00::/56')}} then accept;
 {% set step = 1 %}
 {% endif %}
 {% if "domaenenliste" in hostvars[host.host_name] and domaene[0] in hostvars[host.host_name].domaenenliste and step == 0 %}
-        if net ~ {{domaene[1].ffv6_network | regex_replace('..::/\d+$','00::/56')}} then accept;
+	if net ~ {{domaene[1].ffv6_network | regex_replace('..::/\d+$','00::/56')}} then accept;
 {% set step = 1 %}
 {% endif %}
 {% endfor %}
 {% endif %}
 {% if domaenenliste is defined and domaene[0] in domaenenliste and step == 0 %}
-        if net ~ {{domaene[1].ffv6_network | regex_replace('..::/\d+$','00::/56')}} then accept;
+	if net ~ {{domaene[1].ffv6_network | regex_replace('..::/\d+$','00::/56')}} then accept;
 {% endif %}
 {% endfor %}
-        reject;
+	reject;
 }
 
 {% for domaene in domaenen|dictsort %}
@@ -105,16 +103,16 @@ filter hostroute {
 {% for host in ffms_tun_to %}
 {% if 'domaene-'+domaene[0] in hostvars[host.host_name].group_names and step == 0 %}
 protocol static static_domaene{{domaene[0]}} {
-        table ffnet;
-        route {{hostvars[host.host_name].ff_network.v6_network | regex_replace('..::/\d+$','00::/56')}} reject;
+	table ffnet;
+	route {{hostvars[host.host_name].ff_network.v6_network | regex_replace('..::/\d+$','00::/56')}} reject;
 }
 
 {% set step = 1 %}
 {% endif %}
 {% if "domaenenliste" in hostvars[host.host_name] and domaene[0] in hostvars[host.host_name].domaenenliste and step == 0 %}
 protocol static static_domaene{{domaene[0]}} {
-        table ffnet;
-        route {{domaene[1].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject;
+	table ffnet;
+	route {{domaene[1].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject;
 }
 
 {% set step = 1 %}
@@ -123,8 +121,8 @@ protocol static static_domaene{{domaene[0]}} {
 {% endif %}
 {% if domaenenliste is defined and domaene[0] in domaenenliste and step == 0 %}
 protocol static static_domaene{{domaene[0]}} {
-        table ffnet;
-        route {{domaene[1].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject;
+	table ffnet;
+	route {{domaene[1].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject;
 }
 
 {% endif %}
@@ -132,18 +130,18 @@ protocol static static_domaene{{domaene[0]}} {
 {% endif %}
 
 protocol kernel 'kernel_master' {
-        scan time 20;
-        table master;
-        kernel table 254;
-        import all;
-        export all;
+	scan time 20;
+	table master;
+	kernel table 254;
+	import all;
+	export all;
 	persist;
 };
 
 protocol static {
-        table master;
-        import all;
-        export none;
+	table master;
+	import all;
+	export none;
 };
 
 protocol direct {
@@ -156,31 +154,31 @@ protocol direct {
 
 {% if ffrl_tun is defined %}
 template bgp internal {
-        table ffnet;
-        local as {{ff_network.as_number}};
-        import filter {
-                preference = 99;
-                accept;
-        };
-        export where source = RTS_BGP;
-        gateway direct;
-        direct;
-        next hop self;
+	table ffnet;
+	local as {{ff_network.as_number}};
+	import filter {
+		preference = 99;
+		accept;
+	};
+	export where source = RTS_BGP;
+	gateway direct;
+	direct;
+	next hop self;
 };
 
 template bgp uplink {
-        table ffnet;
-        local as {{ff_network.as_number}};
-        import where is_default();
-        export filter hostroute;
-        gateway recursive;
+	table ffnet;
+	local as {{ff_network.as_number}};
+	import where is_default();
+	export filter hostroute;
+	gateway recursive;
 }
 
 {% for tun in ffrl_tun %}
 protocol bgp ffrl_{{tun.name}} from uplink {
-        description "Rheinland Backbone";
-        source address {{tun.v6_local | ipaddr('address')}};
-        neighbor {{tun.v6_remote | ipaddr('address')}} as 201701;
+	description "Rheinland Backbone";
+	source address {{tun.v6_local | ipaddr('address')}};
+	neighbor {{tun.v6_remote | ipaddr('address')}} as 201701;
 };
 
 {% endfor %}
@@ -189,9 +187,9 @@ protocol bgp ffrl_{{tun.name}} from uplink {
 {% if 'ffrl_tun' in hostvars[host] and hostvars[host].vm_id != vm_id %}
 protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 {% if hostvars[host].vm_id < vm_id %}
-        neighbor 2a03:2260:115:ffa1::{{hostvars[host].vm_id}}:{{vm_id}}:1 as {{ff_network.as_number}};
+	neighbor 2a03:2260:115:ffa1::{{hostvars[host].vm_id}}:{{vm_id}}:1 as {{ff_network.as_number}};
 {% else %}
-        neighbor 2a03:2260:115:ffa1::{{vm_id}}:{{hostvars[host].vm_id}}:0 as {{ff_network.as_number}};
+	neighbor 2a03:2260:115:ffa1::{{vm_id}}:{{hostvars[host].vm_id}}:0 as {{ff_network.as_number}};
 {% endif %}
 }
 
