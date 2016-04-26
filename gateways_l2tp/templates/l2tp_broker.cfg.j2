@@ -1,6 +1,6 @@
 [broker]
 ; IP address the broker will listen and accept tunnels on
-address={{ansible_ssh_host}}
+address={{ansible_eth0.ipv4.address}}
 ; Ports where the broker will listen on
 {% set ports = [] %}
 {% for domaene in domaenenliste|dictsort %}
