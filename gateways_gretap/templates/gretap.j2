@@ -12,7 +12,7 @@
 # GRETAP Tunnel for domaene-{{domaene[0]}} to {{host}} ({{hostvars[host].ansible_ssh_host}})
 auto t{{domaene[0]}}-{{host}}
 iface t{{domaene[0]}}-{{host}} inet manual
-        pre-up ip link add $IFACE type gretap local {{ansible_ssh_host}} remote {{hostvars[host].ansible_ssh_host}} dev eth0 key {{domaene[0]|int}}
+        pre-up ip link add $IFACE type gretap local {{ansible_default_ipv4.address}} remote {{hostvars[host].ansible_ssh_host}} dev eth0 key {{domaene[0]|int}}
         pre-up ip link set dev $IFACE address de:ad:be:ef:{{indexer[0]}}:{{vm_id}}
         pre-up ip link set $IFACE up
         post-up batctl -m bat{{domaene[0]}} if add $IFACE ||:
