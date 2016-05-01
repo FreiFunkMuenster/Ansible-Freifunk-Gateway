@@ -19,5 +19,5 @@ COMMIT
 :POSTROUTING ACCEPT [0:0]
 -A OUTPUT -o eth0 -p udp -m udp --dport 53 -j MARK --set-xmark 0x1/0xffffffff
 -A OUTPUT -o eth0 -p tcp -m tcp --dport 53 -j MARK --set-xmark 0x1/0xffffffff
--A POSTROUTING -o tun-+ -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss 1280
+-A POSTROUTING -o tun-+ -p tcp -m tcp --tcp-flags SYN,RST SYN -m tcpmss ! --mss 0:1240 -j TCPMSS --set-mss 1240
 COMMIT
