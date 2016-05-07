@@ -24,9 +24,9 @@ pop3    IN	CNAME   mail.warpzone.ms.
 smtp    IN	CNAME   mail.warpzone.ms.
 *	IN	MX  20  mail.warpzone.ms.
 forum	IN	MX  10  fb159b86-2cfd-493e-92ee-08cf0f9c99a0.pub.cloud.scaleway.com.
-forum	IN	TXT   v=spf1 mx a a:fb159b86-2cfd-493e-92ee-08cf0f9c99a0.pub.cloud.scaleway.com ~all
+forum	IN	TXT   "v=spf1 mx a a:fb159b86-2cfd-493e-92ee-08cf0f9c99a0.pub.cloud.scaleway.com ~all"
 firmware IN	A       144.76.30.226
 firmware IN	AAAA    2a01:4f8:191:21e1::23
 ;authentication for mailchimp (newsletter distribution)
-k1._domainkey IN CNAME dkim.mcsv.net
-@ IN TXT    v=spf1 include:servers.mcsv.net ?all
+k1._domainkey IN CNAME dkim.mcsv.net.
+@ IN TXT    "v=spf1 include:servers.mcsv.net ?all"
