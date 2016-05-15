@@ -63,7 +63,7 @@ filter freifunk {
 	if net ~ [192.168.0.0/16+] then reject;
 	if net ~ [10.0.0.0/16+] then reject;
 {% if not ffrl_tun is defined %}
-	if is_default() then accept;
+	if net ~ [0.0.0.0/0] then accept;
 {% endif %}
 	reject;
 };
