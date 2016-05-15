@@ -1,3 +1,0 @@
----
-- name: restart networking
-  shell: systemctl restart networking && if systemctl -q is-enabled isc-dhcp-server; then systemctl restart isc-dhcp-server; fi
