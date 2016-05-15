@@ -22,10 +22,10 @@ imap    IN	CNAME   mail.warpzone.ms.
 pop3    IN	CNAME   mail.warpzone.ms.
 smtp    IN	CNAME   mail.warpzone.ms.
 *	IN	MX  20  mail.warpzone.ms.
+mailvax      IN    A    212.47.250.87
 forum        IN	   A	  212.47.229.243
-forum-mail   IN    A    212.47.229.243
-forum	       IN    MX   10    forum-mail.freifunk-muensterland.de.
-forum	       IN	   TXT  "v=spf1 mx a a:forum-mail.freifunk-muensterland.de ~all"
+forum	       IN    MX   10    mailvax.freifunk-muensterland.de.
+forum	       IN	   TXT  "v=spf1 mx a a:mailvax.freifunk-muensterland.de ~all"
 firmware IN	A       144.76.30.226
 firmware IN	AAAA    2a01:4f8:191:21e1::23
 ;authentication for mailchimp (newsletter distribution)
