@@ -33,6 +33,9 @@ protocol radv {
 		rdnss {
 			ns {{domaenen[domaene[0]].ffv6_network | ipaddr(domaene[1].server_id) | ipaddr('address') }};
 		};
+		dnssl {
+			domain "ffms";
+		};
 	};
 {% endfor %}
 };
