@@ -6,6 +6,16 @@
   "maxAge": 14,
   "blinkingHours": 8,
   "mapLayers": [
+    {
+      "name": "OSM Mapnik",
+      "url": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      "config": {
+        "subdomains": "abc",
+        "type": "osm",
+        "attribution": "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>",
+        "maxZoom": 18
+      }
+    },
     { "name": "MapQuest",
       "url": "https://otile{s}-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg",
       "config": {
@@ -13,16 +23,6 @@
         "type": "osm",
         "attribution": "Tiles &copy; <a href=\"https://www.mapquest.com/\" target=\"_blank\">MapQuest</a>, Data CC-BY-SA OpenStreetMap",
         "maxZoom": 18
-      }
-    },
-    {
-      "name": "OSM Mapnik",
-      "url": "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      "config": {
-        "subdomains": "abc",
-        "type": "osm",
-        "attribution": "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>",
-        "maxZoom": 19
       }
     },
     {
