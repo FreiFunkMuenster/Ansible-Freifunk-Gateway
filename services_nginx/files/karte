@@ -22,6 +22,7 @@ server {
         }
 
         location /data {
+		sendfile off;
                 expires 0;
                 add_header Cache-Control private;
                 add_header Vary Accept-Encoding;
