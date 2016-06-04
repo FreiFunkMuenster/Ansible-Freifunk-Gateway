@@ -8,7 +8,7 @@ $TTL    86400
                           86400 )       ; Negative Cache TTL
 ;
 @			IN      NS      {{bind.ns_name}}.ffms.
-{{bind.ns_name}}			IN      A       {{domaenen[item].ffv4_network | ipaddr(server_id) | ipaddr('address') }}
+{{bind.ns_name}}			IN      A       {{domaenen[item].ffv4_network | ipaddr(vm_id) | ipaddr('address') }}
 node			IN      A       {{domaenen[item].ffv4_network | ipaddr(1) | ipaddr('address')}}
 node			IN      AAAA    {{domaenen[item].ffv6_network | ipaddr(1) | ipaddr('address')}}
 knoten			IN      A       {{domaenen[item].ffv4_network | ipaddr(1) | ipaddr('address')}}

@@ -4,10 +4,16 @@ options {
         dnssec-validation auto;
         
         recursion yes;
-        allow-recursion { localnets; localhost; };
+        allow-recursion {
+		localhost; 
+{% if domaenenliste is defined %}
+{% for domaene in domaenenliste|dictsort %}
+        	{{domaenen[domaene[0]].ffv4_network}};
+        	{{domaenen[domaene[0]].ffv6_network}};
+{% endfor %}
+{% endif %}
+	};
 
-        //allow-notify { 10.43.0.10; };
-        
         auth-nxdomain no;    # conform to RFC1035
         listen-on-v6 { any; };
 };

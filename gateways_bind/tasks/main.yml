@@ -18,6 +18,12 @@
   notify:
     - restart bind9
 
+- name: create named.conf.freifunk-muensterland
+  template: src=named.conf.freifunk-muensterland.j2 dest=/etc/bind/named.conf.freifunk-muensterland
+  notify:
+    - restart bind9
+  when: "{{is_external_nameserver is defined and is_external_nameserver}}"
+
 - name: create named.conf
   template: src=named.conf.j2 dest=/etc/bind/named.conf
   notify:
@@ -27,5 +33,6 @@
   template: src=db.ffms.j2 dest=/etc/bind/db.domaene-{{item}}.ffms
   notify:
     - restart bind9
-  with_items: domaenenliste
+  with_items: "{{domaenenliste | default([])}}"
+  when: "{{domaenenliste is defined}}"
 

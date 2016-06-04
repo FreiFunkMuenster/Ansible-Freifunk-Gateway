@@ -1,3 +1,4 @@
+{% if domaenenliste is defined %}
 {% for domaene in domaenenliste|dictsort -%}
 #view for (broadcast-)domain domaene-{{domaene[0]}}   
 view "domaene-{{domaene[0]}}" {
@@ -7,6 +8,9 @@ view "domaene-{{domaene[0]}}" {
         };
 	include "/etc/bind/named.conf.local";
 	include "/etc/bind/named.conf.default-zones";
+{% if is_external_nameserver is defined and is_external_nameserver %}
+	include "/etc/bind/named.conf.freifunk-muensterland";
+{% endif %}
 	zone "ffms." {
 		type master;
 		file "/etc/bind/db.domaene-{{domaene[0]}}.ffms";
@@ -25,3 +29,23 @@ view "domaene-{{domaene[0]}}" {
 	};
 };
 {% endfor %}
+{% if is_external_nameserver is defined and is_external_nameserver %}
+view "external" {
+        match-clients {
+		any;
+{% for domaene in domaenenliste|dictsort %}
+                !{{domaenen[domaene[0]].ffv4_network}};
+                !{{domaenen[domaene[0]].ffv6_network}};
+{% endfor %}
+	};
+	include "/etc/bind/named.conf.local";
+	include "/etc/bind/named.conf.default-zones";
+	include "/etc/bind/named.conf.freifunk-muensterland";
+};
+{% endif %}
+{% else %}
+# Slaveserver configuration
+include "/etc/bind/named.conf.local";
+include "/etc/bind/named.conf.default-zones";
+include "/etc/bind/named.conf.freifunk-muensterland";
+{% endif %}

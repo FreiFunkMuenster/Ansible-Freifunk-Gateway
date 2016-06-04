@@ -7,10 +7,12 @@ $TTL    86400
                         2419200         ; Expire
                           86400 )       ; Negative Cache TTL
 {% set i = [1] %}
-{% for host in groups['backbone'] %}
-@	IN      NS      ns{{i[0]}}
-ns{{i[0]}}	IN 	A	{{hostvars[host].ansible_ssh_host }}
+{% for host in groups['backbone']+groups['gateways'] %}
+{% if 'is_external_nameserver' in hostvars[host] and hostvars[host].is_external_nameserver %}
+@       IN      NS      ns{{i[0]}}
+ns{{i[0]}}      IN      A       {{hostvars[host].ansible_ssh_host }}
 {% if i.append(i.pop() + 1) %}{% endif %}
+{% endif %}
 {% endfor %}
 @	IN      A       89.163.231.227
 @	IN	MX	10 mail.warpzone.ms.

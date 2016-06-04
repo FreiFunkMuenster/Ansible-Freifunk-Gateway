@@ -43,7 +43,7 @@
   template: src=db.ffms.j2 dest=/etc/bind/db.domaene-{{item}}.ffms
   notify:
     - restart bind9
-  with_items: domaenen
+  with_items: "{{ domaenen }}"
 
 - name: create own db file for gateway servers and backbone servers
   template: src=db.servers.ffms.j2 dest=/etc/bind/db.servers.ffms
@@ -72,10 +72,5 @@
 
 - name: create own db file for freifunk-muenster.de
   template: src=db.freifunk-muenster.de.j2 dest=/etc/bind/db.freifunk-muenster.de
-  notify:
-    - restart bind9
-
-- name: create own db file for gw.freifunk-muenster.de
-  template: src=db.gw.freifunk-muenster.de.j2 dest=/etc/bind/db.gw.freifunk-muenster.de
   notify:
     - restart bind9

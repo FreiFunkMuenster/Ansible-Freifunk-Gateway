@@ -7,7 +7,6 @@ options {
         allow-recursion { localnets; localhost; };
 
         notify yes;
-        //allow-notify { 10.43.0.10; };
 	also-notify {
 {% for group in bind.ffms_for_groups %}
 {% for host in groups[group] %}
