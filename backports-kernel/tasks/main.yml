@@ -12,5 +12,5 @@
     update_cache: yes
     state: present
   with_items:
-    - linux-image-4.4.0-0.bpo.1-amd64
+    - linux-image-4.5.0-0.bpo.2-amd64
 
