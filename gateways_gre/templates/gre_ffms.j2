@@ -1,5 +1,5 @@
 # This file is managed by ansible, don't make changes here - they will be overwritten.
-{% for host in groups['backbone'] %}
+{% for host in groups['backbone']+groups['gateways'] %}
 {% if 'ffms_tun_to' in hostvars[host] %}
 {% for link in hostvars[host].ffms_tun_to%}
 {% if 'host_name' in link and link.host_name == inventory_hostname %}
