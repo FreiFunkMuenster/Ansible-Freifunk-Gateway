@@ -58,6 +58,7 @@ protocol static dhcp_Bereich {
 
 filter freifunk {
 	if net ~ [10.43.0.0/16+] then accept;
+	if net ~ [10.48.0.0/16+] then accept;
 	if net ~ [185.66.193.48/29+] then accept;
 	if net ~ [185.66.195.20/30+] then accept;
 	if net ~ [192.168.0.0/16+] then reject;
