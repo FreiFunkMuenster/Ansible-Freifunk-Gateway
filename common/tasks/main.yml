@@ -57,6 +57,8 @@
     - chkconfig
     - logwatch
     - mtr-tiny
+    - dhcpdump
+    - dhcping
 
 - name: uninstall unneeded packages
   apt:
