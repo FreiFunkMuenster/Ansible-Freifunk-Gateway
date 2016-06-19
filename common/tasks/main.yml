@@ -28,6 +28,9 @@
     - "deb http://security.debian.org/ {{ ansible_distribution_release }}/updates main"
   when: ansible_distribution == "Debian"
 
+- name: Eventuelles CDROM-Repo von der Installation entfernen
+  lineinfile: dest=/etc/apt/sources.list state=absent regexp='cdrom'
+
 - name: install common packages
   apt:
     pkg: "{{ item }}"
