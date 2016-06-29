@@ -16,7 +16,7 @@ for i in /proc/sys/net/ipv4/conf/bat*; do
     num=${i#*bat}
     mkdir -p /var/ffmap/data${num}
     mkdir -p /var/www/html/maps/data${num}
-    /usr/src/ffmap-backend/backend.py -d /var/ffmap/data${num} -m bat${num}:/run/alfred.${num}.sock
+    /usr/src/ffmap-backend/backend.py -d /var/ffmap/data${num} -m bat${num}:/run/alfred.${num}.sock -p {{prune_days}}
     jq '.nodes = (.nodes | with_entries(del(.value.nodeinfo.owner)))' < /var/ffmap/data${num}/nodes.json > /var/www/html/maps/data${num}/nodes.json
     cp /var/ffmap/data${num}/graph.json /var/www/html/maps/data${num}/graph.json
 done
