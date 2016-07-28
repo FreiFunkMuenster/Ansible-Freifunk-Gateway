@@ -1,2 +1,5 @@
 #!/bin/bash
-# do nothing, new tunneldigger removes the interface from the bridge automatically
+INTERFACE="$3"
+PORT="$9"
+DOM=${PORT#200}
+brctl delif br$DOM $INTERFACE

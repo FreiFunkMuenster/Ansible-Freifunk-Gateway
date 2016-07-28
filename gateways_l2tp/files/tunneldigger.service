@@ -4,7 +4,7 @@ After=network.target auditd.service
 
 [Service]
 Type=simple
-ExecStart=/bin/bash -c "PYTHONPATH=/srv/tunneldigger /srv/tunneldigger/bin/python -m broker.main /srv/tunneldigger/broker/l2tp_broker.cfg"
+ExecStart=/srv/tunneldigger/bin/python /srv/tunneldigger/broker/l2tp_broker.py /srv/tunneldigger/broker/l2tp_broker.cfg
 KillMode=process
 Restart=on-failure
 
