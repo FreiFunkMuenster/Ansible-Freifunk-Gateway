@@ -79,3 +79,6 @@
   when: administratorenteam
 
 - locale_gen: name=de_DE.UTF-8 state=present
+
+- name: Logs drei Tage aufbewahren, täglich rotieren
+  template: src=logrotate.conf.j2 dest=/etc/logrotate.conf
