@@ -71,12 +71,17 @@
   with_items:
     - rpcbind
 
-- name: add sshkeys for server
-  authorized_key: 
-    user: root 
-    key: "{{ lookup('file', 'keyfiles/' + item + '.pub') }}"
-  with_items: "{{ administratorenteam }}"
-  when: administratorenteam
+#- name: add sshkeys for server
+#  authorized_key: 
+#    user: root 
+#    key: "{{ lookup('file', 'keyfiles/' + item + '.pub') }}"
+#  with_items: "{{ administratorenteam }}"
+#  when: administratorenteam
+- name: SSH-Schlüsseldatei generieren
+  when: administratorenteam is defined
+  register: schluesselliste
+  with_items: "{{ administratorenteam | default([])}}"
+  contents: "{{ lookup('file', 'keyfiles/' + item + '.pub'} }}"
 
 - locale_gen: name=de_DE.UTF-8 state=present
 
