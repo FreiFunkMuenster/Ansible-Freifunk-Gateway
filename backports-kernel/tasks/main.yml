@@ -7,10 +7,6 @@
   when: ansible_distribution == "Debian"
 
 - name: install backports-kernel
-  apt:
-    pkg: "{{ item }}"
-    update_cache: yes
-    state: present
-  with_items:
-    - linux-image-4.5.0-0.bpo.2-amd64
+  apt: name=linux-image-amd64 default_release=jessie-backports update_cache=yes state=latest
+  when: ansible_distribution == "Debian"
 
