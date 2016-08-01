@@ -9,5 +9,7 @@
 - name: install backports-kernel
   apt: name=linux-image-amd64 default_release=jessie-backports update_cache=yes state=latest
   when: ansible_distribution == "Debian"
-  notify: reboot
+  notify: 
+    - Neustarten
+    - Neustart abwarten
 
