@@ -1,6 +1,6 @@
 ; zonefile for ffms. for domaene-{{item}}
 $TTL    86400
-@       IN      SOA     service.freifunk-muensterland.de. info.freifunk-muensterland.de. (
+@       IN      SOA     {{bind_zonemaster.server}}. {{bind_zonemaster.email | regex_replace('@', '.') }}. (
                      {{ansible_date_time.epoch}}         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
