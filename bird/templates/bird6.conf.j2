@@ -181,7 +181,7 @@ template bgp uplink {
 {% for tun in ffrl_tun %}
 protocol bgp ffrl_{{tun.name}} from uplink {
 	description "Rheinland Backbone";
-	source address {{tun.v6_local | ipaddr('address')}};
+	source address {{ tun.v6_remote | ipaddr('2') | ipaddr('address') }};
 	neighbor {{tun.v6_remote | ipaddr('address')}} as 201701;
 };
 
