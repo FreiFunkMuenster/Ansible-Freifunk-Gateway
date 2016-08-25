@@ -15,7 +15,7 @@ $TTL    86400
 {{host}}	IN      AAAA    {{hostvars[host].ff_network.v6_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }};
 {% endfor %}
 {% endfor %}
-{% for host in groups['gateways']+groups['gateways-waf'] %}
+{% for host in groups['gateways'] %}
 {% for domaene in hostvars[host].domaenenliste|dictsort %}
 {{host}}	IN      A       {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }};
 {{host}}	IN      AAAA    {{domaenen[domaene[0]].ffv6_network | ipaddr(domaene[1].server_id) | ipaddr('address') }};
