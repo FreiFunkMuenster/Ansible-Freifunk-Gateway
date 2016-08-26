@@ -102,7 +102,7 @@ def read(data=None):
 			lfile = open(leasefile, 'r')
 			all_leases = parse_leases(lfile)
 			lfile.close()
-			count_active, count_touch, subnet_counter = count_active_leases(all_leases, datetime.datetime.utcnow(), config)
+			count_active, count_touch, subnet_counter = count_active_leases(all_leases, datetime.datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"), config)
 			vl = collectd.Values(type='dhcp_leases')
 			vl.plugin='dhcp'
 			vl.type_instance = 'all_interfaces'
