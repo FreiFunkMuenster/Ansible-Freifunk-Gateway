@@ -1,0 +1,14 @@
+[Unit]
+Description=Ramdisk for dhcpd
+After=syslog.target
+Requires=local-fs.target
+After=local-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/src/dhcpd/openramdisk
+ExecStop=/usr/src/dhcpd/closeramdisk
+
+[Install]
+WantedBy=isc-dhcp-server.service

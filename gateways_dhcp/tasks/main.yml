@@ -1,8 +1,32 @@
 ---
+
+- name: install requirements
+  apt: pkg=rsync state=installed
+
+- name: create persitent folder dhcpd data
+  file: path=/var/lib/dhcp_persistent state=directory mode=0755
+  notify:
+    - restart isc-dhcp-server
+
 - name: Ramdisk in fstab eintragen
   mount: name=/var/lib/dhcp src=tmpfs fstype=tmpfs opts='defaults,size=100M' state=mounted
   notify:
     - restart isc-dhcp-server
+
+- name: create dir for tmpfs scripts
+  file: path=/usr/src/dhcpd state=directory
+
+- name: tmpfs start script for dhcpd
+  template: src=openramdisk.j2 dest=/usr/src/dhcpd/openramdisk mode="a+x"
+
+- name: tmpfs stop script for dhcpd
+  template: src=closeramdisk.j2 dest=/usr/src/dhcpd/closeramdisk mode="a+x"
+
+- name: tmpfs systemd service for dhcpd
+  template: src=dhcpd-tmpfs.service.j2 dest=/lib/systemd/system/dhcpd-tmpfs.service
+
+- name: enable dhcpd-tmpfs service
+  service: name=dhcpd-tmpfs enabled=yes state=started
 
 - name: install isc-dhcp-server
   apt: pkg=isc-dhcp-server state=installed
@@ -12,11 +36,10 @@
   notify:
     - restart isc-dhcp-server
   
-- name: create dhcp config
+- name: create dhcpd config
   template: src=dhcpd.conf.j2 dest=/etc/dhcp/dhcpd.conf
   notify:
     - restart isc-dhcp-server
 
 - stat: path=/var/lib/dhcp/dhcpd.leases
   register: leases4_file
-
