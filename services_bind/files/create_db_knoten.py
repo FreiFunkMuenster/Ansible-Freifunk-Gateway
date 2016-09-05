@@ -39,9 +39,9 @@ for node in nodes_json['nodes'].values():
         pass
 
 print(
-'''; zonefile for knoten.freifunk-muensterland.de.
+'''; zonefile for knoten.{{freifunk.domain}}.
 $TTL    3600
-@       IN      SOA     service.freifunk-muensterland.de. info.freifunk-muensterland.de. (
+@       IN      SOA     {{bind_zonemaster.server}}. {{bind_zonemaster.email}}. (
                      {}         ; Serial
                           86400         ; Refresh
                            7200         ; Retry

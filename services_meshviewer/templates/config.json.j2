@@ -1,6 +1,6 @@
 {
   "dataPath": "../data/",
-  "siteName": "Freifunk Münsterland",
+  "siteName": "{{freifunk.name}}",
   "mapSigmaScale": 0.5,
   "showContact": false,
   "maxAge": 14,
@@ -31,15 +31,13 @@
   ],
   "siteNames": [
 {% for domaene in domaenen|dictsort %}
-    { "site": "ffmsd{{domaene[0]}}", "name": "Domäne {{domaene[0]}} - {{domaene[1].name}}" },
+    { "site": "{{freifunk.kurzname}}d{{domaene[0]}}", "name": "Domäne {{domaene[0]}} - {{domaene[1].name}}" },
 {% endfor %}
-    { "site": "ffmstd", "name": "Testdomäne" },
-    { "site": "ffms", "name": "Legacy Domäne" }
   ],
   "nodeInfos": [
     { "name": "Clientstatistik",
-      "href": "https://graphite.freifunk-muensterland.de/render/render?format=png&from=-24h&target=node.{NODE_ID}.count&yMin=0&height=600&width=800",
-      "thumbnail": "https://graphite.freifunk-muensterland.de/render/render?format=png&from=-24h&target=node.{NODE_ID}.count&yMin=0&height=300&width=400",
+      "href": "https://graphite.{{freifunk.domain}}/render/render?format=png&from=-24h&target=node.{NODE_ID}.count&yMin=0&height=600&width=800",
+      "thumbnail": "https://graphite.{{freifunk.domain}}/render/render?format=png&from=-24h&target=node.{NODE_ID}.count&yMin=0&height=300&width=400",
       "caption": "Knoten {NODE_ID}"
     }
   ]
