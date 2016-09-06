@@ -1,6 +1,6 @@
 ; zonefile for servers.ffms.
 $TTL    86400
-@       IN      SOA     service.freifunk-muensterland.de. info.freifunk-muensterland.de. (
+@       IN      SOA     {{bind_zonemaster.server}}. {{bind_zonemaster.email}}. (
                      {{ansible_date_time.epoch}}         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
@@ -9,20 +9,24 @@ $TTL    86400
 ;
 @			IN      NS      {{bind.ns_name}}.servers.ffms.
 {{bind.ns_name}}			IN      A       {{ansible_default_ipv4.address}}
+{% if bind.ffms_for_groups is defined and bind.ffms_for_groups.0 is defined %}
 {% for group in bind.ffms_for_groups %}
 {% for host in groups[group] %}
 {{host}}	IN      A       {{hostvars[host].ff_network.v4_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }};
 {{host}}	IN      AAAA    {{hostvars[host].ff_network.v6_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }};
 {% endfor %}
 {% endfor %}
+{% endif %}
 {% for host in groups['gateways'] %}
 {% for domaene in hostvars[host].domaenenliste|dictsort %}
 {{host}}	IN      A       {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }};
 {{host}}	IN      AAAA    {{domaenen[domaene[0]].ffv6_network | ipaddr(domaene[1].server_id) | ipaddr('address') }};
 {% endfor %}
 {% endfor %}
+{% if groups['backbone'] is defined %}
 {% for host in groups['backbone'] %}
 {{host}}	IN      A       {{hostvars[host].ff_network.v4_network | ipaddr(hostvars[host].vm_id) | ipaddr('address') }};
 {{host}}	IN      AAAA    {{hostvars[host].ff_network.v6_network | ipaddr(hostvars[host].vm_id) | ipaddr('address') }};
 {% endfor %}
+{% endif %}
 

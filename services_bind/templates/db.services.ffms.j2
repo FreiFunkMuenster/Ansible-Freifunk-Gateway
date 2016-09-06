@@ -1,6 +1,6 @@
 ; zonefile for services.ffms.
 $TTL    86400
-@       IN      SOA     service.freifunk-muensterland.de. info.freifunk-muensterland.de. (
+@       IN      SOA     {{bind_zonemaster.server}}. {{bind_zonemaster.email}}. (
                      {{ansible_date_time.epoch}}         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
@@ -9,6 +9,7 @@ $TTL    86400
 ;
 @			IN      NS      {{bind.ns_name}}.services.ffms.
 {{bind.ns_name}}			IN      A       {{ansible_default_ipv4.address}}
+{% if bind.ffms_for_groups is defined and bind.ffms_for_groups.0 is defined %}
 {% for group in bind.ffms_for_groups %}
 {% if "static_hosts" in hostvars[groups[group][0]] %}
 {% for host in hostvars[groups[group][0]].static_hosts %}
@@ -16,3 +17,4 @@ $TTL    86400
 {% endfor %}
 {% endif %}
 {% endfor %}
+{% endif %}

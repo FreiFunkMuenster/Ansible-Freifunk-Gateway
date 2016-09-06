@@ -13,6 +13,7 @@ $TTL    86400
 {% if i.append(i.pop() + 1) %}{% endif %}
 {% endif %}
 {% endfor %}
+{% if bind.ffms_for_groups is defined and bind.ffms_for_groups.0 is defined %}
 {% for group in bind.ffms_for_groups %}
 {% if "static_hosts" in hostvars[groups[group][0]] %}
 {% for host in hostvars[groups[group][0]].static_hosts %}
@@ -20,3 +21,4 @@ $TTL    86400
 {% endfor %}
 {% endif %}
 {% endfor %}
+{% endif %}
