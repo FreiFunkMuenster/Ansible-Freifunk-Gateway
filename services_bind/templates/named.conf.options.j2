@@ -8,6 +8,7 @@ options {
 
         notify yes;
 	also-notify {
+{% if bind.ffms_for_groups is defined and bind.ffms_for_groups.0 is defined %}
 {% for group in bind.ffms_for_groups %}
 {% for host in groups[group] %}
            {{hostvars[host].ff_network.v4_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }};
@@ -18,6 +19,7 @@ options {
            {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address')}}; 
 {% endfor %}
 {% endfor %}
+{% endif %}
 	};
         
         auth-nxdomain no;    # conform to RFC1035
