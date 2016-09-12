@@ -30,14 +30,14 @@ $TTL    86400
 {% if hostvars[host].domaenenliste is defined %}
 {% for domaene in hostvars[host].domaenenliste|dictsort %}
 domaene{{domaene[0]}}	IN	A	{{hostvars[host].ansible_ssh_host}};
-{% if {{domaene.server_id}} is defined and {{domaene.server_id}} == 2 %}
+{% if domaene[1].server_id is defined and domaene[1].server_id == 2 %}
 domaene{{domaene[0]}}-A IN	A	{{hostvars[host].ansible_ssh_host}};
-{% elif {{domaene.server_id}} is defined and {{domaene.server_id}} == 3 %}
+{% elif domaene[1].server_id is defined and domaene[1].server_id == 3 %}
 domaene{{domaene[0]}}-B IN	A	{{hostvars[host].ansible_ssh_host}};
-{% elif {{domaene.server_id}} is defined and {{domaene.server_id}} == 4 %}
+{% elif domaene[1].server_id is defined and domaene[1].server_id == 4 %}
 domaene{{domaene[0]}}-C IN	A	{{hostvars[host].ansible_ssh_host}};
-{% elif {{domaene.server_id}} is defined and {{domaene.server_id}} == 5 %}
-domaene{{domaene[0]}}-D IN	A	{{hostvars[host].ansible_ssh_host}};
+{% elif domaene[1].server_id is defined and domaene[1].server_id == 5 %}
+domaene{{domaene[0]}}-D IN	A	{{hostvars[host].ansible_ssh_host}}; 
 {% endif %}
 {% endfor %}
 {% endif %}
