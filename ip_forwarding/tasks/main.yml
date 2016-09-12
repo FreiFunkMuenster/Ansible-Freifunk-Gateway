@@ -4,8 +4,14 @@
 - name: IPv6 Paketweiterleitung aktivieren
   sysctl: name="net.ipv6.conf.all.forwarding" value=1 sysctl_set=yes state=present reload=yes
 
-- name: sysctl rc_filter default deaktivieren
+- name: sysctl rp_filter default deaktivieren
   sysctl: name="net.ipv4.conf.default.rp_filter" value=0 sysctl_set=yes state=present reload=yes
 
-- name: sysctl rc_filter all deaktivieren
+- name: sysctl rp_filter all deaktivieren
   sysctl: name="net.ipv4.conf.all.rp_filter" value=0 sysctl_set=yes state=present reload=yes
+
+- name: sysctl rp_filter V6 default deaktivieren
+  sysctl: name="net.ipv6.conf.default.rp_filter" value=0 sysctl_set=yes state=present reload=yes
+
+- name: sysctl rp_filter V6 all deaktivieren
+  sysctl: name="net.ipv6.conf.all.rp_filter" value=0 sysctl_set=yes state=present reload=yes
