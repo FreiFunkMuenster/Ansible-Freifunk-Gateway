@@ -58,7 +58,7 @@ protocol static dhcp_Bereich {
 
 filter freifunk {
 	if net ~ [185.66.0.0/22+] then accept;
-	if net ~ [10.0.0.0/16+] then accept;
+	if net ~ [10.0.0.0/8+] then accept;
 {% if not ffrl_tun is defined %}
 	if net ~ [0.0.0.0/0] then accept;
 {% endif %}
