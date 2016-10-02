@@ -45,6 +45,10 @@ done
 
 # meshviewer-Daten kopien/verlinken, wenn noch nicht vorhanden und index.html erzeugen
 for i in /var/www/html/maps/data?*; do
+    if [[ -L $i ]]
+    then
+        continue
+    fi
     suf=${i#*data}
     if [ ! -e /var/www/html/maps/map${suf} -o "$1" = "-f" ]; then
 	case $suf in
@@ -66,6 +70,10 @@ for i in /var/www/html/maps/data?*; do
 <p>
 EOF
 	for j in /var/www/html/maps/data??; do
+            if [[ -L $j ]]
+            then
+                continue
+            fi
 	    suf2=${j#*data}
 	    name="Domäne $suf2 ${text[$suf2]:+-} ${text[$suf2]}"
 	    echo "<a href=\"map$suf2/\">$name</a><br>" >> /var/www/html/maps/index.html

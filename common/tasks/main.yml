@@ -56,7 +56,7 @@
     - dwdiff
     - molly-guard
     - git
-    - iperf
+    - iperf3
     - chkconfig
     - logwatch
     - mtr-tiny
