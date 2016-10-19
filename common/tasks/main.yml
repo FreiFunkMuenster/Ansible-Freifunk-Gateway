@@ -62,6 +62,7 @@
     - mtr-tiny
     - dhcpdump
     - dhcping
+    - irqbalance
 
 - name: uninstall unneeded packages
   apt:
