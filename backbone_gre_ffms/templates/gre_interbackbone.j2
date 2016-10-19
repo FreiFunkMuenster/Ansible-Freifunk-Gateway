@@ -1,5 +1,5 @@
 # This file is managed by ansible, don't make changes here - they will be overwritten.
-{% for host in groups['backbone']+groups['gateways'] %}
+{% for host in groups['gateways'] %}
 {% if host != inventory_hostname and 'ffrl_tun' in hostvars[host] %}
 auto bck-{{host}}
 iface bck-{{host}} inet static

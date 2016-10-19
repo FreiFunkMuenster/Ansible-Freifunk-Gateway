@@ -2,7 +2,7 @@
 # Script zum Prüfen der Tunnel von Gateway-Servern zu den Backbone-Servern per ICMP Ping
 failed=0
 echo
-{% for host in groups['backbone'] %}
+{% for host in groups['gateways'] %}
 {% if 'ffms_tun_to' in hostvars[host] %}
 {% for link in hostvars[host].ffms_tun_to%}
 {% if 'host_name' in link and link.host_name == inventory_hostname %}

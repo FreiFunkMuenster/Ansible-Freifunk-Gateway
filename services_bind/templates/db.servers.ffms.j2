@@ -23,10 +23,3 @@ $TTL    86400
 {{host}}	IN      AAAA    {{domaenen[domaene[0]].ffv6_network | ipaddr(domaene[1].server_id) | ipaddr('address') }};
 {% endfor %}
 {% endfor %}
-{% if groups['backbone'] is defined %}
-{% for host in groups['backbone'] %}
-{{host}}	IN      A       {{hostvars[host].ff_network.v4_network | ipaddr(hostvars[host].vm_id) | ipaddr('address') }};
-{{host}}	IN      AAAA    {{hostvars[host].ff_network.v6_network | ipaddr(hostvars[host].vm_id) | ipaddr('address') }};
-{% endfor %}
-{% endif %}
-
