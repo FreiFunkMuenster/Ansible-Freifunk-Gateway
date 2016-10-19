@@ -11,6 +11,7 @@ view "domaene-{{domaene[0]}}" {
 {% if is_external_nameserver is defined and is_external_nameserver %}
 	include "/etc/bind/named.conf.freifunk-muensterland";
 {% endif %}
+{% if hostvars['services'] is defined %}
 	zone "ffms." {
 		type master;
 		file "/etc/bind/db.domaene-{{domaene[0]}}.ffms";
@@ -28,6 +29,7 @@ view "domaene-{{domaene[0]}}" {
 		};
 	};
 };
+{% endif %}
 {% endfor %}
 {% if is_external_nameserver is defined and is_external_nameserver %}
 view "external" {
