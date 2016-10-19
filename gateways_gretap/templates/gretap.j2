@@ -7,6 +7,7 @@
 {% endif %}
 {% endfor %}
 {% for host in hosts %}
+{% if hostvars[host] is defined %}
 {% if indexer.append(indexer.pop() + 1) %}{% endif %}{# increment indexer by 1 #}
 
 # GRETAP Tunnel for domaene-{{domaene[0]}} to {{host}} ({{hostvars[host].ansible_ssh_host}})
@@ -18,6 +19,7 @@ iface t{{domaene[0]}}-{{host}} inet manual
         post-up batctl -m bat{{domaene[0]}} if add $IFACE ||:
         pre-down batctl -m bat{{domaene[0]}} if del $IFACE ||:
         post-down ip link del $IFACE
+{% endif %}
 {% endfor %}
 {% endfor %}
 
