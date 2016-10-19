@@ -187,7 +187,7 @@ protocol bgp ffrl_{{tun.name}} from uplink {
 
 {% endfor %}
 
-{% for host in groups['gateways']+groups['backbone'] %}
+{% for host in groups['gateways'] %}
 {% if 'ffrl_tun' in hostvars[host] and hostvars[host].vm_id != vm_id %}
 protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 {% if hostvars[host].vm_id < vm_id %}
