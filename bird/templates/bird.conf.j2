@@ -42,12 +42,6 @@ protocol device {
         scan time 10;
 };
 
-protocol static prevent_local_exit {
-        table ffnet;
-        preference 1;
-        route 0.0.0.0/0 blackhole;
-}
-
 {% if domaenenliste is defined %}
 protocol static dhcp_Bereich {
 	table ffnet;

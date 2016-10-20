@@ -100,12 +100,6 @@ filter hostroute {
 	reject;
 }
 
-protocol static prevent_local_exit {
-        table ffnet;
-        preference 1;
-        route ::/0 blackhole;
-}
-
 {% for domaene in domaenen|dictsort %}
 {% set step = 0 %}
 {% if ffms_tun_to is defined %}
