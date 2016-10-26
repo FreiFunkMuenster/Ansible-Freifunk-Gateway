@@ -39,4 +39,4 @@
   lineinfile: dest="/etc/iproute2/rt_tables" line="42   ffnet"
 
 - name: Drei Sekunden nach Kernelpanik automatisch neu starten
-    sysctl: name="kernel.panic" value=3 sysctl_set=yes state=present reload=yes
+  sysctl: name="kernel.panic" value=3 sysctl_set=yes state=present reload=yes
