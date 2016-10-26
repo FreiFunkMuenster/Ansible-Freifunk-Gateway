@@ -23,7 +23,7 @@ $TTL    86400
 {% for host in groups['gateways'] %}
 {{host}}	IN      A       {{hostvars[host].ansible_ssh_host}};
 {% endfor %}
-rhe	IN	A	46.105.252.246;
+rhe	IN	A	148.251.45.45;
 {% for host in groups['gateways'] %}
 {% if hostvars[host].domaenenliste is defined %}
 {% for domaene in hostvars[host].domaenenliste|dictsort %}
