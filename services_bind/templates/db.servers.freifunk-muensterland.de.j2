@@ -24,6 +24,8 @@ $TTL    86400
 {{host}}	IN      A       {{hostvars[host].ansible_ssh_host}};
 {% endfor %}
 rhe	IN	A	148.251.45.45;
+ausrufer	IN	A	46.4.90.220;
+barristan	IN	A	148.251.208.170;
 {% for host in groups['gateways'] %}
 {% if hostvars[host].domaenenliste is defined %}
 {% for domaene in hostvars[host].domaenenliste|dictsort %}
