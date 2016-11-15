@@ -674,9 +674,9 @@ LoadPlugin write_graphite
 	ModulePath "/opt/collectd-python/"
 	LogTraces true
 	Interactive false
-{% if collectd.collect_dhcp%}
-	Import "dhcp"
-{% endif %}
+#{% if collectd.collect_dhcp%}
+#	Import "dhcp"
+#{% endif %}
 {% if collectd.collect_ipv4ipv6 %}
 	Import "ipv4ipv6"
 {% endif %}
