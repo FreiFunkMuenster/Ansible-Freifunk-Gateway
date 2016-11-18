@@ -1,0 +1,17 @@
+# This role installs and prepares PostgreSQL for KEA DHCP Server
+
+---
+- name: Install PostgreSQL
+  apt:
+    pkg: "{{ item }}"
+    update_cache: yes
+    cache_valid_time: 1800
+    state: installed
+  with_items:
+    - postgresql
+    - postgresql-client
+    - postgresql-common
+    - postgresql-client-common
+
+- name: enable PostreSQL service
+  service: name=postgresql enabled=yes state=started
