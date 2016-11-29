@@ -1,7 +1,17 @@
-# This file is managed by ansible, don't make changes here - they will be overwritten.
+#etThis file is managed by ansible, don't make changes here - they will be overwritten.
 {% set indexer = [0] %}
+{% set hosts = [] %}
 {% for domaene in domaenenliste|dictsort %}
-{% set hosts = ['services'] %}
+{% for dummy in hosts %}
+{% if hosts.pop() %}
+{% endif %}
+{% endfor %}
+{% if hosts|length and hosts.pop() %}
+{% endif %}
+{% for host in groups['services'] %}
+{% if hosts.append(host) %}
+{% endif %}
+{% endfor %}
 {% for host in groups['gateways'] %}
 {% if ansible_ssh_host != hostvars[host].ansible_ssh_host and domaene[0] in hostvars[host].domaenenliste and hosts.append(host) %}
 {% endif %}
@@ -22,4 +32,3 @@ iface t{{domaene[0]}}-{{host}} inet manual
 {% endif %}
 {% endfor %}
 {% endfor %}
-
