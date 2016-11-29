@@ -1,0 +1,38 @@
+# This role builds ISC KEA for running PostgreSQL as Database engine
+---
+- name: Install required packages for building KEA
+  apt:
+    pkg: "{{ item }}"
+    update_cache: yes
+    cache_valid_time: 1800
+    state: installed
+    install_recommends: no
+  with_items:
+    - git
+    - g++
+    - automake
+    - autoconf
+    - libtool
+    - pkg-config
+    - libboost-all-dev
+    - openssl
+    - libssl-dev
+    - ca-certificates
+    - liblog4cplus-dev
+    - postgresql-server-dev-all
+    - postgresql-client-9.5
+    - libpq-dev
+
+- name: Clone ISC KEA git repo and checkout branch v1_1_0
+  git: repo=https://github.com/isc-projects/kea.git dest=/srv/kea clone=yes update=no version=v1_1_0
+
+- name: Build ISC KEA
+  shell: "{{item}}"
+  args:
+    chdir: "/srv/kea"
+  with_items:
+    - "autoreconf --install"
+    - "./configure --with-dhcp-pgsql"
+    - "make -j 4"
+    - "make install"
+    - "ldconfig"
