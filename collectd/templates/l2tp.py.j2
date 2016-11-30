@@ -11,11 +11,17 @@ def getBridgeInterfaceCount():
 
 def read(data=None):
 	stats = getBridgeInterfaceCount()
+	globalCount = 0
 	for k,v in stats.iteritems():
+		globalCount += v
 		vl = collectd.Values(type='if_count')
 		vl.plugin='l2tp'
 		vl.type_instance = k
 		vl.dispatch(values=[v])
+        vl = collectd.Values(type='if_count')
+        vl.plugin='l2tp'
+        vl.type_instance = 'all'
+        vl.dispatch(values=[globalCount])
 
 
 def write(vl, data=None):
