@@ -15,17 +15,18 @@ def read(data=None):
 	result += part
 	jsonData = json.loads(result)
 	resDict = {}
-	resDict[u'all_interfaces'] = dict([('total-addresses',0),('assigned-addresses',0),('declined-addresses',0),('declined-reclaimed-addresses',0)])
+	resDict[u'all_interfaces'] = dict([('total-addresses',0),('assigned-addresses',0),('declined-addresses',0),('declined-reclaimed-addresses',0),('reclaimed-leases',0)])
 	for k,v in jsonData["arguments"].iteritems():
 		k = k.split('.') 
 		interface = k[0].replace('subnet[','bat').replace(']','')
 		if len(k) != 2:
 			continue
 		if interface not in resDict:
-			resDict[interface] = dict()
+			resDict[interface] = dict([('total-addresses',0),('assigned-addresses',0),('declined-addresses',0),('declined-reclaimed-addresses',0),('reclaimed-leases',0)])
 		
 		resDict[interface][k[1]] = v[0][0]
-		resDict['all_interfaces'][k[1]] += v[0][0]
+		if k[1] in resDict['all_interfaces']:
+			resDict['all_interfaces'][k[1]] += v[0][0]
 
 	s.close()
 
@@ -33,7 +34,7 @@ def read(data=None):
 		vl = collectd.Values(type='kea_leases')
 		vl.plugin='kea_leases'
 		vl.type_instance = k
-		vl.dispatch(values=[v['total-addresses'], v['assigned-addresses'], v['declined-addresses'], v['declined-reclaimed-addresses']])
+		vl.dispatch(values=[v['total-addresses'], v['assigned-addresses'], v['declined-addresses'], v['declined-reclaimed-addresses'], v['reclaimed-leases']])
 
 def write(vl, data=None):
 	for i in vl.values:
