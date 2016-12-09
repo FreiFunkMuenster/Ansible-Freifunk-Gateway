@@ -30,9 +30,37 @@
   shell: "{{item}}"
   args:
     chdir: "/srv/kea"
+    creates: "/usr/local/sbin/kea-dhcp4"
   with_items:
     - "autoreconf --install"
     - "./configure --with-dhcp-pgsql"
     - "make -j 4"
     - "make install"
     - "ldconfig"
+
+- name: Clone ISC KEA contrib git repo
+  git: repo=https://github.com/isc-projects/kea-contrib.git dest=/srv/kea-contrib clone=yes update=no
+
+- name: copy systemd files
+  copy: src="/srv/kea-contrib/systemd/{{item}}.in" remote_src=True force=no dest="/lib/systemd/system/{{item}}"
+  with_items:
+    - kea-dhcp4.service
+    - kea-dhcp6.service
+    - kea-dhcp-ddns.service
+
+- name: replace @sbindir@
+  replace: dest="/lib/systemd/system/{{item}}" regexp="\@sbindir\@" replace="/usr/local/sbin"
+  with_items:
+    - kea-dhcp4.service
+    - kea-dhcp6.service
+    - kea-dhcp-ddns.service
+
+- name: replace @sysconfdir@
+  replace: dest="/lib/systemd/system/{{item}}" regexp="\@sysconfdir\@" replace="/etc"
+  with_items:
+    - kea-dhcp4.service
+    - kea-dhcp6.service
+    - kea-dhcp-ddns.service
+
+- name: create /etc/kea directory
+  file: path=/etc/kea state="directory"
