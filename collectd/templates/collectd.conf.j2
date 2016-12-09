@@ -676,6 +676,9 @@ LoadPlugin write_graphite
 	Interactive false
 {% if collectd.collect_dhcp%}
 #	Import "dhcp"
+{% if "dhcp_type" in hostvars[inventory_hostname] and dhcp_type == "kea" %}
+	Import "kea"
+{% endif %}
 {% endif %}
 {% if collectd.collect_ipv4ipv6 %}
 	Import "ipv4ipv6"

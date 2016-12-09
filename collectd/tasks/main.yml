@@ -58,6 +58,11 @@
   notify:
     - restart collectd
 
+- name: Add type for kea dhcp stats to types.db
+  lineinfile: dest=/usr/share/collectd/types.db regexp="^dhcp_leases" line="kea_leases             total-addresses:GAUGE:0:U, assigned-addresses:GAUGE:0:U, declined-addresses:GAUGE:0:U, declined-reclaimed-addresses:GAUGE:0:U"
+  notify:
+    - restart collectd
+
 - name: Add type for l2tp stats to types.db
   lineinfile: dest=/usr/share/collectd/types.db regexp="^if_count" line="if_count                value:GAUGE:0:U"
   notify:
@@ -82,6 +87,12 @@
 
 - name: deploy dhcp.py
   template: src=dhcp.py.j2 dest=/opt/collectd-python/dhcp.py
+  notify:
+    - restart collectd
+  when: collectd.collect_dhcp
+
+- name: deploy kea.py
+  template: src=kea.py.j2 dest=/opt/collectd-python/kea.py
   notify:
     - restart collectd
   when: collectd.collect_dhcp

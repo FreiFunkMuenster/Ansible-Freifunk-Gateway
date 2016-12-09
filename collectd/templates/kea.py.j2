@@ -1,0 +1,43 @@
+#!/usr/bin/python
+
+import collectd,datetime,socket,os,json
+
+def read(data=None):
+	BUFF_SIZE = 1024
+	s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+	s.connect("/var/kea/control.sock")
+	s.send('{"command":"statistic-get-all","arguments":{}}')
+	result = ""
+	part = s.recv(BUFF_SIZE)
+	while len(part) == BUFF_SIZE:
+		result += part
+		part = s.recv(1024)
+	result += part
+	jsonData = json.loads(result)
+	resDict = {}
+	resDict[u'all_interfaces'] = dict([('total-addresses',0),('assigned-addresses',0),('declined-addresses',0),('declined-reclaimed-addresses',0)])
+	for k,v in jsonData["arguments"].iteritems():
+		k = k.split('.') 
+		interface = k[0].replace('subnet[','bat').replace(']','')
+		if len(k) != 2:
+			continue
+		if interface not in resDict:
+			resDict[interface] = dict()
+		
+		resDict[interface][k[1]] = v[0][0]
+		resDict['all_interfaces'][k[1]] += v[0][0]
+
+	s.close()
+
+	for k,v in resDict.iteritems():
+		vl = collectd.Values(type='kea_leases')
+		vl.plugin='kea_leases'
+		vl.type_instance = k
+		vl.dispatch(values=[v['total-addresses'], v['assigned-addresses'], v['declined-addresses'], v['declined-reclaimed-addresses']])
+
+def write(vl, data=None):
+	for i in vl.values:
+		print "%s (%s): %f" % (vl.plugin, vl.type, i)
+
+collectd.register_read(read)
+collectd.register_write(write);
