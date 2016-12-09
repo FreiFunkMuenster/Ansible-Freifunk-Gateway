@@ -1,6 +1,10 @@
 # Configure ISC KEA
 ---
+- name: stop isc-dhcp
+  service: name=isc-dhcp-server state=stopped
 
+- name: disable isc-dhcp
+  service: name=isc-dhcp-server enabled=no
 
 - name: enable kea-dhcp4
   service: name=kea-dhcp4 enabled=yes

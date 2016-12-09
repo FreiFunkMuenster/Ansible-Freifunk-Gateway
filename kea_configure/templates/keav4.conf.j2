@@ -2,9 +2,14 @@
 
 "Dhcp4": {
     "interfaces-config": {
-#        "interfaces": [ {% for domaene in domaenenliste|dictsort %}"bat{{domaene[0]}}"{% if not loop.last %}, {% endif %}{% endfor %} ]
-        "interfaces": [ "eth0" ]
+        "interfaces": [ {% for domaene in domaenenliste|dictsort %}"bat{{domaene[0]}}"{% if not loop.last %}, {% endif %}{% endfor %} ]
+#        "interfaces": [ "eth0" ]
 #        "dhcp-socket-type": "udp"
+    },
+
+    "control-socket": {
+        "socket-type": "unix",
+        "socket-name": "/var/kea/control.sock"
     },
 
     "lease-database": {
@@ -39,8 +44,9 @@
 {% for domaene in domaenenliste|dictsort %}
             {
                 "subnet": "{{domaenen[domaene[0]].ffv4_network}}",
-#                "interface": "bat{{domaene[0]}}",
-                "interface": "eth0",
+                "interface": "bat{{domaene[0]}}",
+#                "interface": "eth0",
+                "id" : {{domaene[0]}},
                 "pools": [ 
                     { "pool": "{{domaene[1].dhcp_start}} - {{domaene[1].dhcp_ende}}" } 
                 ],
@@ -62,13 +68,6 @@
                     {
                         "name": "domain-name",
                         "code": 15,
-                        "space": "dhcp4",
-                        "csv-format": true,
-                        "data": "{{dhcp_global.domain_search}}"
-                    },
-                    {
-                        "name": "domain-search",
-                        "code": 24,
                         "space": "dhcp4",
                         "csv-format": true,
                         "data": "{{dhcp_global.domain_search}}"
