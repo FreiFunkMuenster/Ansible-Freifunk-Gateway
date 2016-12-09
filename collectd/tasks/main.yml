@@ -59,7 +59,7 @@
     - restart collectd
 
 - name: Add type for kea dhcp stats to types.db
-  lineinfile: dest=/usr/share/collectd/types.db regexp="^dhcp_leases" line="kea_leases             total-addresses:GAUGE:0:U, assigned-addresses:GAUGE:0:U, declined-addresses:GAUGE:0:U, declined-reclaimed-addresses:GAUGE:0:U, reclaimed-leases:GAUGE:0:U"
+  lineinfile: dest=/usr/share/collectd/types.db regexp="^kea_leases" line="kea_leases             total-addresses:GAUGE:0:U, assigned-addresses:GAUGE:0:U, declined-addresses:GAUGE:0:U, declined-reclaimed-addresses:GAUGE:0:U, reclaimed-leases:GAUGE:0:U"
   notify:
     - restart collectd
 
