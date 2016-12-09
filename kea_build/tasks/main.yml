@@ -20,7 +20,6 @@
     - ca-certificates
     - liblog4cplus-dev
     - postgresql-server-dev-all
-    - postgresql-client-9.5
     - libpq-dev
 
 - name: Clone ISC KEA git repo and checkout branch v1_1_0
@@ -64,3 +63,6 @@
 
 - name: create /etc/kea directory
   file: path=/etc/kea state="directory"
+
+- name: create /var/kea directory
+  file: path=/var/kea state="directory"

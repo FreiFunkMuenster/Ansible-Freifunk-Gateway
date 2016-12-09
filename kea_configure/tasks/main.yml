@@ -6,4 +6,6 @@
   service: name=kea-dhcp4 enabled=yes
 
 - name: create /etc/kea/kea.conf
-  template: src=kea.conf.j2 dest=/etc/kea/kea.conf
+  template: src=keav4.conf.j2 dest=/etc/kea/kea.conf
+  notify:
+    - restart kea-dhcp4

@@ -1,37 +1,102 @@
 {
 
 "Dhcp4": {
-  "interfaces-config": {
-    "interfaces": [ ]
-  },
+    "interfaces-config": {
+#        "interfaces": [ {% for domaene in domaenenliste|dictsort %}"bat{{domaene[0]}}"{% if not loop.last %}, {% endif %}{% endfor %} ]
+        "interfaces": [ "eth0" ]
+#        "dhcp-socket-type": "udp"
+    },
 
-  "lease-database": {
-    "type": "memfile"
-  },
+    "lease-database": {
+        "type": "memfile",
+        "persist": true,
+        "name": "/var/kea/dhcp4.leases",
+        "lfc-interval": 1800
+    },
 
-  "expired-leases-processing": {
-    "reclaim-timer-wait-time": 10,
-    "flush-reclaimed-timer-wait-time": 25,
-    "hold-reclaimed-time": 3600,
-    "max-reclaim-leases": 100,
-    "max-reclaim-time": 250,
-    "unwarned-reclaim-cycles": 5
-  },
+    "expired-leases-processing": {
+        "reclaim-timer-wait-time": 10,
+        "flush-reclaimed-timer-wait-time": 25,
+        "hold-reclaimed-time": 3600,
+        "max-reclaim-leases": 100,
+        "max-reclaim-time": 250,
+        "unwarned-reclaim-cycles": 5
+    },
 
-    "valid-lifetime": 4000,
+        "valid-lifetime": {{dhcp_global.lease_default}},
 
-    "subnet4": [
-    ]
-  },
+        "option-data": [
+            {
+                "name": "interface-mtu",
+                "code": 26,
+                "space": "dhcp4",
+                "csv-format": true,
+                "data": "{{dhcp_global.mtu}}"
+            }
+        ],
 
-	"Logging": {
-		"loggers": [{
-			"name": "kea-dhcp4",
-			"output_options": [{
-				"output": "/var/log/kea-dhcp4.log"
-			}],
-			"severity": "INFO",
-			"debuglevel": 0
-		}]
-	}
+        "subnet4": [
+{% for domaene in domaenenliste|dictsort %}
+            {
+                "subnet": "{{domaenen[domaene[0]].ffv4_network}}",
+#                "interface": "bat{{domaene[0]}}",
+                "interface": "eth0",
+                "pools": [ 
+                    { "pool": "{{domaene[1].dhcp_start}} - {{domaene[1].dhcp_ende}}" } 
+                ],
+                "option-data": [ 
+                    {
+                        "name": "routers",
+                        "code": 3,
+                        "space": "dhcp4",
+                        "csv-format": true,
+                        "data": "{{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }}"
+                    },
+                    {
+                        "name": "domain-name-servers",
+                        "code": 6,
+                        "space": "dhcp4",
+                        "csv-format": true,
+                        "data": "{{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }}"
+                    },
+                    {
+                        "name": "domain-name",
+                        "code": 15,
+                        "space": "dhcp4",
+                        "csv-format": true,
+                        "data": "{{dhcp_global.domain_search}}"
+                    },
+                    {
+                        "name": "domain-search",
+                        "code": 24,
+                        "space": "dhcp4",
+                        "csv-format": true,
+                        "data": "{{dhcp_global.domain_search}}"
+                    }
+                ]
+            }{% if not loop.last %},{% endif %}
+{% endfor %}
+        ]
+    },
+
+    "Logging": {
+        "loggers": [
+            {
+                "name": "kea-dhcp4",
+                "output_options": [ {
+                    "output": "/var/log/kea-dhcp4.log"
+                } ],
+                "severity": "INFO",
+                "debuglevel": 0
+            },
+            {
+                "name": "kea-dhcp4-debug",
+                "output_options": [ {
+                    "output": "/var/log/kea-dhcp4.debug.log"
+                } ],
+                "severity": "DEBUG",
+                "debuglevel": 99
+            }
+        ]
+    }
 }
