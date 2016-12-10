@@ -3,8 +3,6 @@
 "Dhcp4": {
     "interfaces-config": {
         "interfaces": [ {% for domaene in domaenenliste|dictsort %}"bat{{domaene[0]}}"{% if not loop.last %}, {% endif %}{% endfor %} ]
-#        "interfaces": [ "eth0" ]
-#        "dhcp-socket-type": "udp"
     },
 
     "control-socket": {
@@ -20,11 +18,11 @@
     },
 
     "expired-leases-processing": {
-        "reclaim-timer-wait-time": 10,
-        "flush-reclaimed-timer-wait-time": 25,
-        "hold-reclaimed-time": 3600,
-        "max-reclaim-leases": 100,
-        "max-reclaim-time": 250,
+        "reclaim-timer-wait-time": 5,
+        "flush-reclaimed-timer-wait-time": 30,
+        "hold-reclaimed-time": 7200,
+        "max-reclaim-leases": 500,
+        "max-reclaim-time": 100,
         "unwarned-reclaim-cycles": 5
     },
 
@@ -45,7 +43,6 @@
             {
                 "subnet": "{{domaenen[domaene[0]].ffv4_network}}",
                 "interface": "bat{{domaene[0]}}",
-#                "interface": "eth0",
                 "id" : {{domaene[0]}},
                 "pools": [ 
                     { "pool": "{{domaene[1].dhcp_start}} - {{domaene[1].dhcp_ende}}" } 
