@@ -35,7 +35,9 @@ LoadPlugin syslog
 #LoadPlugin apcups
 #LoadPlugin ascent
 #LoadPlugin battery
-#LoadPlugin bind
+{% if collectd.collect_bind %}
+LoadPlugin bind
+{% endif %}
 #LoadPlugin conntrack
 #LoadPlugin contextswitch
 LoadPlugin cpu
@@ -60,7 +62,7 @@ LoadPlugin interface
 #LoadPlugin ipmi
 #LoadPlugin iptables
 #LoadPlugin ipvs
-#LoadPlugin irq
+LoadPlugin irq
 #LoadPlugin java
 #LoadPlugin libvirt
 LoadPlugin load
@@ -87,11 +89,13 @@ LoadPlugin memory
 #	Globals true
 #</LoadPlugin>
 #LoadPlugin pinba
-#LoadPlugin ping
+{% if collectd.collect_ping %}
+LoadPlugin ping
+{% endif %}
 #LoadPlugin postgresql
 #LoadPlugin powerdns
 LoadPlugin processes
-#LoadPlugin protocols
+LoadPlugin protocols
 {% if collectd.collect_dhcp or collectd.collect_fastd or collectd.collect_l2tp or collectd.collect_ipv4ipv6 or collectd.collect_sysctl %}
 <LoadPlugin python>
 	Globals true
@@ -167,7 +171,29 @@ LoadPlugin write_graphite
 #	VerifyHost false
 #	CACert "/etc/ssl/ca.crt"
 #</Plugin>
+{% if collectd.collect_bind %}
+<Plugin "bind">
+  URL "http://localhost:8053/"
 
+  ParseTime 	  true
+
+  OpCodes         true
+  QTypes          true
+
+  ServerStats     true
+  ZoneMaintStats  true
+  ResolverStats   true
+  MemoryStats     true
+
+# <View "_default">
+#   QTypes        true
+#   ResolverStats true
+#   CacheRRSets   true
+
+#   Zone "127.in-addr.arpa/IN"
+# </View>
+</Plugin>
+{% endif %}
 #<Plugin "bind">
 #	URL "http://localhost:8053/"
 #
@@ -585,17 +611,46 @@ LoadPlugin write_graphite
 #		Script "script name"
 #	<View>
 #</Plugin>
+{% if collectd.collect_ping %}
+<Plugin ping>
+{% set hosts = [] %}
+{% for domaene in domaenenliste|dictsort %}
+{% for dummy in hosts %}
+{% if hosts.pop() %}
+{% endif %}
+{% endfor %}
+{% if hosts|length and hosts.pop() %}
+{% endif %}
+{% for host in groups['services'] %}
+{% if hosts.append(host) %}
+{% endif %}
+{% endfor %}
+{% for host in groups['gateways'] %}
+{% if ansible_ssh_host != hostvars[host].ansible_ssh_host and domaene[0] in hostvars[host].domaenenliste and hosts.append(host) %}
+{% endif %}
+{% endfor %}
+# Domaene-{{domaene[0]}}:
+{% for host in hosts %}
+{% if hostvars[host] is defined %}
+{% if "domaenenliste" in hostvars[host] %}
+	Host "{{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars[host].domaenenliste[domaene[0]].server_id) | ipaddr('address') }}"
+{% else %}
+	Host "{{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }}"
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
 
-#<Plugin ping>
 #	Host "host.foo.bar"
 #	Host "host.baz.qux"
-#	Interval 1.0
-#	Timeout 0.9
-#	TTL 255
+	Interval 30.0
+	Timeout 1.0
+	TTL 16
 #	SourceAddress "1.2.3.4"
 #	Device "eth0"
 #	MaxMissed -1
-#</Plugin>
+</Plugin>
+{% endif %}
 
 #<Plugin postgresql>
 #	<Query magic>

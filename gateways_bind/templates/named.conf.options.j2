@@ -17,3 +17,8 @@ options {
         auth-nxdomain no;    # conform to RFC1035
         listen-on-v6 { any; };
 };
+{% if collectd.collect_bind %}
+statistics-channels {
+        inet 127.0.0.1 port 8053 allow { 127.0.0.1; };
+};
+{% endif %}
