@@ -1,0 +1,33 @@
+---
+- name: Installationsskript herunterladen 
+  get_url: 
+    url: https://github.com/hopglass/hopglass-server/raw/master/scripts/bootstrap.sh
+    dest: /tmp/bootstrap.sh
+
+- name: python-pip installieren
+  apt: 
+    name: python-pip
+    update_cache: yes
+    
+- name: pip-Modul pexpect installieren, um das Installationsskript nutzen zu können
+  pip:
+    name: pexpect
+
+- name: HopGlass-Server installieren
+  expect:
+    command: bash /tmp/bootstrap.sh
+    responses:
+      'Do you want to continue\?': 'y'
+      'Where do you want to install the HopGlass Server\?': '/opt/hopglass'
+
+- name: Installationsskript entfernen
+  file: path=/tmp/bootstrap.sh state=absent
+
+- name: Konfiguration kopieren, Service installieren und starten
+  template: 
+    src: config.json.j2 
+    dest: /etc/hopglass-server/default/config.json
+    owner: hopglass
+    group: hopglass
+    mode: 0644
+  notify: install hopglass server service
