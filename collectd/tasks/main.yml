@@ -32,6 +32,8 @@
   template: src=collectd.conf.j2 dest=/etc/collectd/collectd.conf 
   notify:
     - restart collectd
+  tags:
+    - debug
 
 - name: deploy collection.conf
   template: src=collection.conf.j2 dest=/etc/collectd/collection.conf
@@ -65,11 +67,6 @@
 
 - name: Add type for l2tp stats to types.db
   lineinfile: dest=/usr/share/collectd/types.db regexp="^if_count" line="if_count                value:GAUGE:0:U"
-  notify:
-    - restart collectd
-
-- name: remove collectd_fastd.py
-  file: path=/opt/collectd-python/collectd_fastd.py state=absent
   notify:
     - restart collectd
 

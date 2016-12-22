@@ -640,10 +640,15 @@ LoadPlugin write_graphite
 {% endif %}
 {% endfor %}
 {% endfor %}
-
+{% if "ffrl_tun" in hostvars[inventory_hostname] %}
+{% for tun in ffrl_tun %}
+# FFRL tun remote {{tun.name}}:
+	Host "{{tun.v4_remote.split('/')[0]}}"
+{% endfor %}
+{% endif %}
 #	Host "host.foo.bar"
 #	Host "host.baz.qux"
-	Interval 30.0
+	Interval 10.0
 	Timeout 1.0
 	TTL 16
 #	SourceAddress "1.2.3.4"
@@ -715,10 +720,16 @@ LoadPlugin write_graphite
 #	LocalSocket "/opt/collectd/var/run/collectd-powerdns"
 #</Plugin>
 
-#<Plugin processes>
+<Plugin processes>
 #	Process "name"
-#	ProcessMatch "foobar" "/usr/bin/perl foobar\\.pl.*"
-#</Plugin>
+	Process "named" 
+	Process "rsyslogd" 
+	Process "kea-dhcp4" 
+	Process "bird" 
+	Process "bird6" 
+	ProcessMatch "tunneldigger" "tunneldigger" 
+	Process "collectd"
+</Plugin>
 
 #<Plugin protocols>
 #	Value "/^Tcp:/"
