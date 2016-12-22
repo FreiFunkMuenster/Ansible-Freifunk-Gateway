@@ -1,0 +1,33 @@
+---
+
+- name: Install sudo
+  apt:
+    pkg: "sudo"
+    update_cache: yes
+    cache_valid_time: 1800
+    state: installed
+
+- name: "chmod u+w /etc/sudoers"
+  file: path=/etc/sudoers mode="u+w"
+  changed_when: False
+
+- name: "enable sudo nopasswd for /opt/node-respondd/bat-list-neighbours"
+  lineinfile: "dest=/etc/sudoers line='nobody ALL=(root) NOPASSWD: /opt/node-respondd/bat-list-neighbours'"
+
+- name: "chmod u-w /etc/sudoers"
+  file: path=/etc/sudoers mode="u-w"
+  changed_when: False
+
+- name: "create systemd files"
+  template: src="node-respondd.service.j2" dest="/lib/systemd/system/node-respondd-{{item}}.service"
+  with_items: "{{domaenenliste}}"
+  notify: systemctl reload
+
+- name: Clone node-respondd repo
+  git: repo=https://github.com/descilla/node-respondd.git dest=/opt/node-respondd/ clone=yes update=yes
+  notify: restart respondd
+
+- name: create config.json files
+  template: src="config.json.j2" dest="/opt/node-respondd/config{{item}}.json"
+  with_items: "{{domaenenliste}}"
+  notify: restart respondd
