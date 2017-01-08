@@ -1,0 +1,40 @@
+# This file is managed by ansible, don't make changes here - they will be overwritten.
+
+{
+  "receiver": {
+    "receivers": [
+      { "module": "announced",
+        "config": {
+          "interval": {
+            "statistics": 60,
+            "nodeinfo": 500
+          }
+        }
+      },
+      { "module": "aliases",
+        "config": {
+          "file": "./aliases.json"
+        },
+        "overlay": true
+      }
+    ],
+    "ifaces": [
+{% for domaene in domaenen|dictsort %}
+      "bat{{domaene[0]}}"{% if not loop.last %},{% endif %}
+
+{% endfor %}
+    ],
+    "storage": {
+      "file": "./raw.json"
+    },
+    "purge": {
+      "maxAge": 14
+    }
+  },
+  "provider": {
+    "offlineTime": 900
+  },
+  "webserver": {
+    "port": 4000
+  }
+}
