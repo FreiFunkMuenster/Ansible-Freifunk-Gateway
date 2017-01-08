@@ -8,6 +8,7 @@ iface br{{item[0]}} inet manual
         pre-up ip link set dev $IFACE mtu 1364
         pre-up ip link set $IFACE promisc on
         pre-up ip link set dev $IFACE up
+        post-up ip link set address de:ad:be:ef:{{item[0]}}:{{server_id}} dev $IFACE
         post-up ebtables -A FORWARD --logical-in $IFACE -j DROP
         post-up batctl -m bat{{item[0]}} if add $IFACE
         # Shutdown interface
