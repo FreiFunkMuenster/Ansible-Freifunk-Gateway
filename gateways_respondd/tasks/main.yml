@@ -8,14 +8,12 @@
     - "deb https://deb.nodesource.com/node_7.x {{ ansible_distribution_release }} main"
     - "deb-src https://deb.nodesource.com/node_7.x {{ ansible_distribution_release }} main"
   when: ansible_distribution == "Debian"
-  tags: debug
 
 - name: Add nodejs repo keys
   apt_key:
     id: 1655A0AB68576280
     url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
     state: present
-  tags: debug
 
 - name: Install dependencies
   apt:
