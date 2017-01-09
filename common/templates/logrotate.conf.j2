@@ -1,8 +1,6 @@
 # see "man logrotate" for details
-# rotate log files weekly
 {{logrotate.cycle}}
 
-# keep 4 weeks worth of backlogs
 rotate {{logrotate.count}}
 
 # create new (empty) log files after rotating old ones
@@ -30,4 +28,8 @@ include /etc/logrotate.d
 }
 
 # system-specific logs may be configured here
-
+/var/log/kea-dhcp4.log {
+    {{logrotate.cycle}}
+    rotate {{logrotate.count}}
+    create
+}
