@@ -80,18 +80,11 @@
             {
                 "name": "kea-dhcp4",
                 "output_options": [ {
-                    "output": "/var/log/kea-dhcp4.log"
+                    "output": "/var/log/kea-dhcp4.log",
+                    "maxsize": 10485760,
+                    "maxver": 2
                 } ],
-                "severity": "INFO",
-                "debuglevel": 0
-            },
-            {
-                "name": "kea-dhcp4-debug",
-                "output_options": [ {
-                    "output": "/var/log/kea-dhcp4.debug.log"
-                } ],
-                "severity": "DEBUG",
-                "debuglevel": 99
+                "severity": "WARN"
             }
         ]
     }
