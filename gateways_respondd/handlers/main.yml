@@ -2,5 +2,5 @@
   shell: systemctl daemon-reload
 
 - name: restart respondd
-  service: name="node-respondd-{{item}}.service" state=restarted
+  service: name="node-respondd-{{item}}.service" state=restarted enabled=yes
   with_items: "{{domaenenliste}}"
