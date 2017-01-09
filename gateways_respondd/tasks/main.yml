@@ -1,25 +1,24 @@
 ---
 
-- name: add repo for nodejs
-  apt_repository:
-    repo: "{{ item }}"
-    state: present
-  with_items:
-    - "deb https://deb.nodesource.com/node_7.x {{ ansible_distribution_release }} main"
-    - "deb-src https://deb.nodesource.com/node_7.x {{ ansible_distribution_release }} main"
-  when: ansible_distribution == "Debian"
-
 - name: Add nodejs repo keys
   apt_key:
     id: 1655A0AB68576280
     url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
     state: present
 
+- name: add repo for nodejs
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - "deb https://deb.nodesource.com/node_7.x {{ ansible_distribution_release }} main"
+    - "deb-src https://deb.nodesource.com/node_7.x {{ ansible_distribution_release }} main"
+  when: ansible_distribution == "Debian"
+
 - name: Install dependencies
   apt:
     pkg: "{{item}}"
-    update_cache: yes
-    cache_valid_time: 1800
     state: installed
   with_items:
     - sudo
