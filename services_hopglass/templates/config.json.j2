@@ -1,0 +1,40 @@
+{
+  "dataPath": "/data/",
+  "siteName": "Freifunk Münsterland",
+  "mapSigmaScale": 0.5,
+  "showContact": false,
+  "maxAge": 14,
+  "blinkingHours": 8,
+  "mapLayers": [
+    {
+      "name": "OSM Mapnik",
+      "url": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      "config": {
+        "subdomains": "abc",
+        "type": "osm",
+        "attribution": "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>",
+        "maxZoom": 18
+      }
+    }
+  ],
+  "siteNames": [
+{% for domaene in domaenen|dictsort %}
+    { "site": "{{freifunk.kurzname}}d{{domaene[0]}}", "name": "Domäne {{domaene[0]}} - {{domaene[1].name}}" }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+  "globalInfos": [
+    { "name": "Status-Monitor",
+      "iframe": "https://freifunk-muensterland.de/grafana/dashboard-solo/db/test-alert-dashboard?theme=light&panelId=5"
+    }
+  ],
+  "nodeInfos": [
+    { "name": "Clientstatistik",
+      "iframe": "https://freifunk-muensterland.de/grafana/dashboard-solo/db/node-overview?var-node={NODE_ID}&panelId=1&theme=light",
+      "caption": "Knoten {NODE_ID}"
+    },
+    { "name": "Traffic",
+      "iframe": "https://freifunk-muensterland.de/grafana/dashboard-solo/db/advanced-node-stats?var-node={NODE_ID}&theme=light&panelId=2",
+      "caption": "Knoten {NODE_ID}"
+    }
+  ]
+}
