@@ -28,8 +28,10 @@ include /etc/logrotate.d
 }
 
 # system-specific logs may be configured here
+{% if 'dhcp_type' in hostvars[inventory_hostname] and dhcp_type == 'kea' %}
 /var/log/kea-dhcp4.log {
     {{logrotate.cycle}}
     rotate {{logrotate.count}}
     copytruncate
 }
+{% endif %}
