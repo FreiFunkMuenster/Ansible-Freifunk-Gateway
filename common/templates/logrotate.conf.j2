@@ -31,5 +31,5 @@ include /etc/logrotate.d
 /var/log/kea-dhcp4.log {
     {{logrotate.cycle}}
     rotate {{logrotate.count}}
-    create
+    copytruncate
 }
