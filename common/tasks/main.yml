@@ -85,7 +85,6 @@
 - name: "Get all files in /etc/logrotate.d/"
   raw: find /etc/logrotate.d/ -type f
   register: logrotate_files
-  tags: debug
   always_run: yes
   changed_when: False
 
@@ -95,7 +94,6 @@
     regexp: 'daily|weekly|monthly'
     replace: '{{logrotate.cycle}}'
   with_items: "{{logrotate_files.stdout_lines}}"
-  tags: debug
 
 - name: "Update logrotate count in /etc/logrotate.d/"
   replace: 
@@ -103,9 +101,7 @@
     regexp: 'rotate[ \t]+[0-9]+'
     replace: 'rotate {{logrotate.count}}'
   with_items: "{{logrotate_files.stdout_lines}}"
-  tags: debug
 
 - name: Logrotate Rotationszyklus und Anzahl anpassen
   template: src=logrotate.conf.j2 dest=/etc/logrotate.conf
   when: logrotate is defined
-  tags: debug
