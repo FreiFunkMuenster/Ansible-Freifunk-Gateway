@@ -1,0 +1,58 @@
+---
+- name: Create HopGlass directory if not existent
+  shell: if ! [ -d /opt/hopglass ]; then mkdir /opt/hopglass; fi 
+
+- name: Git for HopGlass
+  shell: git init .; git remote add origin https://github.com/plumpudding/hopglass.git; git pull origin master
+  args:
+    chdir: /opt/hopglass
+
+- name: Add nodejs repo keys
+  apt_key:
+    id: 1655A0AB68576280
+    url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
+    state: present
+
+- name: Add repo for nodejs
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - "deb https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
+    - "deb-src https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
+
+- name: Install nodejs
+  apt:
+    pkg: nodejs
+    state: installed
+
+- name: Install dependencies
+  shell: npm install
+  args:
+    chdir: /opt/hopglass
+
+- name: Install grunt-cli
+  shell: npm install grunt-cli
+  args:
+    chdir: /opt/hopglass
+
+- name: Build HopGlass
+  shell: node_modules/.bin/grunt
+  args:
+    chdir: /opt/hopglass
+
+- name: Adjust permissions
+  file:
+    path: /opt/hopglass
+    owner: hopglass
+    group: hopglass
+    recurse: yes
+
+- name: Copy config file
+  template:
+    src: config.json.j2
+    dest: /opt/hopglass/build/config.json
+    owner: hopglass
+    group: hopglass
+    mode: 0644
