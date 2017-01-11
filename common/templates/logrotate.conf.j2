@@ -26,12 +26,21 @@ include /etc/logrotate.d
     create 0660 root utmp
     rotate 1
 }
-
+{% if 'gateways' in group_names or 'services' in group_names %}
 /var/log/named/bind.log {
     {{logrotate.cycle}}
     rotate {{logrotate.count}}
     copytruncate
 }
+{% endif %}
+
+{% if 'gateways' in group_names %}
+/var/log/tunneldigger-broker.log {
+    {{logrotate.cycle}}
+    rotate {{logrotate.count}}
+    copytruncate
+}
+{% endif %}
 
 # system-specific logs may be configured here
 {% if 'dhcp_type' in hostvars[inventory_hostname] and dhcp_type == 'kea' %}
