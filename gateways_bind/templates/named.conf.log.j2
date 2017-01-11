@@ -1,0 +1,12 @@
+logging{
+  channel default_log {
+    file "/var/log/named/bind.log";
+    severity error;
+    print-time yes;
+    print-severity yes;
+    print-category yes;
+  };
+  category default{
+    default_log;
+  };
+};
