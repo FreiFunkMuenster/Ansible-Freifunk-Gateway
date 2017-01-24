@@ -48,7 +48,7 @@ protocol static dhcp_Bereich {
 {% for domaene in domaenenliste|dictsort %}
 	route {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }}/32 via "bat{{domaene[0]}}";
 {% endfor %}
-{% for result in spezifische_Routen.results %}
+{% for result in more_specific_routes.results|sort(attribute='item') %}
 {% for line in result['stdout_lines'] %}
 	{{line}}
 {% endfor %}
@@ -144,9 +144,8 @@ template bgp uplink {
 protocol bgp ffrl_{{tun.name}} from uplink {
 	source address {{ tun.v4_remote | ipaddr( tun.v4_remote.split('.')[3] | int + 1) | ipaddr('address') }};
 	neighbor {{tun.v4_remote | regex_replace("^(\d+\.\d+\.\d+\.\d+)/\d+$","\\1")}} as 201701;
-{% if loop.first %}
-	default bgp_local_pref 201;
-	default bgp_med 1;
+{% if "bgp_local_pref" in  tun %}
+	default bgp_local_pref {{tun.bgp_local_pref}};
 {% endif %}
 };
 
