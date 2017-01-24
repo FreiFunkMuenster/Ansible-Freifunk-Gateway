@@ -39,7 +39,7 @@
   when: sslcert.stat.exists == False
 
 - name: Letsencrypt-Zertifikat beantragen und installieren
-  shell: cd /usr/src && if [ ! -e simp_le ]; then git clone https://github.com/thomastweets/simp_le ; fi && cd simp_le && ./bootstrap.sh && if [ ! -e venv/bin/python ]; then ./venv.sh; fi && export PATH=/usr/src/simp_le/venv/bin:$PATH && cd /etc/ssl && simp_le --email {{freifunk.email}} -f account_key.json -f key.pem -f fullchain.pem -d {{bind_zonemaster.server}}:/var/www/html -d karte.{{freifunk.domain}}:/var/www/html/maps -d graphite.{{freifunk.domain}}:/var/www/html
+  shell: cd /usr/src && if [ ! -e simp_le ]; then git clone https://github.com/zenhack/simp_le ; fi && cd simp_le && ./bootstrap.sh && if [ ! -e venv/bin/python ]; then ./venv.sh; fi && export PATH=/usr/src/simp_le/venv/bin:$PATH && cd /etc/ssl && simp_le --email {{freifunk.email}} -f account_key.json -f key.pem -f fullchain.pem -d {{bind_zonemaster.server}}:/var/www/html -d karte.{{freifunk.domain}}:/var/www/html/maps -d graphite.{{freifunk.domain}}:/var/www/html
   notify: restart nginx
   when: sslcert.stat.exists == False
 
