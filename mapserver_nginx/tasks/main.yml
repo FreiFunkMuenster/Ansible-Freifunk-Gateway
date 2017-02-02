@@ -1,0 +1,63 @@
+- name: add backports repo
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items:
+    - "deb http://ftp.de.debian.org/debian/ {{ ansible_distribution_release }}-backports main"
+  when: ansible_distribution == "Debian"
+
+- name: install nginx and letsencrypt from backports
+  apt:
+    pkg: "{{ item }}"
+    default_release: "{{ ansible_distribution_release }}-backports"
+    update_cache: yes
+    state: latest
+  with_items:
+    - nginx
+    - letsencrypt
+    - python-zope.component-zcml
+  when: ansible_distribution == "Debian"
+
+- name: create letsencrypt directory
+  file: name=/var/www/letsencrypt state=directory
+
+- name: Install default nginx site for letsencrypt requests and https rewrite
+  template:
+    src: templates/default.j2
+    dest: /etc/nginx/sites-available/default
+
+- name: Aktivate default nginx site
+  file: src=/etc/nginx/sites-available/default dest=/etc/nginx/sites-enabled/default state=link
+
+- name: Reload nginx to activate letsencrypt site
+  service: name=nginx state=restarted
+
+- name: Create letsencrypt certificate
+  shell: letsencrypt certonly -n --webroot -w /var/www/letsencrypt -m {{freifunk.email}} --agree-tos -d karte.{{freifunk.domain}}
+  args:
+    creates: /etc/letsencrypt/live/karte.{{freifunk.domain}}
+
+- name: Generate dhparams
+  shell: openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+  args:
+    creates: /etc/ssl/certs/dhparam.pem
+
+- name: Install default ssl nginx site
+  template:
+    src: templates/default_ssl.j2
+    dest: /etc/nginx/sites-available/default_ssl
+
+- name: Aktivate default ssl nginx site
+  file: src=/etc/nginx/sites-available/default_ssl dest=/etc/nginx/sites-enabled/default_ssl state=link
+
+- name: Reload nginx to activate letsencrypt site
+  service: name=nginx state=restarted
+
+- name: Add letsencrypt cronjob for cert renewal
+  cron:
+    name: letsencrypt_renewal
+    special_time: weekly
+    job: letsencrypt --renew certonly -n --webroot -w /var/www/letsencrypt -m {{freifunk.email}} --agree-tos -d karte.{{freifunk.domain}} && service nginx reload
+
+- name: Generate index.html
+  template: src=index.html.j2 dest=/var/www/html/index.html
