@@ -1,7 +1,20 @@
 {
-  "bat_iface": "bat{{item}}",
-  "mcast_group": "ff02::2:1001",
-  "mcast_iface": "bat{{item}}",
-  "port": "1001",
-  "site_code": "ffmsd{{item}}"
+	"global" : {
+		"mcast_group" : "ff02::2:1001",
+		"port" : 1001,
+		"cache_time_s" : 59,
+		"interface_type_regex_patterns" : {
+			"l2tp" : "br.+",
+			"gretap" : "t.+"
+		}
+	},
+	"domains" : [
+{% for domaene in domaenenliste|dictsort %}
+		{
+			"bat_iface": "bat{{domaene[0]}}",
+			"site_code": "ffmsd{{domaene[0]}}"
+		}{% if not loop.last %},{% endif %}
+{% endfor %}
+
+	]
 }

@@ -1,51 +1,28 @@
 ---
-
-- name: Add nodejs repo keys
-  apt_key:
-    id: 1655A0AB68576280
-    url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
-    state: present
-
-- name: add repo for nodejs
-  apt_repository:
-    repo: "{{ item }}"
-    state: present
-    update_cache: yes
-  with_items:
-    - "deb https://deb.nodesource.com/node_7.x {{ ansible_distribution_release }} main"
-    - "deb-src https://deb.nodesource.com/node_7.x {{ ansible_distribution_release }} main"
-  when: ansible_distribution == "Debian"
-
 - name: Install dependencies
   apt:
     pkg: "{{item}}"
     state: installed
   with_items:
-    - sudo
-    - ethtool
-    - nodejs
+    - python3-pip
 
-- name: "chmod u+w /etc/sudoers"
-  file: path=/etc/sudoers mode="u+w"
-  changed_when: False
-
-- name: "enable sudo nopasswd for /opt/node-respondd/bat-list-neighbours"
-  lineinfile: "dest=/etc/sudoers line='nobody ALL=(root) NOPASSWD: /opt/node-respondd/bat-list-neighbours'"
-
-- name: "chmod u-w /etc/sudoers"
-  file: path=/etc/sudoers mode="u-w"
-  changed_when: False
+- name: Install python dependencies
+  pip: 
+    name: "{{ item }}"
+    state: present
+    executable: pip3
+  with_items:
+    - psutil
+    - netifaces
 
 - name: "create systemd files"
-  template: src="node-respondd.service.j2" dest="/lib/systemd/system/node-respondd-{{item}}.service"
-  with_items: "{{domaenenliste}}"
+  template: src="py-respondd.service.j2" dest="/lib/systemd/system/py-respondd.service"
   notify: systemctl reload
 
-- name: Clone node-respondd repo
-  git: repo=https://github.com/descilla/node-respondd.git dest=/opt/node-respondd/ clone=yes update=yes
+- name: Clone py-respondd repo
+  git: repo=https://github.com/descilla/py-respondd.git dest=/opt/py-respondd/ clone=yes update=yes
   notify: restart respondd
 
 - name: create config.json files
-  template: src="config.json.j2" dest="/opt/node-respondd/config{{item}}.json"
-  with_items: "{{domaenenliste}}"
+  template: src="config.json.j2" dest="/opt/py-respondd/config.json"
   notify: restart respondd
