@@ -1,14 +1,14 @@
-<html><!-- Mit Ansible erzeugt - ƒnderungen werden ¸berschrieben -->
+<html><!-- Mit Ansible erzeugt - √§nderungen werden √ºberschrieben -->
 <head>
     <meta charset="UTF-8">
     <title>{{freifunk.name}} - Karten</title>
 </head>
 <body>
     <h1>{{freifunk.name}} - Karten</h1>
-    <p><a href="hopglass/">Gesamtkarte</a></p>
+    <p><a href="map/">Gesamtkarte</a></p>
     <p>
 {% for domaene in domaenen|dictsort %}
-    <li><a href="map{{domaene[0]}}/">Dom‰ne {{domaene[0]}}</a> - {{domaene[1].name}}</li>
+    <li><a href="map{{domaene[0]}}/">Dom√§ne {{domaene[0]}}</a> - {{domaene[1].name}}</li>
 {% endfor %}
     </p>
 <hr>

@@ -18,7 +18,7 @@
     command: bash /tmp/bootstrap.sh
     responses:
       'Do you want to continue\?': 'y'
-      'Where do you want to install the HopGlass Server\?': '/opt/hopglass'
+      'Where do you want to install the HopGlass Server\?': '/opt/hopglass-server'
 
 - name: Installationsskript entfernen
   file: path=/tmp/bootstrap.sh state=absent

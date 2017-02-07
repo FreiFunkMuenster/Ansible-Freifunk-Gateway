@@ -4,9 +4,9 @@ server {
 
     server_name karte.{{freifunk.domain}};
 
-    ssl_certificate /etc/letsencrypt/live/karte.{{freifunk.domain}}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/karte.{{freifunk.domain}}/privkey.pem;
-    
+    ssl_certificate /etc/ssl/fullchain.pem;
+    ssl_certificate_key /etc/ssl/key.pem;
+
     ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
     ssl_prefer_server_ciphers on;
     ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
@@ -56,18 +56,4 @@ server {
             gzip_proxied            any;
             gzip_types              text/plain text/css text/javascript application/javascript application/json application/x-javascript text/xml application/xml application/xml+rss;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
