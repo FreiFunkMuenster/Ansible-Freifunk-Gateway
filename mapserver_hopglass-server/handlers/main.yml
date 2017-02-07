@@ -1,3 +1,0 @@
----
-- name: install hopglass server service
-  service: name=hopglass-server@default state=restarted enabled=yes
