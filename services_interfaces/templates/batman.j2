@@ -50,7 +50,7 @@ iface bat{{domaene[0]}} inet static
 {% if indexer.append(indexer.pop() + 1) %}{% endif %}{# increment indexer by 1 #}
 auto t{{domaene[0]}}-{{ host }}
 iface t{{domaene[0]}}-{{ host }} inet manual
-        pre-up ip link add $IFACE type gretap local {{ansible_ssh_host}} remote {{hostvars[host].ansible_ssh_host}} dev eth0 key {{domaene[0]|int}}
+        pre-up ip link add $IFACE type gretap local {{ansible_default_ipv4.address}} remote {{hostvars[host].ansible_ssh_host}} dev eth0 key {{domaene[0]|int}}
         pre-up ip link set dev $IFACE address de:ad:be:ef:{{ '%02x' % indexer[0] }}:{{server_id}}
         pre-up ip link set $IFACE up
         post-up batctl -m bat{{domaene[0]}} if add $IFACE ||:
@@ -62,7 +62,7 @@ iface t{{domaene[0]}}-{{ host }} inet manual
 {% if indexer.append(indexer.pop() + 1) %}{% endif %}{# increment indexer by 1 #}
 auto tap-{{ host }}
 iface tap-{{ host }} inet manual
-        pre-up ip link add $IFACE type gretap local {{ansible_ssh_host}} remote {{hostvars[host].ansible_ssh_host}} dev eth0
+        pre-up ip link add $IFACE type gretap local {{ansible_default_ipv4.address}} remote {{hostvars[host].ansible_ssh_host}} dev eth0
         pre-up ip link set dev $IFACE address de:ad:be:ef:{{ '%02x' % indexer[0] }}:{{server_id}}
         pre-up ip link set $IFACE up
         post-up batctl -m bat{{domaene[0]}} if add $IFACE ||:
