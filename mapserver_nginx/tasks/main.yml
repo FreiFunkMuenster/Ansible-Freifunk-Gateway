@@ -13,12 +13,15 @@
   template:
     src: templates/default.j2
     dest: /etc/nginx/sites-available/default
+  register: gendefconf
 
 - name: Activate default nginx site
   file: src=/etc/nginx/sites-available/default dest=/etc/nginx/sites-enabled/default state=link
+  register: actdefconf
 
 - name: Reload nginx to activate letsencrypt site
   service: name=nginx state=restarted
+  when: gendefconf.changed or actdefconf.changed
 
 - name: acme install
   shell: wget -O -  https://get.acme.sh | sh
@@ -44,9 +47,12 @@
   template:
     src: templates/default_ssl.j2
     dest: /etc/nginx/sites-available/default_ssl
+  register: gensslconf
 
 - name: Aktivate default ssl nginx site
   file: src=/etc/nginx/sites-available/default_ssl dest=/etc/nginx/sites-enabled/default_ssl state=link
+  register: actsslconf
 
 - name: Reload nginx to activate letsencrypt site
   service: name=nginx state=restarted
+  when: gensslconf.changed or actsslconf.changed
