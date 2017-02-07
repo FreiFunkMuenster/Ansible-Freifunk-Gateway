@@ -1,14 +1,4 @@
 ---
-- name: install common packages
-  apt:
-    pkg: "{{ item }}"
-    update_cache: yes
-    state: installed
-  with_items:
-    - apt-transport-https 
-    - curl
-    - git
-
 - name: Add nodejs repo keys
   apt_key:
     id: 1655A0AB68576280
