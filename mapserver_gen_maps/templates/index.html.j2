@@ -1,0 +1,16 @@
+<html><!-- Mit Ansible erzeugt - änderungen werden überschrieben -->
+<head>
+    <meta charset="UTF-8">
+    <title>{{freifunk.name}} - Karten</title>
+</head>
+<body>
+    <h1>{{freifunk.name}} - Karten</h1>
+    <p><a href="map/">Gesamtkarte</a></p>
+    <p>
+{% for domaene in domaenen|dictsort %}
+    <li><a href="map{{domaene[0]}}/">Domäne {{domaene[0]}}</a> - {{domaene[1].name}}</li>
+{% endfor %}
+    </p>
+<hr>
+</body>
+</html>

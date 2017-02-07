@@ -1,0 +1,75 @@
+---
+- name: Add nodejs repo keys
+  apt_key:
+    id: 1655A0AB68576280
+    url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
+    state: present
+
+- name: Add repo for nodejs
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - "deb https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
+    - "deb-src https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
+
+- name: Install nodejs
+  apt:
+    pkg: nodejs
+    state: installed
+
+- name: Create HopGlass-server directory if not existent
+  shell: if ! [ -d /opt/hopglass ]; then mkdir /opt/hopglass; fi
+
+- name: Create HopGlass User
+  user:
+    name: hopglass
+    system: yes
+    createhome: yes
+    home: /opt/hopglass
+
+- name: Adjust permissions
+  file:
+    path: /opt/hopglass
+    owner: hopglass
+    group: hopglass
+    recurse: yes
+
+- name: Clone HopGlass Server Repo
+  git: repo=https://github.com/hopglass/hopglass-server version=v0.1.3 dest=/opt/hopglass/server force=yes
+  become: true
+  become_method: su
+  become_user: hopglass
+
+- name: install dependencies
+  shell: npm install
+  become: true
+  become_method: su
+  become_user: hopglass
+  args:
+    chdir: /opt/hopglass/server
+
+- name: Create HopGlass-server Config directory if not existent
+  file: path=/etc/hopglass-server/default state=directory
+
+- name: Setup systemd service
+  shell: cp /opt/hopglass/server/hopglass-server@.service /lib/systemd/system/
+
+- name: Adjust permissions of /etc/hopglass-server
+  file:
+    path: /etc/hopglass-server
+    owner: hopglass
+    group: hopglass
+    recurse: yes
+
+- name: Copy config.json
+  template: 
+    src: config.json.j2 
+    dest: /etc/hopglass-server/default/config.json
+    owner: hopglass
+    group: hopglass
+    mode: 0644
+
+- name: install hopglass server service and restart hopglass-server
+  service: name=hopglass-server@default state=restarted enabled=yes

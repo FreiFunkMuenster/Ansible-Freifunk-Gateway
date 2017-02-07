@@ -1,0 +1,10 @@
+[Unit]
+Description=The py-respondd server provides data about this node to the local network.
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/py-respondd
+ExecStart=/opt/py-respondd/main.py config.json
+
+[Install]
+WantedBy=multi-user.target
