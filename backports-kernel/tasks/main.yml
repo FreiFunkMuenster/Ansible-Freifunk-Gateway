@@ -7,8 +7,11 @@
   when: ansible_distribution == "Debian"
 
 - name: install backports-kernel
-  apt: name=linux-image-amd64 default_release=jessie-backports update_cache=yes state=latest
+  apt: name="{{item}}" default_release=jessie-backports update_cache=yes state=latest
   when: ansible_distribution == "Debian"
+  with_items:
+    - linux-headers-amd64
+    - linux-image-amd64
   notify: 
     - Neustarten
     - Neustart abwarten
