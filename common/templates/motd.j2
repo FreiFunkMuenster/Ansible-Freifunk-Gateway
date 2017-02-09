@@ -1,12 +1,15 @@
+ This system is managed by Ansible.
+ {{ figlethost.stdout }}
 
-     ///////  ///////  ////   ////    /////////
-    //       //       // //  // //     ///
-   ///////  ///////  //  // //  //       ////
-  //       //       //    ///   //         ///
- //       //       //     //    //   /////////
- 
- {{ freifunk.name }} 
- 
+ {{ freifunk.name }}
+
+ OS          : {{ ansible_distribution }} {{ ansible_distribution_version }}
+ Hostname    : {{ ansible_hostname }}
+ IP address  : {{ ansible_default_ipv4.address }}
+ System type : {{ ansible_system }}
+ Kernel      : {{ ansible_kernel }}
+
+  
  Server:  {{ inventory_hostname }}
  Besitzer: {{ server_besitzer }}
 
