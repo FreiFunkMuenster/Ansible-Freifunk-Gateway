@@ -62,10 +62,10 @@ for i in /var/www/html/maps/data?*; do
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Freifunk Münsterland - Karten</title>
+<title>{{ freifunk.name }} - Karten</title>
 </head>
 <body>
-<h1>Freifunk Münsterland - Karten</h1>
+<h1>{{ freifunk.name }} - Karten</h1>
 <p><a href="map/">Gesamtkarte</a></p>
 <p>
 EOF
@@ -91,8 +91,8 @@ EOF
         cat <<EOF >> /var/www/html/maps/index.html
 </p>
 <hr>
-<p><a href="https://firmware.freifunk-muensterland.de/">Firmware</a></p>
-<p><a href="https://freifunk-muensterland.de/wiki/doku.php?id=technik:ip-aufteilung">IP-Aufteilung und Status der Domänen</a></p>
+<p><a href="https://firmware.{{ freifunk.domain }}/">Firmware</a></p>
+<p><a href="https://{{ freifunk.domain }}/wiki/doku.php?id=technik:ip-aufteilung">IP-Aufteilung und Status der Domänen</a></p>
 </body>
 </html>
 EOF
