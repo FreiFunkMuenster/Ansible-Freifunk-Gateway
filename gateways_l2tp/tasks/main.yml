@@ -32,6 +32,11 @@
 - name: delif.sh kopieren
   copy: src=delif.sh dest=/srv/tunneldigger/broker/scripts mode=0755
 
+- name: Create sperrliste.txt
+  command: touch /srv/tunneldigger/broker/scripts/sperrliste.txt
+  args:
+    creates: /srv/tunneldigger/broker/scripts/sperrliste.txt
+
 - name: tunneldigger.conf kopieren
   copy: src=tunneldigger.conf dest=/etc/modules-load.d/tunneldigger.conf mode=0755
   notify: load kernel modules
