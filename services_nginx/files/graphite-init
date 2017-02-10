@@ -1,7 +1,7 @@
 server {
 	listen 80;
 	listen [::]:80;
-	server_name graphite.freifunk-muensterland.de
+	server_name graphite.{{ freifunk.domain }}
 	root /var/www/html;
 	index index.html;
 	charset     utf-8;
