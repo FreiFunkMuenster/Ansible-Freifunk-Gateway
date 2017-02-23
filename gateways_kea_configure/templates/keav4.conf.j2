@@ -47,6 +47,17 @@
                 "pools": [ 
                     { "pool": "{{domaene[1].dhcp_start}} - {{domaene[1].dhcp_ende}}" } 
                 ],
+{% if domaenen[domaene[0]].dhcp is defined and domaenen[domaene[0]].dhcp.reservations is defined %}
+                "reservations" : [
+{% for host in domaenen[domaene[0]].dhcp.reservations %}
+                    {
+                        "hw-address" : "{{host.id}}",
+                        "ip-address" : "{{host.ip}}"
+                    }{% if not loop.last %},{% endif %}
+{% endfor %}
+
+                ],
+{% endif %}
                 "option-data": [ 
                     {
                         "name": "routers",

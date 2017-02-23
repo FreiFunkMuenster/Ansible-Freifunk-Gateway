@@ -5,14 +5,14 @@ options {
         
         recursion yes;
         allow-recursion {
-		localhost; 
+                localhost; 
 {% if domaenenliste is defined %}
 {% for domaene in domaenenliste|dictsort %}
-        	{{domaenen[domaene[0]].ffv4_network}};
-        	{{domaenen[domaene[0]].ffv6_network}};
+                {{domaenen[domaene[0]].ffv4_network}};
+                {{domaenen[domaene[0]].ffv6_network}};
 {% endfor %}
 {% endif %}
-	};
+        };
 
         auth-nxdomain no;    # conform to RFC1035
         listen-on-v6 { any; };
