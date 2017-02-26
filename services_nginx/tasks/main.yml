@@ -12,12 +12,12 @@
 
 # nginx konfigurieren
 - name: Konfig-Datei default-init kopieren
-  copy: src=default-init dest=/etc/nginx/sites-available/default
+  template: src=default-init.j2 dest=/etc/nginx/sites-available/default
   notify: restart nginx
   when: sslcert.stat.exists == False
 
 - name: Konfig-Datei karte kopieren
-  copy: src=karte-init dest=/etc/nginx/sites-available/karte
+  template: srv=karte-init.j2 dest=/etc/nginx/sites-available/karte
   notify: restart nginx
   when: sslcert.stat.exists == False
 
@@ -26,7 +26,7 @@
   notify: restart nginx
 
 - name: Konfig-Datei graphite kopieren
-  copy: src=graphite-init dest=/etc/nginx/sites-available/graphite
+  template: src=graphite-init.j2 dest=/etc/nginx/sites-available/graphite
   notify: restart nginx
   when: sslcert.stat.exists == False
 
@@ -44,19 +44,19 @@
   when: sslcert.stat.exists == False
 
 - name: Konfig-Datei default kopieren
-  copy: src=default dest=/etc/nginx/sites-available/default
+  template: src=default.j2 dest=/etc/nginx/sites-available/default
   notify: restart nginx
 
 - name: Konfig-Datei karte kopieren
-  copy: src=karte dest=/etc/nginx/sites-available/karte
+  template: src=karte.j2 dest=/etc/nginx/sites-available/karte
   notify: restart nginx
 
 - name: Konfig-Datei graphite kopieren
-  copy: src=graphite dest=/etc/nginx/sites-available/graphite
+  template: src=graphite.j2 dest=/etc/nginx/sites-available/graphite
   notify: restart nginx
 
 - name: index.html kopieren
-  copy: src=index.html dest=/var/www/html
+  template: src=index.html.j2 dest=/var/www/html/index.html
 
 - name: Cronjob für Zertifikatserneuerung
   cron: name="simp_le" weekday="2" hour="20" minute="0" job="cd /etc/ssl && PATH=/usr/src/simp_le/venv/bin:/usr/sbin:/usr/bin:/sbin:/bin simp_le --email {{freifunk.email}} -f account_key.json -f key.pem -f fullchain.pem -d {{bind_zonemaster.server}}:/var/www/html -d karte.{{freifunk.domain}}:/var/www/html/maps -d graphite.{{freifunk.domain}}:/var/www/html && systemctl reload nginx"
