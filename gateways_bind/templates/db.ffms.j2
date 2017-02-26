@@ -17,5 +17,13 @@ knoten			IN      A       {{domaenen[item].ffv4_network | ipaddr(1) | ipaddr('add
 knoten			IN      AAAA    {{domaenen[item].ffv6_network | ipaddr(1) | ipaddr('address')}}
 freifunk			IN      A       {{domaenen[item].ffv4_network | ipaddr(1) | ipaddr('address')}}
 freifunk			IN      AAAA    {{domaenen[item].ffv6_network | ipaddr(1) | ipaddr('address')}}
-firmware	IN      A       144.76.30.226
-firmware	IN      AAAA    2a01:4f8:191:21e1::23
+{% if static_dns_entries is defined -%}
+{% for entry in static_dns_entries %}
+{% if static_dns_entries[entry].A is defined -%}
+{{entry}}	IN	A	{{static_dns_entries[entry].A}}
+{% endif -%} 
+{% if static_dns_entries[entry].AAAA is defined -%}
+{{entry}}	IN	AAAA	{{static_dns_entries[entry].AAAA}}
+{% endif -%}
+{% endfor %}
+{% endif %}
