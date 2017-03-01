@@ -5,6 +5,7 @@ auto br{{item[0]}}
 iface br{{item[0]}} inet manual
         # Bring up interface
         pre-up brctl addbr $IFACE
+	pre-up ip link set address 02:ca:ff:ee:{{item[0]}}:{{item[1].server_id}} dev $IFACE
         pre-up ip link set dev $IFACE mtu 1364
         pre-up ip link set $IFACE promisc on
         pre-up ip link set dev $IFACE up
