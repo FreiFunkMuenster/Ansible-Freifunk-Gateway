@@ -13,7 +13,7 @@
     - python-virtualenv
 
 - name: git für tunneldigger
-  git: repo=https://github.com/ffrl/tunneldigger dest=/srv/tunneldigger force=no update=no version=f820d65e57098094231083c2e83ed4983d2be049
+  git: repo=https://github.com/ffrl/tunneldigger dest=/srv/tunneldigger force=yes update=yes version=e6b09f365f8d3459488680840feb77c54a9c9668
   #git: repo=https://github.com/wlanslovenija/tunneldigger dest=/srv/tunneldigger force=yes update=no version=master
 
 - name: patch für l2tp_broker.py
