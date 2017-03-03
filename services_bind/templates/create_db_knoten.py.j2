@@ -19,6 +19,7 @@ nodes_json = json.load(open(file_nodes, 'r'))
 for node in nodes_json['nodes'].values():
     try:
         hostname = re.sub(r'[^a-z0-9\-]',"", node["nodeinfo"]["hostname"].lower())[0:63]
+        hostname = re.sub(r'-+$',"", hostname)
         for address in node["nodeinfo"]["network"]["addresses"]:
             if address.lower().startswith(prefix6):
                 online = node['flags']['online']
