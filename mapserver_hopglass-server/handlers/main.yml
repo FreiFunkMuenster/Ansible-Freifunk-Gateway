@@ -1,0 +1,3 @@
+---
+- name: restart hopglass
+  service: name=hopglass-server@default state=restarted

@@ -1,4 +1,40 @@
 ---
+- name: Increase Kernel default rx buffersize
+  sysctl:
+    name: net.core.rmem_default
+    value: 26214400
+    state: present
+    reload: yes
+  notify:
+    - "restart hopglass"
+
+- name: Increase Kernel max rx buffersize
+  sysctl:
+    name: net.core.rmem_max
+    value: 26214400
+    state: present
+    reload: yes
+  notify:
+    - "restart hopglass"
+
+- name: Increase Kernel max optmem buffersize
+  sysctl:
+    name: net.core.optmem_max
+    value: 81920
+    state: present
+    reload: yes
+  notify:
+    - "restart hopglass"
+
+- name: Increase max queue len of unhandled rx packets in Kernel
+  sysctl:
+    name: net.core.netdev_max_backlog
+    value: 5000
+    state: present
+    reload: yes
+  notify:
+    - "restart hopglass"
+
 - name: Add nodejs repo keys
   apt_key:
     id: 1655A0AB68576280
@@ -20,7 +56,9 @@
     state: installed
 
 - name: Create HopGlass-server directory if not existent
-  shell: if ! [ -d /opt/hopglass ]; then mkdir /opt/hopglass; fi
+  file:
+    path: /opt/hopglass
+    state: directory
 
 - name: Create HopGlass User
   user:
@@ -29,32 +67,34 @@
     createhome: yes
     home: /opt/hopglass
 
+- name: Clone HopGlass Server Repo
+  git: repo=https://github.com/hopglass/hopglass-server version=v0.1.3 dest=/opt/hopglass/server force=yes
+  notify:
+    - "restart hopglass"
+  register: hopglass_git_clone
+
 - name: Adjust permissions
   file:
     path: /opt/hopglass
     owner: hopglass
     group: hopglass
     recurse: yes
-
-- name: Clone HopGlass Server Repo
-  git: repo=https://github.com/hopglass/hopglass-server version=v0.1.3 dest=/opt/hopglass/server force=yes
-  become: true
-  become_method: su
-  become_user: hopglass
+  when: hopglass_git_clone.changed
 
 - name: install dependencies
   shell: npm install
-  become: true
-  become_method: su
-  become_user: hopglass
   args:
     chdir: /opt/hopglass/server
+  when: hopglass_git_clone.changed
 
 - name: Create HopGlass-server Config directory if not existent
   file: path=/etc/hopglass-server/default state=directory
 
 - name: Setup systemd service
-  shell: cp /opt/hopglass/server/hopglass-server@.service /lib/systemd/system/
+  copy:
+    src: /opt/hopglass/server/hopglass-server@.service
+    dest: /lib/systemd/system/
+    remote_src: True
 
 - name: Adjust permissions of /etc/hopglass-server
   file:
@@ -70,6 +110,8 @@
     owner: hopglass
     group: hopglass
     mode: 0644
+  notify:
+    - "restart hopglass"
 
-- name: install hopglass server service and restart hopglass-server
-  service: name=hopglass-server@default state=restarted enabled=yes
+- name: install hopglass server service hopglass-server
+  service: name=hopglass-server@default enabled=yes
