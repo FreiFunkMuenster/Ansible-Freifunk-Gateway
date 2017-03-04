@@ -71,7 +71,7 @@
   git: repo=https://github.com/hopglass/hopglass-server version=v0.1.3 dest=/opt/hopglass/server force=yes
   notify:
     - "restart hopglass"
-  register: hopglass_git_clone
+  register: hopglass_server_git_clone
 
 - name: Adjust permissions
   file:
@@ -79,13 +79,13 @@
     owner: hopglass
     group: hopglass
     recurse: yes
-  when: hopglass_git_clone.changed
+  when: hopglass_server_git_clone.changed
 
 - name: install dependencies
   shell: npm install
   args:
     chdir: /opt/hopglass/server
-  when: hopglass_git_clone.changed
+  when: hopglass_server_git_clone.changed
 
 - name: Create HopGlass-server Config directory if not existent
   file: path=/etc/hopglass-server/default state=directory

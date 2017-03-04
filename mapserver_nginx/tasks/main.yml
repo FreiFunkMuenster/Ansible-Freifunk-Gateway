@@ -43,11 +43,26 @@
   args:
     creates: /etc/ssl/certs/dhparam.pem
 
+- name: Create nginx caching dir
+  file:
+    path: /opt/hopglass_nginx_cache
+    state: directory
+
+- name: Define cache in nginx.conf
+  lineinfile:
+    regexp: "^[\t ]*proxy_cache_path.*hopglass"
+    line: "\tproxy_cache_path /opt/hopglass_nginx_cache levels=1:2 keys_zone=hopglass:10m inactive=1h max_size=1g;"
+    insertafter: "^[\t ]*http[\t ]*\\{"
+    dest: /etc/nginx/nginx.conf
+  notify:
+    - restart nginx
+
 - name: Install default ssl nginx site
   template:
     src: templates/default_ssl.j2
     dest: /etc/nginx/sites-available/default_ssl
-  register: gensslconf
+  notify:
+    - restart nginx
 
 - name: Aktivate default ssl nginx site
   file: src=/etc/nginx/sites-available/default_ssl dest=/etc/nginx/sites-enabled/default_ssl state=link

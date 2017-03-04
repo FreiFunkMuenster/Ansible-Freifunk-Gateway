@@ -1,6 +1,10 @@
 - name: Generate index.html
-  template: src=index.html.j2 dest=/var/www/html/index.html
+  template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
 
 - name: link hopglass
-  file: src=/opt/hopglass/build dest=/var/www/html/map state=link
-
+  file:
+    src: /opt/hopglass/client/build
+    dest: /var/www/html/map
+    state: link

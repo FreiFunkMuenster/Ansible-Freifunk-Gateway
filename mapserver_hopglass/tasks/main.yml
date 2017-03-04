@@ -1,11 +1,15 @@
 ---
 - name: Create HopGlass directory if not existent
-  shell: if ! [ -d /opt/hopglass ]; then mkdir /opt/hopglass; fi 
+  file:
+    path: /opt/hopglass/client
+    state: directory
 
 - name: Git for HopGlass
-  shell: git init .; git remote add origin https://github.com/plumpudding/hopglass.git; git pull origin master
-  args:
-    chdir: /opt/hopglass
+  git:
+    repo: https://github.com/plumpudding/hopglass.git
+    dest: /opt/hopglass/client
+    force: yes
+  register: hopglass_git_clone
 
 - name: Add nodejs repo keys
   apt_key:
@@ -30,29 +34,48 @@
 - name: Install dependencies
   shell: npm install
   args:
-    chdir: /opt/hopglass
+    chdir: /opt/hopglass/client
+  when: hopglass_git_clone.changed
 
 - name: Install grunt-cli
   shell: npm install grunt-cli
   args:
-    chdir: /opt/hopglass
+    chdir: /opt/hopglass/client
+  when: hopglass_git_clone.changed
 
 - name: Build HopGlass
   shell: node_modules/.bin/grunt
   args:
-    chdir: /opt/hopglass
+    chdir: /opt/hopglass/client
+  when: hopglass_git_clone.changed
 
 - name: Adjust permissions
   file:
-    path: /opt/hopglass
+    path: /opt/hopglass/client
     owner: hopglass
     group: hopglass
     recurse: yes
+  when: hopglass_git_clone.changed
 
-- name: Copy config file
+- name: Deploy config.json
   template:
     src: config.json.j2
-    dest: /opt/hopglass/build/config.json
+    dest: /opt/hopglass/client/build/config.json
     owner: hopglass
     group: hopglass
     mode: 0644
+
+- name: Create directory for domainspecific config files
+  file:
+    path: /opt/hopglass/client/build/config/
+    state: directory
+
+- name: Deploy config.json domainspecific
+  template:
+    src: configdom.json.j2
+    dest: "/opt/hopglass/client/build/config/config_{{item[0]}}.json"
+    owner: hopglass
+    group: hopglass
+    mode: 0644
+  with_items:
+    - "{{domaenen|dictsort}}"

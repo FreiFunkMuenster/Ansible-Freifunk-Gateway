@@ -1,5 +1,5 @@
 {
-  "dataPath": "/data/",
+  "dataPath": "/data/map{{item[0]}}/",
   "siteName": "Freifunk Münsterland",
   "mapSigmaScale": 0.5,
   "showContact": false,
@@ -18,9 +18,7 @@
     }
   ],
   "siteNames": [
-{% for domaene in domaenen|dictsort %}
-    { "site": "{{freifunk.kurzname}}d{{domaene[0]}}", "name": "Domäne {{domaene[0]}} - {{domaene[1].name}}" }{% if not loop.last %},{% endif %}
-{% endfor %}
+    { "site": "{{freifunk.kurzname}}d{{item[0]}}", "name": "Domäne {{item[0]}} - {{item[1].name}}" }
   ],
   "globalInfos": [
     { "name": "Status-Monitor",
