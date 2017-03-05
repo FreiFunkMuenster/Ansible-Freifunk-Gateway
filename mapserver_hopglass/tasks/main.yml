@@ -11,6 +11,18 @@
     force: yes
   register: hopglass_git_clone
 
+- name: Create hwpics directory if not exists
+  file:
+    path: /opt/hopglass/hwpics
+    state: directory
+
+- name: Clone meshviewer hwpics repo
+  git:
+    repo: https://github.com/Moorviper/meshviewer_hwpics.git
+    dest: /opt/hopglass/hwpics
+    update: yes
+  register: hopglass_git_clone
+
 - name: Add nodejs repo keys
   apt_key:
     id: 1655A0AB68576280

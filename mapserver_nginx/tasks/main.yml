@@ -70,4 +70,21 @@
 
 - name: Reload nginx to activate letsencrypt site
   service: name=nginx state=restarted
-  when: gensslconf.changed or actsslconf.changed
+  when: actsslconf.changed
+
+- name: Generate index.html
+  template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+
+- name: link hopglass
+  file:
+    src: /opt/hopglass/client/build
+    dest: /var/www/html/map
+    state: link
+
+- name: link hwpics
+  file:
+    src: /opt/hopglass/hwpics/nodes
+    dest: /var/www/html/hwpics
+    state: link

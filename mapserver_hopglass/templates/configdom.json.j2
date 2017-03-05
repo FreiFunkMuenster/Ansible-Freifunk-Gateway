@@ -1,6 +1,6 @@
 {
   "dataPath": "/data/map{{item[0]}}/",
-  "siteName": "Freifunk Münsterland",
+  "siteName": "Freifunk {{item[1].community}} - Domäne {{item[1].name}}",
   "mapSigmaScale": 0.5,
   "showContact": false,
   "maxAge": 14,
@@ -33,6 +33,12 @@
     { "name": "Traffic",
       "iframe": "https://freifunk-muensterland.de/grafana/dashboard-solo/db/advanced-node-stats?var-node={NODE_ID}&theme=light&panelId=2",
       "caption": "Knoten {NODE_ID}"
+    }
+  ],
+  "hwImg": [
+    {
+      "thumbnail": "/hwpics/{MODELHASH}.svg",
+      "caption": "Knoten {MODELHASH}"
     }
   ]
 }
