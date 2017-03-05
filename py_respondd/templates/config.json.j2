@@ -9,7 +9,12 @@
 		}
 	},
 	"domains" : [
-{% for domaene in domaenenliste|dictsort %}
+{% if domaenenliste is defined %}
+{% set respondd_domaenen = domaenenliste %}
+{% else %}
+{% set respondd_domaenen = domaenen %}
+{% endif %}
+{% for domaene in respondd_domaenen|dictsort %}
 		{
 			"bat_iface": "bat{{domaene[0]}}",
 			"site_code": "ffmsd{{domaene[0]}}"
