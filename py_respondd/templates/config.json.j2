@@ -17,6 +17,9 @@
 {% for domaene in respondd_domaenen|dictsort %}
 		{
 			"bat_iface": "bat{{domaene[0]}}",
+{% if 'gateways' in group_names %}
+			"br_iface": "br{{domaene[0]}}",
+{%endif%}
 			"site_code": "ffmsd{{domaene[0]}}"
 		}{% if not loop.last %},{% endif %}
 {% endfor %}

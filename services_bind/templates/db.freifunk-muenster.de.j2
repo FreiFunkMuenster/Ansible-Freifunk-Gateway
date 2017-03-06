@@ -16,26 +16,26 @@ ns{{i[0]}}                     IN  A       {{hostvars[host].ansible_ssh_host }}
 {% endif %}
 {% endfor %}
 
-@                       IN  A       89.163.231.227
-www                     IN  A       89.163.231.227
+@                                         IN  A       89.163.231.227
+www                                       IN  A       89.163.231.227
 
-mail                    IN  A       148.251.208.169
-mail                    IN  AAAA    2a01:4f8:191:21e1::af
-dav                     IN  A       148.251.208.169
-dav                     IN  AAAA    2a01:4f8:191:21e1::af
-discover                IN  A       148.251.208.169
-discover                IN  AAAA    2a01:4f8:191:21e1::af
-autodiscover            IN  A       148.251.208.169
-autodiscover            IN  AAAA    2a01:4f8:191:21e1::af
-autoconfig              IN  A       148.251.208.169
-autoconfig              IN  AAAA    2a01:4f8:191:21e1::af
+mail                                      IN  A       148.251.208.169
+mail                                      IN  AAAA    2a01:4f8:191:21e1::af
+dav                                       IN  A       148.251.208.169
+dav                                       IN  AAAA    2a01:4f8:191:21e1::af
+discover                                  IN  A       148.251.208.169
+discover                                  IN  AAAA    2a01:4f8:191:21e1::af
+autodiscover                              IN  A       148.251.208.169
+autodiscover                              IN  AAAA    2a01:4f8:191:21e1::af
+autoconfig                                IN  A       148.251.208.169
+autoconfig                                IN  AAAA    2a01:4f8:191:21e1::af
 
-smtp                    IN  CNAME   mail.freifunk-muensterland.de.
-imap                    IN  CNAME   mail.freifunk-muensterland.de.
-pop                     IN  CNAME   mail.freifunk-muensterland.de.
+smtp                                      IN  CNAME   mail.freifunk-muensterland.de.
+imap                                      IN  CNAME   mail.freifunk-muensterland.de.
+pop                                       IN  CNAME   mail.freifunk-muensterland.de.
 
-@                       IN  MX 10   mail.freifunk-muensterland.de.
-@                       IN  TXT     "v=spf1 mx -all"
-default._domainkey      IN  TXT     "v=DKIM1;k=rsa;t=s;s=email;p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCq6uxLJ8WQj7WGgwJH5d7fIpmd1i6DfRV1QMIXy4LVIxwowMy+mAYGojnWoN6ZtMjhUYZLDIWPp2lK8qangynGdIYgE7iJ4HoeEYEoWbi4kgHhWtTlNRQg3+xT0MrKBBCZ707ifNWLpZ4pCwDVOmK5WyG5bG01+3wG4MXNN779swIDAQAB"
-_dmarc                  IN  TXT     "v=DMARC1; p=reject; rua=mailto:mailauth-reports@freifunk-muensterland.de"
-@                       IN  TXT     "google-site-verification=ex-6A1f0RBIhAjoPEu_7WA7Rv1yVUmkMTdXT19SjBOw"
+@                                         IN  MX 10   mail.freifunk-muensterland.de.
+@                                         IN  TXT     "v=spf1 mx -all"
+default._domainkey.freifunk-muenster.de   IN  TXT     "v=DKIM1;k=rsa;t=s;s=email;p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCq6uxLJ8WQj7WGgwJH5d7fIpmd1i6DfRV1QMIXy4LVIxwowMy+mAYGojnWoN6ZtMjhUYZLDIWPp2lK8qangynGdIYgE7iJ4HoeEYEoWbi4kgHhWtTlNRQg3+xT0MrKBBCZ707ifNWLpZ4pCwDVOmK5WyG5bG01+3wG4MXNN779swIDAQAB"
+_dmarc                                    IN  TXT     "v=DMARC1; p=reject; rua=mailto:mailauth-reports@freifunk-muensterland.de"
+@                                         IN  TXT     "google-site-verification=ex-6A1f0RBIhAjoPEu_7WA7Rv1yVUmkMTdXT19SjBOw"

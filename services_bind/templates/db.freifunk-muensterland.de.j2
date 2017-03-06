@@ -16,60 +16,60 @@ ns{{i[0]}}                     IN  A       {{hostvars[host].ansible_ssh_host }}
 {% endif %}
 {% endfor %}
 
-@                       IN  A       89.163.231.227
-www                     IN  A       89.163.231.227
-service                 IN  A       89.163.231.228
-; service               IN  AAAA    2001:4ba0:ffff:7c::4
-karte                   IN  A       89.163.231.228
-; karte                 IN  AAAA    2001:4ba0:ffff:7c::4
-graphite                IN  A       89.163.231.228
-; graphite              IN  AAAA    2001:4ba0:ffff:7c::4
+@                                                IN  A       89.163.231.227
+www                                              IN  A       89.163.231.227
+service                                          IN  A       89.163.231.228
+; service                                        IN  AAAA    2001:4ba0:ffff:7c::4
+karte                                            IN  A       89.163.231.228
+; karte                                          IN  AAAA    2001:4ba0:ffff:7c::4
+graphite                                         IN  A       89.163.231.228
+; graphite                                       IN  AAAA    2001:4ba0:ffff:7c::4
 
-mail                    IN  A       148.251.208.169
-mail                    IN  AAAA    2a01:4f8:191:21e1::af
-dav                     IN  A       148.251.208.169
-dav                     IN  AAAA    2a01:4f8:191:21e1::af
-discover                IN  A       148.251.208.169
-discover                IN  AAAA    2a01:4f8:191:21e1::af
-autodiscover            IN  A       148.251.208.169
-autodiscover            IN  AAAA    2a01:4f8:191:21e1::af
-autoconfig              IN  A       148.251.208.169
-autoconfig              IN  AAAA    2a01:4f8:191:21e1::af
+mail                                             IN  A       148.251.208.169
+mail                                             IN  AAAA    2a01:4f8:191:21e1::af
+dav                                              IN  A       148.251.208.169
+dav                                              IN  AAAA    2a01:4f8:191:21e1::af
+discover                                         IN  A       148.251.208.169
+discover                                         IN  AAAA    2a01:4f8:191:21e1::af
+autodiscover                                     IN  A       148.251.208.169
+autodiscover                                     IN  AAAA    2a01:4f8:191:21e1::af
+autoconfig                                       IN  A       148.251.208.169
+autoconfig                                       IN  AAAA    2a01:4f8:191:21e1::af
 
-firmware                IN  A       144.76.30.226
-firmware                IN  AAAA    2a01:4f8:191:21e1::23
+firmware                                         IN  A       144.76.30.226
+firmware                                         IN  AAAA    2a01:4f8:191:21e1::23
 
-forum                   IN  A       148.251.208.171
-forum                   IN  AAAA    2a01:4f8:191:21e1::b1
-mailvax                 IN  A       212.47.250.87
-wiki                    IN  A       46.4.90.212
+forum                                            IN  A       148.251.208.171
+forum                                            IN  AAAA    2a01:4f8:191:21e1::b1
+mailvax                                          IN  A       212.47.250.87
+wiki                                             IN  A       46.4.90.212
 
-smtp                    IN  CNAME   mail.freifunk-muensterland.de.
-imap                    IN  CNAME   mail.freifunk-muensterland.de.
-pop                     IN  CNAME   mail.freifunk-muensterland.de.
+smtp                                             IN  CNAME   mail.freifunk-muensterland.de.
+imap                                             IN  CNAME   mail.freifunk-muensterland.de.
+pop                                              IN  CNAME   mail.freifunk-muensterland.de.
 
-_imap._tcp              IN  SRV     0 1 143 mail.freifunk-muensterland.de.
-_imaps._tcp             IN  SRV     0 1 993 mail.freifunk-muensterland.de.
-_pop3._tcp              IN  SRV     0 1 110 mail.freifunk-muensterland.de.
-_pop3s._tcp             IN  SRV     0 1 995 mail.freifunk-muensterland.de.
-_submission._tcp        IN  SRV     0 1 587 mail.freifunk-muensterland.de.
-_caldavs._tcp           IN  SRV     0 1 443 dav.freifunk-muensterland.de.
-_carddavs._tcp          IN  SRV     0 1 443 dav.freifunk-muensterland.de.
-_autodiscover._tcp      IN  SRV     0 1 443 autodiscover.freifunk-muensterland.de.
+_imap._tcp                                       IN  SRV     0 1 143 mail.freifunk-muensterland.de.
+_imaps._tcp                                      IN  SRV     0 1 993 mail.freifunk-muensterland.de.
+_pop3._tcp                                       IN  SRV     0 1 110 mail.freifunk-muensterland.de.
+_pop3s._tcp                                      IN  SRV     0 1 995 mail.freifunk-muensterland.de.
+_submission._tcp                                 IN  SRV     0 1 587 mail.freifunk-muensterland.de.
+_caldavs._tcp                                    IN  SRV     0 1 443 dav.freifunk-muensterland.de.
+_carddavs._tcp                                   IN  SRV     0 1 443 dav.freifunk-muensterland.de.
+_autodiscover._tcp                               IN  SRV     0 1 443 autodiscover.freifunk-muensterland.de.
 
 ; authentication for mailchimp (newsletter distribution)
-; k1._domainkey         IN  CNAME   dkim.mcsv.net.
-; @                     IN  TXT     "v=spf1 include:servers.mcsv.net ?all"
+; k1._domainkey                                  IN  CNAME   dkim.mcsv.net.
+; @                                              IN  TXT     "v=spf1 include:servers.mcsv.net ?all"
 
-@                       IN  MX 10   mail.freifunk-muensterland.de.
-@                       IN  TXT     "v=spf1 mx -all"
-default._domainkey      IN  TXT     "v=DKIM1;k=rsa;t=s;s=email;p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDiywfDbx8rb5CpKqmD6i4Qx1yRvci/sengh1j4csKSyAcDCyWmWaJXum39PwfX4UJSOy+bvDqUBciUYxIsMHsJJyggL0DOVoohfSGQqnqHeOabURMEiFnvTfOYa80yv74IhxUUECyFKwdZDJw+TAzzrq/SdpJxzGmFtBGxcwnErQIDAQAB"
-_dmarc                  IN  TXT     "v=DMARC1; p=reject; rua=mailto:mailauth-reports@freifunk-muensterland.de"
-@                       IN  TXT     "google-site-verification=_PWQf_8IeE8dPfbeyfun4_ig3s0lWd1jX5X9m0doWpo"
+@                                                IN  MX 10   mail.freifunk-muensterland.de.
+@                                                IN  TXT     "v=spf1 mx -all"
+default._domainkey.freifunk-muensterland.de      IN  TXT     "v=DKIM1;k=rsa;t=s;s=email;p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDiywfDbx8rb5CpKqmD6i4Qx1yRvci/sengh1j4csKSyAcDCyWmWaJXum39PwfX4UJSOy+bvDqUBciUYxIsMHsJJyggL0DOVoohfSGQqnqHeOabURMEiFnvTfOYa80yv74IhxUUECyFKwdZDJw+TAzzrq/SdpJxzGmFtBGxcwnErQIDAQAB"
+_dmarc                                           IN  TXT     "v=DMARC1; p=reject; rua=mailto:mailauth-reports@freifunk-muensterland.de"
+@                                                IN  TXT     "google-site-verification=_PWQf_8IeE8dPfbeyfun4_ig3s0lWd1jX5X9m0doWpo"
 
-forum                   IN  MX 10   mailvax.freifunk-muensterland.de.
-forum                   IN  TXT     "v=spf1 mx a a:mailvax.freifunk-muensterland.de ~all"
-dkim._domainkey.forum   IN  TXT     "v=DKIM1; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQD0g9Z8f0fMkNHyZWYi78MNEq8Zbp48kLanYLBNznwAZS8AkpWuPsrW68hx4KcCiNN0OiXVIwoNqHCJVPUxNPwUMLksmcHt9UfJ5Ow5izJfhb13GmRYWo+7jXFMG23wfseEMKtH5hKqvdl3Xc1wxq4HWLGJWQRcX4xyYxmoJ3gI0wIDAQAB"
+forum                                            IN  MX 10   mailvax.freifunk-muensterland.de.
+forum                                            IN  TXT     "v=spf1 mx a a:mailvax.freifunk-muensterland.de ~all"
+dkim._domainkey.forum.freifunk-muensterland.de   IN  TXT     "v=DKIM1; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQD0g9Z8f0fMkNHyZWYi78MNEq8Zbp48kLanYLBNznwAZS8AkpWuPsrW68hx4KcCiNN0OiXVIwoNqHCJVPUxNPwUMLksmcHt9UfJ5Ow5izJfhb13GmRYWo+7jXFMG23wfseEMKtH5hKqvdl3Xc1wxq4HWLGJWQRcX4xyYxmoJ3gI0wIDAQAB"
 
-wiki                    IN  MX 10   mailvax.freifunk-muensterland.de.
-wiki                    IN  TXT     "v=spf1 mx a a:mailvax.freifunk-muensterland.de ~all"
+wiki                                             IN  MX 10   mailvax.freifunk-muensterland.de.
+wiki                                             IN  TXT     "v=spf1 mx a a:mailvax.freifunk-muensterland.de ~all"
