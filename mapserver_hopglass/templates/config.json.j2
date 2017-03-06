@@ -1,6 +1,6 @@
 {
   "dataPath": "/data/",
-  "siteName": "Freifunk Münsterland",
+  "siteName": "{{freifunk.name}}",
   "mapSigmaScale": 0.5,
   "showContact": false,
   "maxAge": 14,
@@ -22,21 +22,27 @@
     { "site": "{{freifunk.kurzname}}d{{domaene[0]}}", "name": "Domäne {{domaene[0]}} - {{domaene[1].name}}" }{% if not loop.last %},{% endif %}
 {% endfor %}
   ],
+{% if mapconfig.globalInfos is defined %}
   "globalInfos": [
-    { "name": "Status-Monitor",
-      "iframe": "https://freifunk-muensterland.de/grafana/dashboard-solo/db/test-alert-dashboard?theme=light&panelId=5"
-    }
+{% for globalInfo in mapconfig.globalInfos %}
+    { "name": "{{ globalInfo.name }}",
+      "iframe": "{{ globalInfo.iframe }}"
+    }{% if not loop.last %},{% endif %}
+
+{% endfor %}
   ],
+{% endif %}
+{% if mapconfig.nodeInfos is defined %}
   "nodeInfos": [
-    { "name": "Clientstatistik",
-      "iframe": "https://freifunk-muensterland.de/grafana/dashboard-solo/db/node-overview?var-node={NODE_ID}&panelId=1&theme=light",
-      "caption": "Knoten {NODE_ID}"
-    },
-    { "name": "Traffic",
-      "iframe": "https://freifunk-muensterland.de/grafana/dashboard-solo/db/advanced-node-stats?var-node={NODE_ID}&theme=light&panelId=2",
-      "caption": "Knoten {NODE_ID}"
-    }
+{% for nodeInfo in mapconfig.nodeInfos %}
+    { "name": "{{ nodeInfo.name }}",
+      "iframe": "{{ nodeInfo.iframe }}",
+      "caption": "{{ nodeInfo.caption }}"
+    }{% if not loop.last %},{% endif %}
+
+{% endfor %}
   ],
+{% endif %}
   "hwImg": [
     {
       "thumbnail": "/hwpics/{MODELHASH}.svg",
