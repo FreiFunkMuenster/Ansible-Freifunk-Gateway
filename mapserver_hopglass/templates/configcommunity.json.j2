@@ -1,7 +1,13 @@
+{% set map_domains = [] %}
+{% for domain in domaenen|dictsort %}
+{% if item == domain[1]['community'] %}
+{% if map_domains.append(domain) %}{% endif %}
+{% endif %}
+{% endfor %}
 {
-  "dataPath": "/data/map_{{freifunk.kurzname}}d{{item[0]}}/",
-  "siteName": "{% if item[1].community is defined %}Freifunk {{item[1].community}}{% else %}{{freifunk.name}}{% endif %} - Domäne {{item[1].name}}",
-  "mapSigmaScale": {{item[1].map_scale}},
+  "dataPath": "/data/map_{% for domain in map_domains %}{{freifunk.kurzname}}d{{domain[0]}}{% if not loop.last %},{% endif %}{% endfor %}/",
+  "siteName": "Freifunk {{item}}",
+  "mapSigmaScale": 0.5,
   "showContact": false,
   "maxAge": 14,
   "blinkingHours": 8,
@@ -18,7 +24,10 @@
     }
   ],
   "siteNames": [
-    { "site": "{{freifunk.kurzname}}d{{item[0]}}", "name": "Domäne {{item[0]}} - {{item[1].name}}" }
+{% for domain in map_domains %}
+    { "site": "{{freifunk.kurzname}}d{{domain[0]}}", "name": "Domäne {{domain[0]}} - {{domain[1].name}}" }{% if not loop.last %},{% endif %}
+
+{% endfor %}
   ],
 {% if mapconfig.globalInfos is defined %}
   "globalInfos": [

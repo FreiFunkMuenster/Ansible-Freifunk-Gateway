@@ -6,11 +6,17 @@
 <body>
     <h1>{{freifunk.name}} - Karten</h1>
     <p><a href="map/">Gesamtkarte</a></p>
-    <p>
+    <ul>
 {% for domaene in domaenen|dictsort %}
     <li><a href="map{{domaene[0]}}/">Domäne {{domaene[0]}}</a> - {{domaene[1].name}}</li>
 {% endfor %}
-    </p>
+    </ul>
+{% set communities = domaenen | list | map('extract', domaenen, 'community') | list | unique | sort %}
+    <ul>
+{% for community in communities %}
+    <li><a href="map_{{community}}/">Community {{community}}</a></li>
+{% endfor %}
+    </ul>
 <hr>
 </body>
 </html>

@@ -91,3 +91,18 @@
     mode: 0644
   with_items:
     - "{{domaenen|dictsort}}"
+
+- name: Generate list of all community names
+  set_fact:
+    communities: "{{ domaenen | list | map('extract', domaenen, 'community') | list | unique | sort }}"
+
+- name: Deploy config.json configcommunity
+  template:
+    src: configcommunity.json.j2
+    dest: "/opt/hopglass/client/build/config/config_{{item}}.json"
+    owner: hopglass
+    group: hopglass
+    mode: 0644
+  when: item != "None"
+  with_items:
+    - "{{communities}}"

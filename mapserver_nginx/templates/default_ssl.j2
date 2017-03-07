@@ -29,12 +29,15 @@ server {
 
         # redirect into directory to get correct docroot
         rewrite "^/map([0-9]{2})$" /map$1/ permanent;
+        rewrite "^/map_([^/]+)$" /map$1/ permanent;
 
         # rewrite config.json to special path
         rewrite "^/map([0-9]{2})/config.json$" /map/config/config_$1.json break;
+        rewrite "^/map_([^/]+)/config.json$" /map/config/config_$1.json break;
 
         # rewrite all other
         rewrite "^/map[0-9]{2}/(.*)$" /map/$1 break;
+        rewrite "^/map_[^/]+/(.*)$" /map/$1 break;
 
         # First attempt to serve request as file, then
         # as directory, then fall back to displaying a 404.
@@ -53,7 +56,7 @@ server {
     location /data/ {
 
         # mapdata foreach domain, because hopglass can't handle args in uri)
-        rewrite "^/data/map([0-9]{2})/(.+)$" /$2?filter=site&value=ffmsd$1 break;
+        rewrite "^/data/map_([^/]+)/(.+)$" /$2?filter=site&value=$1 break;
 
         proxy_set_header        Host $host;
         proxy_set_header        X-Real-IP $remote_addr;
