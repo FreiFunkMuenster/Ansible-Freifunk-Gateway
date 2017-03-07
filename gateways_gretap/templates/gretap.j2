@@ -8,7 +8,7 @@
 {% endfor %}
 {% if hosts|length and hosts.pop() %}
 {% endif %}
-{% for host in groups['services'] %}
+{% for host in groups['services']+groups['mapserver'] %}
 {% if hosts.append(host) %}
 {% endif %}
 {% endfor %}
