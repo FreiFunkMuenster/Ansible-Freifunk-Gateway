@@ -1,0 +1,16 @@
+---
+# configure node-stats for respondd 
+
+- name: clone node-stats repo for respondd
+  git:
+    repo: https://github.com/FreiFunkMuenster/node-stats.git
+    dest: /opt/node-stats
+    version: respondd
+    force: yes
+
+- name: define cron for node-stats
+  cron:
+    name: "node-stats"
+    minute: "*"
+    job: "/opt/node-stats/update.sh >/dev/null 2>&1"
+
