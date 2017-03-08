@@ -28,4 +28,9 @@ server {
                 access_log off;
 		gzip_types text/plain application/json;
         }
+	
+	location /maps {
+		rewrite ^/maps$ https://karte.freifunk-muensterland.de/ permanent;
+		rewrite ^/maps/(.*)$ https://karte.freifunk-muensterland.de/$1 permanent;
+	}
 }
