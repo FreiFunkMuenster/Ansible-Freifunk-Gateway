@@ -30,7 +30,27 @@
     }
   },
   "provider": {
-    "offlineTime": 900
+    "offlineTime": 900,
+    "named": {
+      "mapTemplate": "https://karte.{{freifunk.domain}}/#!v:g;n:{node_id}",
+      "origin": "knoten.{{freifunk.domain}}.",
+      "defaultTtl": 86400,
+      "ns": "{{bind_zonemaster.server}}.",
+      "postmaster": "{{bind_zonemaster.server}}.",
+      "refresh": 86400,
+      "retry": 7200,
+      "expire": 2419200,
+      "minTtl": 86400,
+      "nameservers":  [
+        "ns1.{{freifunk.domain}}.",
+        "ns2.{{freifunk.domain}}.",
+        "ns3.{{freifunk.domain}}."
+      ],
+      "subdomainNet": [
+          "{{ff_network.v6_network}}"
+      ],
+      "namePadding" : 40
+    }
   },
   "webserver": {
     "port": 4000
