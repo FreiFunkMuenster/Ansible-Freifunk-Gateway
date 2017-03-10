@@ -63,14 +63,14 @@ _autodiscover._tcp                               IN  SRV     0 1 443 autodiscove
 
 @                                                IN  MX 10   mail.freifunk-muensterland.de.
 @                                                IN  TXT     "v=spf1 mx -all"
-default._domainkey.freifunk-muensterland.de      IN  TXT     "v=DKIM1;k=rsa;t=s;s=email;p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDiywfDbx8rb5CpKqmD6i4Qx1yRvci/sengh1j4csKSyAcDCyWmWaJXum39PwfX4UJSOy+bvDqUBciUYxIsMHsJJyggL0DOVoohfSGQqnqHeOabURMEiFnvTfOYa80yv74IhxUUECyFKwdZDJw+TAzzrq/SdpJxzGmFtBGxcwnErQIDAQAB"
+default._domainkey                               IN  TXT     "v=DKIM1;k=rsa;t=s;s=email;p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDiywfDbx8rb5CpKqmD6i4Qx1yRvci/sengh1j4csKSyAcDCyWmWaJXum39PwfX4UJSOy+bvDqUBciUYxIsMHsJJyggL0DOVoohfSGQqnqHeOabURMEiFnvTfOYa80yv74IhxUUECyFKwdZDJw+TAzzrq/SdpJxzGmFtBGxcwnErQIDAQAB"
 _dmarc                                           IN  TXT     "v=DMARC1; p=reject; rua=mailto:mailauth-reports@freifunk-muensterland.de"
 @                                                IN  TXT     "google-site-verification=_PWQf_8IeE8dPfbeyfun4_ig3s0lWd1jX5X9m0doWpo"
 
-forum                                               IN  MX 10   mail.freifunk-muensterland.de.
-forum                                               IN  TXT     "v=spf1 mx a a:mail.freifunk-muensterland.de ~all"
-default._domainkey.forum.freifunk-muensterland.de   IN  TXT     "v=DKIM1;k=rsa;t=s;s=email;p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCuVStLDivCoMgBKPcb/w37iiza7EvG+cShx4uDKeIjBZYCN0DWb7uGo1DoapN+zWn4/p5+SLkuDSu0Q24D2TStHXE6CcQKPryHxHSJvRRJYwK3SDJL3PH1yEpBj5nOLoABHobwSm042/8VYT+bsCXWJm4dVDOmYix/3NymS7QClQIDAQAB"
-_dmarc.forum                                        IN  TXT     "v=DMARC1; p=reject; rua=mailto:mailauth-reports@forum.freifunk-muensterland.de"
+forum                                            IN  MX 10   mail.freifunk-muensterland.de.
+forum                                            IN  TXT     "v=spf1 mx a a:mail.freifunk-muensterland.de ~all"
+default._domainkey.forum                         IN  TXT     "v=DKIM1;k=rsa;t=s;s=email;p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCuVStLDivCoMgBKPcb/w37iiza7EvG+cShx4uDKeIjBZYCN0DWb7uGo1DoapN+zWn4/p5+SLkuDSu0Q24D2TStHXE6CcQKPryHxHSJvRRJYwK3SDJL3PH1yEpBj5nOLoABHobwSm042/8VYT+bsCXWJm4dVDOmYix/3NymS7QClQIDAQAB"
+_dmarc.forum                                     IN  TXT     "v=DMARC1; p=reject; rua=mailto:mailauth-reports@forum.freifunk-muensterland.de"
 
 wiki                                             IN  MX 10   mailvax.freifunk-muensterland.de.
 wiki                                             IN  TXT     "v=spf1 mx a a:mailvax.freifunk-muensterland.de ~all"
