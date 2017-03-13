@@ -68,7 +68,7 @@
     home: /opt/hopglass
 
 - name: Clone HopGlass Server Repo
-  git: repo=https://github.com/descilla/hopglass-server.git version=multi_filter_values dest=/opt/hopglass/server force=yes
+  git: repo=https://github.com/hopglass/hopglass-server.git dest=/opt/hopglass/server force=yes
   notify:
     - "restart hopglass"
   register: hopglass_server_git_clone
