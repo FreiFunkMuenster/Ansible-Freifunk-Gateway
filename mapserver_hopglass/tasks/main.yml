@@ -6,7 +6,7 @@
 
 - name: Git for HopGlass
   git:
-    repo: https://github.com/plumpudding/hopglass.git
+    repo: https://github.com/FreiFunkMuenster/hopglass.git
     dest: /opt/hopglass/client
     force: yes
   register: hopglass_git_clone
