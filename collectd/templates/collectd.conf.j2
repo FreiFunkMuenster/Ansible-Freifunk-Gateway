@@ -115,7 +115,7 @@ LoadPlugin swap
 #LoadPlugin thermal
 #LoadPlugin tokyotyrant
 #LoadPlugin unixsock
-#LoadPlugin uptime
+LoadPlugin uptime
 #LoadPlugin users
 #LoadPlugin uuid
 #LoadPlugin varnish
@@ -722,12 +722,16 @@ LoadPlugin write_graphite
 
 <Plugin processes>
 #	Process "name"
-	Process "named" 
-	Process "rsyslogd" 
-	Process "kea-dhcp4" 
-	Process "bird" 
-	Process "bird6" 
-	ProcessMatch "tunneldigger" "tunneldigger" 
+{% if 'services' in group_names or 'gateways' in group_names %}
+	Process "named"
+{% endif %}
+{% if 'gateways' in group_names %}
+	Process "rsyslogd"
+	Process "kea-dhcp4"
+	Process "bird"
+	Process "bird6"
+	ProcessMatch "tunneldigger" "tunneldigger"
+{% endif %}
 	Process "collectd"
 </Plugin>
 
