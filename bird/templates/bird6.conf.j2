@@ -63,7 +63,32 @@ protocol ospf {
 		interface "bat*" {
 			stub;
 		};
-		interface "gre-*";
+{% if ffms_tun_to is defined %}
+{% for host in ffms_tun_to %}
+{% if "cost" in  host %}
+        interface "gre-{{host.host_name}}" {
+            cost {{host.cost}};
+        };
+{% else %}
+        interface "gre-{{host.host_name}}";
+{% endif %}
+{% endfor %}
+{% endif %}
+{% for host in groups['gateways'] %}
+{% if 'ffms_tun_to' in hostvars[host] %}
+{% for link in hostvars[host].ffms_tun_to%}
+{% if 'host_name' in link and link.host_name == inventory_hostname %}
+{% if "cost" in  link %}
+        interface "gre-{{host}}" {
+            cost {{link.cost}};
+        };
+{% else %}
+        interface "gre-{{host}}";
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
 		interface "bck-*";
 {% if ffrl_tun is defined %}
 		interface "lo" {
@@ -101,28 +126,27 @@ filter hostroute {
 }
 
 {% for domaene in domaenen|dictsort %}
-{% set step = 0 %}
 {% if ffms_tun_to is defined %}
-{% for host in ffms_tun_to %}
-{% if 'domaene-'+domaene[0] in hostvars[host.host_name].group_names and step == 0 %}
+{% set iterated = false %}
+{% for host in ffms_tun_to if iterated == false %}
+{% if 'domaene-'+domaene[0] in hostvars[host.host_name].group_names and not (domaenenliste is defined and domaene[0] in domaenenliste) %}
+{% set iterated = true %}
 protocol static static_domaene{{domaene[0]}} {
 	table ffnet;
 	route {{hostvars[host.host_name].ff_network.v6_network | regex_replace('..::/\d+$','00::/56')}} reject;
 }
 
-{% set step = 1 %}
-{% endif %}
-{% if "domaenenliste" in hostvars[host.host_name] and domaene[0] in hostvars[host.host_name].domaenenliste and step == 0 %}
+{% elif "domaenenliste" in hostvars[host.host_name] and domaene[0] in hostvars[host.host_name].domaenenliste and not (domaenenliste is defined and domaene[0] in domaenenliste) %}
+{% set iterated = true %}
 protocol static static_domaene{{domaene[0]}} {
 	table ffnet;
 	route {{domaene[1].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject;
 }
 
-{% set step = 1 %}
 {% endif %}
 {% endfor %}
 {% endif %}
-{% if domaenenliste is defined and domaene[0] in domaenenliste and step == 0 %}
+{% if domaenenliste is defined and domaene[0] in domaenenliste%}
 protocol static static_domaene{{domaene[0]}} {
 	table ffnet;
 	route {{domaene[1].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject;

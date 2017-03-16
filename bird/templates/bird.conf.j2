@@ -78,7 +78,32 @@ protocol ospf {
 		interface "bat*" {
 			stub;
 		};
-		interface "gre-*";
+{% if ffms_tun_to is defined %}
+{% for host in ffms_tun_to %}
+{% if "cost" in  host %}
+        interface "gre-{{host.host_name}}" {
+            cost {{host.cost}};
+        };
+{% else %}
+        interface "gre-{{host.host_name}}";
+{% endif %}
+{% endfor %}
+{% endif %}
+{% for host in groups['gateways'] %}
+{% if 'ffms_tun_to' in hostvars[host] %}
+{% for link in hostvars[host].ffms_tun_to%}
+{% if 'host_name' in link and link.host_name == inventory_hostname %}
+{% if "cost" in  link %}
+        interface "gre-{{host}}" {
+            cost {{link.cost}};
+        };
+{% else %}
+        interface "gre-{{host}}";
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
 		interface "bck-*";
 {% if ffms_tun_to is defined %}
 		interface "lo" {

@@ -26,16 +26,19 @@
   register: more_specific_routes
   with_items: "{{domaenenliste | default([])}}"
   when: domaenenliste is defined
+  tags: bird_debug
 
 - name: configure bird.conf
   template: src=bird.conf.j2 dest=/etc/bird/bird.conf
   notify:
     - configure bird
+  tags: bird_debug
 
 - name: configure bird6.conf
   template: src=bird6.conf.j2 dest=/etc/bird/bird6.conf
   notify:
     - configure bird6
+  tags: bird_debug
 
 - name: activate and start bird
   service: name=bird state=started enabled=yes
