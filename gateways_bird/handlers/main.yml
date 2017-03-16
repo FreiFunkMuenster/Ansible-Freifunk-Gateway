@@ -1,7 +1,0 @@
----
-- name: restart bird
-  service: name=bird state=restarted enabled=yes
-
-- name: restart bird6
-  service: name=bird6 state=restarted enabled=yes
-
