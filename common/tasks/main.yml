@@ -83,6 +83,7 @@
     - dhcpdump
     - dhcping
     - irqbalance
+    - build-essential
 
 - name: uninstall unneeded packages
   apt:
