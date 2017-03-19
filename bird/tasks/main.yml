@@ -2,11 +2,13 @@
 # Role for configure bird and bird6 for our gateway servers.
 - name: add key for bird repo
   apt_key: keyserver=keyserver.ubuntu.com id=AC0E47584A7A714D
+  when: ansible_distribution == "Debian"
 
 - name: add bird repo
   apt_repository:
     repo: "deb http://bird.network.cz/debian/ jessie main"
     state: present
+  when: ansible_distribution == "Debian"
 
 - name: install bird and other required packets
   apt:
@@ -18,6 +20,18 @@
     - bird
     - bird6
     - ipcalc
+  when: ansible_distribution == "Debian"
+
+- name: install bird and other required packets
+  apt:
+    pkg: "{{item}}"
+    update_cache: yes
+    cache_valid_time: 1800
+    state: installed
+  with_items:
+    - bird
+    - ipcalc
+  when: ansible_distribution == "Ubuntu"
 
 - name: calculate more specific routes for DHCP pools
   shell: ipcalc {{ domaenenliste[item].dhcp_start }} - {{ domaenenliste[item].dhcp_ende}} | grep -v "deaggregate" | sed -e 's/\(^.*$\)/route \1 via "bat{{item}}";/g'

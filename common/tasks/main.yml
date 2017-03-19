@@ -25,6 +25,19 @@
 - name: Update .bash_profile file
   template: src=bash_profile.j2 dest=~/.bash_profile
 
+- name: update nameserver configuration (Debian)
+  template: src=resolv.conf.j2 dest=/etc/resolv.conf
+  when: "'nameservers' in hostvars[inventory_hostname] and ansible_distribution == 'Debian'"
+
+- name: update nameserver configuration (Ubuntu)
+  template: src=resolv.conf.j2 dest=/etc/resolvconf/resolv.conf.d/tail
+  when: "'nameservers' in hostvars[inventory_hostname] and ansible_distribution == 'Ubuntu'"
+  notify:
+    - reload resolv config
+
+- name: Flush all handlers
+  meta: flush_handlers
+
 - name: add default repo
   #Freifunk- und Rollen-Repos erst in den jeweiligen Rollen
   apt_repository:
@@ -65,7 +78,6 @@
     - molly-guard
     - git
     - iperf3
-    - chkconfig
     - logwatch
     - mtr-tiny
     - dhcpdump

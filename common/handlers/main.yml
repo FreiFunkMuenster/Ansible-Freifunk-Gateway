@@ -1,2 +1,5 @@
-- name: reload ssh
-  service: name=ssh state=restarted
+- name: reload sshd
+  shell: systemctl reload ssh
+
+- name: reload resolv config
+  shell: resolvconf -u
