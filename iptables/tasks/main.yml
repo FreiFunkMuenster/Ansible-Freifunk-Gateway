@@ -5,10 +5,32 @@
     update_cache: yes
     state: installed
 
+- name: Get IPv4-DNS-servers
+  shell: grep nameserver /etc/resolv.conf|sed -e 's/.*nameserver *//' -e 's/#.*//'|grep -v ':' || true
+  register: v4dns
+  check_mode: no
+  changed_when: false
+
+- name: Set IPv4-DNS-servers as fact
+  set_fact:
+     v4dnsips: "{{ v4dns.stdout_lines }}"
+  when: v4dns.stdout != ""
+
 - name: Create rules.v4 file
   template: src=rules.v4.j2 dest=/etc/iptables/rules.v4
   notify:
    - iptables-restore
+
+- name: Get IPv6-DNS-servers
+  shell: grep nameserver /etc/resolv.conf|sed -e 's/.*nameserver *//' -e 's/#.*//'|grep ':' || true
+  register: v6dns
+  check_mode: no
+  changed_when: false
+
+- name: Set IPv6-DNS-servers as fact
+  set_fact:
+     v6dnsips: "{{ v6dns.stdout_lines }}"
+  when: v6dns.stdout != ""
 
 - name: Create rules.v6 file
   template: src=rules.v6.j2 dest=/etc/iptables/rules.v6
