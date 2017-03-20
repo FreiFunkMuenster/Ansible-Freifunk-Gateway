@@ -17,7 +17,7 @@
   when: sslcert.stat.exists == False
 
 - name: Konfig-Datei karte kopieren
-  template: srv=karte-init.j2 dest=/etc/nginx/sites-available/karte
+  template: src=karte-init.j2 dest=/etc/nginx/sites-available/karte
   notify: restart nginx
   when: sslcert.stat.exists == False
 
