@@ -3,6 +3,17 @@
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
+-N DNS
+-A INPUT -p udp -m udp --dport 53 -j DNS
+-A INPUT -p tcp -m tcp --dport 53 -j DNS
+{% for host in groups['services'] %}
+-A DNS -d {{hostvars[host].ansible_ssh_host}}/32 -j RETURN
+{% endfor %}
+{% for entry in v4dnsips %}
+-A DNS -d {{entry}}/32 -j RETURN
+{% endfor %}
+-A DNS -j MARK --set-xmark 0x1/0xffffffff
+
 COMMIT
 *nat
 :PREROUTING ACCEPT [0:0]

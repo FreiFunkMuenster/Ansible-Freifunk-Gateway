@@ -3,6 +3,12 @@
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
+-N DNS 
+-A INPUT -p udp -m udp --dport 53 -j DNS 
+-A INPUT -p tcp -m tcp --dport 53 -j DNS 
+{% for entry in v6dnsips %}
+-A DNS -d {{entry}}/32 -j RETURN
+{% endfor %}
 COMMIT
 *mangle
 :PREROUTING ACCEPT [0:0]
