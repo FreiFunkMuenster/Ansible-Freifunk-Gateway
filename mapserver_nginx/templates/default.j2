@@ -1,7 +1,7 @@
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
-    server_name karte.{{freifunk.domain}};
+    server_name {{inventory_hostname_short}}.{{freifunk.domain}};
 
     location /.well-known/acme-challenge {
         root /var/www/letsencrypt;

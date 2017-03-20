@@ -7,10 +7,10 @@
 {
   "dataPath": "/data/map_{% for domain in map_domains %}{{freifunk.kurzname}}d{{domain[0]}}{% if not loop.last %},{% endif %}{% endfor %}/",
   "siteName": "Freifunk {{item}}",
-  "mapSigmaScale": 0.5,
-  "showContact": false,
-  "maxAge": 14,
-  "blinkingHours": 8,
+  "mapSigmaScale": {{ mapconfig.communityMap.map_scale }},
+  "showContact": {{ mapconfig.communityMap.map_show_contact }},
+  "maxAge": {{ mapconfig.communityMap.map_max_age }},
+  "blinkingHours": {{ mapconfig.communityMap.map_blinking_hours }},
   "mapLayers": [
     {
       "name": "OSM Mapnik",
@@ -34,7 +34,9 @@
   "globalInfos": [
 {% for globalInfo in mapconfig.globalInfos %}
     { "name": "{{ globalInfo.name }}",
-      "iframe": "{{ globalInfo.iframe }}"
+      "iframe": "{{ globalInfo.iframe }}"{% if globalInfo.caption is defined %},
+      "caption": "{{ globalInfo.caption }}"{% endif %}
+
     }{% if not loop.last %},{% endif %}
 
 {% endfor %}
@@ -44,8 +46,9 @@
   "nodeInfos": [
 {% for nodeInfo in mapconfig.nodeInfos %}
     { "name": "{{ nodeInfo.name }}",
-      "iframe": "{{ nodeInfo.iframe }}",
-      "caption": "{{ nodeInfo.caption }}"
+      "iframe": "{{ nodeInfo.iframe }}"{% if nodeInfo.caption is defined %},
+      "caption": "{{ nodeInfo.caption }}"{% endif %}
+
     }{% if not loop.last %},{% endif %}
 
 {% endfor %}

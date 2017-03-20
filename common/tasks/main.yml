@@ -7,7 +7,7 @@
 - name: figlet name
   command: /usr/bin/figlet -D -c -w 50 {{freifunk.kurzname}}
   register: figlethost
-  always_run: yes
+  check_mode: no
   
 - name: deploy motd file
   template: src=motd.j2 dest=/etc/motd owner=root mode=0444
