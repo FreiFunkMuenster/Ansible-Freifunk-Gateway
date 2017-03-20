@@ -6,17 +6,19 @@
   "maxAge": {{item[1].map_max_age}},
   "blinkingHours": {{item[1].map_blinking_hours}},
   "mapLayers": [
+{% for layer in mapconfig.layers %}
     {
-      "name": "OSM Mapnik",
-      "url": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      "name": "{{layer.name}}",
+      "url": "{{layer.url}}",
       "config": {
-        "subdomains": "abc",
-        "type": "osm",
-        "attribution": "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>",
-        "maxZoom": 23,
-        "maxNativeZoom": 19
+{% for k,v in layer.config|dictsort %}
+        "{{k}}": {% if v is number %}{{v}}{% else %}"{{v}}"{% endif %}{% if not loop.last %},{% endif %}
+
+{% endfor %}
       }
-    }
+    }{% if not loop.last %},{% endif %}
+
+{% endfor %}
   ],
   "siteNames": [
     { "site": "{{freifunk.kurzname}}d{{item[0]}}", "name": "Domäne {{item[0]}} - {{item[1].name}}" }
