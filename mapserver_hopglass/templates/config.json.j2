@@ -1,10 +1,10 @@
 {
   "dataPath": "/data/",
   "siteName": "{{freifunk.name}}",
-  "mapSigmaScale": 0.5,
-  "showContact": false,
-  "maxAge": 14,
-  "blinkingHours": 8,
+  "mapSigmaScale": {{ mapconfig.globalMap.map_scale }},
+  "showContact": {{ mapconfig.globalMap.map_show_contact }},
+  "maxAge": {{ mapconfig.globalMap.map_max_age }},
+  "blinkingHours": {{ mapconfig.globalMap.map_blinking_hours }},
   "mapLayers": [
     {
       "name": "OSM Mapnik",

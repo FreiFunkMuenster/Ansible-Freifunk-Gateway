@@ -2,9 +2,9 @@
   "dataPath": "/data/map_{{freifunk.kurzname}}d{{item[0]}}/",
   "siteName": "{% if item[1].community is defined %}Freifunk {{item[1].community}}{% else %}{{freifunk.name}}{% endif %} - Domäne {{item[1].name}}",
   "mapSigmaScale": {{item[1].map_scale}},
-  "showContact": false,
-  "maxAge": 14,
-  "blinkingHours": 8,
+  "showContact": {{item[1].map_show_contact}},
+  "maxAge": {{item[1].map_max_age}},
+  "blinkingHours": {{item[1].map_blinking_hours}},
   "mapLayers": [
     {
       "name": "OSM Mapnik",
