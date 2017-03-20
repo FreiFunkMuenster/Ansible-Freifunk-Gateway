@@ -25,7 +25,9 @@
   "globalInfos": [
 {% for globalInfo in mapconfig.globalInfos %}
     { "name": "{{ globalInfo.name }}",
-      "iframe": "{{ globalInfo.iframe }}"
+      "iframe": "{{ globalInfo.iframe }}"{% if globalInfo.caption is defined %},
+      "caption": "{{ globalInfo.caption }}"{% endif %}
+
     }{% if not loop.last %},{% endif %}
 
 {% endfor %}
@@ -35,8 +37,9 @@
   "nodeInfos": [
 {% for nodeInfo in mapconfig.nodeInfos %}
     { "name": "{{ nodeInfo.name }}",
-      "iframe": "{{ nodeInfo.iframe }}",
-      "caption": "{{ nodeInfo.caption }}"
+      "iframe": "{{ nodeInfo.iframe }}"{% if nodeInfo.caption is defined %},
+      "caption": "{{ nodeInfo.caption }}"{% endif %}
+
     }{% if not loop.last %},{% endif %}
 
 {% endfor %}
