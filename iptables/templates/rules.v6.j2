@@ -6,9 +6,11 @@
 -N DNS 
 -A INPUT -p udp -m udp --dport 53 -j DNS 
 -A INPUT -p tcp -m tcp --dport 53 -j DNS 
+{% if v6dnsips is defined %}
 {% for entry in v6dnsips %}
 -A DNS -d {{entry}}/32 -j RETURN
 {% endfor %}
+{% endif %}
 COMMIT
 *mangle
 :PREROUTING ACCEPT [0:0]
