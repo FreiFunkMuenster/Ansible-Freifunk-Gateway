@@ -6,7 +6,7 @@
     state: installed
 
 - name: Get IPv4-DNS-servers
-  shell: grep nameserver /etc/resolv.conf|sed -e 's/.*nameserver *//' -e 's/#.*//'|grep -v ':' || true
+  shell: grep '^nameserver' /etc/resolv.conf|sed -e 's/.*nameserver *//' -e 's/#.*//'|grep -v ':' || true
   register: v4dns
   check_mode: no
   changed_when: false
@@ -22,7 +22,7 @@
    - iptables-restore
 
 - name: Get IPv6-DNS-servers
-  shell: grep nameserver /etc/resolv.conf|sed -e 's/.*nameserver *//' -e 's/#.*//'|grep ':' || true
+  shell: grep '^nameserver' /etc/resolv.conf|sed -e 's/.*nameserver *//' -e 's/#.*//'|grep ':' || true
   register: v6dns
   check_mode: no
   changed_when: false
