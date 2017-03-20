@@ -2,21 +2,23 @@
   "dataPath": "/data/map_{{freifunk.kurzname}}d{{item[0]}}/",
   "siteName": "{% if item[1].community is defined %}Freifunk {{item[1].community}}{% else %}{{freifunk.name}}{% endif %} - Domäne {{item[1].name}}",
   "mapSigmaScale": {{item[1].map_scale}},
-  "showContact": {{item[1].map_show_contact}},
+  "showContact": {{item[1].map_show_contact | lower}},
   "maxAge": {{item[1].map_max_age}},
   "blinkingHours": {{item[1].map_blinking_hours}},
   "mapLayers": [
+{% for layer in mapconfig.layers %}
     {
-      "name": "OSM Mapnik",
-      "url": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      "name": "{{layer.name}}",
+      "url": "{{layer.url}}",
       "config": {
-        "subdomains": "abc",
-        "type": "osm",
-        "attribution": "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>",
-        "maxZoom": 23,
-        "maxNativeZoom": 19
+{% for k,v in layer.config|dictsort %}
+        "{{k}}": {% if v is number %}{{v}}{% else %}"{{v}}"{% endif %}{% if not loop.last %},{% endif %}
+
+{% endfor %}
       }
-    }
+    }{% if not loop.last %},{% endif %}
+
+{% endfor %}
   ],
   "siteNames": [
     { "site": "{{freifunk.kurzname}}d{{item[0]}}", "name": "Domäne {{item[0]}} - {{item[1].name}}" }
