@@ -1,14 +1,19 @@
 ---
 # configure node-stats for respondd 
 
-- name: clone node-stats repo for respondd
+- name: Clone node-stats repo for respondd.
   git:
     repo: https://github.com/FreiFunkMuenster/node-stats.git
     dest: /opt/node-stats
     version: respondd
     force: yes
 
-- name: define cron for node-stats
+- name: Deploy update.sh script
+  template:
+    src: update.sh.j2
+    dest: /opt/node-stats/update.sh
+
+- name: Define cron for node-stats.
   cron:
     name: "node-stats"
     minute: "*"
