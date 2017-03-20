@@ -12,6 +12,7 @@
   template:
     src: update.sh.j2
     dest: /opt/node-stats/update.sh
+    mode: "u+x,g+x"
 
 - name: Define cron for node-stats.
   cron:
