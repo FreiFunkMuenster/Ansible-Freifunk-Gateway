@@ -957,9 +957,9 @@ LoadPlugin write_graphite
 {% if group_names[0].startswith('domaene-') %}
 		Host "{{ff_network.v4_network | ipaddr('11') | ipaddr('address')}}"
 {% else %}
-		Host "89.163.231.228"
+		Host "{{collectd.graphite_target.host}}"
 {% endif %}
-		Port "2003"
+		Port "{{collectd.graphite_target.port}}"
 		Prefix "{{ group_names[0] }}."
 		Postfix ""
 		StoreRates false
