@@ -3,6 +3,12 @@
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
+COMMIT
+*mangle
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
 -N DNS 
 -A INPUT -p udp -m udp --dport 53 -j DNS 
 -A INPUT -p tcp -m tcp --dport 53 -j DNS 
@@ -11,12 +17,6 @@
 -A DNS -d {{entry}}/32 -j RETURN
 {% endfor %}
 {% endif %}
-COMMIT
-*mangle
-:PREROUTING ACCEPT [0:0]
-:INPUT ACCEPT [0:0]
-:FORWARD ACCEPT [0:0]
-:OUTPUT ACCEPT [0:0]
 :POSTROUTING ACCEPT [0:0]
 -A POSTROUTING -o tun-+ -p tcp -m tcp --tcp-flags SYN,RST SYN -m tcpmss ! --mss 0:1220 -j TCPMSS --set-mss 1220
 COMMIT
