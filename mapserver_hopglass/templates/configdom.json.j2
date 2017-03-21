@@ -5,6 +5,9 @@
   "showContact": {{item[1].map_show_contact | lower}},
   "maxAge": {{item[1].map_max_age}},
   "blinkingHours": {{item[1].map_blinking_hours}},
+{% if "max_goto_zoom" in mapconfig.communityMap %}
+  "maxGotoZoom": {{ mapconfig.communityMap.max_goto_zoom }},
+{% endif %}
   "mapLayers": [
 {% for layer in mapconfig.layers %}
     {
