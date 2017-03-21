@@ -1,0 +1,15 @@
+{% if 'cache_locations' in nginx_tiles_cache %}
+{% for cache in nginx_tiles_cache.cache_locations %}
+    proxy_cache_path  {{cache.path}} levels=1:2 keys_zone={{cache.name}}:10m max_size={{cache.max_size}} inactive=365d;
+#   proxy_temp_path   {{cache.path}}/tmp;
+{% endfor %}
+{% endif %}
+{% if 'upstreams' in nginx_tiles_cache %}
+{% for upstream in nginx_tiles_cache.upstreams %}
+    upstream {{upstream.name}} {
+{% for server in upstream.servers %}
+        server {{server}};
+{% endfor %}
+    }
+{% endfor %}
+{% endif %}

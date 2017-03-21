@@ -48,6 +48,14 @@
     path: /opt/hopglass_nginx_cache
     state: directory
 
+- name: Create nginx caching dirs for tiles caching
+  file:
+    path: "{{item.path}}"
+    state: directory
+  with_items:
+    - "{{nginx_tiles_cache.cache_locations}}"
+  when: nginx_tiles_cache is defined and "cache_locations" in nginx_tiles_cache
+
 - name: Define cache in nginx.conf
   lineinfile:
     regexp: "^[\t ]*proxy_cache_path.*hopglass"
@@ -57,9 +65,27 @@
   notify:
     - restart nginx
 
-- name: Install default ssl nginx site
+- name: Define include for tiles cache in nginx.conf
+  lineinfile:
+    regexp: "^[\t ]*include /etc/nginx/tiles_cache.conf;"
+    line: "\tinclude /etc/nginx/tiles_cache.conf;"
+    insertafter: "^[\t ]*http[\t ]*\\{"
+    dest: /etc/nginx/nginx.conf
+  notify:
+    - restart nginx
+  when: nginx_tiles_cache is defined
+
+- name: Deploy tiles_cache.conf
   template:
-    src: templates/default_ssl.j2
+    src: tiles_cache.conf.j2
+    dest: /etc/nginx/tiles_cache.conf
+  notify:
+    - restart nginx
+  when: nginx_tiles_cache is defined
+
+- name: Deploy default ssl nginx site
+  template:
+    src: default_ssl.j2
     dest: /etc/nginx/sites-available/default_ssl
   notify:
     - restart nginx

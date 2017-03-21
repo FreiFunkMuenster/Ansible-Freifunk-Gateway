@@ -9,6 +9,7 @@
     repo: https://github.com/FreiFunkMuenster/hopglass.git
     dest: /opt/hopglass/client
     force: yes
+    version: ffms
   register: hopglass_git_clone
 
 - name: Create hwpics directory if not exists
