@@ -1,6 +1,0 @@
----
-- name: restart nginx
-  service: name=nginx state=restarted
-
-- name: recreate_map_data
-  shell: /usr/local/bin/create_map_data.sh -f

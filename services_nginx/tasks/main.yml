@@ -16,15 +16,6 @@
   notify: restart nginx
   when: sslcert.stat.exists == False
 
-- name: Konfig-Datei karte kopieren
-  template: src=karte-init.j2 dest=/etc/nginx/sites-available/karte
-  notify: restart nginx
-  when: sslcert.stat.exists == False
-
-- name: Konfig-Datei karte aktivieren
-  file: src=/etc/nginx/sites-available/karte dest=/etc/nginx/sites-enabled/karte state=link
-  notify: restart nginx
-
 - name: Konfig-Datei graphite kopieren
   template: src=graphite-init.j2 dest=/etc/nginx/sites-available/graphite
   notify: restart nginx
@@ -45,10 +36,6 @@
 
 - name: Konfig-Datei default kopieren
   template: src=default.j2 dest=/etc/nginx/sites-available/default
-  notify: restart nginx
-
-- name: Konfig-Datei karte kopieren
-  template: src=karte.j2 dest=/etc/nginx/sites-available/karte
   notify: restart nginx
 
 - name: Konfig-Datei graphite kopieren
