@@ -99,7 +99,7 @@
 
 - name: SSH-Dämon Passwortanmeldung abschalten
   lineinfile: dest=/etc/ssh/sshd_config regexp=^[#]?PasswordAuthentication line="PasswordAuthentication no"
-  notify: reload ssh
+  notify: reload sshd
 
 - locale_gen: name=de_DE.UTF-8 state=present
 
