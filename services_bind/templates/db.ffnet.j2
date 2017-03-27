@@ -1,0 +1,27 @@
+; zonefile for {{freifunk.kurzname}}. for domaene-{{item}}
+$TTL    86400
+@       IN      SOA     {{bind_zonemaster.server}}. {{bind_zonemaster.email}}. (
+                     {{ansible_date_time.epoch}}         ; Serial
+                         604800         ; Refresh
+                           3600         ; Retry
+                        2419200         ; Expire
+                          86400 )       ; Negative Cache TTL
+;
+@			IN      NS      ns01.{{freifunk.kurzname}}.
+ns01			IN      A       {{domaenen[item].ffv4_network | ipaddr(vm_id) | ipaddr('address') }}
+node			IN      A       {{domaenen[item].ffv4_network | ipaddr(1) | ipaddr('address')}}
+node			IN      AAAA    {{domaenen[item].ffv6_network | ipaddr(1) | ipaddr('address')}}
+knoten			IN      A       {{domaenen[item].ffv4_network | ipaddr(1) | ipaddr('address')}}
+knoten			IN      AAAA    {{domaenen[item].ffv6_network | ipaddr(1) | ipaddr('address')}}
+router			IN      A       {{domaenen[item].ffv4_network | ipaddr(1) | ipaddr('address')}}
+router			IN      AAAA    {{domaenen[item].ffv6_network | ipaddr(1) | ipaddr('address')}}
+{% if freifunk.ffnet_dns_entries_for_internal_tld is defined -%} 
+{% for entry in freifunk.ffnet_dns_entries_for_internal_tld %}
+{% if freifunk.ffnet_dns_entries_for_internal_tld[entry].A is defined -%} 
+{{entry}}       IN      A       {{freifunk.ffnet_dns_entries_for_internal_tld[entry].A}}
+{% endif -%} 
+{% if freifunk.ffnet_dns_entries_for_internal_tld[entry].AAAA is defined -%} 
+{{entry}}       IN      AAAA    {{freifunk.ffnet_dns_entries_for_internal_tld[entry].AAAA}}
+{% endif -%} 
+{% endfor %}
+{% endif %}
