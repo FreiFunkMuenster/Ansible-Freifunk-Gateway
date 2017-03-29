@@ -1,10 +1,19 @@
 # Configure ISC KEA
 ---
+
+- name: check whether isc-dhcp-server.service exists
+  shell: "systemctl status isc-dhcp-server"
+  register: _isc_dhcp_status
+  failed_when:  _isc_dhcp_status.rc != 0 and ("not-found" not in _isc_dhcp_status.stdout)
+  changed_when: False
+
 - name: stop isc-dhcp
   service: name=isc-dhcp-server state=stopped
+  when: _isc_dhcp_status.rc == 0
 
 - name: disable isc-dhcp
   service: name=isc-dhcp-server enabled=no
+  when: _isc_dhcp_status.rc == 0
 
 - name: enable kea-dhcp4
   service: name=kea-dhcp4 enabled=yes
