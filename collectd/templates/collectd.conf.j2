@@ -77,7 +77,9 @@ LoadPlugin memory
 #LoadPlugin netlink
 #LoadPlugin network
 #LoadPlugin nfs
-#LoadPlugin nginx
+{% if collectd.collect_nginx is defined and collectd.collect_nginx %}
+LoadPlugin nginx
+{% endif %}
 #LoadPlugin notify_desktop
 #LoadPlugin notify_email
 #LoadPlugin ntpd
@@ -534,16 +536,11 @@ LoadPlugin write_graphite
 #	# "garbage collection"
 #	CacheFlush 1800
 #</Plugin>
-
-#<Plugin nginx>
-#	URL "http://localhost/status?auto"
-#	User "www-user"
-#	Password "secret"
-#	VerifyPeer false
-#	VerifyHost false
-#	CACert "/etc/ssl/ca.crt"
-#</Plugin>
-
+{% if collectd.collect_nginx is defined and collectd.collect_nginx %}
+<Plugin nginx>
+	URL "http://127.0.0.1/nginx_status"
+</Plugin>
+{% endif %}
 #<Plugin notify_desktop>
 #	OkayTimeout 1000
 #	WarningTimeout 5000
