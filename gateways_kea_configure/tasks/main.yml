@@ -1,11 +1,6 @@
 # Configure ISC KEA
 ---
 
-
-- name: Include passwords.yml for postgresql password
-  include_vars:
-    file: passwords.yml
-
 - name: check whether isc-dhcp-server.service exists
   shell: "systemctl status isc-dhcp-server"
   register: _isc_dhcp_status

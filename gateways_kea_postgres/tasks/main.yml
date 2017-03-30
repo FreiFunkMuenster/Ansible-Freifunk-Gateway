@@ -2,10 +2,6 @@
 
 ---
 
-- name: Include passwords.yml for postgresql password
-  include_vars:
-    file: passwords.yml
-
 - name: adding pub key for postgres repo
   apt_key:
     id: ACCC4CF8
