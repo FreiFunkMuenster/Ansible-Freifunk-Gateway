@@ -1,0 +1,62 @@
+# This role installs and prepares PostgreSQL for KEA DHCP Server
+
+---
+
+- name: Include passwords.yml for postgresql password
+  include_vars:
+    file: passwords.yml
+
+- name: adding pub key for postgres repo
+  apt_key:
+    id: ACCC4CF8
+    url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
+
+- name: Add official postgres repo
+  apt_repository:
+    repo: "deb http://apt.postgresql.org/pub/repos/apt/ {{ansible_distribution_release}}-pgdg main"
+
+- name: Install PostgreSQL
+  apt:
+    name: "{{item}}"
+    update_cache: yes
+    cache_valid_time: 1800
+    state: installed
+  with_items:
+    - postgresql-9.5
+    - python-psycopg2
+    - python3-psycopg2
+
+- name: Configure PostgreSQL
+  template:
+    src: "{{item}}"
+    dest: "/etc/postgresql/9.5/main/{{item[:-3]}}"
+  with_items:
+    - postgresql.conf.j2
+    - pg_ctl.conf.j2
+    - environment.j2
+    - pg_hba.conf.j2
+    - pg_ident.conf.j2
+  notify: restart postgres
+
+- name: Create database for dhcp leases
+  postgresql_db:
+    name: kea_leases
+  become: yes
+  become_user: postgres
+  register: _kea_leses_db_created
+
+- name: Create kea user and grant all privileges to kea_leases database
+  postgresql_user:
+    db: kea_leases
+    name: kea
+    password: MGy8B5axgpXC5ih1FX1A
+    priv: ALL
+  become: yes
+  become_user: postgres
+
+- name: Initialize kea_leases database
+  shell: "kea-admin lease-init pgsql -u kea -p MGy8B5axgpXC5ih1FX1A -n kea_leases"
+  when: "_kea_leses_db_created.changed == True"
+
+- name: enable PostreSQL service
+  service: name=postgresql enabled=yes state=started
