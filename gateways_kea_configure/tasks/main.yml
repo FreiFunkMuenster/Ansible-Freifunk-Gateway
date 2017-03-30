@@ -6,6 +6,7 @@
   register: _isc_dhcp_status
   failed_when:  _isc_dhcp_status.rc != 0 and ("not-found" not in _isc_dhcp_status.stdout)
   changed_when: False
+  check_mode: no
 
 - name: stop isc-dhcp
   service: name=isc-dhcp-server state=stopped
