@@ -37,32 +37,9 @@
     - "make install"
     - "ldconfig"
 
-- name: Clone ISC KEA contrib git repo
-  git: repo=https://github.com/isc-projects/kea-contrib.git dest=/srv/kea-contrib clone=yes update=no
-
-- name: copy systemd files
-  copy: src="/srv/kea-contrib/systemd/{{item}}.in" remote_src=True force=no dest="/lib/systemd/system/{{item}}"
+- name: Depoly systemd files
+  template: src="{{item}}" dest="/lib/systemd/system/{{item[:-3]}}"
   with_items:
-    - kea-dhcp4.service
-    - kea-dhcp6.service
-    - kea-dhcp-ddns.service
-
-- name: replace @sbindir@
-  replace: dest="/lib/systemd/system/{{item}}" regexp="\@sbindir\@" replace="/usr/local/sbin"
-  with_items:
-    - kea-dhcp4.service
-    - kea-dhcp6.service
-    - kea-dhcp-ddns.service
-
-- name: replace @sysconfdir@
-  replace: dest="/lib/systemd/system/{{item}}" regexp="\@sysconfdir\@" replace="/etc"
-  with_items:
-    - kea-dhcp4.service
-    - kea-dhcp6.service
-    - kea-dhcp-ddns.service
-
-- name: create /etc/kea directory
-  file: path=/etc/kea state="directory"
-
-- name: create /var/kea directory
-  file: path=/var/kea state="directory"
+    - kea-dhcp4.service.j2
+    - kea-dhcp6.service.j2
+    - kea-dhcp-ddns.service.j2

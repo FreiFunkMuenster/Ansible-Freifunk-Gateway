@@ -1,0 +1,13 @@
+[Unit]
+Description=Kea DHCP-DDNS Server
+Documentation=man:kea-dhcp-ddns(8)
+Wants=network-online.target{% if kea.database.type == "postgresql" %} postgresql.service{% endif %}
+
+After=network-online.target time-sync.target{% if kea.database.type == "postgresql" %} postgresql.service{% endif %}
+
+
+[Service]
+ExecStart=/usr/local/sbin/kea-dhcp-ddns -c /etc/kea/kea.conf
+
+[Install]
+WantedBy=multi-user.target
