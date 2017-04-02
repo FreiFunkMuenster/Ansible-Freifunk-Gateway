@@ -1,8 +1,30 @@
 #!/usr/bin/python
 
-import collectd,datetime,socket,os,json
+import collectd,datetime,socket,os,json,collections{% if kea.database.type == "postgresql" %},psycopg2
+{% endif %}
+
+{% if kea.database.type == "postgresql" %}
+def performPSQL():
+	conn = psycopg2.connect("host='{{kea.database.db_host}}' dbname='{{kea.database.db_name}}' user='{{kea.database.db_user}}' password='{{kea.database.db_pass}}'")
+	cursor = conn.cursor()
+	cursor.execute("SELECT subnet_id, COUNT(*) FROM lease4 WHERE state=0 GROUP BY subnet_id")
+	return dict((int(x), int(y)) for x, y in cursor.fetchall())
+{% endif %}
 
 def read(data=None):
+	resDict = {}
+	resDict[u'all_interfaces'] = collections.defaultdict(int)
+
+{% if kea.database.type == "postgresql" %}
+	active_leases = performPSQL()
+
+	for k, v in active_leases.items():
+		if_name = 'bat' + str(k)
+		resDict[if_name] = collections.defaultdict(int)
+		resDict[if_name]['active-leases'] = v
+		resDict[u'all_interfaces']['active-leases'] += v
+
+{% endif %}
 	BUFF_SIZE = 1024
 	s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 	s.connect("/var/kea/control.sock")
@@ -14,19 +36,15 @@ def read(data=None):
 		part = s.recv(1024)
 	result += part
 	jsonData = json.loads(result)
-	resDict = {}
-	resDict[u'all_interfaces'] = dict([('total-addresses',0),('assigned-addresses',0),('declined-addresses',0),('declined-reclaimed-addresses',0),('reclaimed-leases',0)])
 	for k,v in jsonData["arguments"].iteritems():
 		k = k.split('.') 
 		interface = k[0].replace('subnet[','bat').replace(']','')
 		if len(k) != 2:
 			continue
 		if interface not in resDict:
-			resDict[interface] = dict([('total-addresses',0),('assigned-addresses',0),('declined-addresses',0),('declined-reclaimed-addresses',0),('reclaimed-leases',0)])
-		
+			resDict[interface] = collections.defaultdict(int)
 		resDict[interface][k[1]] = v[0][0]
-		if k[1] in resDict['all_interfaces']:
-			resDict['all_interfaces'][k[1]] += v[0][0]
+		resDict['all_interfaces'][k[1]] += v[0][0]
 
 	s.close()
 
@@ -34,7 +52,11 @@ def read(data=None):
 		vl = collectd.Values(type='kea_leases')
 		vl.plugin='kea_leases'
 		vl.type_instance = k
-		vl.dispatch(values=[v['total-addresses'], v['assigned-addresses'], v['declined-addresses'], v['declined-reclaimed-addresses'], v['reclaimed-leases']])
+{% if kea.database.type == "postgresql" %}
+		vl.dispatch(values=[v['total-addresses'], v['assigned-addresses'], v['declined-addresses'], v['declined-reclaimed-addresses'], v['reclaimed-leases'], v['active-leases']])
+{% else %}
+		vl.dispatch(values=[v['total-addresses'], v['assigned-addresses'], v['declined-addresses'], v['declined-reclaimed-addresses'], v['reclaimed-leases'], -1])
+{% endif %}
 
 def write(vl, data=None):
 	for i in vl.values:
