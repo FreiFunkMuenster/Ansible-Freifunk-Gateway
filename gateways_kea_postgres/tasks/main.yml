@@ -21,6 +21,7 @@
     - postgresql-9.5
     - python-psycopg2
     - python3-psycopg2
+    - sudo
 
 - name: Configure PostgreSQL
   template:

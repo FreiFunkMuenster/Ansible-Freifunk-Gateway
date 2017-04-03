@@ -26,12 +26,10 @@
     },
 
     "expired-leases-processing": {
-        "reclaim-timer-wait-time": 5,
-        "flush-reclaimed-timer-wait-time": 30,
-        "hold-reclaimed-time": 7200,
-        "max-reclaim-leases": 500,
-        "max-reclaim-time": 100,
-        "unwarned-reclaim-cycles": 5
+{% for attribute in kea.expired_leases %}
+        "{{attribute.name}}": {{attribute.value}}{% if not loop.last %},{% endif %}
+
+{% endfor %}
     },
 
         "valid-lifetime": {{kea.global.lease_default}},
