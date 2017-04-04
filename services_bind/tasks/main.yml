@@ -57,7 +57,6 @@
 
 - name: create own db file for freifunk-muensterland.de
   template: src=db.freifunk-muensterland.de.j2 dest=/etc/bind/db.freifunk-muensterland.de
-  tags: debug
   notify:
     - restart bind9
 

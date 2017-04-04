@@ -15,8 +15,6 @@
   changed_when: False
   check_mode: no
 
-- debug: var=_isc_dhcp_enabled
-
 - name: stop isc-dhcp
   service: name=isc-dhcp-server state=stopped
   when: _isc_dhcp_status.rc == 0
