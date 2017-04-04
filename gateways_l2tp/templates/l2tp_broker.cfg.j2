@@ -2,11 +2,7 @@
 ; IP address the broker will listen and accept tunnels on
 address={{ansible_eth0.ipv4.address}}
 ; Ports where the broker will listen on
-{% set ports = [] %}
-{% for domaene in domaenenliste|dictsort %}
-{% if ports.append('200'+domaene[0]) %}{% endif %}
-{% endfor %}
-port={{ports|join(',')}}
+port={{20000 + (item.key | int)}}
 ; Interface with that IP address
 interface=eth0
 ; Maximum number of tunnels that will be allowed by the broker
@@ -14,11 +10,11 @@ max_tunnels=1024
 ; Tunnel port base
 port_base=20100
 ; Tunnel id base
-tunnel_id_base=100
+tunnel_id_base={{100 + (item.key | int)}}
 ; Namespace (for running multiple brokers); note that you must also
 ; configure disjunct ports, and tunnel identifiers in order for
 ; namespacing to work
-namespace=default
+namespace=domaene_{{item.key}}
 ; check if all kernel module are loaded. Do not check for built-ins.
 check_modules=true
 ;
@@ -30,7 +26,7 @@ tunnel_timeout=60
 
 [log]
 ; Log filename
-filename=/var/log/tunneldigger-broker.log
+filename=/var/log/tunneldigger-broker_domain{{item.key}}.log
 ; Verbosity
 verbosity=DEBUG
 ; Should IP addresses be logged or not
@@ -47,9 +43,9 @@ log_ip_addresses=false
 ;
 
 ; Called after the tunnel interface goes up
-session.up=/srv/tunneldigger/broker/scripts/addif.sh
+session.up=/srv/tunneldigger/broker/scripts/addif_domain{{item.key}}.sh
 ; Called just before the tunnel interface goes down
-session.pre-down=/srv/tunneldigger/broker/scripts/delif.sh
+session.pre-down=/srv/tunneldigger/broker/scripts/delif_domain{{item.key}}.sh
 ; Called after the tunnel interface goes down
 session.down=
 ; Called after the tunnel MTU gets changed because of PMTU discovery

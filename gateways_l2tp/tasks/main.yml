@@ -1,4 +1,4 @@
-- name: Abhängigkeiten installieren
+- name: Install dependencies for this role
   apt:
     pkg: "{{ item }}"
     state: installed
@@ -11,43 +11,59 @@
     - libnetfilter-conntrack3
     - python-dev
     - python-virtualenv
+    # additional dependencies for wlanslovenija's version
+    # - libffi-dev
+    # - libnfnetlink-dev
+    # - libnetfilter-conntrack-dev
+    # - gcc
 
-- name: git für tunneldigger
+# tasks for wlanslovenija's version
+# - name: git für tunneldigger
+#   git: repo=https://github.com/wlanslovenija/tunneldigger dest=/srv/tunneldigger force=yes update=yes version=235e111fb8fa02c4687af7f695e21204d9d28fe6
+
+# - name: Install python dependencies
+#   shell: "/srv/tunneldigger/bin/python /srv/tunneldigger/broker/setup.py install"
+#   args:
+#     chdir: /srv/tunneldigger/broker/
+
+- name: Clone tunneldigger (ffrl fork)
   git: repo=https://github.com/ffrl/tunneldigger dest=/srv/tunneldigger force=yes update=yes version=e6b09f365f8d3459488680840feb77c54a9c9668
-  #git: repo=https://github.com/wlanslovenija/tunneldigger dest=/srv/tunneldigger force=yes update=no version=master
 
-- name: patch für l2tp_broker.py
-  patch: src=l2tp_broker.py.patch dest=/srv/tunneldigger/broker/l2tp_broker.py
-
-- name: Python-Abhängigkeiten installieren
+- name: Install python dependencies
   pip: requirements=/srv/tunneldigger/broker/requirements.txt virtualenv=/srv/tunneldigger
 
-- name: tunneldigger.service kopieren
-  copy: src=tunneldigger.service dest=/etc/systemd/system
-  notify: reload systemd
+- name: Deploy addif.sh for each domain
+  template: src=addif.sh.j2 dest="/srv/tunneldigger/broker/scripts/addif_domain{{item.key}}.sh" mode=0755
+  with_dict: "{{domaenenliste}}"
 
-- name: addif.sh kopieren
-  copy: src=addif.sh dest=/srv/tunneldigger/broker/scripts mode=0755
+- name: Deploy delif.sh for each domain
+  template: src=delif.sh.j2 dest="/srv/tunneldigger/broker/scripts/delif_domain{{item.key}}.sh" mode=0755
+  with_dict: "{{domaenenliste}}"
 
-- name: delif.sh kopieren
-  copy: src=delif.sh dest=/srv/tunneldigger/broker/scripts mode=0755
-
-- name: Create sperrliste.txt
+- name: Create sperrliste.txt if not exists
   command: touch /srv/tunneldigger/broker/scripts/sperrliste.txt
   args:
     creates: /srv/tunneldigger/broker/scripts/sperrliste.txt
 
-- name: tunneldigger.conf kopieren
-  copy: src=tunneldigger.conf dest=/etc/modules-load.d/tunneldigger.conf mode=0755
+- name: Deploy tunneldigger.conf to /etc/modules-load.d/
+  copy: src=tunneldigger.conf dest=/etc/modules-load.d/tunneldigger.conf
   notify: load kernel modules
 
-- name: l2tp_broker.cfg kopieren
-  template: src=l2tp_broker.cfg.j2 dest=/srv/tunneldigger/broker/l2tp_broker.cfg mode=0755
+- name: Deploy l2tp_broker.cfg for each domain
+  template: src="l2tp_broker.cfg.j2" dest="/srv/tunneldigger/broker/l2tp_broker_domain{{item.key}}.cfg"
   notify: restart tunneldigger
+  with_dict: "{{domaenenliste}}"
 
 - name: l2tp-bridge einrichten
   template: src=l2tp_bridge.j2 dest=/etc/network/interfaces.d/20_l2tp_bridge.cfg
   notify: restart networking
 
-- name: tunneldigger enablen
-  service: name=tunneldigger enabled=yes  
+- name: Deploy tunneldigger@.service template file
+  copy: src=tunneldigger@.service dest=/lib/systemd/system/tunneldigger@.service
+  notify:
+  - reload systemd
+  - restart tunneldigger
+
+- name: enable all tunneldigger instances
+  service: name="tunneldigger@{{item.key}}.service" enabled=yes
+  with_dict: "{{domaenenliste}}"

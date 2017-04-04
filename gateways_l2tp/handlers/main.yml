@@ -1,8 +1,9 @@
 - name: reload systemd
   shell: systemctl daemon-reload 
-   
+
 - name: restart tunneldigger
-  service: name=tunneldigger state=restarted enabled=yes
+  service: name="tunneldigger@{{item.key}}.service" state=restarted
+  with_dict: "{{domaenenliste}}"
 
 - name: load kernel modules
   shell: /etc/init.d/kmod start || true
