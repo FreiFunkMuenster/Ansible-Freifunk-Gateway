@@ -2,31 +2,51 @@
 ; IP address the broker will listen and accept tunnels on
 address={{ansible_eth0.ipv4.address}}
 ; Ports where the broker will listen on
+{% if tunneldigger.instance_per_domain == True %}
 port={{20000 + (item.key | int)}}
+{% else %}
+{% set ports = [] %}
+{% for domaene in domaenenliste|dictsort %}
+{% if ports.append(20000 + (domaene[0] | int )) %}{% endif %}
+{% endfor %}
+port={{ports|join(',')}}
+{% endif %}
 ; Interface with that IP address
-interface=eth0
+interface={{tunneldigger.interface}}
 ; Maximum number of tunnels that will be allowed by the broker
-max_tunnels=1024
+max_tunnels={{tunneldigger.max_tunnels}}
 ; Tunnel port base
-port_base=20100
+port_base={{tunneldigger.port_base}}
 ; Tunnel id base
+{% if tunneldigger.instance_per_domain == True %}
 tunnel_id_base={{100 + (item.key | int)}}
+{% else %}
+tunnel_id_base=100
+{% endif %}
 ; Namespace (for running multiple brokers); note that you must also
 ; configure disjunct ports, and tunnel identifiers in order for
 ; namespacing to work
+{% if tunneldigger.instance_per_domain == True %}
 namespace=domaene_{{item.key}}
+{% else %}
+namespace=default
+{% endif %}
 ; check if all kernel module are loaded. Do not check for built-ins.
 check_modules=true
 ;
 max_cookies=100
 ;
-pmtu_discovery=False
+pmtu_discovery={{tunneldigger.pmtu_discovery}}
 ;
-tunnel_timeout=60
+tunnel_timeout={{tunneldigger.tunnel_timeout}}
 
 [log]
 ; Log filename
+{% if tunneldigger.instance_per_domain == True %}
 filename=/var/log/tunneldigger-broker_domain{{item.key}}.log
+{% else %}
+filename=/var/log/tunneldigger-broker.log
+{% endif %}
 ; Verbosity
 verbosity=DEBUG
 ; Should IP addresses be logged or not
@@ -42,10 +62,17 @@ log_ip_addresses=false
 ;    <tunnel_id> <session_id> <interface> <old_mtu> <new_mtu>
 ;
 
+{% if tunneldigger.instance_per_domain == True %}
 ; Called after the tunnel interface goes up
 session.up=/srv/tunneldigger/broker/scripts/addif_domain{{item.key}}.sh
 ; Called just before the tunnel interface goes down
 session.pre-down=/srv/tunneldigger/broker/scripts/delif_domain{{item.key}}.sh
+{% else %}
+; Called after the tunnel interface goes up
+session.up=/srv/tunneldigger/broker/scripts/addif.sh
+; Called just before the tunnel interface goes down
+session.pre-down=/srv/tunneldigger/broker/scripts/delif.sh
+{% endif %}
 ; Called after the tunnel interface goes down
 session.down=
 ; Called after the tunnel MTU gets changed because of PMTU discovery

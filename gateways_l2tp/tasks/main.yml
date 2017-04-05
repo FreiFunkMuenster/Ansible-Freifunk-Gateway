@@ -17,18 +17,41 @@
     # - libnetfilter-conntrack-dev
     # - gcc
 
+- name: Determine whether the global version of tunneldigger is installed or not
+  stat: path=/lib/systemd/system/tunneldigger.service
+  register: _td_global_installed
+
+- name: Determine whether the per domain version of tunneldigger is installed or not
+  stat: path=/lib/systemd/system/tunneldigger@.service
+  register: _td_per_domain_installed
+
+
 - name: Get all enabled tunneldigger (domain specific) instances
   shell: '/bin/ls /etc/systemd/system/multi-user.target.wants/tunneldigger@* | grep -oE "[0-9]+"'
   changed_when: False
   failed_when: False
   register: _td_domain_instances
-  tags: td_debug
+
+# remove /etc/systemd/system/tunneldigger.service if it's not a symlink (issue within older versie of this role, may can be removed in the future)
+- name: Remove tunneldigger.service from systemd's local config if it isn't a symlink
+  file: path=/etc/systemd/system/tunneldigger.service state=absent
 
 - name: Stop and disable obsolete td instances
   service: name="tunneldigger@{{item}}.service" enabled=no state=stopped
-  tags: td_debug
   with_items: "{{_td_domain_instances.stdout_lines}}"
-  when: item not in domaenenliste
+  when: (item not in domaenenliste or tunneldigger.instance_per_domain == False) and _td_per_domain_installed.stat.exists == True
+
+- name: Stop global td instance if change to per domain instances is ongoing
+  service: name="tunneldigger.service" enabled=no state=stopped
+  when: tunneldigger.instance_per_domain == True and _td_global_installed.stat.exists == True
+
+- name: Delete global td systemd config if change to per domain instances is ongoing
+  file: path=/lib/systemd/system/tunneldigger.service state=absent
+  when: tunneldigger.instance_per_domain == True and _td_global_installed.stat.exists == True
+
+- name: Delete per domain td systemd config if change to global td is ongoing
+  file: path=/lib/systemd/system/tunneldigger@.service state=absent
+  when: tunneldigger.instance_per_domain == False and _td_per_domain_installed.stat.exists == True
 
 # tasks for wlanslovenija's version
 # - name: git für tunneldigger
@@ -39,8 +62,16 @@
 #   args:
 #     chdir: /srv/tunneldigger/broker/
 
+- name: Remove repository if td mode change is ongoing
+  file: path=/srv/tunneldigger state=absent
+  when: (tunneldigger.instance_per_domain == False and _td_per_domain_installed.stat.exists == True) or (tunneldigger.instance_per_domain == True and _td_global_installed.stat.exists == True)
+
 - name: Clone tunneldigger (ffrl fork)
   git: repo=https://github.com/ffrl/tunneldigger dest=/srv/tunneldigger force=yes update=yes version=e6b09f365f8d3459488680840feb77c54a9c9668
+
+- name: patch l2tp_broker.py if mode is global
+  patch: src=l2tp_broker.py.patch dest=/srv/tunneldigger/broker/l2tp_broker.py
+  when: tunneldigger.instance_per_domain == False
 
 - name: Install python dependencies
   pip: requirements=/srv/tunneldigger/broker/requirements.txt virtualenv=/srv/tunneldigger
@@ -48,10 +79,20 @@
 - name: Deploy addif.sh for each domain
   template: src=addif.sh.j2 dest="/srv/tunneldigger/broker/scripts/addif_domain{{item.key}}.sh" mode=0755
   with_dict: "{{domaenenliste}}"
+  when: tunneldigger.instance_per_domain == True
+
+- name: Deploy addif.sh if mode is global
+  copy: src=addif.sh dest=/srv/tunneldigger/broker/scripts mode=0755
+  when: tunneldigger.instance_per_domain == False
 
 - name: Deploy delif.sh for each domain
   template: src=delif.sh.j2 dest="/srv/tunneldigger/broker/scripts/delif_domain{{item.key}}.sh" mode=0755
   with_dict: "{{domaenenliste}}"
+  when: tunneldigger.instance_per_domain == True
+
+- name: Deploy delif.sh if mode is global
+  copy: src=delif.sh dest=/srv/tunneldigger/broker/scripts mode=0755
+  when: tunneldigger.instance_per_domain == False
 
 - name: Create sperrliste.txt if not exists
   command: touch /srv/tunneldigger/broker/scripts/sperrliste.txt
@@ -64,8 +105,14 @@
 
 - name: Deploy l2tp_broker.cfg for each domain
   template: src="l2tp_broker.cfg.j2" dest="/srv/tunneldigger/broker/l2tp_broker_domain{{item.key}}.cfg"
-  notify: restart tunneldigger
+  notify: restart tunneldigger per domain
   with_dict: "{{domaenenliste}}"
+  when: tunneldigger.instance_per_domain == True
+
+- name: Deploy l2tp_broker.cfg if mode is global
+  template: src="l2tp_broker.cfg.j2" dest="/srv/tunneldigger/broker/l2tp_broker.cfg"
+  notify: restart tunneldigger
+  when: tunneldigger.instance_per_domain == False
 
 - name: l2tp-bridge einrichten
   template: src=l2tp_bridge.j2 dest=/etc/network/interfaces.d/20_l2tp_bridge.cfg
@@ -73,10 +120,27 @@
 
 - name: Deploy tunneldigger@.service template file
   copy: src=tunneldigger@.service dest=/lib/systemd/system/tunneldigger@.service
+  register: _domain_td_systemd
   notify:
-  - reload systemd
+  - restart tunneldigger per domain
+  when: tunneldigger.instance_per_domain == True
+
+- name: Deploy tunneldigger.service file
+  copy: src=tunneldigger.service dest=/lib/systemd/system/tunneldigger.service
+  register: _global_td_systemd
+  notify:
   - restart tunneldigger
+  when: tunneldigger.instance_per_domain == False
+
+- name: reload systemd
+  shell: systemctl daemon-reload
+  when: _domain_td_systemd.changed or _global_td_systemd.changed
 
 - name: enable all tunneldigger instances
   service: name="tunneldigger@{{item.key}}.service" enabled=yes
   with_dict: "{{domaenenliste}}"
+  when: tunneldigger.instance_per_domain == True
+
+- name: Enable tunneldigger.service if mode is global
+  service: name="tunneldigger.service" enabled=yes
+  when: tunneldigger.instance_per_domain == False
