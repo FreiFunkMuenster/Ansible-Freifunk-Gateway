@@ -23,10 +23,10 @@
   service: name=isc-dhcp-server enabled=no
   when: _isc_dhcp_enabled.rc == 0
 
-- name: enable kea-dhcp4
-  service: name=kea-dhcp4 enabled=yes
+- name: enable kea-dhcp4.service
+  service: name=kea-dhcp4.service enabled=yes
 
 - name: create /etc/kea/kea.conf
   template: src=keav4.conf.j2 dest=/etc/kea/kea.conf
   notify:
-    - restart kea-dhcp4
+    - reload-or-restart kea-dhcp4.service

@@ -43,3 +43,6 @@
     - kea-dhcp4.service.j2
     - kea-dhcp6.service.j2
     - kea-dhcp-ddns.service.j2
+  notify:
+    - reload systemd
+

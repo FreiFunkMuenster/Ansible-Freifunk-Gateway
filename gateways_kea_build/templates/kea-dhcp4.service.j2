@@ -8,6 +8,7 @@ After=network-online.target time-sync.target{% if kea.database.type == "postgres
 
 [Service]
 ExecStart=/usr/local/sbin/kea-dhcp4 -c /etc/kea/kea.conf
+ExecReload=/usr/local/sbin/keactrl reload -s dhcp4
 
 [Install]
 WantedBy=multi-user.target
