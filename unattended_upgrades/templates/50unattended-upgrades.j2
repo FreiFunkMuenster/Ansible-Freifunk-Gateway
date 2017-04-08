@@ -21,22 +21,17 @@
 //   ${distro_id}            Installed origin.
 //   ${distro_codename}      Installed codename (eg, "jessie")
 Unattended-Upgrade::Origins-Pattern {
-        // Codename based matching:
-        // This will follow the migration of a release through different
-        // archives (e.g. from testing to stable and later oldstable).
-//      "o=Debian,n=jessie";
-        "o=${distro_id},n=${distro_codename}-updates";
-//      "o=Debian,n=jessie-proposed-updates";
-//      "o=Debian,n=jessie,l=Debian-Security";
-
         // Archive or Suite based matching:
         // Note that this will silently match a different release after
         // migration to the specified archive (e.g. testing becomes the
         // new stable).
-//      "o=Debian,a=stable";
-//      "o=Debian,a=stable-updates";
-//      "o=Debian,a=proposed-updates";
-        "origin=${distro_id},codename=${distro_codename},label=Debian-Security";
+        "o=Debian,n=${distro_codename}";\n'
+        "o=Debian,n=${distro_codename},a=stable-updates";
+        "o=Debian,n=${distro_codename},a=proposed-updates";
+        "o=Debian,n=${distro_codename},l=Debian-Security";\n'
+        "o=Debian Backports,n=${distro_codename}-backports,l=Debian Backports";\n'
+        "origin=Debian,archive=stable,label=Debian-Security";
+        "origin=Debian,archive=oldstable,label=Debian-Security";
 };
 
 // List of packages to not update (regexp are supported)
