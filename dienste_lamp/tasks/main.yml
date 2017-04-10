@@ -1,0 +1,148 @@
+- include_vars: passwords.yml
+
+## MariaDB ##
+- name: Unattended package installation
+  shell: export DEBIAN_FRONTEND=noninteractive
+  changed_when: false
+
+- name: Install MariaDB
+  apt:
+    pkg: "{{ item }}"
+    update_cache: no
+    state: installed
+  with_items:
+    - mariadb-server
+    - mariadb-client
+    - python-mysqldb
+
+- name: Start and enable mysql
+  service: name=mysql state=started enabled=yes
+
+- name: Set root Password
+  mysql_user: name=root host={{ item }} password={{ mysql_root_password }} state=present
+  with_items:
+    - localhost
+    - 127.0.0.1
+    - ::1
+
+- name: Reload privilege tables
+  command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - FLUSH PRIVILEGES
+  changed_when: False
+
+- name: Add .my.cnf
+  template: src=my.cnf.j2 dest=/root/.my.cnf owner=root group=root mode=0600
+
+- name: Remove anonymous users
+  command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - DELETE FROM mysql.user WHERE User=''
+  changed_when: False
+
+- name: Disallow root login remotely
+  command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')
+  changed_when: False
+
+- name: Remove test database and access to it
+  command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - DROP DATABASE IF EXISTS test
+    - DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%'
+  changed_when: False
+
+- name: Reload privilege tables
+  command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - FLUSH PRIVILEGES
+  changed_when: False
+
+## Apache ##
+- name: PHP | Install Ondrej PHP PPA
+  apt_repository:
+    repo: 'ppa:ondrej/php'
+    update_cache: yes
+
+- name: Install Apache and PHP 
+  apt:
+    pkg: "{{ item }}"
+    update_cache: no
+    state: installed
+  with_items:
+    - apache2
+    - php5.6
+    - php5.6-cli
+    - php5.6-mysql
+    - php-gettext
+    - php5.6-mbstring
+    - libapache2-mod-php5.6
+    - php5.6-gd
+    - php5.6-imap
+    - php5.6-xml
+    - php5.6-intl
+    - php5.6-apcu
+  notify:
+    - "restart apache"
+
+- name: purge php7.1
+  apt:
+    pkg: php7.1-common
+    update_cache: no
+    state: absent
+    purge: yes
+  notify:
+    - "restart apache"
+
+- name: activate cgi.fix_pathinfo in php.ini
+  lineinfile: dest=/etc/php/5.6/apache2/php.ini regexp=^[;]?cgi.fix_pathinfo line="cgi.fix_pathinfo=1"
+  notify:
+    - "restart apache"
+
+- name: set timezone in php.ini
+  lineinfile: dest=/etc/php/5.6/apache2/php.ini regexp=^[;]?date.timezone line="date.timezone = Europe/Berlin"
+  notify:
+    - "restart apache"
+
+- name: Check existence of root directory for virthost
+  stat:
+    path: /var/www/{{inventory_hostname_short}}.{{freifunk.domain}}
+  register: virthostroot
+
+- name: create root directory for virthost
+  file: name=/var/www/{{inventory_hostname_short}}.{{freifunk.domain}} state=directory
+  when: virthostroot.stat.islnk is not defined
+
+- name: Deploy virthost config
+  template:
+    src: templates/virthost.conf.j2
+    dest: /etc/apache2/sites-available/{{inventory_hostname_short}}.{{freifunk.domain}}.conf
+  notify:
+    - "restart apache"
+
+- name: Enable virthost site with a2ensite 
+  shell: a2ensite -q {{inventory_hostname_short}}.{{freifunk.domain}}.conf
+  args:
+    creates: /etc/apache2/sites-enabled/{{inventory_hostname_short}}.{{freifunk.domain}}.conf
+  notify:
+    - "restart apache"
+
+- name: install letsencrypt
+  apt:
+    pkg: python-letsencrypt-apache
+    update_cache: no
+    state: installed
+
+- name: Create certificate
+  shell: letsencrypt --non-interactive --agree-tos --email {{freifunk.email}} --apache --domains {{inventory_hostname_short}}.{{freifunk.domain}}
+  args:
+    creates: /etc/letsencrypt/live/{{inventory_hostname_short}}.{{freifunk.domain}}/cert.pem 
+
+- name: Install renewal cron
+  cron:
+    name: "Let's Encrypt Renewal"
+    weekday: "1"
+    hour: "2"
+    minute: "30"
+    job: "/usr/bin/letsencrypt renew >> /var/log/le-renew.log"

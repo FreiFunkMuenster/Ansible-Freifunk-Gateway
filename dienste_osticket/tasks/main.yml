@@ -1,0 +1,104 @@
+- name: Install required packages for osTicket
+  apt:
+    pkg: "{{ item }}"
+    update_cache: no
+    state: installed
+  with_items:
+    - sendmail
+    - unzip
+ 
+- name: Create database for osticket
+  mysql_db: name=osticket state=present
+
+- name: Create database user for osticket
+  mysql_user: name=osticket host=localhost password=osticket state=present priv=osticket.*:ALL
+  register: createdbuser
+
+- name: Reload privilege tables
+  command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - FLUSH PRIVILEGES
+  changed_when: False
+  when: createdbuser.changed
+
+- name: create directory for osticket
+  file: name=/opt/osticket state=directory
+
+- name: get osTicket
+  get_url:
+    url: "http://osticket.com/sites/default/files/download/osTicket-v1.10.zip"
+    dest: /opt/osticket/osTicket-v1.10.zip
+  register: getosticket
+
+- name: unarchive osTicket
+  unarchive:
+    src: /opt/osticket/osTicket-v1.10.zip
+    dest: /opt/osticket/
+    remote_src: True
+  when: getosticket.changed
+
+- name: get german language file
+  get_url:
+    url: "http://osticket.com/sites/default/files/download/lang/de.phar"
+    dest: /opt/osticket/upload/include/i18n/de.phar
+
+- name: Adjust permissions of /opt/osticket/upload
+  file:
+    path: /opt/osticket/upload
+    owner: www-data
+    group: www-data
+    recurse: yes
+
+- name: copy ost-sampleconfig.php to ost-config.php
+  shell: cp /opt/osticket/upload/include/ost-sampleconfig.php /opt/osticket/upload/include/ost-config.php
+  args:
+    creates: /opt/osticket/upload/include/ost-config.php  
+
+- name: Adjust permissions of /opt/osticket/upload/include/ost-config.php
+  file:
+    path: /opt/osticket/upload/include/ost-config.php
+    mode: 0666
+
+- name: get webroot state
+  stat: path=/var/www/{{inventory_hostname_short}}.{{freifunk.domain}}
+  register: webroot_stat
+
+- name: remove old webroot directory
+  file: src=/opt/osticket/upload dest=/var/www/{{inventory_hostname_short}}.{{freifunk.domain}} state=absent
+  when: webroot_stat.stat.isdir is defined and webroot_stat.stat.isdir
+
+- name: link osticket to webroot
+  file: src=/opt/osticket/upload dest=/var/www/{{inventory_hostname_short}}.{{freifunk.domain}} state=link
+
+- name: setup already moved?
+  stat: path=/opt/osticket/upload/setup
+  register: setup_stat
+
+##############################################################################################################
+- pause:
+    prompt: "Please execute setup assistent on https://{{inventory_hostname_short}}.{{freifunk.domain}}/setup"
+  when: setup_stat.stat.exists
+##############################################################################################################
+
+- name: Adjust permissions of /opt/osticket/upload/include/ost-config.php
+  file:
+    path: /opt/osticket/upload/include/ost-config.php
+    mode: 0644
+
+- name: Move folder setup to setup_hidden
+  command: mv /opt/osticket/upload/setup /opt/osticket/upload/setup_hidden
+  when: setup_stat.stat.exists
+
+- name: Adjust permissions of /opt/osticket/upload/setup_hidden
+  file:
+    path: /opt/osticket/upload/setup_hidden
+    owner: root
+    group: root
+    mode: 0700
+    recurse: yes
+ 
+- name: Install cron for osticket
+  cron:
+    name: "osTicket"
+    minute: "*/5"
+    job: "php /opt/osticket/upload/api/cron.php"

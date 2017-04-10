@@ -1,0 +1,11 @@
+<VirtualHost *:80>
+        ServerName {{inventory_hostname_short}}.{{freifunk.domain}}
+        ServerAdmin {{freifunk.email}}
+        DocumentRoot /var/www/{{inventory_hostname_short}}.{{freifunk.domain}}
+        ErrorLog ${APACHE_LOG_DIR}/{{inventory_hostname_short}}.{{freifunk.domain}}-error.log
+        CustomLog ${APACHE_LOG_DIR}/{{inventory_hostname_short}}.{{freifunk.domain}}-access.log combined
+	<Directory /var/www/{{inventory_hostname_short}}.{{freifunk.domain}}>
+		Options -Indexes 
+		AllowOverride All
+	</Directory>
+</VirtualHost> 
