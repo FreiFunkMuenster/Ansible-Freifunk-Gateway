@@ -1,0 +1,43 @@
+- name: Crate repokey on remotehost
+  shell: 'date +%s | sha256sum | base64 | head -c 32 > /root/backup-{{ item.name }}.repokey'
+  args:
+    creates: /root/backup-{{ item.name }}.repokey  
+  with_items: '{{ borg_backups }}'
+
+- name: Adjust permissions of repokeys
+  file:
+    path: /root/backup-{{ item.name }}.repokey
+    mode: 0600
+  with_items: '{{ borg_backups }}'
+
+- name: Get repokeys from remote host.
+  fetch:
+    src: /root/backup-{{ item.name }}.repokey
+    dest: keyfiles/borg/{{ inventory_hostname }}-{{ item.name }}.repokey
+    flat: yes
+  with_items: '{{ borg_backups }}'
+
+- name: Create Repo on Backuptarget
+  shell: borg init ssh://{{ item.backup_server_user }}@{{ item.backup_server }}:{{ item.backup_server_port }}/./{{ ansible_hostname }}-bkp && touch /root/.repo-{{ item.name }}-created
+  args:
+    creates: /root/.repo-{{ item.name }}-created
+  environment:
+    BORG_PASSPHRASE: "{{ lookup('file', 'keyfiles/borg/' + inventory_hostname + '-' + item.name + '.repokey') }}"
+    BORG_DISPLAY_PASSPHRASE: 'no'
+    BORG_RSH: 'ssh -o "StrictHostKeyChecking no" -i /root/.ssh/id_rsa_borg'
+  with_items: '{{ borg_backups }}'
+
+- name: Create backup scripts
+  template: src=backup.j2 dest=/usr/bin/backup-{{ item.name }} mode=0700
+  with_items: '{{ borg_backups }}'
+
+- name: Create cronjobs
+  cron:
+    name: borg backup-{{ item.name }}
+    job: /usr/bin/backup-{{ item.name }} >> /var/log/backup-{{ item.name }}.log 2>&1
+    day: '*'
+    hour: 4
+    minute: 30
+    state: present
+    user: root
+  with_items: '{{ borg_backups }}'

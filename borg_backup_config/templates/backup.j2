@@ -1,0 +1,32 @@
+#!/bin/sh
+REPOSITORY=ssh://{{ item.backup_server_user }}@{{ item.backup_server }}:{{ item.backup_server_port }}/./{{ ansible_hostname }}-bkp
+export BORG_PASSPHRASE=$(cat /root/backup-{{ item.name }}.repokey)
+export BORG_RSH='ssh -i /root/.ssh/id_rsa_borg'
+
+echo "------------------------------------------------------------------START------------------------------------------------------------------"
+echo "Date: $(date) Backup: $(hostname) to $REPOSITORY"
+echo "-----------------------------------------------------------------------------------------------------------------------------------------"
+
+{% if item.mysqldatabases is defined %}
+mkdir -p /root/mysqlbackup/
+{% for db in item.mysqldatabases %}
+echo "Dumping {{db}} mysql DB"
+mysqldump --defaults-file=/etc/mysql/debian.cnf -v {{db}} > /root/mysqlbackup/backup-{{db}}-db-{{ item.name }}.sql
+{% endfor %}
+{% endif %}
+
+echo "Borg create"
+/usr/local/bin/borg create -v --stats --list --filter=AME --compression lzma \
+        $REPOSITORY::'{hostname}-{now:%Y-%m-%d-%H-%M-%S}'\
+        {{ item.directories | join(' ') }}{% if item.mysqldatabases is defined %} \
+{% for db in item.mysqldatabases %}
+        /root/mysqlbackup/backup-{{db}}-db-{{ item.name }}.sql {% if not loop.last %}\{% endif %}
+
+{% endfor %}
+{% endif %}
+
+echo "------------------------------------------------------------------STOP-------------------------------------------------------------------"
+echo "Date: $(date) Backup: $(hostname) to $REPOSITORY"
+echo "-----------------------------------------------------------------------------------------------------------------------------------------"
+exit 0
+

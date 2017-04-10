@@ -1,0 +1,61 @@
+- name: Create user group
+  group:
+    name: '{{ borg_backup_target.config.backup_group }}'
+    state: present
+
+- name: Create user
+  user:
+    name: '{{ borg_backup_target.config.backup_user }}'
+    comment: "Borg Backup User"
+    group: '{{ borg_backup_target.config.backup_group }}'
+    shell: /bin/bash
+    createhome: yes
+    home: '/home/{{ borg_backup_target.config.backup_user }}'
+    state: present
+
+- name: create home directory if nessesary and audjust permissions
+  file: 
+    name: "/home/{{ borg_backup_target.config.backup_user }}"
+    state: directory
+    owner: '{{ borg_backup_target.config.backup_user }}'
+    group: '{{ borg_backup_target.config.backup_group }}'
+    mode: 0700
+
+- name: create .ssh directory if nessesary and audjust permissions
+  file:
+    name: "/home/{{ borg_backup_target.config.backup_user }}/.ssh"
+    state: directory
+    owner: '{{ borg_backup_target.config.backup_user }}'
+    group: '{{ borg_backup_target.config.backup_group }}'
+    mode: 0700
+
+- name: create repo pool directory if nessesary and audjust permissions
+  file:
+    name: '{{ borg_backup_target.config.path_to_repo_pool }}'
+    state: directory
+    owner: '{{ borg_backup_target.config.backup_user }}'
+    group: '{{ borg_backup_target.config.backup_group }}'
+    mode: 0700
+
+- name: deploy authorized keys
+  authorized_key: 
+    user: '{{ borg_backup_target.config.backup_user }}'
+    key: "{{ lookup('file', 'keyfiles/borg/' + item + '.pub') }}"
+    key_options: 'command="cd {{ borg_backup_target.config.path_to_repo_pool }}/{{ item }};borg serve --restrict-to-path {{ borg_backup_target.config.path_to_repo_pool }}/{{ item }}",no-port-forwarding,no-X11-forwarding,no-pty,no-agent-forwarding,no-user-rc'
+  with_items: '{{ borg_backup_target.target_for }}'
+
+- name: audjust permissions of authorized_keys
+  file: 
+    name: "/home/{{ borg_backup_target.config.backup_user }}/.ssh/authorized_keys"
+    owner: '{{ borg_backup_target.config.backup_user }}'
+    group: '{{ borg_backup_target.config.backup_group }}'
+    mode: 0600
+
+- name: create client specific directory if nessesary and audjust permissions
+  file:
+    name: "{{ borg_backup_target.config.path_to_repo_pool }}/{{ item }}"
+    state: directory
+    owner: '{{ borg_backup_target.config.backup_user }}'
+    group: '{{ borg_backup_target.config.backup_group }}'
+    mode: 0700
+  with_items: '{{ borg_backup_target.target_for }}'
