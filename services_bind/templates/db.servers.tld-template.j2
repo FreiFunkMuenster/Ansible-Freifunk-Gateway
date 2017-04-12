@@ -1,4 +1,4 @@
-; zonefile for servers.freifunk-muensterland.de.
+; zonefile for servers.{{item.key}}.
 $TTL    86400
 @       IN      SOA     {{bind_zonemaster.server}}. {{bind_zonemaster.email}}. (
                      {{ansible_date_time.epoch}}         ; Serial
@@ -9,7 +9,7 @@ $TTL    86400
 {% set i = [1] %}
 {% for host in groups['gateways'] %}
 {% if 'is_external_nameserver' in hostvars[host] and hostvars[host].is_external_nameserver %}
-@	IN      NS      ns{{i[0]}}.freifunk-muensterland.de.
+@	IN      NS      ns{{i[0]}}.{{item.key}}.
 {% if i.append(i.pop() + 1) %}{% endif %}
 {% endif %}
 {% endfor %}
@@ -23,9 +23,6 @@ $TTL    86400
 {% for host in groups['gateways'] %}
 {{host}}	IN      A       {{hostvars[host].ansible_ssh_host}};
 {% endfor %}
-rhe	IN	A	148.251.45.45;
-ausrufer	IN	A	46.4.90.220;
-barristan	IN	A	148.251.208.170;
 {% for host in groups['gateways'] %}
 {% if hostvars[host].domaenenliste is defined %}
 {% for domaene in hostvars[host].domaenenliste|dictsort %}
