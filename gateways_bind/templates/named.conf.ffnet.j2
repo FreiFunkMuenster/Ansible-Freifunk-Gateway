@@ -9,20 +9,20 @@ view "domaene-{{domaene[0]}}" {
 	include "/etc/bind/named.conf.local";
 	include "/etc/bind/named.conf.default-zones";
 {% if is_external_nameserver is defined and is_external_nameserver %}
-	include "/etc/bind/named.conf.freifunk-muensterland";
+	include "/etc/bind/named.conf.tld";
 {% endif %}
 {% if hostvars['services'] is defined and hostvars['services'].vm_id is defined %}
-	zone "ffms." {
+	zone "{{freifunk.kurzname}}." {
 		type master;
-		file "/etc/bind/db.domaene-{{domaene[0]}}.ffms";
+		file "/etc/bind/db.domaene-{{domaene[0]}}.ffnet";
 	};
-	zone "servers.ffms." {
+	zone "servers.{{freifunk.kurzname}}." {
 		type slave;
 		masters {
 			{{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars['services'].vm_id) | ipaddr('address')}};
 		};
 	};
-	zone "services.ffms." {
+	zone "services.{{freifunk.kurzname}}." {
 		type slave;
 		masters {
 			{{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars['services'].vm_id) | ipaddr('address')}};
@@ -42,12 +42,12 @@ view "external" {
 	};
 	include "/etc/bind/named.conf.local";
 	include "/etc/bind/named.conf.default-zones";
-	include "/etc/bind/named.conf.freifunk-muensterland";
+	include "/etc/bind/named.conf.tld";
 };
 {% endif %}
 {% else %}
 # Slaveserver configuration
 include "/etc/bind/named.conf.local";
 include "/etc/bind/named.conf.default-zones";
-include "/etc/bind/named.conf.freifunk-muensterland";
+include "/etc/bind/named.conf.tld";
 {% endif %}

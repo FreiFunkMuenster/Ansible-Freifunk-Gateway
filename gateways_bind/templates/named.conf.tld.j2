@@ -1,4 +1,5 @@
-zone "freifunk-muensterland.de." IN {
+{% for domain in domains %}
+zone "{{domain[0]}}" IN {
 	type slave;
 	masters {
 {% for master in bind.ffms_zone_masters %}
@@ -6,7 +7,7 @@ zone "freifunk-muensterland.de." IN {
 {% endfor %}
 	};
 };
-zone "servers.freifunk-muensterland.de." IN {
+zone "servers.{{domain[0]}}." IN {
 	type slave;
 	masters {
 {% for master in bind.ffms_zone_masters %}
@@ -14,7 +15,7 @@ zone "servers.freifunk-muensterland.de." IN {
 {% endfor %}
 	};
 };
-zone "services.freifunk-muensterland.de." IN {
+zone "services.{{domain[0]}}." IN {
 	type slave;
 	masters {
 {% for master in bind.ffms_zone_masters %}
@@ -22,7 +23,7 @@ zone "services.freifunk-muensterland.de." IN {
 {% endfor %}
 	};
 };
-zone "knoten.freifunk-muensterland.de." IN {
+zone "knoten.{{domain[0]}}." IN {
 	type slave;
 	masters {
 {% for master in bind.ffms_zone_masters %}
@@ -30,11 +31,4 @@ zone "knoten.freifunk-muensterland.de." IN {
 {% endfor %}
 	};
 };
-zone "freifunk-muenster.de." IN {
-	type slave;
-	masters {
-{% for master in bind.ffms_zone_masters %}
-		{{master}};
 {% endfor %}
-	};
-};
