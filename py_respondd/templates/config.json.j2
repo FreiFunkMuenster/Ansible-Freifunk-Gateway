@@ -6,6 +6,18 @@
 		"interface_type_regex_patterns" : {
 			"l2tp" : "br.+",
 			"gretap" : "t.+"
+		},
+		"additional_static_nodeinfo" : {
+			"owner" : {
+				"contact" : "{{ server_besitzer }}"
+			},
+			"advanced-stats": {
+				"store-stats": true
+			},
+			"node_type" : {
+				"is_infrastructure" : true,
+				"type" : "{{ group_names | last }}"
+			}
 		}
 	},
 	"domains" : [
