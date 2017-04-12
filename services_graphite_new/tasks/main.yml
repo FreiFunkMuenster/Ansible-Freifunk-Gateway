@@ -54,8 +54,9 @@
 - name: Ensure directories are owned by www-data
   file: path="{{item}}" state=directory owner=www-data group=www-data recurse=yes
   with_items:
-    - "/opt/graphite"
+    - "/usr/share/graphite-web"
     - "/var/log/graphite"
+    - "/var/lib/graphite"
 
 
 - name: Deploy carbon-cache@.service template file
