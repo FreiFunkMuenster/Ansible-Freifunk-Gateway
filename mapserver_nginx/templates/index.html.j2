@@ -1,24 +1,124 @@
-<html><!-- Mit Ansible erzeugt - änderungen werden überschrieben -->
+<!DOCTYPE html>
+<html lang="en"><!-- Mit Ansible erzeugt - änderungen werden überschrieben -->
 <head>
-    <meta charset="UTF-8">
-    <title>{{freifunk.name}} - Karten</title>
+  <title>{{freifunk.name}} - Karten</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="temp/css/bootstrap.min.css">
+  <link rel="stylesheet" href="temp/css/ffms.css">
 </head>
 <body>
-    <h1>{{freifunk.name}} - Karten</h1>
-    <p><a href="map/">Gesamtkarte</a></p>
-    <ul>
+	<div class="container">
+	  <div class="page-header">
+    <div class="row">
+      <div class="col-md-2 col-sm-3">
+        <img id="ffms-logo" src="temp/logo.svg" class="img" alt="Logo Freifunk Münsterland">
+      </div>
+      <div class="col-md-10 col-sm-9">
+        <h2>Karten - {{freifunk.name}}
+    <br/><small>Karten der einzelnen Domänen und der Communities</small></h2>
+      </div>
+    </div>
+    </div>
+  </div>
+  <div class="container">
+  <div class="row">
+    <!-- Suchfeld und Links -->
+    <div class="col-md-4 col-sm-4 col-xs-12">
+        <form type="text" action="javascript:myScroll()"> 
+        <div class="input-group">
+          <!-- USE TWITTER TYPEAHEAD JSON WITH API TO SEARCH -->
+          <input class="form-control" id="system-search" 
+                name="q" placeholder="Suche nach" autofocus>
+            <span class="input-group-btn">
+                <button type="submit" id="searchbutton" class="btn btn-ffms">                
+                    <i class="glyphicon glyphicon-search"></i>
+                </button>
+            </span>
+          </input>
+        </div>
+        </form>
+      <br/>
+      <h4><strong><a href="map/">Gesamtkarte des Freifunk Münsterlands</a></strong></h4>
+      <p><a class="btn-ffms-collapse visible-xs" data-toggle="collapse" data-target="#narrow-results">&#187; Mehr Freifunk Links</a></p>
+      <div id="narrow-results" class="narrow-results collapse">
+      <p><a href="https://freifunk-muensterland.de">{{freifunk.name}}</a></p>
+      <p><a href="https://wiki.freifunk-muensterland.de/">{{freifunk.name}} - Wiki</a></p>
+      <p><a href="https://forum.freifunk-muensterland.de/">{{freifunk.name}} - Forum</a></p>
+      <p><a href="https://firmware.freifunk-muensterland.de/md-fw-dl/">{{freifunk.name}} - Firmware Assistent</a></p>
+      </div>
+    </div>
+    <!-- Spalte mit Domänen -->
+    <div class="col-md-4 col-sm-4 col-xs-6">
+        <div class="ffms-align-center">
+        <table  class="table table-list-search table-hover">
+          <thead>
+            <tr>
+              <th>
+                  <div style=text-align:center><h4>Domänen</h4></div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Alle Domänen einfügen -->
 {% for domaene in domaenen|dictsort %}
-    <li><a href="map{{domaene[0]}}/">Domäne {{domaene[0]}}</a> - {{domaene[1].name}}</li>
+            <tr>
+              <td>
+                  <a href="map{{domaene[0]}}/">{{domaene[0]}} - {{domaene[1].name}}</a> 
+                  &ensp;
+                  <span class="small">
+                      <a class="ffms-muted" href="https://freifunk-muensterland.de/md-fw-dl/?region=domaene{{domaene[0]}}">Firmware </a>
+                  </span>
+              </td>
+            </tr>
 {% endfor %}
-    </ul>
+          </tbody>
+        </table>
+        </div>
+    </div>
+    <!-- Spalte mit Gruppen -->
 {% set communities = domaenen | list | map('extract', domaenen, 'community') | list | unique | sort %}
-    <ul>
+    <div class="col-md-4 col-sm-4 col-xs-6">
+        <div class="ffms-align-center">
+        <table class="table  table-list-search table-hover">
+          <thead>
+            <tr>
+              <th><div style=text-align:center><h4>Gruppen</h4></div></th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Alle Communities einfügen -->
 {% for community in communities %}
 {% if community != "None" %}
-    <li>Community <a href="map_{{community}}/">{{community}}</a></li>
+            <tr>
+                <td><a Community href="map_{{community}}/">Community {{community}}</a><br/> <span class="ffms-muted">Domänen:</span>  
+{% for domaene in domaenen|dictsort %}
+{% if community == domaene[1].community %}
+                    <a href="map{{domaene[0]}}/">{{domaene[0]}}</a>
 {% endif %}
 {% endfor %}
-    </ul>
-<hr>
+                </td>
+            </tr>
+ 
+{% endif %}
+{% endfor %}
+          </tbody>
+        </table>
+        </div>
+    </div>
+  </div>
+  </div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <!-- optional via CDN: <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"  </script> -->
+    <script src="temp/js/bootstrap.min.js"></script> 
+    <script src="temp/js/search.js"></script>
+    <script>
+        function myScroll(my) {
+        $('html, body').animate({
+            scrollTop: $(".table").offset().top
+            }, 200);
+        }
+    </script>
 </body>
-</html>

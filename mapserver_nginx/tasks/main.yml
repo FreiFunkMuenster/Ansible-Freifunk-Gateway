@@ -98,6 +98,14 @@
   service: name=nginx state=restarted
   when: actsslconf.changed
 
+- name: Create nginx caching dir
+  file:
+    path: /var/www/html/temp/
+    state: directory
+
+- name: Clone bootstrap and css files
+  git: repo=https://github.com/FreiFunkMuenster/nodesmap-page.git dest=/var/www/html/temp/ force=yes
+
 - name: Generate index.html
   template:
     src: index.html.j2
