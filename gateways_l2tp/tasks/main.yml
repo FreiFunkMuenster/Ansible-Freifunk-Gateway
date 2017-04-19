@@ -30,6 +30,7 @@
   shell: '/bin/ls /etc/systemd/system/multi-user.target.wants/tunneldigger@* | grep -oE "[0-9]+"'
   changed_when: False
   failed_when: False
+  check_mode: no
   register: _td_domain_instances
 
 # remove /etc/systemd/system/tunneldigger.service if it's not a symlink (issue within older versie of this role, may can be removed in the future)
