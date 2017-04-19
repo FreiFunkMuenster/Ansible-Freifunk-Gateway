@@ -1,0 +1,25 @@
+; zonefile for all tlds in group_vars/all/domains:
+$TTL 3600
+@ IN SOA {{bind_zonemaster.server}}. {{bind_zonemaster.email}}. (
+    {{ansible_date_time.epoch}} ; serial
+    3600        ; refresh
+    600         ; retry
+    1209600     ; expire
+    3600)       ; minimum
+{% set i = [1] %}
+{% for host in item.value.extern_dns %}
+@                       IN  NS      ns{{i[0]}}
+ns{{i[0]}}                     IN  A       {{hostvars[host].ansible_ssh_host }}
+{% if i.append(i.pop() + 1) %}{% endif %}
+{% endfor %}
+
+{% if dns_entries_for_all_tlds is defined %}
+{% for entry in dns_entries_for_all_tlds %}
+{{entry}}
+{% endfor %}
+{% endif %}
+{% if "dns_entries" in item.value %}
+{% for entry in item.value.dns_entries %}
+{{entry}}
+{% endfor %}
+{% endif %}

@@ -1,4 +1,4 @@
-; zonefile for ffms. for domaene-{{item}}
+; zonefile for {{freifunk.kurzname}}. for domaene-{{item}}
 $TTL    86400
 @       IN      SOA     {{bind_zonemaster.server}}. {{bind_zonemaster.email | regex_replace('@', '.') }}. (
                      {{ansible_date_time.epoch}}         ; Serial
@@ -7,7 +7,7 @@ $TTL    86400
                         2419200         ; Expire
                           86400 )       ; Negative Cache TTL
 ;
-@			IN      NS      ns01.ffms.
+@			IN      NS      ns01.{{freifunk.kurzname}}.
 ns01			IN      A       {{domaenen[item].ffv4_network | ipaddr(domaenenliste[item].server_id) | ipaddr('address') }}
 node			IN      A       {{domaenen[item].ffv4_network | ipaddr(1) | ipaddr('address')}}
 node			IN      AAAA    {{domaenen[item].ffv6_network | ipaddr(1) | ipaddr('address')}}

@@ -1,6 +1,7 @@
-zone "freifunk-muensterland.de." IN {
+{% for domain in domains %}
+zone "{{domain}}." IN {
 	type master;
-	file "/etc/bind/db.freifunk-muensterland.de";
+	file "/etc/bind/db.{{domain}}";
 	allow-transfer {
 	   localhost;
 {% for host in groups['gateways'] %}
@@ -8,9 +9,9 @@ zone "freifunk-muensterland.de." IN {
 {% endfor %}
 	};
 };
-zone "servers.freifunk-muensterland.de." IN {
+zone "servers.{{domain}}." IN {
 	type master;
-	file "/etc/bind/db.servers.freifunk-muensterland.de";
+	file "/etc/bind/db.servers.{{domain}}";
 	allow-transfer {
 	   localhost;
 {% for host in groups['gateways'] %}
@@ -18,9 +19,9 @@ zone "servers.freifunk-muensterland.de." IN {
 {% endfor %}
 	};
 };
-zone "services.freifunk-muensterland.de." IN {
+zone "services.{{domain}}." IN {
 	type master;
-	file "/etc/bind/db.services.freifunk-muensterland.de";
+	file "/etc/bind/db.services.{{domain}}";
 	allow-transfer {
 	   localhost;
 {% for host in groups['gateways'] %}
@@ -28,9 +29,9 @@ zone "services.freifunk-muensterland.de." IN {
 {% endfor %}
 	};
 };
-zone "knoten.freifunk-muensterland.de." IN {
+zone "knoten.{{domain}}." IN {
 	type master;
-	file "/etc/bind/db.knoten.freifunk-muensterland.de";
+	file "/etc/bind/db.knoten.{{domain}}";
 	allow-transfer {
 	   localhost;
 {% for host in groups['gateways'] %}
@@ -38,13 +39,4 @@ zone "knoten.freifunk-muensterland.de." IN {
 {% endfor %}
 	};
 };
-zone "freifunk-muenster.de." IN {
-	type master;
-	file "/etc/bind/db.freifunk-muenster.de";
-	allow-transfer {
-	   localhost;
-{% for host in groups['gateways'] %}
-	   {{hostvars[host].ansible_ssh_host }};
 {% endfor %}
-	};
-};

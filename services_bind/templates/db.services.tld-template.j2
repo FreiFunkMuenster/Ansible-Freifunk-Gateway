@@ -1,6 +1,6 @@
-; zonefile for services.freifunk-muensterland.de.
+; zonefile for services.{{item.key}}.
 $TTL    86400
-@       IN      SOA     service.freifunk-muensterland.de. info.freifunk-muensterland.de. (
+@       IN      SOA     {{bind_zonemaster.server}}. {{bind_zonemaster.email}}. (
                      {{ansible_date_time.epoch}}         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
@@ -9,7 +9,7 @@ $TTL    86400
 {% set i = [1] %}
 {% for host in groups['gateways'] %}
 {% if 'is_external_nameserver' in hostvars[host] and hostvars[host].is_external_nameserver %}
-@       IN      NS      ns{{i[0]}}.freifunk-muensterland.de.
+@       IN      NS      ns{{i[0]}}.{{item.key}}.
 {% if i.append(i.pop() + 1) %}{% endif %}
 {% endif %}
 {% endfor %}

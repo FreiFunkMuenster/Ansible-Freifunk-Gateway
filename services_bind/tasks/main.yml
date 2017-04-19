@@ -1,13 +1,11 @@
-# install bind9 service
-# ---
 - name: install bind9
   apt: pkg=bind9 state=installed
 
-- name: copy create_db_knoten.py
-  template: src=create_db_knoten.py.j2 dest=/usr/local/bin/create_db_knoten.py mode=755
-
-- name: copy create_db_knoten.sh
-  template: src=create_db_knoten.sh.j2 dest=/usr/local/bin/create_db_knoten.sh mode=755
+#- name: copy create_db_knoten.py
+#  template: src=create_db_knoten.py.j2 dest=/usr/local/bin/create_db_knoten.py mode=755
+#
+#- name: copy create_db_knoten.sh
+#  template: src=create_db_knoten.sh.j2 dest=/usr/local/bin/create_db_knoten.sh mode=755
 
 - name: deploy named.conf.local
   template: src=named.conf.local.j2 dest=/etc/bind/named.conf.local
@@ -19,13 +17,13 @@
   notify:
     - restart bind9
 
-- name: create named.conf.ffms
-  template: src=named.conf.ffms.j2 dest=/etc/bind/named.conf.ffms
+- name: create named.conf.ffnet
+  template: src=named.conf.ffnet.j2 dest=/etc/bind/named.conf.ffnet
   notify:
     - restart bind9
 
-- name: create named.conf.freifunk-muensterland
-  template: src=named.conf.freifunk-muensterland.j2 dest=/etc/bind/named.conf.freifunk-muensterland
+- name: create named.conf.tld
+  template: src=named.conf.tld.j2 dest=/etc/bind/named.conf.tld
   notify:
     - restart bind9
 
@@ -34,43 +32,33 @@
   notify:
     - restart bind9
 
-- name: create db file for other ffms access
-  template: src=db.other.j2 dest=/etc/bind/db.other.ffms
-  notify:
-    - restart bind9
-
-- name: create own db file for each subdomaene
-  template: src=db.ffms.j2 dest=/etc/bind/db.domaene-{{item}}.ffms
-  notify:
-    - restart bind9
-  with_items: "{{ domaenen }}"
-
 - name: create own db file for gateway servers and backbone servers
-  template: src=db.servers.ffms.j2 dest=/etc/bind/db.servers.ffms
+  template: src=db.servers.ffnet.j2 dest=/etc/bind/db.servers.ffnet
   notify:
     - restart bind9
 
 - name: create own db file for services
-  template: src=db.services.ffms.j2 dest=/etc/bind/db.services.ffms
+  template: src=db.services.ffnet.j2 dest=/etc/bind/db.services.ffnet
   notify:
     - restart bind9
 
-- name: create own db file for freifunk-muensterland.de
-  template: src=db.freifunk-muensterland.de.j2 dest=/etc/bind/db.freifunk-muensterland.de
+- name: create own db file for each domain
+  template: src=db.tld-template.j2 dest=/etc/bind/db.{{item.key}}
+  tags: debug
+  with_dict: "{{domains}}"
   notify:
     - restart bind9
 
-- name: create own db file for servers.freifunk-muensterland.de
-  template: src=db.servers.freifunk-muensterland.de.j2 dest=/etc/bind/db.servers.freifunk-muensterland.de
+- name: create own db.servers. file for each domain
+  template: src=db.servers.tld-template.j2 dest=/etc/bind/db.servers.{{item.key}}
+  tags: debug
+  with_dict: "{{domains}}"
   notify:
     - restart bind9
 
-- name: create own db file for services.freifunk-muensterland.de
-  template: src=db.services.freifunk-muensterland.de.j2 dest=/etc/bind/db.services.freifunk-muensterland.de
-  notify:
-    - restart bind9
-
-- name: create own db file for freifunk-muenster.de
-  template: src=db.freifunk-muenster.de.j2 dest=/etc/bind/db.freifunk-muenster.de
+- name: create own db.services. file for each domain
+  template: src=db.services.tld-template.j2 dest=/etc/bind/db.services.{{item.key}}
+  tags: debug
+  with_dict: "{{domains}}"
   notify:
     - restart bind9
