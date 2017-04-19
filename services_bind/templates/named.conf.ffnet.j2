@@ -6,26 +6,19 @@ view "domaene-{{domaene[0]}}" {
 		{{domaene[1].ffv4_network}};
 		{{domaene[1].ffv6_network}};
 	};
-	include "/etc/bind/named.conf.freifunk-muensterland";
+	include "/etc/bind/named.conf.tld";
 	include "/etc/bind/named.conf.local";
 	include "/etc/bind/named.conf.default-zones";
-	zone "ffms." {
+	zone "servers.{{freifunk.kurzname}}." {
 		type master;
-		file "/etc/bind/db.domaene-{{domaene[0]}}.ffms";
+		file "/etc/bind/db.servers.ffnet";
 		allow-transfer {
 			{{domaene[1].ffv4_network | ipsubnet(28,0)}};
 		};
 	};
-	zone "servers.ffms." {
+	zone "services.{{freifunk.kurzname}}." {
 		type master;
-		file "/etc/bind/db.servers.ffms";
-		allow-transfer {
-			{{domaene[1].ffv4_network | ipsubnet(28,0)}};
-		};
-	};
-	zone "services.ffms." {
-		type master;
-		file "/etc/bind/db.services.ffms";
+		file "/etc/bind/db.services.ffnet";
 		allow-transfer {
 			{{domaene[1].ffv4_network | ipsubnet(28,0)}};
 		};
@@ -42,7 +35,7 @@ view "external-view" {
 		!{{domaene[1].ffv6_network}};
 {% endfor %}
 	};
-        include "/etc/bind/named.conf.freifunk-muensterland";
+        include "/etc/bind/named.conf.tld";
 	include "/etc/bind/named.conf.local";
 	include "/etc/bind/named.conf.default-zones";
 };

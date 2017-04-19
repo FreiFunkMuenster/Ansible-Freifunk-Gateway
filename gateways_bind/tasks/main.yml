@@ -25,13 +25,13 @@
   notify:
     - restart bind9
 
-- name: create named.conf.ffms
-  template: src=named.conf.ffms.j2 dest=/etc/bind/named.conf.ffms
+- name: create named.conf.ffnet
+  template: src=named.conf.ffnet.j2 dest=/etc/bind/named.conf.ffnet
   notify:
     - restart bind9
 
-- name: create named.conf.freifunk-muensterland
-  template: src=named.conf.freifunk-muensterland.j2 dest=/etc/bind/named.conf.freifunk-muensterland
+- name: create named.conf.tld
+  template: src=named.conf.tld.j2 dest=/etc/bind/named.conf.tld
   notify:
     - restart bind9
   when: "{{is_external_nameserver is defined and is_external_nameserver}}"
@@ -42,7 +42,7 @@
     - restart bind9
 
 - name: create own db file for each subdomaene
-  template: src=db.ffms.j2 dest=/etc/bind/db.domaene-{{item}}.ffms
+  template: src=db.ffnet.j2 dest=/etc/bind/db.domaene-{{item}}.ffnet
   notify:
     - restart bind9
   with_items: "{{domaenenliste | default([])}}"

@@ -1,4 +1,4 @@
-; zonefile for servers.ffms.
+; zonefile for servers.{{freifunk.kurzname}}.
 $TTL    86400
 @       IN      SOA     {{bind_zonemaster.server}}. {{bind_zonemaster.email}}. (
                      {{ansible_date_time.epoch}}         ; Serial
@@ -7,7 +7,7 @@ $TTL    86400
                         2419200         ; Expire
                           86400 )       ; Negative Cache TTL
 ;
-@			IN      NS      {{bind.ns_name}}.servers.ffms.
+@			IN      NS      {{bind.ns_name}}.servers.{{freifunk.kurzname}}.
 {{bind.ns_name}}			IN      A       {{ansible_default_ipv4.address}}
 {% if bind.ffms_for_groups is defined and bind.ffms_for_groups.0 is defined %}
 {% for group in bind.ffms_for_groups %}
