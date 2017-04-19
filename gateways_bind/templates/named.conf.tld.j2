@@ -1,5 +1,5 @@
 {% for domain in domains %}
-zone "{{domain[0]}}" IN {
+zone "{{domain}}" IN {
 	type slave;
 	masters {
 {% for master in bind.ffms_zone_masters %}
@@ -7,7 +7,7 @@ zone "{{domain[0]}}" IN {
 {% endfor %}
 	};
 };
-zone "servers.{{domain[0]}}." IN {
+zone "servers.{{domain}}." IN {
 	type slave;
 	masters {
 {% for master in bind.ffms_zone_masters %}
@@ -15,7 +15,7 @@ zone "servers.{{domain[0]}}." IN {
 {% endfor %}
 	};
 };
-zone "services.{{domain[0]}}." IN {
+zone "services.{{domain}}." IN {
 	type slave;
 	masters {
 {% for master in bind.ffms_zone_masters %}
@@ -23,7 +23,7 @@ zone "services.{{domain[0]}}." IN {
 {% endfor %}
 	};
 };
-zone "knoten.{{domain[0]}}." IN {
+zone "knoten.{{domain}}." IN {
 	type slave;
 	masters {
 {% for master in bind.ffms_zone_masters %}

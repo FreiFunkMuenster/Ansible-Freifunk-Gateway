@@ -1,7 +1,7 @@
 {% for domain in domains %}
-zone "{{domain[0]}}." IN {
+zone "{{domain}}." IN {
 	type master;
-	file "/etc/bind/db.{{domain[0]}}";
+	file "/etc/bind/db.{{domain}}";
 	allow-transfer {
 	   localhost;
 {% for host in groups['gateways'] %}
@@ -9,9 +9,9 @@ zone "{{domain[0]}}." IN {
 {% endfor %}
 	};
 };
-zone "servers.{{domain[0]}}." IN {
+zone "servers.{{domain}}." IN {
 	type master;
-	file "/etc/bind/db.servers.{{domain[0]}}";
+	file "/etc/bind/db.servers.{{domain}}";
 	allow-transfer {
 	   localhost;
 {% for host in groups['gateways'] %}
@@ -19,9 +19,9 @@ zone "servers.{{domain[0]}}." IN {
 {% endfor %}
 	};
 };
-zone "services.{{domain[0]}}." IN {
+zone "services.{{domain}}." IN {
 	type master;
-	file "/etc/bind/db.services.{{domain[0]}}";
+	file "/etc/bind/db.services.{{domain}}";
 	allow-transfer {
 	   localhost;
 {% for host in groups['gateways'] %}
@@ -29,9 +29,9 @@ zone "services.{{domain[0]}}." IN {
 {% endfor %}
 	};
 };
-zone "knoten.{{domain[0]}}." IN {
+zone "knoten.{{domain}}." IN {
 	type master;
-	file "/etc/bind/db.knoten.{{domain[0]}}";
+	file "/etc/bind/db.knoten.{{domain}}";
 	allow-transfer {
 	   localhost;
 {% for host in groups['gateways'] %}
