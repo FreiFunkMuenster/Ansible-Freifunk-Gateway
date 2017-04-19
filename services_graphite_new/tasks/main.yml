@@ -83,6 +83,24 @@
   with_items:
    - "{{graphite.cache_instances}}"
 
+- name: Get all enabled carbon-cache instances
+  shell: '/bin/ls /etc/systemd/system/multi-user.target.wants/carbon-cache@* | /bin/grep -oE "carbon-cache@[^\.]+" | /bin/sed "s/carbon-cache@//g"'
+  changed_when: False
+  failed_when: False
+  check_mode: no
+  register: _cc_instances
+
+- name: Generate list with names of defined carbon-cache instances
+  set_fact:
+    _cc_should_instances: "{{ graphite.cache_instances | map(attribute='name') | list}}"
+
+- name: Stop and disable obsolete cc instances
+  service: name="carbon-cache@{{item}}.service" enabled=no state=stopped
+  with_items: "{{_cc_instances.stdout_lines}}"
+  when: item not in _cc_should_instances
+  notify:
+   - restart carbon-relay
+
 - name: Enable services
   service: name="{{item}}" enabled=yes
   with_items:
