@@ -1,2 +1,29 @@
+- name: css git clonen
+  git: repo=https://github.com/FreiFunkMuenster/nodesmap-page.git dest=/opt/nodesmap force=yes
+
+- name: link css
+  file: 
+    src: /opt/nodesmap/css
+    dest: /var/www/html/css
+    state: link
+
+- name: link js
+  file: 
+    src: /opt/nodesmap/js
+    dest: /var/www/html/js
+    state: link
+
+- name: link fonts
+  file: 
+    src: /opt/nodesmap/fonts
+    dest: /var/www/html/fonts
+    state: link
+
+- name: link logo
+  file:
+    src: /opt/nodesmap/logo.svg
+    dest: /var/www/html/logo.svg
+    state: link
+
 - name: index.html erzeugen
   template: src=index.html.j2 dest=/var/www/html/index.html
