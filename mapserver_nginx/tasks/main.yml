@@ -119,6 +119,12 @@
     dest: /var/www/html/fonts
     state: link
 
+- name: link logo
+  file:
+    src: /opt/nodesmappage/logo.svg
+    dest: /var/www/html/logo.svg
+    state: link
+
 - name: Generate index.html
   template:
     src: index.html.j2
