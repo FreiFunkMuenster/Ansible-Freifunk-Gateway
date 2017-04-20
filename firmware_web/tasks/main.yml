@@ -19,10 +19,10 @@
     dest: /var/www/html/fonts
     state: link
 
-- name: link logo
+- name: link icons
   file:
-    src: /opt/nodesmap/logo.svg
-    dest: /var/www/html/logo.svg
+    src: /opt/nodesmap/icons
+    dest: /var/www/html/icons
     state: link
 
 - name: index.html erzeugen

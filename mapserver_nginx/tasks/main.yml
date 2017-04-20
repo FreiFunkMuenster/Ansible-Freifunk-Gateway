@@ -119,10 +119,10 @@
     dest: /var/www/html/fonts
     state: link
 
-- name: link logo
+- name: link icons
   file:
-    src: /opt/nodesmappage/logo.svg
-    dest: /var/www/html/logo.svg
+    src: /opt/nodesmappage/icons
+    dest: /var/www/html/icons
     state: link
 
 - name: Generate index.html
