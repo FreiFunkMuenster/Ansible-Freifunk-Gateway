@@ -1,12 +1,6 @@
 - name: install bind9
   apt: pkg=bind9 state=installed
 
-#- name: copy create_db_knoten.py
-#  template: src=create_db_knoten.py.j2 dest=/usr/local/bin/create_db_knoten.py mode=755
-#
-#- name: copy create_db_knoten.sh
-#  template: src=create_db_knoten.sh.j2 dest=/usr/local/bin/create_db_knoten.sh mode=755
-
 - name: deploy named.conf.local
   template: src=named.conf.local.j2 dest=/etc/bind/named.conf.local
   notify:
@@ -62,3 +56,16 @@
   with_dict: "{{domains}}"
   notify:
     - restart bind9
+
+- name: knotendns.sh kopieren
+  template: src=knotendns.j2 dest=/etc/bind/knotendns.sh mode=0755
+
+- name: Cronjob anlegen, der Skript ausführt
+  cron:
+     name: run-dns-skript
+     job: /etc/bind/knotendns.sh
+     day: '*' 
+     hour: '*'
+     minute: '*/3'
+     state: present
+     user: root

@@ -1,0 +1,24 @@
+#!/bin/bash
+LINK="https://karte.{{freifunk.domain}}/data/nodes.zone"
+
+function update_dns {
+	mv nodes.zone nodes.alt	
+{% for domain in domains %}
+	sed -e 's/{{freifunk.domain}}/{{domain}}/g' nodes.alt > db.knoten.{{domain}}
+{% endfor %}
+	systemctl reload bind9.service	
+}
+
+function download_nodes_file {
+	wget $LINK
+}
+
+cd /etc/bind
+download_nodes_file
+diff -I 'serial number' nodes.alt nodes.zone
+if [[ $? != "0" ]]
+then
+	update_dns
+else
+	rm nodes.zone
+fi
