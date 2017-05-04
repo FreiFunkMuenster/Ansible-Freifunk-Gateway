@@ -1,0 +1,150 @@
+- name: install nginx
+  apt:
+    pkg: "{{ item }}"
+    update_cache: no
+    state: latest
+  with_items:
+    - nginx
+    - php5-fpm
+    - unzip
+
+- name: create config directory
+  file: name=/etc/nginx/sites-available/default.d state=directory
+
+- name: Create config file for blacklist
+  copy: content="" dest=/etc/nginx/sites-available/default.d/blacklist force=no
+
+#- name: Create config file for each domain
+#  copy: content="" dest=/etc/nginx/sites-available/default.d/UmzugInDomaene{{item[0]}} force=no
+#  with_items:
+#    - "{{domaenen|dictsort}}"
+
+#- name: Create config file for each domain (legacy)
+#  copy: content="" dest=/etc/nginx/sites-available/default.d/Domaene{{item[0]}} force=no
+#  with_items:
+#    - "{{domaenen|dictsort}}"
+
+- name: create letsencrypt directory
+  file: name=/var/www/letsencrypt state=directory
+
+- name: Install default nginx site for letsencrypt requests and https rewrite
+  template:
+    src: templates/default.j2
+    dest: /etc/nginx/sites-available/default
+  register: gendefconf
+
+- name: Activate default nginx site
+  file: src=/etc/nginx/sites-available/default dest=/etc/nginx/sites-enabled/default state=link
+  register: actdefconf
+
+- name: Reload nginx to activate letsencrypt site
+  service: name=nginx state=restarted
+  when: gendefconf.changed or actdefconf.changed
+
+- name: acme install
+  shell: wget -O -  https://get.acme.sh | sh
+  args:
+    creates: /root/.acme.sh/acme.sh
+
+#- name: Create certificate
+#  shell: /root/.acme.sh/acme.sh --issue -d {{inventory_hostname_short}}.{{freifunk.domain}} -w /var/www/letsencrypt
+#  args:
+#    creates: /root/.acme.sh/{{inventory_hostname_short}}.{{freifunk.domain}}/ca.cer
+
+- name: Create certificate
+  shell: /root/.acme.sh/acme.sh --issue -d {{inventory_hostname_short}}.{{freifunk.domain}} -w /var/www/letsencrypt -d {{inventory_hostname_short}}.freifunk-muensterland.net -w /var/www/letsencrypt -d {{inventory_hostname_short}}.freifunk-muenster.de -w /var/www/letsencrypt -d {{inventory_hostname_short}}.freifunk-muensterland.org -w /var/www/letsencrypt
+  args:
+    creates: /root/.acme.sh/{{inventory_hostname_short}}.{{freifunk.domain}}/ca.cer
+
+- name: install cert to Nginx
+  shell: /root/.acme.sh/acme.sh --installcert -d {{inventory_hostname_short}}.{{freifunk.domain}} --keypath "/etc/ssl/key.pem" --fullchainpath "/etc/ssl/fullchain.pem" --reloadcmd "systemctl restart nginx"
+  args:
+    creates: /etc/ssl/certs/key.pem
+  
+- name: Generate dhparams
+  shell: openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+  args:
+    creates: /etc/ssl/certs/dhparam.pem
+
+- name: Deploy default ssl nginx site
+  template:
+    src: default_ssl.j2
+    dest: /etc/nginx/sites-available/default_ssl
+  notify:
+    - restart nginx
+
+- name: Aktivate default ssl nginx site
+  file: src=/etc/nginx/sites-available/default_ssl dest=/etc/nginx/sites-enabled/default_ssl state=link
+  register: actsslconf
+
+- name: Reload nginx to activate default ssl nginx site 
+  service: name=nginx state=restarted
+  when: actsslconf.changed
+
+- name: Clone bootstrap and css files
+  git: repo=https://github.com/FreiFunkMuenster/nodesmap-page.git dest=/opt/nodesmap force=yes
+
+- name: link nophp
+  file:
+    src: ../html
+    dest: /var/www/html/nophp
+    state: link
+
+- name: link css
+  file:
+    src: /opt/nodesmap/css
+    dest: /var/www/html/css
+    state: link
+
+- name: link js
+  file:
+    src: /opt/nodesmap/js
+    dest: /var/www/html/js
+    state: link
+
+- name: link fonts
+  file:
+    src: /opt/nodesmap/fonts
+    dest: /var/www/html/fonts
+    state: link
+
+- name: link icons
+  file:
+    src: /opt/nodesmap/icons
+    dest: /var/www/html/icons
+    state: link
+
+- name: link logo
+  file:
+    src: /opt/nodesmap/logo.svg
+    dest: /var/www/html/logo.svg
+    state: link
+
+- name: Generate index.html
+  template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+
+- name: css git clonen
+  git: repo=https://github.com/FreiFunkMuenster/md-fw-dl.git dest=/var/www/html/md-fw-dl force=yes
+
+- name: create directory for h5ai
+  file: name=/opt/h5ai state=directory
+
+- name: get h5ai
+  get_url:
+    url: "https://release.larsjung.de/h5ai/h5ai-0.29.0.zip"
+    dest: /opt/h5ai/h5ai-0.29.0.zip
+  register: geth5ai
+
+- name: unarchive h5ai
+  unarchive:
+    src: /opt/h5ai/h5ai-0.29.0.zip 
+    dest: /var/www/html 
+    remote_src: True
+  when: geth5ai.changed
+
+- name: deploy h5ai config
+  template:
+    src: templates/options.json.j2
+    dest: /var/www/html/_h5ai/private/conf/options.json

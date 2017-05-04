@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en"><!-- Mit Ansible erzeugt - änderungen werden überschrieben -->
+<head>
+  <title>{{freifunk.name}} - Firmware</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png?v=2">
+  <link rel="icon" type="image/png" href="/icons/favicon-32x32.png?v=2" sizes="32x32">
+  <link rel="icon" type="image/png" href="/icons/favicon-16x16.png?v=2" sizes="16x16">
+  <link rel="manifest" href="/icons/manifest.json?v=2">
+  <link rel="mask-icon" href="/icons/safari-pinned-tab.svg?v=2" color="#ffb400">
+  <link rel="shortcut icon" href="/icons/favicon.ico?v=2">
+  <meta name="apple-mobile-web-app-title" content="Freifunk">
+  <meta name="application-name" content="Freifunk">
+  <meta name="msapplication-config" content="/icons/browserconfig.xml?v=2">
+  <meta name="theme-color" content="#dc0067">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/ffms.css">
+</head>
+<body>
+	<div class="container">
+	  <div class="page-header">
+    <div class="row">
+      <div class="col-md-2 col-sm-3">
+        <img id="ffms-logo" src="logo.svg" class="img" alt="Logo Freifunk Münsterland">
+      </div>
+      <div class="col-md-10 col-sm-9">
+        <h2>Firmware - {{freifunk.name}}
+            <br/><small>Firmware der einzelnen Domänen</small></h2>
+        <p>Im Januar 2016 haben wir das Netzwerk umstrukturiert. Seitdem gibt es für die verschiedenen Bereiche (Domänen) unterschiedliche Firmware. Es gibt zwei Methoden, die passende Firmware zu finden:</p>
+        <ol>
+            <li>Den <a href="md-fw-dl/">Firmware Download Assistenten</a> verwenden.</li>
+            <li>Wähle unten eine Domäne, um zum Verzeichnisbaum mit passender Firmware zu gelangen:
+                <ul>
+
+                </ul>
+            </li>
+        </ol>
+      </div>
+    </div>
+    </div>
+  </div>
+  <div class="container">
+  <div class="row">
+    <!-- Suchfeld und Links -->
+    <div class="col-md-4 col-sm-4 col-xs-12">
+        <form type="text" action="javascript:myScroll()"> 
+        <div class="input-group">
+          <!-- USE TWITTER TYPEAHEAD JSON WITH API TO SEARCH -->
+          <input class="form-control" id="system-search" 
+                name="q" placeholder="Suche nach" autofocus>
+            <span class="input-group-btn">
+                <button type="submit" id="searchbutton" class="btn btn-ffms">                
+                    <i class="glyphicon glyphicon-search"></i>
+                </button>
+            </span>
+          </input>
+        </div>
+        </form>
+      <br/>
+      <h4><strong><a href="md-fw-dl/">Firmware Download Assistent</a></strong></h4>
+      <p><a class="btn-ffms-collapse visible-xs" data-toggle="collapse" data-target="#narrow-results">&#187; Mehr Freifunk Links</a></p>
+      <div id="narrow-results" class="narrow-results collapse">
+      <p><a href="https://freifunk-muensterland.de">{{freifunk.name}} - Homepage</a></p>
+      <p><a href="https://wiki.freifunk-muensterland.de/">{{freifunk.name}} - Wiki</a></p>
+      <p><a href="https://forum.freifunk-muensterland.de/">{{freifunk.name}} - Forum</a></p>
+      <p><a href="https://karte.freifunk-muensterland.de/">{{freifunk.name}} - Karte</a></p>
+      </div>
+    </div>
+    <!-- Spalte mit Domänen -->
+    <div class="col-md-4 col-sm-4 col-xs-12">
+        <div class="ffms-align-center">
+        <table  class="table table-list-search table-hover">
+          <tbody>
+            <!-- Alle Domänen einfügen -->
+{% for domaene in domaenen|dictsort %}
+{% if "firmware" in domaene[1] %}
+            <tr>
+              <td>
+                <a href="{{domaene[1].firmware}}">Domäne {{domaene[0]}}</a> - {{domaene[1].name}}</li>
+              </td>  
+            </tr>    
+{% endif %}
+{% endfor %}
+          </tbody>
+        </table>
+        </div>
+    </div>
+  </div>
+  </div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <!-- optional via CDN: <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"  </script> -->
+    <script src="js/bootstrap.min.js"></script> 
+    <script src="js/search.js"></script>
+    <script>
+        function myScroll(my) {
+        $('html, body').animate({
+            scrollTop: $(".table").offset().top
+            }, 200);
+        }
+    </script>
+</body>
+
+
