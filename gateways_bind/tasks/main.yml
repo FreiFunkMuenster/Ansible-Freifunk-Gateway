@@ -48,3 +48,7 @@
   with_items: "{{domaenenliste | default([])}}"
   when: "{{domaenenliste is defined}}"
 
+- name: bind9.service kopieren
+  copy: src=bind9.service dest=/lib/systemd/system/bind9.service
+  notify:
+    - restart bind9

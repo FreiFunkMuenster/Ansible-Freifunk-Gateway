@@ -56,3 +56,14 @@
 
 - name: activate and start bird6
   service: name=bird6 state=started enabled=yes
+
+- name: bird.service kopieren
+  copy: src=bird.service dest=/lib/systemd/system/bird.service
+  notify:
+    - configure bird
+
+- name: bird6.service kopieren
+  copy: src=bird6.service dest=/lib/systemd/system/bird6.service
+  notify:
+    - configure bird6
+
