@@ -1,8 +1,8 @@
 # This file is managed by ansible, don't make changes here - they will be overwritten.
 
 # Batman Interface 
-# - Erstellt das virtuelle Inteface fuer das Batman-Modul und bindet dieses an die Netzwerkbruecke 
-# - Die unten angelegte Routing-Tabelle wird spaeter fuer das Routing innerhalb von Freifunk (Router/VPN) verwendet 
+# - Erstellt das virtuelle Interface fuer das Batman-Modul und bindet dieses an die Netzwerkbruecke
+# - Die unten angelegte Routing-Tabelle wird spaeter fuer das Routing innerhalb von Freifunk (Router/VPN) verwendet
 
 {% for item in domaenenliste|dictsort %}
 auto bat{{item[0]}}

@@ -26,6 +26,12 @@
 - name: enable kea-dhcp4.service
   service: name=kea-dhcp4.service enabled=yes
 
+- name: Create /etc/kea directory
+  file: path=/etc/kea state=directory mode=0755
+
+- name: Create /var/kea directory
+  file: path=/var/kea state=directory mode=0755
+
 - name: create /etc/kea/kea.conf
   template: src=keav4.conf.j2 dest=/etc/kea/kea.conf
   notify:

@@ -6,4 +6,4 @@
   ignore_errors: true
 
 - name: Neustart abwarten
-  local_action: wait_for port=22 host={{ ansible_host }} state=started delay=60 timeout=900 connect_timeout=15
+  local_action: wait_for port={{ ansible_ssh_port }} host={{ ansible_host }} state=started delay=60 timeout=900 connect_timeout=15
