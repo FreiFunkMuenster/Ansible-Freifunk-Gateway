@@ -16,6 +16,10 @@ options {
 
         auth-nxdomain no;    # conform to RFC1035
         listen-on-v6 { any; };
+	minimal-responses yes;
+	tcp-clients 1000;
+	recursive-clients 10000;
+
 };
 {% if collectd.collect_bind %}
 statistics-channels {
