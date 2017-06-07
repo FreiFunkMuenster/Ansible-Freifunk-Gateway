@@ -17,13 +17,13 @@ knoten			IN      A       {{domaenen[item].ffv4_network | ipaddr(1) | ipaddr('add
 knoten			IN      AAAA    {{domaenen[item].ffv6_network | ipaddr(1) | ipaddr('address')}}
 freifunk			IN      A       {{domaenen[item].ffv4_network | ipaddr(1) | ipaddr('address')}}
 freifunk			IN      AAAA    {{domaenen[item].ffv6_network | ipaddr(1) | ipaddr('address')}}
-{% if static_dns_entries is defined -%}
-{% for entry in static_dns_entries %}
-{% if static_dns_entries[entry].A is defined -%}
-{{entry}}	IN	A	{{static_dns_entries[entry].A}}
+{% if freifunk.ffnet_dns_entries_for_internal_tld is defined -%}
+{% for entry in freifunk.ffnet_dns_entries_for_internal_tld %}
+{% if freifunk.ffnet_dns_entries_for_internal_tld[entry].A is defined -%}
+{{entry}}	IN	A	{{freifunk.ffnet_dns_entries_for_internal_tld[entry].A}}
 {% endif -%} 
-{% if static_dns_entries[entry].AAAA is defined -%}
-{{entry}}	IN	AAAA	{{static_dns_entries[entry].AAAA}}
+{% if freifunk.ffnet_dns_entries_for_internal_tld[entry].AAAA is defined -%}
+{{entry}}	IN	AAAA	{{freifunk.ffnet_dns_entries_for_internal_tld[entry].AAAA}}
 {% endif -%}
 {% endfor %}
 {% endif %}
