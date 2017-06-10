@@ -125,7 +125,7 @@
     src: index.html.j2
     dest: /var/www/html/index.html
 
-- name: css git clonen
+- name: clone firmware downloader into /var/www/html/md-fw-dl
   git: repo=https://github.com/FreiFunkMuenster/md-fw-dl.git dest=/var/www/html/md-fw-dl force=yes
 
 - name: create directory for h5ai
