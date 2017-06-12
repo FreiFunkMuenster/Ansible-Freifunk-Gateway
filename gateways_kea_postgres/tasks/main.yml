@@ -46,13 +46,13 @@
   postgresql_user:
     db: kea_leases
     name: kea
-    password: MGy8B5axgpXC5ih1FX1A
+    password: "{{kea_postgres_pw}}"
     priv: ALL
   become: yes
   become_user: postgres
 
 - name: Initialize kea_leases database
-  shell: "kea-admin lease-init pgsql -u kea -p MGy8B5axgpXC5ih1FX1A -n kea_leases"
+  shell: "kea-admin lease-init pgsql -u kea -p {{kea_postgres_pw}} -n kea_leases"
   when: "_kea_leses_db_created.changed == True"
 
 - name: enable PostreSQL service
