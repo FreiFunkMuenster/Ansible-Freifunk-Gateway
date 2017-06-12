@@ -26,7 +26,7 @@
   shell: "cat /sys/module/nf_conntrack/parameters/hashsize"
   register: nf_conntrack_hashsize
   changed_when: false
-  always_run: yes
+  check_mode: no
 
 - name: Set nf_conntrack hashsize to a higher value
   shell: "echo 32768 > /sys/module/nf_conntrack/parameters/hashsize"
