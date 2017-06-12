@@ -25,7 +25,8 @@ protocol direct {
         interface "lo";
         interface "gre-*";
         interface "bck-*";
-        interface "tun-*";
+        interface "tun-ffrl*";
+        interface "tun-ffnw*";
         interface "bat*";
         table ffnet;
 }
@@ -58,6 +59,7 @@ protocol static dhcp_Bereich {
 
 filter freifunk {
 	if net ~ [185.66.192.0/22+] then accept;
+	if net ~ [185.197.132.0/24+] then accept;
 	if net ~ [10.0.0.0/8+] then accept;
 {% if not ffrl_tun is defined %}
 	if net ~ [0.0.0.0/0] then accept;
@@ -129,14 +131,19 @@ protocol static {
 };
 
 
-{% if ffrl_tun is defined %}
+{% if ffrl_tun is defined or ffnw_tun is defined %}
 function is_default() {
 	return (net ~ [0.0.0.0/0]);
 };
 
 
 filter hostroute {
+{% if server_ipv4_nat is defined %}
 	if net ~ {{server_ipv4_nat | ipaddr('address')}}/32 then accept;
+{% endif %}
+{% if ffnw_nat_ip is defined %}
+	if net ~ {{ffnw_nat_ip | ipaddr('address')}}/32 then accept;
+{% endif %}
 	reject;
 };
 
@@ -165,6 +172,7 @@ template bgp uplink {
 	default bgp_med 1;
 };
 
+{% if ffrl_tun is defined %}
 {% for tun in ffrl_tun %}
 protocol bgp ffrl_{{tun.name}} from uplink {
 	source address {{ tun.v4_remote | ipaddr( tun.v4_remote.split('.')[3] | int + 1) | ipaddr('address') }};
@@ -175,6 +183,20 @@ protocol bgp ffrl_{{tun.name}} from uplink {
 };
 
 {% endfor %}
+{% endif %}
+
+{% if ffnw_tun is defined %}
+{% for tun in ffnw_tun %}
+protocol bgp ffnw_{{tun.name}} from uplink {
+	source address {{ tun.v4_remote | ipaddr( tun.v4_remote.split('.')[3] | int + 1) | ipaddr('address') }};
+	neighbor {{tun.v4_remote | regex_replace("^(\d+\.\d+\.\d+\.\d+)/\d+$","\\1")}} as 206313;
+{% if "bgp_local_pref" in  tun %}
+	default bgp_local_pref {{tun.bgp_local_pref}};
+{% endif %}
+};
+
+{% endfor %}
+{% endif %}
 
 {% for host in groups['gateways'] %}
 {% if 'ffrl_tun' in hostvars[host] and hostvars[host].vm_id != vm_id %}
