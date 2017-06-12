@@ -106,7 +106,7 @@
 - name: "Get all files in /etc/logrotate.d/"
   raw: find /etc/logrotate.d/ -type f
   register: logrotate_files
-  always_run: yes
+  check_mode: no
   changed_when: False
 
 - name: "Update logrotate cycle in /etc/logrotate.d/"
