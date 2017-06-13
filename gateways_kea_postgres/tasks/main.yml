@@ -6,10 +6,12 @@
   apt_key:
     id: ACCC4CF8
     url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
+  when: domaenenliste is defined and domaenenliste[0] is defined
 
 - name: Add official postgres repo
   apt_repository:
     repo: "deb http://apt.postgresql.org/pub/repos/apt/ {{ansible_distribution_release}}-pgdg main"
+  when: domaenenliste is defined and domaenenliste[0] is defined
 
 - name: Install PostgreSQL
   apt:
@@ -22,6 +24,7 @@
     - python-psycopg2
     - python3-psycopg2
     - sudo
+  when: domaenenliste is defined and domaenenliste[0] is defined
 
 - name: Configure PostgreSQL
   template:
@@ -34,6 +37,7 @@
     - pg_hba.conf.j2
     - pg_ident.conf.j2
   notify: restart postgres
+  when: domaenenliste is defined and domaenenliste[0] is defined
 
 - name: Create database for dhcp leases
   postgresql_db:
@@ -41,6 +45,7 @@
   become: yes
   become_user: postgres
   register: _kea_leses_db_created
+  when: domaenenliste is defined and domaenenliste[0] is defined
 
 - name: Create kea user and grant all privileges to kea_leases database
   postgresql_user:
@@ -50,10 +55,14 @@
     priv: ALL
   become: yes
   become_user: postgres
+  when: domaenenliste is defined and domaenenliste[0] is defined
 
 - name: Initialize kea_leases database
   shell: "kea-admin lease-init pgsql -u kea -p {{kea_postgres_pw}} -n kea_leases"
-  when: "_kea_leses_db_created.changed == True"
+  when:
+    - domaenenliste is defined and domaenenliste[0] is defined
+    - "_kea_leses_db_created.changed == True"
 
 - name: enable PostreSQL service
   service: name=postgresql enabled=yes state=started
+  when: domaenenliste is defined and domaenenliste[0] is defined
