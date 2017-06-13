@@ -61,7 +61,7 @@ filter freifunk {
 	if net ~ [185.66.192.0/22+] then accept;
 	if net ~ [185.197.132.0/24+] then accept;
 	if net ~ [10.0.0.0/8+] then accept;
-{% if not ffrl_tun is defined %}
+{% if not ffrl_tun is defined and not ffnw_tun is defined %}
 	if net ~ [0.0.0.0/0] then accept;
 {% endif %}
 	if net ~ [192.168.0.0/16+] then accept;
@@ -199,7 +199,7 @@ protocol bgp ffnw_{{tun.name}} from uplink {
 {% endif %}
 
 {% for host in groups['gateways'] %}
-{% if 'ffrl_tun' in hostvars[host] and hostvars[host].vm_id != vm_id %}
+{% if ( 'ffrl_tun' in hostvars[host] or 'ffnw_tun' in hostvars[host] ) and hostvars[host].vm_id != vm_id %}
 protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 {% if hostvars[host].vm_id < vm_id %}
         neighbor 192.168.0.{{hostvars[host].vm_id*20 + vm_id*2 + 1}} as {{ff_network.as_number}};
