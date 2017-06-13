@@ -21,6 +21,7 @@
   when: batctl.stat.exists == True
   changed_when: False
   register: batctl_version
+  check_mode: no
 
 - name: batctl bauen
   shell: "make && checkinstall -y make install"
