@@ -15,9 +15,11 @@ options {
 {% endfor %}
 {% endfor %}
 {% for host in groups['gateways'] %}
+{% if hostvars[host].domaenenliste is defined %}
 {% for domaene in hostvars[host].domaenenliste|dictsort %}
            {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address')}}; 
 {% endfor %}
+{% endif %}
 {% endfor %}
 {% endif %}
 	};
