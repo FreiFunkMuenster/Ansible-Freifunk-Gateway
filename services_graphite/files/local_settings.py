@@ -17,6 +17,7 @@ LOG_DIR = '/var/log/graphite/'
 LOG_RENDERING_PERFORMANCE = True
 LOG_METRIC_ACCESS = True
 LOG_CACHE_PERFORMANCE = True
+CLUSTER_SERVERS = ["148.251.45.18:80"]
 
 DATABASES = {
     'default': {
