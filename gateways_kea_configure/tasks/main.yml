@@ -7,7 +7,7 @@
   failed_when:  False
   changed_when: False
   check_mode: no
-  when: domaenenliste is defined and domaenenliste[0] is defined
+  when: domaenenliste is defined
 
 - name: check whether isc-dhcp-server.service is enabled
   shell: "systemctl is-enabled isc-dhcp-server.service"
@@ -15,34 +15,34 @@
   failed_when:  False
   changed_when: False
   check_mode: no
-  when: domaenenliste is defined and domaenenliste[0] is defined
+  when: domaenenliste is defined
 
 - name: stop isc-dhcp
   service: name=isc-dhcp-server state=stopped
   when:
-    - domaenenliste is defined and domaenenliste[0] is defined
+    - domaenenliste is defined
     - _isc_dhcp_status.rc == 0
 
 - name: disable isc-dhcp
   service: name=isc-dhcp-server enabled=no
   when:
-    - domaenenliste is defined and domaenenliste[0] is defined
+    - domaenenliste is defined
     - _isc_dhcp_enabled.rc == 0
 
 - name: enable kea-dhcp4.service
   service: name=kea-dhcp4.service enabled=yes
-  when: domaenenliste is defined and domaenenliste[0] is defined
+  when: domaenenliste is defined
 
 - name: Create /etc/kea directory
   file: path=/etc/kea state=directory mode=0755
-  when: domaenenliste is defined and domaenenliste[0] is defined
+  when: domaenenliste is defined
 
 - name: Create /var/kea directory
   file: path=/var/kea state=directory mode=0755
-  when: domaenenliste is defined and domaenenliste[0] is defined
+  when: domaenenliste is defined
 
 - name: create /etc/kea/kea.conf
   template: src=keav4.conf.j2 dest=/etc/kea/kea.conf
   notify:
     - reload-or-restart kea-dhcp4.service
-  when: domaenenliste is defined and domaenenliste[0] is defined
+  when: domaenenliste is defined

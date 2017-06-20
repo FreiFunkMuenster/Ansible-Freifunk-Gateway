@@ -21,11 +21,11 @@
     - liblog4cplus-dev
     - postgresql-server-dev-all
     - libpq-dev
-  when: domaenenliste is defined and domaenenliste[0] is defined
+  when: domaenenliste is defined
 
 - name: Clone ISC KEA git repo and checkout branch v1_1_0
   git: repo=https://github.com/isc-projects/kea.git dest=/srv/kea clone=yes update=no version=v1_1_0
-  when: domaenenliste is defined and domaenenliste[0] is defined
+  when: domaenenliste is defined
 
 - name: Build ISC KEA
   shell: "{{item}}"
@@ -38,7 +38,7 @@
     - "make -j 4"
     - "make install"
     - "ldconfig"
-  when: domaenenliste is defined and domaenenliste[0] is defined
+  when: domaenenliste is defined
 
 - name: Depoly systemd files
   template: src="{{item}}" dest="/lib/systemd/system/{{item[:-3]}}"
@@ -48,5 +48,5 @@
     - kea-dhcp-ddns.service.j2
   notify:
     - reload systemd
-  when: domaenenliste is defined and domaenenliste[0] is defined
+  when: domaenenliste is defined
 
