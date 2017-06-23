@@ -1,5 +1,5 @@
 ; zonefile for servers.{{item.key}}.
-$TTL    600
+$TTL    86400
 @       IN      SOA     {{bind_zonemaster.server}}. {{bind_zonemaster.email}}. (
                      {{ansible_date_time.epoch}}         ; Serial
                          604800         ; Refresh
