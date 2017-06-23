@@ -610,6 +610,7 @@ LoadPlugin write_graphite
 #</Plugin>
 {% if collectd.collect_ping %}
 <Plugin ping>
+{% if domaenenliste is defined %}
 {% set hosts = [] %}
 {% for domaene in domaenenliste|dictsort %}
 {% for dummy in hosts %}
@@ -623,7 +624,9 @@ LoadPlugin write_graphite
 {% endif %}
 {% endfor %}
 {% for host in groups['gateways'] %}
+{% if "domaenenliste" in hostvars[host] %}
 {% if ansible_ssh_host != hostvars[host].ansible_ssh_host and domaene[0] in hostvars[host].domaenenliste and hosts.append(host) %}
+{% endif %}
 {% endif %}
 {% endfor %}
 # Domaene-{{domaene[0]}}:
@@ -637,6 +640,7 @@ LoadPlugin write_graphite
 {% endif %}
 {% endfor %}
 {% endfor %}
+{% endif %}
 {% if "ffrl_tun" in hostvars[inventory_hostname] %}
 {% for tun in ffrl_tun %}
 # FFRL tun remote {{tun.name}}:
@@ -724,10 +728,14 @@ LoadPlugin write_graphite
 {% endif %}
 {% if 'gateways' in group_names %}
 	Process "rsyslogd"
+{% if domaenenliste is defined %}
 	Process "kea-dhcp4"
+{% endif %}
 	Process "bird"
 	Process "bird6"
+{% if domaenenliste is defined %}
 	ProcessMatch "tunneldigger" "tunneldigger"
+{% endif %}
 {% endif %}
 	Process "collectd"
 </Plugin>
@@ -743,14 +751,14 @@ LoadPlugin write_graphite
 	Interactive false
 {% if collectd.collect_dhcp%}
 #	Import "dhcp"
-{% if "dhcp_type" in hostvars[inventory_hostname] and dhcp_type == "kea" %}
+{% if "dhcp_type" in hostvars[inventory_hostname] and dhcp_type == "kea" and domaenenliste is defined %}
 	Import "kea"
 {% endif %}
 {% endif %}
 {% if collectd.collect_ipv4ipv6 %}
 	Import "ipv4ipv6"
 {% endif %}
-{% if collectd.collect_l2tp %}
+{% if collectd.collect_l2tp and domaenenliste is defined %}
 	Import "l2tp"
 {% endif %}
 {% if collectd.collect_sysctl %}

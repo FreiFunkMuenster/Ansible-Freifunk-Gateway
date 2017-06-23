@@ -72,7 +72,7 @@
   template: src=l2tp.py.j2 dest=/opt/collectd-python/l2tp.py
   notify:
     - restart collectd
-  when: collectd.collect_l2tp
+  when: collectd.collect_l2tp and domaenenliste is defined
 
 - name: deploy fastd.py
   template: src=fastd.py.j2 dest=/opt/collectd-python/fastd.py
@@ -84,13 +84,13 @@
   template: src=dhcp.py.j2 dest=/opt/collectd-python/dhcp.py
   notify:
     - restart collectd
-  when: collectd.collect_dhcp
+  when: collectd.collect_dhcp and domaenenliste is defined
 
 - name: deploy kea.py
   template: src=kea.py.j2 dest=/opt/collectd-python/kea.py
   notify:
     - restart collectd
-  when: collectd.collect_dhcp
+  when: collectd.collect_dhcp and domaenenliste is defined
 
 - name: deploy ipv4ipv6.py
   template: src=ipv4ipv6.py.j2 dest=/opt/collectd-python/ipv4ipv6.py
