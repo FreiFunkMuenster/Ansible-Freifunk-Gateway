@@ -23,8 +23,8 @@
     - libpq-dev
   when: domaenenliste is defined
 
-- name: Clone ISC KEA git repo and checkout branch v1_1_0
-  git: repo=https://github.com/isc-projects/kea.git dest=/srv/kea clone=yes update=no version=v1_1_0
+- name: Clone ISC KEA git repo and checkout branch v1_2_0
+  git: repo=https://github.com/isc-projects/kea.git dest=/srv/kea clone=yes update=no version=v1_2_0
   when: domaenenliste is defined
 
 - name: Build ISC KEA
