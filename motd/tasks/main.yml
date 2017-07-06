@@ -1,0 +1,64 @@
+---
+- name: install figlet
+  apt: 
+    pkg: figlet
+    state: installed
+
+- name: check figlet
+  stat: 
+    path: /usr/bin/figlet
+  register: figlet_stat
+  
+- name: figlet name
+  command: /usr/bin/figlet -D -c -w 50 {{freifunk.kurzname}}
+  register: figlethost
+  check_mode: no
+  when: figlet_stat.stat.exists
+
+- name: Create /etc/update-motd.d/ directory if not existent
+  file:
+    path: /etc/update-motd.d
+    state: directory
+
+- name: Disable default motd if necessary
+  file:
+    path: /etc/update-motd.d/{{ item }}
+    state: absent
+  with_items:
+    - 00-header
+    - 10-help-text
+
+- name: create motd update script
+  template: 
+    src: 99-custom.j2 
+    dest: /etc/update-motd.d/99-custom
+    mode: "u+rwx,g+rx,o+rx"
+
+- name: get /etc/motd state
+  stat: 
+    path: /etc/motd
+  register: motd_stat
+
+- name: remove /etc/motd on Ubuntu
+  file:
+    path: /etc/motd
+    state: absent
+  when: motd_stat.stat.exists and motd_stat.stat.islnk == False
+
+- name: Create /var/run/motd if necessary
+  command: touch /var/run/motd
+  args:
+    creates: /var/run/motd
+  when: ansible_distribution == "Debian"
+
+- name: get /var/run/motd state
+  stat:
+    path: /var/run/motd
+  register: run_motd_stat
+
+- name: link /etc/motd to /var/run/motd on Debian
+  file:
+    src: /var/run/motd
+    dest: /etc/motd
+    state: link
+  when: ansible_distribution == "Debian" and run_motd_stat.stat.exists

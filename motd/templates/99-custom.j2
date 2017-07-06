@@ -1,0 +1,31 @@
+#!/bin/sh
+cat << 'EOF'
+ This system is managed by Ansible.
+
+{% if figlethost.stdout is defined %} {{ figlethost.stdout }} {% endif %}
+
+ {{ freifunk.name }}
+EOF
+
+echo " OS          : $(lsb_release -d -s) $(lsb_release -c -s)"
+echo " Hostname    : $(hostname)"
+echo " IP address  : $(hostname -I | cut -d' ' -f1){% if ansible_default_ipv6.address is defined %} / {{ ansible_default_ipv6.address }}{% endif %}"
+echo " System type : $(uname -s) $(uname -m)"
+echo " Kernel      : $(uname -r)"
+echo " "
+echo " Besitzer    : {{ server_besitzer }}"
+
+cat << 'EOF'
+
+{% if domaenenliste is defined %}
+{% for domaene in domaenenliste|dictsort %}
+ Domäne-{{domaene[0]}}: {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }} / {{domaenen[domaene[0]].ffv6_network | ipaddr(domaene[1].server_id) | ipaddr('address') }}
+{% endfor %}
+{% elif group_names[0].startswith('domaene-') %}
+ Freifunk IP:     {{ff_network.v4_network | ipaddr(server_id) | ipaddr('address') }} / {{ff_network.v6_network | ipaddr(server_id) | ipaddr('address') }}
+
+ Domäne: {{ group_names | last }}
+{% else %}
+ Aufgabe: {{ group_names | last }}
+{% endif %}
+EOF
