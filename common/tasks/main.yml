@@ -1,17 +1,6 @@
 ---
 # Allgemeine Konfigurationen für alle Server
 
-- name: install figlet
-  apt: pkg=figlet state=latest
-  
-- name: figlet name
-  command: /usr/bin/figlet -D -c -w 50 {{freifunk.kurzname}}
-  register: figlethost
-  check_mode: no
-  
-- name: deploy motd file
-  template: src=motd.j2 dest=/etc/motd owner=root mode=0444
-  
 - name: Enable syntax highlighting in vim by default
   lineinfile: 
     dest=~/.vimrc
