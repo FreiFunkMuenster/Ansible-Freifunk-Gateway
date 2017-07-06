@@ -2,24 +2,30 @@
 # Allgemeine Konfigurationen für alle Server
 
 - name: Enable syntax highlighting in vim by default
-  lineinfile: 
-    dest=~/.vimrc
-    regexp='^syntax '
-    line='syntax on'
-    owner=root
-    group=root
-    mode=0644
-    create=yes
+  lineinfile:
+    dest: ~/.vimrc
+    regexp: '^syntax '
+    line: 'syntax on'
+    owner: root
+    group: root
+    mode: 0644
+    create: yes
 
 - name: Update .bash_profile file
-  template: src=bash_profile.j2 dest=~/.bash_profile
+  template:
+    src: bash_profile.j2
+    dest: ~/.bash_profile
 
 - name: update nameserver configuration (Debian)
-  template: src=resolv.conf.j2 dest=/etc/resolv.conf
+  template:
+    src: resolv.conf.j2
+    dest: /etc/resolv.conf
   when: "'nameservers' in hostvars[inventory_hostname] and ansible_distribution == 'Debian'"
 
 - name: update nameserver configuration (Ubuntu)
-  template: src=resolv.conf.j2 dest=/etc/resolvconf/resolv.conf.d/tail
+  template:
+    src: resolv.conf.j2
+    dest: /etc/resolvconf/resolv.conf.d/tail
   when: "'nameservers' in hostvars[inventory_hostname] and ansible_distribution == 'Ubuntu'"
   notify:
     - reload resolv config
@@ -39,7 +45,10 @@
   when: ansible_distribution == "Debian"
 
 - name: Eventuelles CDROM-Repo von der Installation entfernen
-  lineinfile: dest=/etc/apt/sources.list state=absent regexp='cdrom'
+  lineinfile:
+    dest: /etc/apt/sources.list
+    state: absent
+    regexp: 'cdrom'
 
 - name: install common packages
   apt:
@@ -83,11 +92,16 @@
     - rpcbind
 
 - name: SSH-Schlüsseldatei generieren
-  template: src=authorized_keys.j2 dest=/root/.ssh/authorized_keys
+  template:
+    src: authorized_keys.j2
+    dest: /root/.ssh/authorized_keys
   when: administratorenteam is defined
 
 - name: SSH-Dämon Passwortanmeldung abschalten
-  lineinfile: dest=/etc/ssh/sshd_config regexp=^[#]?PasswordAuthentication line="PasswordAuthentication no"
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^[#]?PasswordAuthentication"
+    line: "PasswordAuthentication no"
   notify: reload sshd
 
 - locale_gen: name=de_DE.UTF-8 state=present
@@ -99,19 +113,34 @@
   changed_when: False
 
 - name: "Update logrotate cycle in /etc/logrotate.d/"
-  replace: 
+  replace:
     dest: "{{item}}"
     regexp: 'daily|weekly|monthly'
     replace: '{{logrotate.cycle}}'
   with_items: "{{logrotate_files.stdout_lines}}"
 
 - name: "Update logrotate count in /etc/logrotate.d/"
-  replace: 
+  replace:
     dest: "{{item}}"
     regexp: 'rotate[ \t]+[0-9]+'
     replace: 'rotate {{logrotate.count}}'
   with_items: "{{logrotate_files.stdout_lines}}"
 
 - name: Logrotate Rotationszyklus und Anzahl anpassen
-  template: src=logrotate.conf.j2 dest=/etc/logrotate.conf
+  template:
+    src: logrotate.conf.j2
+    dest: /etc/logrotate.conf
   when: logrotate is defined
+
+- name: Setze Timeout für das stopen von Interfaces
+  lineinfile:
+    dest: /lib/systemd/system/networking.service.d/network-pre.conf
+    line: "[Service]"
+    state: present
+
+- name: Setze Timeout für das stopen von Interfaces
+  lineinfile:
+    dest: /lib/systemd/system/networking.service.d/network-pre.conf
+    regexp: "^TimeoutStopSec="
+    line: "TimeoutStopSec=60"
+    state: present
