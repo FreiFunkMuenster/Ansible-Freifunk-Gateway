@@ -8,4 +8,6 @@
 		Options -Indexes 
 		AllowOverride All
 	</Directory>
+        RewriteEngine On
+        RewriteRule ^(.*)$ https://%{HTTP_HOST}$1 [R=301,L]
 </VirtualHost> 
