@@ -137,6 +137,7 @@
     dest: /lib/systemd/system/networking.service.d/network-pre.conf
     line: "[Service]"
     state: present
+  when: ansible_distribution == 'Debian'
 
 - name: Setze Timeout für das stopen von Interfaces
   lineinfile:
@@ -144,3 +145,4 @@
     regexp: "^TimeoutStopSec="
     line: "TimeoutStopSec=60"
     state: present
+  when: ansible_distribution == 'Debian'
