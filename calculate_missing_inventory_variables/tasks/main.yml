@@ -1,12 +1,10 @@
 - name: Prüfen
-  when: hostvars[host].domaenenliste[dom].server_id is not defined or hostvars[host].domaenenliste[dom].dhcp_start is not defined or hostvars[host].domaenenliste[dom].dhcp_ende is not defined
-#  vars:
-          #    berechnen: 1
+  set_fact:
+    berechnen: "{% if (hostvars[host].domaenenliste[dom].server_id is not defined) or (hostvars[host].domaenenliste[dom].dhcp_start is not defined) or (hostvars[host].domaenenliste[dom].dhcp_ende is not defined)%}true{% else %}false{% endif %}"
 
 - name: Debug ob berechnet werden muss
   debug:
     var: berechnen
-    when: berechnen == "ja"
 
 - name: server_id ausgeben
   debug:
