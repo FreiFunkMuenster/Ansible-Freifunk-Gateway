@@ -1,0 +1,3 @@
+- include: per_domain.yml domain={{ item }}
+  with_items: hostvars[host].domaenenliste
+  when: domain[1].server_id is undefined or domain[1].dhcp_start is undefined or domain[1].dhcp_ende is undefined
