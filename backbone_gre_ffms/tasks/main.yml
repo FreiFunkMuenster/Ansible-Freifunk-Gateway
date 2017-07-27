@@ -3,21 +3,15 @@
 - name: Tunnels to ffms gateways
   template: src="gre_to_gateways.j2" dest="/etc/network/interfaces.d/41_gre_to_gateways.cfg"
   notify: restart networking
-  when:
-    - ffms_tun_to is defined 
-    - ffrl_tun is defined or ffnw_tun is defined
 
 - name: Tunnels between backbones
   template: src="gre_interbackbone.j2" dest="/etc/network/interfaces.d/42_gre_interbackbone.cfg"
   notify: restart networking
-  when: ffrl_tun is defined or ffnw_tun is defined
 
 - name: Routingtabelle 42 auch ffnet nennen
   lineinfile: dest="/etc/iproute2/rt_tables" line="42   ffnet"
-  when: ffrl_tun is defined or ffnw_tun is defined
 
 #append line in interfaces file for reading additional config files
 - name: let read interfaces.d from interfaces
   lineinfile: dest="/etc/network/interfaces" line="source /etc/network/interfaces.d/*"
   notify: restart networking
-  when: ffrl_tun is defined or ffnw_tun is defined
