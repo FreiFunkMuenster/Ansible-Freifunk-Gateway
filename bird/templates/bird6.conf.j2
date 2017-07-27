@@ -98,14 +98,14 @@ protocol ospf {
 
 function is_default() {
 	return (net ~ [::/0]);
-}
+};
 
 {% if ffrl_tun is defined %}
 filter export_to_upstream_filter {
 	if source = RTS_OSPF_EXT2 then reject;
 	if net ~ [{{ff_network.v6_network}}{48,56}] then accept;
 	reject;
-}
+};
 {% endif %}
 
 {% if domaenenliste is defined %}
@@ -113,6 +113,7 @@ filter export_to_upstream_filter {
 protocol static static_domaene{{domaene[0]}} {
 	table ffnet;
 	route {{domaenen[domaene[0]].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject;
+};
 {% endfor %}
 {% endif %}
 
