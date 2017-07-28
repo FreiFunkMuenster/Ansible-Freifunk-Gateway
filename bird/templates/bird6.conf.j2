@@ -153,8 +153,8 @@ template bgp internal {
 	};
 	export filter {
 		if source = RTS_BGP then accept;
-{% if ffrl_tun is not defined and ffnw_tun is not defined %}
-		if source = RTS_STATIC_DEVICE then accept;
+{% if ffrl_tun is not defined %}
+		if source = RTS_STATIC then accept;
 {% endif %}
 		else reject;
 	};
