@@ -4,7 +4,7 @@
 connection_timeout=600
 command_timeout=600
 
-allowed_hosts=127.0.0.1,{{ ansible_eth0.ipv4.address }},{{ hostvars[groups['monitoring'][0]]['ansible_ssh_host'] }},{{ hostvars[groups['monitoring'][0]]['ansible_all_ipv4_addresses'] | list | join(",") }}
+allowed_hosts=127.0.0.1,{{ ansible_eth0.ipv4.address }},{{ hostvars[groups['monitoring'][0]]['ansible_ssh_host'] }}
 
 # Speedtest
 command[check_speedtest-cli-2]=/usr/lib/nagios/plugins/check_speedtest-cli.sh -w 2 -c 1 -W 0.2 -C 0.1 -p -s 4193
