@@ -1,0 +1,14 @@
+---
+- name: Start nagios-nrpe-server
+  service: name=nagios-nrpe-server state=started
+
+- name: Stop nagios-nrpe-server
+  service: name=nagios-nrpe-server state=stoped
+
+- name: Reload nagios-nrpe-server
+  service: name=nagios-nrpe-server state=reloaded
+
+- name: Restart nagios-nrpe-server
+  service: name=nagios-nrpe-server state=restarted
+
+

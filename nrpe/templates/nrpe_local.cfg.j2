@@ -1,0 +1,44 @@
+######################################
+# Do any local nrpe configuration here
+######################################
+connection_timeout=600
+command_timeout=600
+
+allowed_hosts=127.0.0.1,{{ ansible_eth0.ipv4.address }},{{ hostvars[groups['monitoring'][0]]['ansible_ssh_host'] }},{{ hostvars[groups['monitoring'][0]]['ansible_all_ipv4_addresses'] | list | join(",") }}
+
+# Speedtest
+command[check_speedtest-cli-2]=/usr/lib/nagios/plugins/check_speedtest-cli.sh -w 2 -c 1 -W 0.2 -C 0.1 -p -s 4193
+command[check_speedtest-cli-10]=/usr/lib/nagios/plugins/check_speedtest-cli.sh -w 10 -c 5 -W 1 -C 0.5 -p -s 4193
+command[check_speedtest-cli-50]=/usr/lib/nagios/plugins/check_speedtest-cli.sh -w 50 -c 25 -W 5 -C 2.5 -p -s 4193
+command[check_speedtest-cli-100]=/usr/lib/nagios/plugins/check_speedtest-cli.sh -w 100 -c 50 -W 10 -C 5 -p -s 4193
+
+# Bandwith
+#command[check_bandwidth]=/usr/lib/nagios/plugins/check_bandwidth rx 60 eth0 bw
+command[check_bandwidth]=/usr/lib/nagios/plugins/check_eth -i eth0 -w 1024K Bps -c 2048K Bps
+ 
+# Debian Server
+command[check_load]=/usr/lib/nagios/plugins/check_load -w 15,10,5 -c 30,25,20
+command[check_ram]=/usr/lib/nagios/plugins/check_ram -w 10 -c 5 -f -C
+command[check_zombie_procs]=/usr/lib/nagios/plugins/check_procs -w 5 -c 10 -s Z
+command[check_total_procs]=/usr/lib/nagios/plugins/check_procs -w 220 -c 240
+command[check_active_leases]=/opt/show-active-leases  | grep "Total Active Leases" | cut -d " " -f5
+command[check_disk]=/usr/lib/nagios/plugins/check_disk -w 15% -c 10% -p /
+command[check_update]=/usr/lib/nagios/plugins/check_apt
+ 
+# Gateway Server
+command[check_bird]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C bird
+command[check_bird6]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C bird6
+command[check_tunneldigger]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C python
+command[check_dhcp-server]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C dhcpd
+command[check_vnstat]=/usr/lib/nagios/plugins/check_vnstat.sh -i eth0
+command[check-dhcp-client]=/usr/lib/nagios/plugins/check_dhcp -t 5
+command[check-dns4-client]=/usr/lib/nagios/plugins/check_dns -H ipv4.google.com -w 0.5 -c 1
+command[check-dns6-client]=/usr/lib/nagios/plugins/check_dns -H ipv6.google.com -w 0.5 -c 1
+command[check-http4-client]=/usr/lib/nagios/plugins/check_http -H ipv4.google.com -4 -w 1 -c 2
+command[check-http6-client]=/usr/lib/nagios/plugins/check_http -H ipv6.google.com -6 -w 1 -c 2
+command[check-ping-v4]=/usr/lib/nagios/plugins/check_ping -H google.de -w 50,3% -c 70,7% -4 -p10
+command[check-ping-v6]=/usr/lib/nagios/plugins/check_ping -H google.de -w 50,3% -c 70,7% -6 -p10
+ 
+# Service VM Server
+command[check_nginx]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C nginx
+
