@@ -15,14 +15,27 @@
     - psutil
     - netifaces
 
-- name: "create systemd files"
-  template: src="py-respondd.service.j2" dest="/lib/systemd/system/py-respondd.service"
+- name: create systemd files
+  template: 
+    src: py-respondd.service.j2
+    dest: /lib/systemd/system/py-respondd.service
   notify: systemctl reload
 
 - name: Clone py-respondd repo
-  git: repo=https://github.com/descilla/py-respondd.git dest=/opt/py-respondd/ clone=yes update=yes
+  git: 
+    repo: https://github.com/descilla/py-respondd.git
+    dest: /opt/py-respondd/
+    clone: yes
+    update: yes
   notify: restart respondd
 
 - name: create config.json files
-  template: src="config.json.j2" dest="/opt/py-respondd/config.json"
+  template: 
+    src: config.json.j2
+    dest: /opt/py-respondd/config.json
   notify: restart respondd
+
+- name: enable py-respondd service
+  service:
+    name: py-respondd.service
+    enabled: yes
