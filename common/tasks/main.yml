@@ -82,6 +82,7 @@
     - dhcping
     - irqbalance
     - build-essential
+    - ethtool
 
 - name: uninstall unneeded packages
   apt:
