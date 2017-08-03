@@ -1,0 +1,24 @@
+- name: Prüfen, wo Variablen nachberechnet werden müssen
+  include: set_calculation_needed.yml dom={{item}}
+  with_items: "{{domaenenliste}}"
+
+    #- name: Test
+    #  set_fact:
+    #    domaenenliste: "{{domaenenliste | combine( {item.key: {'partner' : '{% for host in group['gateways'] %}{% if  }}, recursive=True)}}"
+    #  with_dict: "{{domaenenliste}}" 
+
+- name: Domaenenliste ausgeben
+  debug:
+    var: domaenenliste
+
+- name: server_id ausgeben
+  debug:
+    var: hostvars[host].domaenenliste[dom].server_id
+             
+- name: dhcp_start ausgeben
+  debug:
+    var: hostvars[host].domaenenliste[dom].dhcp_start
+
+- name: dhcp_ende ausgeben
+  debug:
+    var: hostvars[host].domaenenliste[dom].dhcp_ende
