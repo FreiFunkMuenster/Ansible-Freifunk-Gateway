@@ -35,7 +35,7 @@
   with_items:
     - "autoreconf --install"
     - "./configure --with-dhcp-pgsql"
-    - "make -j 4"
+    - "make -j $(grep -ic 'model name' /proc/cpuinfo)"
     - "make install"
     - "ldconfig"
   when: domaenenliste is defined
