@@ -1,0 +1,4 @@
+- name: Suche Partnergateway
+  when: "hostvars[gateway].domaenenliste[dom] is defined and gateway != ansible_hostname"
+  set_fact:
+    domaenenliste: "{{domaenenliste | combine( {dom: {'partner' : gateway}}, recursive=True)}}"

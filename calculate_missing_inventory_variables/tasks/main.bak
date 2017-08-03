@@ -1,2 +1,0 @@
-- include: per_host.yml host={{ item }}
-  with_items: groups['gateways']

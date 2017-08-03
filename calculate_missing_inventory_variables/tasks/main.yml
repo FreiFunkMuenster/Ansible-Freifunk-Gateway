@@ -1,10 +1,15 @@
-- name: Prüfen
-  set_fact:
-    berechnen: "{% if (hostvars[host].domaenenliste[dom].server_id is not defined) or (hostvars[host].domaenenliste[dom].dhcp_start is not defined) or (hostvars[host].domaenenliste[dom].dhcp_ende is not defined)%}true{% else %}false{% endif %}"
+- name: Prüfen, wo Variablen nachberechnet werden müssen
+  include: set_calculation_needed.yml dom={{item}}
+  with_items: "{{domaenenliste}}"
 
-- name: Debug ob berechnet werden muss
+    #- name: Test
+    #  set_fact:
+    #    domaenenliste: "{{domaenenliste | combine( {item.key: {'partner' : '{% for host in group['gateways'] %}{% if  }}, recursive=True)}}"
+    #  with_dict: "{{domaenenliste}}" 
+
+- name: Domaenenliste ausgeben
   debug:
-    var: berechnen
+    var: domaenenliste
 
 - name: server_id ausgeben
   debug:
