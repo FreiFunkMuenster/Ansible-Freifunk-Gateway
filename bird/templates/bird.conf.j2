@@ -80,14 +80,21 @@ protocol ospf {
 		interface "bat*" {
 			stub;
 		};
+{% for host in groups['gateways'] %}
+{% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
+		interface "bck-{{host}}" {
+			cost 1000;
+		};
+{% endif %}
+{% endfor %}
 {% if ffms_tun_to is defined %}
 {% for host in ffms_tun_to %}
 {% if "cost" in  host %}
-        interface "gre-{{host.host_name}}" {
-            cost {{host.cost}};
-        };
+		interface "gre-{{host.host_name}}" {
+			cost {{host.cost}};
+		};
 {% else %}
-        interface "gre-{{host.host_name}}";
+		interface "gre-{{host.host_name}}";
 {% endif %}
 {% endfor %}
 {% endif %}
@@ -96,11 +103,11 @@ protocol ospf {
 {% for link in hostvars[host].ffms_tun_to%}
 {% if 'host_name' in link and link.host_name == inventory_hostname %}
 {% if "cost" in  link %}
-        interface "gre-{{host}}" {
-            cost {{link.cost}};
-        };
+		interface "gre-{{host}}" {
+			cost {{link.cost}};
+		};
 {% else %}
-        interface "gre-{{host}}";
+		interface "gre-{{host}}";
 {% endif %}
 {% endif %}
 {% endfor %}
@@ -202,10 +209,17 @@ protocol bgp ffnw_{{tun.name}} from uplink {
 {% if ( 'ffrl_tun' in hostvars[host] or 'ffnw_tun' in hostvars[host] ) and hostvars[host].vm_id != vm_id %}
 protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 {% if hostvars[host].vm_id < vm_id %}
-        neighbor 192.168.0.{{hostvars[host].vm_id*20 + vm_id*2 + 1}} as {{ff_network.as_number}};
+	neighbor 192.168.0.{{hostvars[host].vm_id*20 + vm_id*2 + 1}} as {{ff_network.as_number}};
 {% else %}
-        neighbor 192.168.0.{{vm_id*20 + hostvars[host].vm_id*2}} as {{ff_network.as_number}};
+	neighbor 192.168.0.{{vm_id*20 + hostvars[host].vm_id*2}} as {{ff_network.as_number}};
 {% endif %}
+{% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
+	import filter {
+		preference = 50;
+		accept;
+	};
+{% endif %}
+
 }
 
 {% endif %}
