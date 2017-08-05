@@ -16,20 +16,20 @@
 - name: server_id auf 2 setzen, falls andere vm_id größer
   when: "domaenenliste[dom].calculation_needed is defined and domaenenliste[dom].calculation_needed == 'true' and hostvars[domaenenliste[dom].partner].vm_id > vm_id"
   set_fact:
-    domaenenliste: "{{domaenenliste | combine( {dom: {'server_id' : '2'}}, recursive=True)}}"
+    domaenenliste: "{{domaenenliste | combine( {dom: {'server_id' : 2}}, recursive=True)}}"
 
 - name: server_id auf 3 setzen, falls andere vm_id kleiner
   when: "domaenenliste[dom].calculation_needed is defined and domaenenliste[dom].calculation_needed == 'true' and hostvars[domaenenliste[dom].partner].vm_id < vm_id"
   set_fact:
-    domaenenliste: "{{domaenenliste | combine( {dom: {'server_id' : '3'}}, recursive=True)}}"
+    domaenenliste: "{{domaenenliste | combine( {dom: {'server_id' : 3}}, recursive=True)}}"
 
 - name: Unterer DHCP-Bereich
-  when: "domaenenliste[dom].calculation_needed is defined and domaenenliste[dom].calculation_needed == 'true' and domaenenliste[dom].server_id == '2'"
+  when: "domaenenliste[dom].calculation_needed is defined and domaenenliste[dom].calculation_needed == 'true' and domaenenliste[dom].server_id == 2"
   set_fact:
           domaenenliste: "{{domaenenliste | combine( {dom: {'dhcp_start' : '10.' + dom | int | string + '.64.0', 'dhcp_ende' : '10.' + dom | int | string + '.127.255' }}, recursive=True)}}"
 
 - name: Oberer DHCP-Bereich
-  when: "domaenenliste[dom].calculation_needed is defined and domaenenliste[dom].calculation_needed == 'true' and domaenenliste[dom].server_id == '3'"
+  when: "domaenenliste[dom].calculation_needed is defined and domaenenliste[dom].calculation_needed == 'true' and domaenenliste[dom].server_id == 3"
   set_fact:
           domaenenliste: "{{domaenenliste | combine( {dom: {'dhcp_start' : '10.' + dom | int | string + '.128.0', 'dhcp_ende' : '10.' + dom | int | string + '.191.255' }}, recursive=True)}}"
 
