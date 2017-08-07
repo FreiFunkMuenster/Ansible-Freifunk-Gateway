@@ -98,7 +98,7 @@ protocol static static_domaene{{domaene[0]}} {
 {% endfor %}
 {% endif %}
 {% if dhcp is defined %}
-protocol static static_{{inventory_hostname_short}} {
+protocol static 'static_{{inventory_hostname_short}}' {
 	table ffnet;
 	route {{ff_network.v6_network | regex_replace('..::/\d+$','00::/56')}} reject;
 };
@@ -150,7 +150,7 @@ template bgp internal {
 	next hop self;
 };
 
-{% for host in groups['gateways'] %}
+{% for host in groups['gateways']+groups['domaene-06'] %}
 {% if hostvars[host].vm_id != vm_id %}
 protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 {% if hostvars[host].vm_id < vm_id %}
