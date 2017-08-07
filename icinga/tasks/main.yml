@@ -64,6 +64,9 @@
 - name: Configure VIP Nodes
   template: "src=vip-nodes.conf dest='/opt/omd/sites/{{freifunk.kurzname}}/etc/vip-nodes.conf' owner={{freifunk.kurzname}} group={{freifunk.kurzname}}"
 
+- name: Configure NRPE version2 command
+  template: "src=command-nrpe2.conf dest='/opt/omd/sites/{{freifunk.kurzname}}/etc/vip-nodes.conf' owner={{freifunk.kurzname}} group={{freifunk.kurzname}}"
+
 - name: Clean localhost default config
   file:
     state: absent
