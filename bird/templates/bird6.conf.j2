@@ -97,6 +97,12 @@ protocol static static_domaene{{domaene[0]}} {
 };
 {% endfor %}
 {% endif %}
+{% if dhcp is defined %}
+protocol static static_{{inventory_hostname_short}} {
+	table ffnet;
+	route {{ff_network.v6_network | regex_replace('..::/\d+$','00::/56')}} reject;
+};
+{% endif %}
 
 protocol kernel 'kernel_master' {
 	scan time 20;
