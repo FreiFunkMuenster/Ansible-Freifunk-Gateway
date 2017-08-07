@@ -61,7 +61,7 @@ protocol ospf {
 		interface "bat*" {
 			stub;
 		};
-{% for host in groups['gateways'] %}
+{% for host in groups['gateways']+groups['domaene-06'] %}
 {% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
 		interface "bck-{{host}}" {
 			cost 1000;
