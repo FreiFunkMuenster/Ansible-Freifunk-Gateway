@@ -70,6 +70,11 @@
     recurse: yes
   when: hopglass_git_clone.changed
 
+- name: Create directory
+  file:
+    path: /opt/hopglass/client/build/
+    state: directory
+
 - name: Deploy config.json
   template:
     src: config.json.j2
