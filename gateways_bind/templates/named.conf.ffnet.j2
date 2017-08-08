@@ -28,8 +28,8 @@ view "domaene-{{domaene[0]}}" {
 			{{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars['services'].vm_id) | ipaddr('address')}};
 		};
 	};
-};
 {% endif %}
+};
 {% endfor %}
 {% if is_external_nameserver is defined and is_external_nameserver %}
 view "external" {
