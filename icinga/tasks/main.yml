@@ -103,7 +103,9 @@
     name: python-passlib
     state: latest
 
-- htpasswd:
+- name: generate icinga users.
+  htpasswd:
     path: /opt/omd/sites/{{freifunk.kurzname}}/etc/htpasswd
-    name: "{{ monitoring.icingaadmin }}"
-    password: "{{ monitoring.icingaadminpw }}"
+    name: "{{ item.user }}"
+    password: "{{ item.pw }}"
+  with_items: '{{ icinga_user }}'
