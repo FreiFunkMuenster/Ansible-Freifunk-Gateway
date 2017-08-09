@@ -24,14 +24,23 @@
   command: omd stop {{freifunk.kurzname}}
   ignore_errors: yes
 
-- name: Transfer the OMD configscript
-  template: 
-    src: omd-configure.sh 
-    dest: /root/omd-configure.sh
-    mode: 0777
+- name: omd config set CORE icinga2
+  command: omd config {{freifunk.kurzname}} set CORE icinga2
 
-- name: Execute the OMD configscript
-  command: sh omd-configure.sh
+- name: omd config set ADMIN_MAIL {{ freifunk.email  }}
+  command: omd config {{freifunk.kurzname}} set ADMIN_MAIL {{ freifunk.email  }}
+
+- name: omd config set PNP4NAGIOS off
+  command: omd config {{freifunk.kurzname}} set PNP4NAGIOS off
+
+- name: omd config set GRAFANA on
+  command: omd config {{freifunk.kurzname}} set GRAFANA on
+
+- name: omd config set INFLUXDB on
+  command: omd config {{freifunk.kurzname}} set INFLUXDB on
+
+- name: omd config set NAGFLUX on
+  command: omd config {{freifunk.kurzname}} set NAGFLUX on
 
 - name: Start OMD {{freifunk.kurzname}} site
   command: omd start {{freifunk.kurzname}}
