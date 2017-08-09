@@ -115,6 +115,11 @@
     src: 000-default.conf.j2
     dest: /etc/apache2/sites-available/000-default.conf
 
+- name: generate index.html with redirect
+  template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+
 - name: install letsencrypt
   apt:
     pkg: python-letsencrypt-apache
