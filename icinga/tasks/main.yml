@@ -23,18 +23,20 @@
     pkg: omd
     state: installed
 
-##################################################  TODO TODO TODO TODO TODO 
-- name: Create OMD {{freifunk.kurzname}} site    #  Only to be executed, if the command
-  command: omd create ffms                       #           omd sites
-  ignore_errors: yes                             #  does not return the sitename (e.g. FFMS)
-##################################################  that should be established
+- name: Create OMD {{freifunk.kurzname}} site
+  command: omd create {{freifunk.kurzname}}
+  args:
+    creates: /opt/omd/sites/{{freifunk.kurzname}}
 
 - name: Stop OMD {{freifunk.kurzname}} site
   command: omd stop {{freifunk.kurzname}}
   ignore_errors: yes
 
 - name: Transfer the OMD configscript
-  template: "src=omd-configure.sh dest='/root/omd-configure.sh' mode=0777"
+  template: 
+    src: omd-configure.sh 
+    dest: /root/omd-configure.sh
+    mode: 0777
 
 - name: Execute the OMD configscript
   command: sh omd-configure.sh
@@ -44,7 +46,11 @@
   ignore_errors: yes
 
 - name: Configure gateways
-  template: "src=srv-gateways.conf dest='/opt/omd/sites/{{freifunk.kurzname}}/etc/icinga2/conf.d/srv-gateways.conf' owner={{freifunk.kurzname}} group={{freifunk.kurzname}}"
+  template: 
+    src: srv-gateways.conf
+    dest: /opt/omd/sites/{{freifunk.kurzname}}/etc/icinga2/conf.d/srv-gateways.conf
+    owner: "{{freifunk.kurzname}}"
+    group: "{{freifunk.kurzname}}"
 
 - name: Configure icinga
   template: "src=srv-icinga.conf dest='/opt/omd/sites/{{freifunk.kurzname}}/etc/icinga2/conf.d/srv-icinga.conf' owner={{freifunk.kurzname}} group={{freifunk.kurzname}}"
@@ -65,7 +71,7 @@
   template: "src=vip-nodes.conf dest='/opt/omd/sites/{{freifunk.kurzname}}/etc/vip-nodes.conf' owner={{freifunk.kurzname}} group={{freifunk.kurzname}}"
 
 - name: Configure NRPE version2 command
-  template: "src=command-nrpe2.conf dest='/opt/omd/sites/{{freifunk.kurzname}}/etc/vip-nodes.conf' owner={{freifunk.kurzname}} group={{freifunk.kurzname}}"
+  template: "src=command-nrpe2.conf dest='/opt/omd/sites/{{freifunk.kurzname}}/etc/command-nrpe2.conf' owner={{freifunk.kurzname}} group={{freifunk.kurzname}}"
 
 - name: Clean localhost default config
   file:
