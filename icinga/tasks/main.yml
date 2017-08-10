@@ -1,0 +1,154 @@
+- name: add repo key for labs.consol repo
+  apt_key:
+    keyserver: keys.gnupg.net
+    id: F8C1CA08A57B9ED7
+
+- name: add labs.consol repo
+  apt_repository:
+    repo: "deb http://labs.consol.de/repo/stable/ubuntu {{ ansible_distribution_release }} main"
+    state: present
+  when: ansible_distribution == "Ubuntu"
+
+- name: install OMD
+  apt: 
+    pkg: omd
+    update_cache: yes
+    state: installed
+
+- name: Create OMD {{freifunk.kurzname}} site
+  command: omd create {{freifunk.kurzname}}
+  args:
+    creates: /opt/omd/sites/{{freifunk.kurzname}}
+
+- name: Stop OMD {{freifunk.kurzname}} site
+  command: omd stop {{freifunk.kurzname}}
+  ignore_errors: yes
+
+- name: omd config set CORE icinga2
+  command: omd config {{freifunk.kurzname}} set CORE icinga2
+
+- name: omd config set ADMIN_MAIL {{ freifunk.email  }}
+  command: omd config {{freifunk.kurzname}} set ADMIN_MAIL {{ freifunk.email  }}
+
+- name: omd config set PNP4NAGIOS off
+  command: omd config {{freifunk.kurzname}} set PNP4NAGIOS off
+
+- name: omd config set GRAFANA on
+  command: omd config {{freifunk.kurzname}} set GRAFANA on
+
+- name: omd config set INFLUXDB on
+  command: omd config {{freifunk.kurzname}} set INFLUXDB on
+
+- name: omd config set NAGFLUX on
+  command: omd config {{freifunk.kurzname}} set NAGFLUX on
+
+- name: Start OMD {{freifunk.kurzname}} site
+  command: omd start {{freifunk.kurzname}}
+  ignore_errors: yes
+
+- name: Configure gateways
+  template: 
+    src: srv-gateways.conf
+    dest: /opt/omd/sites/{{freifunk.kurzname}}/etc/icinga2/conf.d/srv-gateways.conf
+    owner: "{{freifunk.kurzname}}"
+    group: "{{freifunk.kurzname}}"
+
+- name: Configure icinga
+  template:
+    src: srv-icinga.conf
+    dest: /opt/omd/sites/{{freifunk.kurzname}}/etc/icinga2/conf.d/srv-icinga.conf
+    owner: "{{freifunk.kurzname}}"
+    group: "{{freifunk.kurzname}}"
+
+- name: Configure templates
+  template: 
+    src: templates.conf
+    dest: /opt/omd/sites/{{freifunk.kurzname}}/etc/icinga2/conf.d/templates.conf
+    owner: "{{freifunk.kurzname}}"
+    group: "{{freifunk.kurzname}}"
+
+- name: Configure services
+  template:
+    src: services.conf
+    dest: /opt/omd/sites/{{freifunk.kurzname}}/etc/icinga2/conf.d/services.conf
+    owner: "{{freifunk.kurzname}}"
+    group: "{{freifunk.kurzname}}"
+
+- name: Configure Satellites
+  template: 
+    src: srv-satellites.conf
+    dest: /opt/omd/sites/{{freifunk.kurzname}}/etc/icinga2/conf.d/srv-satellites.conf
+    owner: "{{freifunk.kurzname}}"
+    group: "{{freifunk.kurzname}}"
+
+- name: Configure Hostgrous
+  template:
+    src: srv-hostgroups.conf
+    dest: /opt/omd/sites/{{freifunk.kurzname}}/etc/icinga2/conf.d/srv-hostgroups.conf
+    owner: "{{freifunk.kurzname}}"
+    group: "{{freifunk.kurzname}}"
+
+- name: Configure VIP Nodes
+  template:
+    src: vip-nodes.conf
+    dest: /opt/omd/sites/{{freifunk.kurzname}}/etc/vip-nodes.conf
+    owner: "{{freifunk.kurzname}}"
+    group: "{{freifunk.kurzname}}"
+
+- name: Configure NRPE version2 command
+  template:
+    src: command-nrpe2.conf
+    dest: /opt/omd/sites/{{freifunk.kurzname}}/etc/command-nrpe2.conf
+    owner: "{{freifunk.kurzname}}"
+    group: "{{freifunk.kurzname}}"
+
+- name: Clean localhost default config
+  file:
+    state: absent
+    path: /omd/sites/{{freifunk.kurzname}}/etc/icinga2/conf.d/hosts.conf
+
+- name: Make sure we can use htpasswd module
+  package:
+    name: python-passlib
+    state: latest
+
+- name: generate icinga users.
+  htpasswd:
+    path: /opt/omd/sites/{{freifunk.kurzname}}/etc/htpasswd
+    name: "{{ item.user }}"
+    password: "{{ item.pw }}"
+  with_items: '{{ icinga_user }}'
+
+- name: Configure apache
+  template:
+    src: 000-default.conf.j2
+    dest: /etc/apache2/sites-available/000-default.conf
+
+- name: generate index.html with redirect
+  template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+
+- name: install letsencrypt
+  apt:
+    pkg: python-letsencrypt-apache
+    update_cache: no
+    state: installed
+
+- name: install pyOpenSSL
+  pip:
+    name: pyOpenSSL==16.2.0
+    state: present
+
+- name: Create certificate
+  shell: letsencrypt --non-interactive --agree-tos --email {{freifunk.email}} --apache {% for domain in domains %}-d {{inventory_hostname_short}}.{{domain}} {% endfor %}
+  args:
+    creates: /etc/letsencrypt/live/{{inventory_hostname_short}}.{{freifunk.domain}}/cert.pem
+
+- name: Install renewal cron
+  cron:
+    name: "Let's Encrypt Renewal"
+    weekday: "1"
+    hour: "2"
+    minute: "30"
+    job: "/usr/bin/letsencrypt renew >> /var/log/le-renew.log"

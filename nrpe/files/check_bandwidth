@@ -1,0 +1,108 @@
+#!/bin/bash
+#
+#exitcodes
+#OK=0
+#WARNING=1 - nicht benutzt
+#CRITICAL=2
+
+#########################################################################
+# VNStat NRPE Check                                                     #
+# Aufruf:                                                               #
+# check_vnstat [rx oder tx?] [limit in mbit als int] [interface] [mode] #
+# Beispiel:                                                             #
+# ./check_vnstat rx 600 eth0 pps                                        #
+# ./check_vnstat tx 20 eth0 bw                                          #
+# Benoetigt: vnstat, bc                                                 #
+#########################################################################
+# Revision 3 vom 21.08.2013, kevin[at]kelker.info
+
+# debugging echoes auskommentiert
+
+
+rxtx=$1
+limit=$2
+interface=$3
+mode=$4
+##############################
+# Packets pro Sekunde checken#
+##############################
+check_packets()
+{
+  vnstat_output=$(vnstat -i $interface -tr | grep $rxtx | awk '{print $4}')
+#  echo "vnstat_output = $vnstat_output"
+#  unit=$(echo $vnstat_output | awk '{print $2}')
+  packets=$vnstat_output
+
+
+  if  [[ $packets -lt $limit ]]; then
+   exit_vnstat=0
+ else
+ exit_vnstat=2
+ fi
+
+# Schlussmeldung packets
+if [ $exit_vnstat -eq 0  ]; then
+  echo "TRAFFIC OK - $rxtx Packets: $packets pps on $interface"
+  exitstatus=0
+elif [ $exit_vnstat -eq 2 ]; then
+  echo "TRAFFIC ALERT! - $rxtx Packets: $packets pps on $interface"
+  exitstatus=2
+fi
+}
+###############################
+# Bandbreite checken          #
+###############################
+
+check_bandwith()
+{
+  vnstat_output=$(vnstat -i $interface -tr | grep $rxtx | awk '{print $2,$3}')
+#  echo "vnstat_output = $vnstat_output"
+  unit=$(echo $vnstat_output | awk '{print $2}')
+  traffic=$(echo $vnstat_output | awk '{print $1}')
+
+#  echo "$rxtx traffic = $traffic in $unit on $interface"
+
+  traffic=$(echo "($traffic+0.5)/1" | bc)
+#  echo "$rxtx traffic rounded = $traffic"
+  
+ 
+        if [[ "$unit" == *kbit* ]]; then
+#       echo "kbit to mbit"
+                traffic=$(expr $traffic / 1000)
+#       echo "$rxtx traffic = $traffic"
+        fi
+#  echo "limit = $limit"
+  if  [[ $traffic -lt $limit ]]; then
+   exit_vnstat=0 
+#   echo ok
+ else
+ exit_vnstat=2
+# echo critical
+ fi
+
+# Schlussmeldung Bandbreite
+if [ $exit_vnstat -eq 0  ]; then
+  echo "TRAFFIC OK - $rxtx Bandwith $vnstat_output $unit on $interface"
+  exitstatus=0
+elif [ $exit_vnstat -eq 2 ]; then
+  echo "TRAFFIC ALERT! - $rxtx Bandwith $vnstat_output $unit on $interface"
+  exitstatus=2
+fi
+
+
+}
+
+################################
+# Main                         #
+################################
+if [ $mode = "pps" ]; then
+#echo "Checking Packets per seconds..."
+check_packets 
+elif [ $mode = "bw" ]; then
+#echo "Checking Bandwith..."
+check_bandwith
+fi 
+
+#exit $exitstatus
+exit $exit_vnstat
+
