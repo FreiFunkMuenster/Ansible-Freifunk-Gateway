@@ -20,7 +20,7 @@ $TTL    3600
 {% endfor %}
 {% endfor %}
 {% endif %}
-{% for host in groups['gateways'] %}
+{% for host in groups['gateways']+groups['hypervisors'] %}
 {{host}}	IN      A       {{hostvars[host].ansible_ssh_host}};
 {% endfor %}
 {% for host in groups['gateways'] %}
