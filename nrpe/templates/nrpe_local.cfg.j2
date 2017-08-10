@@ -14,7 +14,7 @@ command[check_speedtest-cli-100]=/usr/lib/nagios/plugins/check_speedtest-cli.sh 
 
 # Bandwith
 #command[check_bandwidth]=/usr/lib/nagios/plugins/check_bandwidth rx 60 eth0 bw
-command[check_bandwidth]=/usr/lib/nagios/plugins/check_eth -i eth0 -w 10M Bps -c 10M Bps ### TODO: check ist falschherum. Meldet bei Ueberschreiten aber leider nicht bei unterschreiten.
+command[check_bandwidth]=/usr/lib/nagios/plugins/check_eth -i eth0 -w 200M Bps -c 200M Bps ### TODO: check ist falschherum. Meldet bei Ueberschreiten aber leider nicht bei unterschreiten.
  
 # Debian Server
 command[check_load]=/usr/lib/nagios/plugins/check_load -w 15,10,5 -c 30,25,20
