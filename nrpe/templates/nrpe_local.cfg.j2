@@ -40,7 +40,7 @@ command[check-dns6-client]=/usr/lib/nagios/plugins/check_dns -H ipv6.google.com 
 command[check-http4-client]=/usr/lib/nagios/plugins/check_http -H ipv4.google.com -4 -w 1 -c 2
 command[check-http6-client]=/usr/lib/nagios/plugins/check_http -H ipv6.google.com -6 -w 1 -c 2
 command[check-ping-v4]=/usr/lib/nagios/plugins/check_ping -H 8.8.8.8 -w 50,3% -c 70,7% -4 -p10
-command[check-ping-v6]=/usr/lib/nagios/plugins/check_ping -H 8.8.8.8 -w 50,3% -c 70,7% -6 -p10
+command[check-ping-v6]=/usr/lib/nagios/plugins/check_ping -H 2001:4860:4860::8888 -w 50,3% -c 70,7% -6 -p10
  
 # Service VM Server
 command[check_nginx]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C nginx
