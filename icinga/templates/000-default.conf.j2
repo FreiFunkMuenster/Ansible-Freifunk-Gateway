@@ -33,8 +33,8 @@
 {% endfor %}
         ServerAlias {% for domain in domains %}{% if not loop.first %}{{inventory_hostname_short}}.{{domain}} {% endif %}{% endfor %}
 
-        RewriteEngine On
-        RewriteRule ^(.*)$ https://%{HTTP_HOST}$1 [R=301,L]
+#        RewriteEngine On
+#        RewriteRule ^(.*)$ https://%{HTTP_HOST}$1 [R=301,L]
 </VirtualHost>
 
 # vim: syntax=apache ts=4 sw=4 sts=4 sr noet
