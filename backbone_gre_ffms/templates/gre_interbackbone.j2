@@ -4,9 +4,9 @@
 auto bck-{{host}}
 iface bck-{{host}} inet static
 {% if hostvars[host].vm_id < vm_id %}
-        address 192.168.0.{{hostvars[host].vm_id*20 + vm_id*2}}
+        address 192.168.{{ hostvars[host].vm_id-1 }}.{{vm_id*2+1}}
 {% else %}
-        address 192.168.0.{{vm_id*20 + hostvars[host].vm_id*2 + 1}}
+        address 192.168.{{ vm_id-1 }}.{{hostvars[host].vm_id*2}}
 {% endif %}
         netmask 31
         pre-up ip link add $IFACE type gre local {{ansible_default_ipv4.address}} remote {{hostvars[host].ansible_ssh_host}} ttl 255
