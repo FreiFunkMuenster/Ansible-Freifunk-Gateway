@@ -24,25 +24,25 @@
   changed_when: False
   register: batctl_version
 
-- name: batctl bauen
-  shell: "make && checkinstall -y make install"
-  args:
-    chdir: /usr/src/batctl-2016.4
-  when: batctl.stat.exists == False or batctl_version.stdout_lines[0] != "batctl 2016.4"
+  #- name: batctl bauen
+  #  shell: "make && checkinstall -y make install"
+  #  args:
+  #    chdir: /usr/src/batctl-2016.4
+  #  when: batctl.stat.exists == False or batctl_version.stdout_lines[0] != "batctl 2016.4"
 
-- name: alfred-Quellen laden und entpacken
-  unarchive: src=alfred-2015.1.tar.gz dest=/usr/src
+  #- name: alfred-Quellen laden und entpacken
+  #  unarchive: src=alfred-2015.1.tar.gz dest=/usr/src
+  #
+  #- stat: path=/usr/local/sbin/alfred
+  #  register: alfred
 
-- stat: path=/usr/local/sbin/alfred
-  register: alfred
-
-- name: alfred bauen
-  shell: "make && checkinstall -y make install"
-  args:
-    chdir: /usr/src/alfred-2015.1
-  notify:
-   - restart networking
-  when: alfred.stat.exists == False
+  #- name: alfred bauen
+  #  shell: "make && checkinstall -y make install"
+  #  args:
+  #    chdir: /usr/src/alfred-2015.1
+  #  notify:
+  #   - restart networking
+  #  when: alfred.stat.exists == False
     
 # creating batman interfaces
 - name: Create interfaces - batman file
