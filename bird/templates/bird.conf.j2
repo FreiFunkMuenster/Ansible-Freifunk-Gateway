@@ -8,6 +8,7 @@ protocol kernel 'kernel_ffnet' {
         scan time 20;
         import all;
 	export filter {
+		if net ~ 10.43.48.0/21 then accept;
 {% if domaenenliste is defined %}
 {% for domaene in domaenenliste|dictsort %}
 		if net ~ [{{ domaenen[domaene[0]].ffv4_network }}{ {{- domaenen[domaene[0]].ffv4_network | ipaddr('prefix') + 1 }},32}] then reject;
