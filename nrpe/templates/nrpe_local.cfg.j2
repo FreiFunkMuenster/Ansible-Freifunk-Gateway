@@ -41,7 +41,16 @@ command[check-http4-client]=/usr/lib/nagios/plugins/check_http -H ipv4.google.co
 command[check-http6-client]=/usr/lib/nagios/plugins/check_http -H ipv6.google.com -6 -w 1 -c 2
 command[check-ping-v4]=/usr/lib/nagios/plugins/check_ping -H 8.8.8.8 -w 50,3% -c 70,7% -4 -p10
 command[check-ping-v6]=/usr/lib/nagios/plugins/check_ping -H 2001:4860:4860::8888 -w 50,3% -c 70,7% -6 -p10
- 
+
+command[check_iproute]=/usr/lib/nagios/plugins/check_iproute 
+command[check_iproute6]=/usr/lib/nagios/plugins/check_iproute6 
+command[check_bird_sessions]=sudo /usr/lib/nagios/plugins/check_bird_sessions
+command[check_bird6_sessions]=sudo /usr/lib/nagios/plugins/check_bird6_sessions
+
 # Service VM Server
 command[check_nginx]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C nginx
 
+{% for domaene in domaenenliste|dictsort %}
+command[check_batip6_{{domaene[0]}}]=/usr/lib/nagios/plugins/check_batip6 -D {{domaene[0]}}
+command[check_batip_{{domaene[0]}}]=/usr/lib/nagios/plugins/check_batip -D {{domaene[0]}}
+{% endfor %}
