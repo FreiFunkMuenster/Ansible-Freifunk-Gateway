@@ -1,0 +1,37 @@
+#!/bin/bash
+#
+#exitcodes
+#OK=0
+#WARNING=1
+#CRITICAL=2
+
+#########################################################################
+# Ausgabe von birdc show proto überprüfen, ob OSPF „running“ und alle bgp „established“ sind
+#########################################################################
+
+BGPSTATUSLIST=$(birdc show proto | grep BGP | sed -e 's/.* BGP .*[0-9][0-9]* *//g')
+if [ $? -gt 0 ] ; then
+  echo "CRITICAL: 'birdc show proto' exits with errorcode"
+  exit 2
+fi
+
+BGPCOUNTESTABLISHED=$(echo "$BGPSTATUSLIST" | grep Established | wc -l)
+BGPCOUNTNOTESTABLISHED=$(echo "$BGPSTATUSLIST" | grep -v Established | wc -l)
+
+OSPFSTATUSLIST=$(birdc show proto | grep OSPF | sed -e 's/.* OSPF .*[0-9][0-9]* *//g')
+OSPFCOUNTRUNNING=$(echo "$OSPFSTATUSLIST" | grep Running | wc -l)
+OSPFCOUNTNOTRUNNING=$(echo "$OSPFSTATUSLIST" | grep -v Running | wc -l)
+
+#echo $BGPCOUNTESTABLISHED
+#echo $BGPCOUNTNOTESTABLISHED
+#echo OSPFRUN $OSPFCOUNTRUNNING
+#echo OSPFNOT $OSPFCOUNTNOTRUNNING
+
+if [ $BGPCOUNTNOTESTABLISHED -gt 0 ] || [ $OSPFCOUNTNOTRUNNING -gt 0 ]; then
+  echo "CRITICAL: BGP not Established:$BGPCOUNTNOTESTABLISHED; OSPF not Running:$OSPFCOUNTNOTRUNNING"
+  exit 2
+else
+  echo "OK: BGP Established: $BGPCOUNTESTABLISHED; OSPF running:$OSPFCOUNTRUNNING"
+  exit 0
+fi
+
