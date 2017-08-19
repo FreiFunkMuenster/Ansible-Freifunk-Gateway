@@ -1,0 +1,19 @@
+#!/bin/bash
+#
+STATE_OK=0
+STATE_WARNING=1
+STATE_CRITICAL=2
+STATE_UNKNOWN=3
+
+#########################################################################
+# Default Route prüfen
+#########################################################################
+
+
+if [ "$(ip r s t ffnet | grep "^default")" == ""  ]; then
+  echo "CRITICAL: Default Route fehlt!"
+  exit $STATE_CRITICAL
+else
+  echo "OK: Default Route vorhanden"
+  exit $STATE_OK
+fi

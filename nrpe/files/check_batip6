@@ -1,0 +1,91 @@
+#!/bin/bash
+#
+#exitcodes
+STATE_OK=0
+STATE_WARNING=1
+STATE_CRITICAL=2
+STATE_UNKNOWN=3
+
+#########################################################################
+# Pro Domäne die a.b.c.2, a.b.c.3, a.b.c.11 und a.b.c.12 pingen, falls zwei nicht pingbar ? Wahrscheinlich hängt das Batman 
+# iPV6
+#########################################################################
+
+CHECKIP="2 3 b c"
+
+PATH="/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
+export PATH
+PROGNAME=`basename $0`
+PROGPATH=`echo $0 | sed -e 's,[\\/][^\\/][^\\/]*$,,'`
+REVISION="2.2"
+
+# . $PROGPATH/utils.sh
+
+print_usage() {
+    echo "Usage: $PROGNAME -D {Domain}"
+    echo "Usage: $PROGNAME --help"
+}
+
+print_help() {
+    print_usage
+    echo ""
+    echo "Batman pro Domain per IP überwachen"
+    echo ""
+    support
+}
+
+if [ $# -lt 2 ]; then
+    print_usage
+    exit $STATE_UNKNOWN
+fi
+
+while test -n "$1"; do
+    case "$1" in
+        --help)
+            print_help
+            exit $STATE_OK
+            ;;
+        -h)
+            print_help
+            exit $STATE_OK
+            ;;
+         -V)
+            IPVERSION=$2
+            shift
+            ;;
+        -D)
+            DOMAIN=$2
+            shift
+            ;;
+        *)
+            echo "Unknown argument: $1"
+            print_usage
+            exit $STATE_UNKNOWN
+            ;;
+    esac
+    shift
+done
+
+IPBASE=$(ip -f inet6 -o addr show bat$DOMAIN | sed -n 's/.*inet6 \(.*\)[0-9]\/64 scope global.*/\1/p')
+if [ "$IPBASE" == "" ] ; then
+  echo "UNKNOWN: interface bat$DOMAIN not found"
+  exit $STATE_UNKNOWN
+fi
+
+#echo Base: $IPBASE
+COUNTOK=0
+
+for a in $CHECKIP ; do
+  # echo $IPBASE$a
+  ping6  -c 1 $IPBASE$a > /dev/null && COUNTOK=$[COUNTOK+1] 
+done
+
+#echo es antworten $COUNTOK IPs 
+
+if [ $COUNTOK -lt 3 ]; then
+  echo "CRITICAL: Es antworten nur $COUNTOK der V6Domain-IPs $CHECKIP"
+  exit $STATE_CRITICAL
+else
+  echo "OK: es antworten $COUNTOK der V6Domain-IPs $CHECKIP"
+  exit $STATE_OK
+fi
