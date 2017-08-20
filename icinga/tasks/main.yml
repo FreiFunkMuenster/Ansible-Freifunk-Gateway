@@ -46,6 +46,22 @@
   command: omd start {{freifunk.kurzname}}
   ignore_errors: yes
 
+- name: Configure hipchat-host-notification
+  template: 
+    src: hipchat-host-notification.sh
+    dest: /opt/omd/sites/{{freifunk.kurzname}}/etc/icinga2/scripts/hipchat-host-notification.sh
+    owner: "{{freifunk.kurzname}}"
+    group: "{{freifunk.kurzname}}"
+    mode: a+x
+
+- name: Configure hipchat-service-notification
+  template: 
+    src: hipchat-service-notification.sh
+    dest: /opt/omd/sites/{{freifunk.kurzname}}/etc/icinga2/scripts/hipchat-service-notification.sh
+    owner: "{{freifunk.kurzname}}"
+    group: "{{freifunk.kurzname}}"
+    mode: a+x
+
 - name: Configure gateways
   template: 
     src: srv-gateways.conf
@@ -64,6 +80,13 @@
   template: 
     src: templates.conf
     dest: /opt/omd/sites/{{freifunk.kurzname}}/etc/icinga2/conf.d/templates.conf
+    owner: "{{freifunk.kurzname}}"
+    group: "{{freifunk.kurzname}}"
+
+- name: Configure Hipchat alerts
+  template: 
+    src: alerts_hipchat.conf
+    dest: /opt/omd/sites/{{freifunk.kurzname}}/etc/icinga2/conf.d/alerts_hipchat.conf
     owner: "{{freifunk.kurzname}}"
     group: "{{freifunk.kurzname}}"
 
