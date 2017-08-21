@@ -23,8 +23,9 @@ command[check_zombie_procs]=/usr/lib/nagios/plugins/check_procs -w 5 -c 10 -s Z
 command[check_total_procs]=/usr/lib/nagios/plugins/check_procs -w 220 -c 240
 command[check_active_leases]=/opt/show-active-leases  | grep "Total Active Leases" | cut -d " " -f5
 command[check_disk]=/usr/lib/nagios/plugins/check_disk -w 15% -c 10% -p /
-command[check_update]=/usr/lib/nagios/plugins/check_apt
- 
+#command[check_update]=/usr/lib/nagios/plugins/check_apt
+command[check_apt_succesful]=/usr/lib/nagios/plugins/check_file_age -w 604800 -c 1209600 -f /var/lib/apt/periodic/update-success-stamp
+
 # Gateway Server
 command[check_bird]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C bird
 command[check_bird6]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C bird6
@@ -50,7 +51,9 @@ command[check_bird6_sessions]=sudo /usr/lib/nagios/plugins/check_bird6_sessions
 # Service VM Server
 command[check_nginx]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C nginx
 
-{% for domaene in domaenenliste|dictsort %}
+{% if domaenenliste  is defined %}
+ {% for domaene in domaenenliste|dictsort %}
 command[check_batip6_{{domaene[0]}}]=/usr/lib/nagios/plugins/check_batip6 -D {{domaene[0]}}
 command[check_batip_{{domaene[0]}}]=/usr/lib/nagios/plugins/check_batip -D {{domaene[0]}}
-{% endfor %}
+ {% endfor %}
+{% endif %}
