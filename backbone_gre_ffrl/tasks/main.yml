@@ -7,7 +7,7 @@
      dest='/etc/network/interfaces'
      regexp='^[ \t]+up ip address add.*$'
      insertafter='^iface lo inet loopback.*$'
-     line='        up ip address add {{server_ipv4_nat}} dev lo'
+     line='        up ip address add {{ffrl_nat_ip}} dev lo'
   when: ffrl_tun is defined
 
 - name: Create interfaces - add ffrl-rule to loopback
@@ -15,7 +15,7 @@
      dest='/etc/network/interfaces'
      regexp='^[ \t]+up ip rule add from.*$'
      insertafter='^[ \t]+up ip address add.*$'
-     line='        up ip rule add from {{server_ipv4_nat}} table ffnet'
+     line='        up ip rule add from {{ffrl_nat_ip}} table ffnet'
   when: ffrl_tun is defined
 
 - name: Create interfaces - add suppress_prefixlength-rule

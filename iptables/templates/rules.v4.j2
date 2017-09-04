@@ -11,7 +11,7 @@ COMMIT
 :OUTPUT ACCEPT [0:0]
 :POSTROUTING ACCEPT [0:0]
 {% if ffrl_tun is defined %}
--A POSTROUTING -o tun-ffrl+ -j SNAT --to-source {{server_ipv4_nat | ipaddr('address')}}
+-A POSTROUTING -o tun-ffrl+ -j SNAT --to-source {{ffrl_nat_ip | ipaddr('address')}}
 {% endif %}
 {% if ffnw_tun is defined %}
 -A POSTROUTING -o tun-ffnw+ -j SNAT --to-source {{ffnw_nat_ip| ipaddr('address')}}

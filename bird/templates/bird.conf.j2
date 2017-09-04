@@ -111,8 +111,8 @@ protocol static {
 };
 
 filter hostroute {
-{% if server_ipv4_nat is defined %}
-	if net ~ {{server_ipv4_nat | ipaddr('address')}}/32 then accept;
+{% if ffrl_nat_ip is defined %}
+	if net ~ {{ffrl_nat_ip | ipaddr('address')}}/32 then accept;
 {% endif %}
 {% if ffnw_nat_ip is defined %}
 	if net ~ {{ffnw_nat_ip | ipaddr('address')}}/32 then accept;
