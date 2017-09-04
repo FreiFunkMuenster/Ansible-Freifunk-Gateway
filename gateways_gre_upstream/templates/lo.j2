@@ -1,6 +1,6 @@
 auto lo
 iface lo inet loopback
-{% if ffrl_tun is defined %}
+{% if ffrl_tun is defined and ffrl_nat_ip is defined %}
         up ip address add {{ ffrl_nat_ip }} dev lo
         up ip rule add from {{ ffrl_nat_ip }} table ffnet
         up ip rule add iif lo table ffnet suppress_prefixlength 0

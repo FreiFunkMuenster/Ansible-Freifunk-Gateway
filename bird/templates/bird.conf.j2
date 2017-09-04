@@ -150,7 +150,7 @@ template bgp internal {
 	next hop self;
 };
 
-{% if ffrl_tun is defined %}
+{% if ffrl_tun is defined and ffrl_nat_ip is defined %}
 {% for tun in ffrl_tun %}
 protocol bgp ffrl_{{tun.name}} from uplink {
 	source address {{ tun.v4_remote | ipaddr( tun.v4_remote.split('.')[3] | int + 1) | ipaddr('address') }};
