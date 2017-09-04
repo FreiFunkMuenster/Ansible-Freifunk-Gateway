@@ -10,7 +10,7 @@ COMMIT
 :INPUT ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
 :POSTROUTING ACCEPT [0:0]
-{% if ffrl_tun is defined %}
+{% if ffrl_tun is defined and ffrl_nat_ip is defined %}
 -A POSTROUTING -o tun-ffrl+ -j SNAT --to-source {{ffrl_nat_ip | ipaddr('address')}}
 {% endif %}
 {% if ffnw_tun is defined %}
