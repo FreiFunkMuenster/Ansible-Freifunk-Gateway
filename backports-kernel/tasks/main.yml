@@ -3,7 +3,8 @@
     repo: "{{ item }}"
     state: present
   with_items:
-    - "deb http://http.debian.net/debian/ {{ ansible_distribution_release }}-backports main"
+#    - "deb http://http.debian.net/debian/ {{ ansible_distribution_release }}-backports main"
+    - "deb http://ftp.de.debian.org/debian {{ ansible_distribution_release }}-backports main"
   when: ansible_distribution == "Debian"
 
 - name: install backports-kernel
