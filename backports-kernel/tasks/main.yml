@@ -3,12 +3,20 @@
     repo: "{{ item }}"
     state: present
   with_items:
-#    - "deb http://http.debian.net/debian/ {{ ansible_distribution_release }}-backports main"
     - "deb http://ftp.de.debian.org/debian {{ ansible_distribution_release }}-backports main"
   when: ansible_distribution == "Debian"
+  register: apt
+
+- name: update apt cache
+  apt:
+    update_cache: yes
+  when: apt.changed
 
 - name: install backports-kernel
-  apt: name="{{item}}" default_release=jessie-backports update_cache=yes state=latest
+  apt: 
+    name: "{{item}}"
+    default_release: jessie-backports
+    state: latest
   when: ansible_distribution == "Debian"
   with_items:
     - linux-headers-amd64
