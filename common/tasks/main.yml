@@ -16,20 +16,6 @@
     src: bash_profile.j2
     dest: ~/.bash_profile
 
-- name: update nameserver configuration (Debian)
-  template:
-    src: resolv.conf.j2
-    dest: /etc/resolv.conf
-  when: "'nameservers' in hostvars[inventory_hostname] and ansible_distribution == 'Debian'"
-
-- name: update nameserver configuration (Ubuntu)
-  template:
-    src: resolv.conf.j2
-    dest: /etc/resolvconf/resolv.conf.d/tail
-  when: "'nameservers' in hostvars[inventory_hostname] and ansible_distribution == 'Ubuntu'"
-  notify:
-    - reload resolv config
-
 - name: Flush all handlers
   meta: flush_handlers
 
