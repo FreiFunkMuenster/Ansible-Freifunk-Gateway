@@ -1,0 +1,40 @@
+ - name: check for ifupdown2
+   stat: path=/sbin/ifreload
+   register: ifreload
+
+ - name: install dependencies (for compilation and runtime)
+   apt:
+     pkg: "{{ item }}"    
+     state: installed
+   with_items:
+     - python-all
+     - debhelper
+     - dh-systemd
+     - python-ipaddr
+     - python-argcomplete
+   when: ifreload.stat.exists == False
+
+ - name: clone repository
+   git:
+     repo: 'https://github.com/CumulusNetworks/ifupdown2.git'
+     dest: /opt/ifupdown2
+     version: debian-prep2
+     update: yes
+     force: yes
+   when: ifreload.stat.exists == False
+
+ - name: compile and create deb
+   shell: "dpkg-buildpackage -us -uc -rfakeroot -b"
+   args:
+     chdir: "/opt/ifupdown2"
+   when: ifreload.stat.exists == False
+
+ - name: remove ifupdown1
+   apt:
+     pkg: ifupdown
+     state: absent
+   when: ifreload.stat.exists == False
+
+ - name: install created deb package
+   shell: "dpkg -i /opt/ifupdown2*deb"
+   when: ifreload.stat.exists == False
