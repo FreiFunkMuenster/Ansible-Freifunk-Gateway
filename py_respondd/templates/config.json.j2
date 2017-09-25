@@ -11,6 +11,12 @@
 			"owner" : {
 				"contact" : "{{ server_besitzer }}"
 			},
+			"software": {
+				"autoupdater": {
+					"branch": "{{ group_names | last }}",
+					"enabled": true
+				}
+			},
 			"advanced-stats": {
 				"store-stats": true
 			},
