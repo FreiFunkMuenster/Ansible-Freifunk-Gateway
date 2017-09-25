@@ -22,7 +22,7 @@
 	  <div class="page-header">
     <div class="row">
       <div class="col-md-2 col-sm-3">
-        <img id="ffms-logo" src="logo.svg" class="img" alt="Logo Freifunk Münsterland">
+        <img id="{{freifunk.kurzname}}-logo" src="logo.svg" class="img" alt="Logo {{freifunk.name}}">
       </div>
       <div class="col-md-10 col-sm-9">
         <h2>Karten - {{freifunk.name}}
@@ -49,13 +49,14 @@
         </div>
         </form>
       <br/>
-      <h4><strong><a href="map/">Gesamtkarte des Freifunk Münsterlands</a></strong></h4>
+      <h4><strong><a href="map/">Gesamtkarte des {{freifunk.name}}</a></strong></h4>
       <p><a class="btn-ffms-collapse visible-xs" data-toggle="collapse" data-target="#narrow-results">&#187; Mehr Freifunk Links</a></p>
       <div id="narrow-results" class="narrow-results collapse">
-      <p><a href="https://freifunk-muensterland.de">{{freifunk.name}}</a></p>
-      <p><a href="https://wiki.freifunk-muensterland.de/">{{freifunk.name}} - Wiki</a></p>
-      <p><a href="https://forum.freifunk-muensterland.de/">{{freifunk.name}} - Forum</a></p>
-      <p><a href="https://firmware.freifunk-muensterland.de/md-fw-dl/">{{freifunk.name}} - Firmware Assistent</a></p>
+{% if indexconfig.links is defined %}
+{% for link in indexconfig.links %}
+      <p><a href="{{link.link}}">{{link.name}}</a></p>
+{% endfor %}
+{% endif %}
       </div>
     </div>
     <!-- Spalte mit Domänen -->
@@ -76,9 +77,11 @@
               <td>
                   <a href="map{{domaene[0]}}/">{{domaene[0]}} - {{domaene[1].name}}</a> 
                   &ensp;
+{% if indexconfig.linktofwdownloader is defined %}
                   <span class="small">
-                      <a class="ffms-muted" href="https://freifunk-muensterland.de/md-fw-dl/?region=domaene{{domaene[0]}}">Firmware </a>
+                      <a class="ffms-muted" href="{{indexconfig.linktofwdownloader}}{{domaene[0]}}">Firmware </a>
                   </span>
+{% endif %}
               </td>
             </tr>
 {% endfor %}
