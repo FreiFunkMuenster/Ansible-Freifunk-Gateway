@@ -1,0 +1,32 @@
+
+- include_vars: passwords.yml
+
+- name: install required packages for grafana
+  apt:
+    pkg: "{{ item }}"
+    update_cache: yes
+    cache_valid_time: 900
+    state: installed
+  with_items:
+    - apt-transport-https
+ 
+- name: Add repo key for grafana (packagecloud.io)
+  apt_key: id=D59097AB url=https://packagecloud.io/gpg.key state=present
+
+- name: add repo for grafana
+  apt_repository: repo='deb https://packagecloud.io/grafana/stable/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }} main' state=present
+
+- name: install grafana
+  apt:
+    pkg: "grafana"
+    update_cache: yes
+    cache_valid_time: 900
+    state: installed
+
+- name: configure collectd.conf 
+  template: src=grafana.ini.j2 dest=/etc/grafana/grafana.ini
+  notify:
+    - restart grafana-server
+
+- name: Start and enable grafana
+  service: name=grafana-server state=started enabled=yes
