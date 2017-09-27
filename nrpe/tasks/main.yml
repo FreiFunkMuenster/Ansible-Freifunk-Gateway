@@ -77,6 +77,10 @@
 - name: Sudo Recht check_bird6_sessions
   lineinfile: dest=/etc/sudoers line='nagios ALL=NOPASSWD{{ ":" }} /usr/lib/nagios/plugins/check_bird6_sessions' state=present
 
+- name: Sudo Recht check_FFTester
+  lineinfile: dest=/etc/sudoers line='nagios ALL=NOPASSWD{{ ":" }} /root/gits/tools/Freifunk-Tester/icinga_reporter.sh' state=present
+  when: is_ff_tester is defined
+
 - name: stop NRPE-Server
   service:
     name: nagios-nrpe-server

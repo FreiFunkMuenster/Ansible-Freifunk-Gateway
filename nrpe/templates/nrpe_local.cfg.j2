@@ -51,9 +51,18 @@ command[check_bird6_sessions]=sudo /usr/lib/nagios/plugins/check_bird6_sessions
 # Service VM Server
 command[check_nginx]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C nginx
 
-{% if domaenenliste  is defined %}
+{% if domaenenliste is defined %}
+# Domain Check-Scripts on gateways
  {% for domaene in domaenenliste|dictsort %}
 command[check_batip6_{{domaene[0]}}]=/usr/lib/nagios/plugins/check_batip6 -D {{domaene[0]}}
 command[check_batip_{{domaene[0]}}]=/usr/lib/nagios/plugins/check_batip -D {{domaene[0]}}
+ {% endfor %}
+{% endif %}
+
+{% if 'monitoring-satellites' in group_names and is_ff_tester is defined %}
+# Freifunk-Tester
+ {% for domaene in domaenen|dictsort %}
+command[check_FFTesterV4_{{domaene[0]}}]=sudo /root/gits/tools/Freifunk-Tester/icinga_reporter.sh ffmsd{{domaene[0]}} IPv4-ping-test-to-google.de random
+command[check_FFTesterV6_{{domaene[0]}}]=sudo /root/gits/tools/Freifunk-Tester/icinga_reporter.sh ffmsd{{domaene[0]}} IPv6-ping-test-to-google.de random
  {% endfor %}
 {% endif %}

@@ -53,6 +53,7 @@
     owner: "{{freifunk.kurzname}}"
     group: "{{freifunk.kurzname}}"
     mode: a+x
+  when: icinga_alert_hipchat_url is defined
 
 - name: Configure hipchat-service-notification
   template: 
@@ -61,6 +62,7 @@
     owner: "{{freifunk.kurzname}}"
     group: "{{freifunk.kurzname}}"
     mode: a+x
+  when: icinga_alert_hipchat_url is defined
 
 - name: Configure gateways
   template: 
@@ -89,6 +91,7 @@
     dest: /opt/omd/sites/{{freifunk.kurzname}}/etc/icinga2/conf.d/alerts_hipchat.conf
     owner: "{{freifunk.kurzname}}"
     group: "{{freifunk.kurzname}}"
+  when: icinga_alert_hipchat_url is defined
 
 - name: Configure services
   template:
