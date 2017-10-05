@@ -1,0 +1,13 @@
+[Unit]
+Description=Graphite Carbon Cache Instance cache:%i
+After=network.target
+
+[Service]
+Type=forking
+StandardOutput=syslog
+StandardError=syslog
+ExecStart=/usr/bin/carbon-cache --config=/etc/carbon/carbon.conf --pidfile=/var/run/carbon-cache-%i.pid --logdir=/var/log/carbon/ --instance=%i start
+PIDFile=/var/run/carbon-cache-%i.pid
+
+[Install]
+WantedBy=multi-user.target
