@@ -1,0 +1,108 @@
+---
+
+- name: Install graphite
+  apt:
+    pkg: "{{ item }}"
+    update_cache: yes
+    state: installed
+  with_items:
+    - graphite-web
+    - graphite-carbon
+    - uwsgi
+    - uwsgi-plugin-python
+
+- name: Deploy local_settings.py
+  template: src=local_settings.py.j2 dest=/etc/graphite/local_settings.py
+  notify:
+   - restart uwsgi
+
+- name: Start carbon-cache on startup
+  lineinfile:
+    dest: "/etc/default/graphite-carbon"
+    regexp: '^CARBON_CACHE_ENABLED='
+    line: 'CARBON_CACHE_ENABLED=true'
+
+- name: Deploy carbon.conf
+  template: src=carbon.conf.j2 dest=/etc/carbon/carbon.conf
+  notify:
+   - restart carbon-cache-instances
+   - restart carbon-relay
+
+- name: Deploy storage-schemas.conf
+  template: src=storage-schemas.conf.j2 dest=/etc/carbon/storage-schemas.conf
+  notify:
+   - restart carbon-cache-instances
+
+- name: Deploy graphite.ini
+  template: src=graphite.ini dest=/etc/uwsgi/apps-available/graphite.ini
+  notify:
+   - restart uwsgi
+
+- name: Enable graphite.ini
+  file:
+    src: /etc/uwsgi/apps-available/graphite.ini
+    dest: /etc/uwsgi/apps-enabled/graphite.ini
+    state: link
+  notify:
+   - restart uwsgi
+
+- name: Create database for graphite-web
+  shell: "graphite-manage syncdb --noinput"
+  args:
+    creates: "/var/lib/graphite/graphite.db"
+
+- name: Ensure directories are owned by www-data
+  file: path="{{item}}" state=directory owner=www-data group=www-data recurse=yes
+  with_items:
+    - "/usr/share/graphite-web"
+    - "/var/log/graphite"
+    - "/var/lib/graphite"
+
+
+- name: Deploy carbon-cache@.service template file
+  copy: src=carbon-cache@.service dest=/lib/systemd/system/carbon-cache@.service
+  register: _cc_systemd
+  notify:
+   - restart carbon-cache-instances
+
+- name: Deploy carbon-relay.service template file
+  copy: src=carbon-relay.service dest=/lib/systemd/system/carbon-relay.service
+  register: _cr_systemd
+  notify:
+   - restart carbon-relay
+
+- name: reload systemd
+  shell: systemctl daemon-reload
+  when: _cc_systemd.changed or _cr_systemd.changed
+
+- name: Stop and disable default carbon-cache systemd script
+  service: name="carbon-cache.service" state=stopped enabled=no
+
+- name: Enable carbon-cache instances
+  service: name="carbon-cache@{{item.name}}.service" enabled=yes
+  with_items:
+   - "{{graphite.cache_instances}}"
+
+- name: Get all enabled carbon-cache instances
+  shell: '/bin/ls /etc/systemd/system/multi-user.target.wants/carbon-cache@* | /bin/grep -oE "carbon-cache@[^\.]+" | /bin/sed "s/carbon-cache@//g"'
+  changed_when: False
+  failed_when: False
+  check_mode: no
+  register: _cc_instances
+
+- name: Generate list with names of defined carbon-cache instances
+  set_fact:
+    _cc_should_instances: "{{ graphite.cache_instances | map(attribute='name') | list}}"
+
+- name: Stop and disable obsolete cc instances
+  service: name="carbon-cache@{{item}}.service" enabled=no state=stopped
+  with_items: "{{_cc_instances.stdout_lines}}"
+  when: item not in _cc_should_instances
+  notify:
+   - restart carbon-relay
+
+- name: Enable services
+  service: name="{{item}}" enabled=yes
+  with_items:
+   - "carbon-relay.service"
+   - "uwsgi.service"

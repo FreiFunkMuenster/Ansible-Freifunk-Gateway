@@ -1,0 +1,7 @@
+# This file is ansible managed. All manual edits become may be overwritten.
+{% for entry in graphite.storage_schemas %}
+[{{entry.name}}]
+pattern = {{entry.pattern}}
+retentions = {{entry.retentions}}
+
+{% endfor %}
