@@ -107,6 +107,14 @@
     owner: "{{freifunk.kurzname}}"
     group: "{{freifunk.kurzname}}"
 
+- name: Configure GraphiteWriter
+  template:
+    src: graphite.conf
+    dest: /opt/omd/sites/{{freifunk.kurzname}}/etc/icinga2/conf.d/graphite.conf
+    owner: "{{freifunk.kurzname}}"
+    group: "{{freifunk.kurzname}}"
+  when: graphite_destination is defined and graphite_destination_port is defined
+
 - name: Configure Hostgrous
   template:
     src: srv-hostgroups.conf
