@@ -17,9 +17,16 @@ echo " Besitzer    : {{ server_besitzer }}"
 
 cat << 'EOF'
 
+{% if ffnw_nat_ip is defined %}
+ FFNW-NAT-IP : {{ffnw_nat_ip}}
+{% endif %}
+{% if ffrl_nat_ip is defined %}
+ FFRL-NAT-IP : {{ffrl_nat_ip}}
+{% endif %}
+
 {% if domaenenliste is defined %}
 {% for domaene in domaenenliste|dictsort %}
- Domäne-{{domaene[0]}}: {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }} / {{domaenen[domaene[0]].ffv6_network | ipaddr(domaene[1].server_id) | ipaddr('address') }}
+ Domäne-{{domaene[0]}}   : {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }} / {{domaenen[domaene[0]].ffv6_network | ipaddr(domaene[1].server_id) | ipaddr('address') }}
 {% endfor %}
 {% elif group_names[0].startswith('domaene-') %}
  Freifunk IP:     {{ff_network.v4_network | ipaddr(server_id) | ipaddr('address') }} / {{ff_network.v6_network | ipaddr(server_id) | ipaddr('address') }}
