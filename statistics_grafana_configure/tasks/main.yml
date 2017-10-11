@@ -43,7 +43,7 @@
 #    var: grafana_dashboards_output.json|default([])
 
 - set_fact:
-    myvar: "{{ lookup('file','dashboards/multidom_gateway.json') | from_json }}"
+    myvar: "{{ { 'dashboard' : lookup('file','dashboards/multidom_gateway.json') | from_json } }}"
 
 - name: Create non existing dashboards
   register: grafana_dashboards_create_output
