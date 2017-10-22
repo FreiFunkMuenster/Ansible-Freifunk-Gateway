@@ -18,7 +18,7 @@
   with_items: '{{ borg_backups }}'
 
 - name: Create Repo on Backuptarget
-  shell: borg init ssh://{{ item.backup_server_user }}@{{ item.backup_server }}:{{ item.backup_server_port }}/./{{ ansible_hostname }}-bkp && touch /root/.repo-{{ item.name }}-created
+  shell: borg init --encryption=repokey-blake2 ssh://{{ item.backup_server_user }}@{{ item.backup_server }}:{{ item.backup_server_port }}/./{{ ansible_hostname }}-bkp && touch /root/.repo-{{ item.name }}-created
   args:
     creates: /root/.repo-{{ item.name }}-created
   environment:
