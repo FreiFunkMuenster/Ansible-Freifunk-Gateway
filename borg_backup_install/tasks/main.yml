@@ -21,4 +21,4 @@
     state: present
     executable: pip3
   with_items:
-    - "borgbackup==1.1.0"
+    - "borgbackup==1.1.1"
