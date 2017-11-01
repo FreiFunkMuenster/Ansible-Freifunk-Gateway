@@ -13,7 +13,7 @@
 {% endif %}
 {% endfor %}
 {% for host in groups['gateways'] %}
-{% if ansible_ssh_host != hostvars[host].ansible_ssh_host and domaene[0] in hostvars[host].domaenenliste and hosts.append(host) %}
+{% if ansible_ssh_host != hostvars[host].ansible_ssh_host and hostvars[host].domaenenliste is defined and domaene[0] in hostvars[host].domaenenliste and hosts.append(host) %}
 {% endif %}
 {% endfor %}
 {% for host in hosts %}
