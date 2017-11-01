@@ -17,11 +17,13 @@ iface bat{{item[0]}} inet static
         post-up batctl -m bat{{item[0]}} if add br{{item[0]}} ||:
 {% for host in groups['gateways'] %}
 {% if host != inventory_hostname %}
+{% if hostvars[host].domaenenliste is defined %}
 {% for item2 in hostvars[host].domaenenliste|dictsort %}
 {% if item[0] == item2[0] %}
         post-up batctl -m bat{{item[0]}} if add t{{item[0]}}-{{host}} ||:
 {% endif %}
 {% endfor %}
+{% endif %}
 {% endif %}
 {% endfor %}
         post-up ip rule add from all fwmark 0x1 table ffnet pref 16000 ||:
