@@ -11,11 +11,11 @@ view "domaene-{{domaene[0]}}" {
 {% if is_external_nameserver is defined and is_external_nameserver %}
 	include "/etc/bind/named.conf.tld";
 {% endif %}
-{% if hostvars['services'] is defined and hostvars['services'].vm_id is defined %}
 	zone "{{freifunk.kurzname}}." {
 		type master;
 		file "/etc/bind/db.domaene-{{domaene[0]}}.ffnet";
 	};
+{% if hostvars['services'] is defined and hostvars['services'].vm_id is defined %}
 	zone "servers.{{freifunk.kurzname}}." {
 		type slave;
 		masters {
