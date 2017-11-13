@@ -128,6 +128,9 @@
   notify:
     - "restart apache"
 
+- name: Enable mod_rewrite
+  shell: a2enmod rewrite
+
 - name: install letsencrypt
   apt:
     pkg: python-letsencrypt-apache
