@@ -62,7 +62,6 @@
     - molly-guard
     - git
     - iperf3
-    - logwatch
     - mtr-tiny
     - dhcpdump
     - dhcping
