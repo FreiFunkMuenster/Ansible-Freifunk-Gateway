@@ -29,12 +29,12 @@
     creates: /root/.acme.sh/acme.sh
 
 - name: Create certificate
-  shell: /root/.acme.sh/acme.sh --issue -d {{inventory_hostname_short}}.{{freifunk.domain}} -w /var/www/letsencrypt
+  shell: /root/.acme.sh/acme.sh --issue -d {{inventory_hostname_short}}.{{freifunk.domain}} -d grafana.{{freifunk.domain}} -w /var/www/letsencrypt
   args:
     creates: /root/.acme.sh/{{inventory_hostname_short}}.{{freifunk.domain}}/ca.cer
 
 - name: install cert to Nginx
-  shell: /root/.acme.sh/acme.sh --installcert -d {{inventory_hostname_short}}.{{freifunk.domain}} --keypath "/etc/ssl/key.pem" --fullchainpath "/etc/ssl/fullchain.pem" --reloadcmd "systemctl restart nginx"
+  shell: /root/.acme.sh/acme.sh --installcert -d {{inventory_hostname_short}}.{{freifunk.domain}} -d grafana.{{freifunk.domain}} --keypath "/etc/ssl/key.pem" --fullchainpath "/etc/ssl/fullchain.pem" --reloadcmd "systemctl restart nginx"
   args:
     creates: /etc/ssl/certs/key.pem
   
