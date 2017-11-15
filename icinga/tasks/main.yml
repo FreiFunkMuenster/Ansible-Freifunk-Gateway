@@ -42,10 +42,6 @@
 - name: omd config set NAGFLUX on
   command: omd config {{freifunk.kurzname}} set NAGFLUX on
 
-- name: Start OMD {{freifunk.kurzname}} site
-  command: omd start {{freifunk.kurzname}}
-  ignore_errors: yes
-
 - name: Configure hipchat-host-notification
   template: 
     src: hipchat-host-notification.sh
@@ -179,10 +175,53 @@
   args:
     creates: /etc/letsencrypt/live/{{inventory_hostname_short}}.{{freifunk.domain}}/cert.pem
 
+- name: get CN of active certificate
+  shell: openssl x509 -in /etc/letsencrypt/live/{{inventory_hostname_short}}.{{freifunk.domain}}/cert.pem -noout -subject | sed -e 's/.*CN=//g'
+  register: openssl_out
+
+- name: Register Domains for {{ansible_ssh_host}} in /etc/hosts
+  lineinfile:
+   path: /etc/hosts
+   regexp: '^{{ansible_ssh_host}}'
+   line: '{{ansible_ssh_host}} {{openssl_out.stdout}} {% for domain in domains %}{{inventory_hostname_short}}.{{domain}} {% endfor %}{{inventory_hostname_short}}'
+
+- name: Register Domains for 127.0.0.1 in /etc/hosts
+  lineinfile:
+   path: /etc/hosts
+   regexp: '^127.0.0.1'
+   line: '127.0.0.1 {{openssl_out.stdout}} {% for domain in domains %}{{inventory_hostname_short}}.{{domain}} {% endfor %}{{inventory_hostname_short}} localhost'
+
 - name: Install renewal cron
   cron:
     name: "Let's Encrypt Renewal"
     weekday: "1"
     hour: "2"
     minute: "30"
-    job: "/usr/bin/letsencrypt renew >> /var/log/le-renew.log"
+    job: "/usr/bin/letsencrypt renew | tee -a /var/log/le-renew.log | grep 'No renewals' >> /dev/null || omd restart >> /dev/null"
+
+- name: Permissions on /etc/letsencrypt/archive for icingaAPI
+  file:
+    path: /etc/letsencrypt/archive
+    state: touch
+    mode: "o+rx"
+  when: icinga_api_root_password is defined 
+
+- name: Permissions on /etc/letsencrypt/live for icingaAPI
+  file:
+    path: /etc/letsencrypt/live
+    state: touch
+    mode: "o+rx"
+  when: icinga_api_root_password is defined 
+
+- name: Configure icinga API
+  template:
+    src: api.conf
+    dest: /opt/omd/sites/{{freifunk.kurzname}}/etc/icinga2/conf.d/api.conf
+    owner: "{{freifunk.kurzname}}"
+    group: "{{freifunk.kurzname}}"
+  when: icinga_api_root_password is defined 
+
+- name: Start OMD {{freifunk.kurzname}} site
+  command: omd start {{freifunk.kurzname}}
+  ignore_errors: yes
+
