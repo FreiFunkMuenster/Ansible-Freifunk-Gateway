@@ -15,20 +15,6 @@ view "domaene-{{domaene[0]}}" {
 		type master;
 		file "/etc/bind/db.domaene-{{domaene[0]}}.ffnet";
 	};
-{% if hostvars['services'] is defined and hostvars['services'].vm_id is defined %}
-	zone "servers.{{freifunk.kurzname}}." {
-		type slave;
-		masters {
-			{{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars['services'].vm_id) | ipaddr('address')}};
-		};
-	};
-	zone "services.{{freifunk.kurzname}}." {
-		type slave;
-		masters {
-			{{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars['services'].vm_id) | ipaddr('address')}};
-		};
-	};
-{% endif %}
 };
 {% endfor %}
 {% if is_external_nameserver is defined and is_external_nameserver %}
