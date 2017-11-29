@@ -200,9 +200,9 @@ password = {{grafana_pw.email.pass}}
 ;key_file =
 ;skip_verify = false
 from_address = {{grafana_pw.email.addr}}
-{% endif %}
+{% else %}
 enabled = false
-
+{% endif %}
 
 [emails]
 {% if grafana_pw.email is defined %}
