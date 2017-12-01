@@ -36,12 +36,12 @@
     creates: /root/.acme.sh/acme.sh
 
 - name: Create certificate
-  shell: /root/.acme.sh/acme.sh --issue {%if graphite is defined %}-d {{graphite.nginx.host_name}}{% endif %}{%if grafana is defined %}-d {{grafana.nginx.host_name}}{% endif %} -w /var/www/letsencrypt
+  shell: /root/.acme.sh/acme.sh --issue{%if graphite is defined %} -d {{graphite.nginx.host_name}}{% endif %}{%if grafana is defined %} -d {{grafana.nginx.host_name}}{% endif %} -w /var/www/letsencrypt
   args:
     creates: /root/.acme.sh/{{graphite.nginx.host_name}}/ca.cer
 
 - name: install cert to Nginx
-  shell: /root/.acme.sh/acme.sh --installcert {%if graphite is defined %}-d {{graphite.nginx.host_name}}{% endif %}{%if grafana is defined %}-d {{grafana.nginx.host_name}}{% endif %} --keypath "/etc/ssl/key.pem" --fullchainpath "/etc/ssl/fullchain.pem" --reloadcmd "systemctl restart nginx"
+  shell: /root/.acme.sh/acme.sh --installcert{%if graphite is defined %} -d {{graphite.nginx.host_name}}{% endif %}{%if grafana is defined %} -d {{grafana.nginx.host_name}}{% endif %} --keypath "/etc/ssl/key.pem" --fullchainpath "/etc/ssl/fullchain.pem" --reloadcmd "systemctl restart nginx"
   args:
     creates: /etc/ssl/certs/key.pem
   
