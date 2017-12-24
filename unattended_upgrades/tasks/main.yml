@@ -24,4 +24,4 @@
     weekday: "{{(vm_id-2)%7}}"
     hour: "3"
     minute: "{{(vm_id*2)%30+30}}"
-    job: "/sbin/shutdown -r +5"
+    job: "if [ -f /var/run/reboot-required ]; then /sbin/shutdown -r +5; fi"
