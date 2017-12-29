@@ -1,7 +1,7 @@
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
-    server_name {{inventory_hostname_short}}.{{freifunk.domain}} grafana.{{freifunk.domain}};
+    server_name {% if grafana is defined %}{{grafana.nginx.host_name}}{% endif %};
 
     location /.well-known/acme-challenge {
         root /var/www/letsencrypt;

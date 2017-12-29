@@ -6,6 +6,7 @@
     state: installed
   with_items:
     - apt-transport-https
+    - sqlite3
  
 - name: add repo key for grafana (packagecloud.io)
   apt_key:
@@ -25,7 +26,24 @@
     cache_valid_time: 900
     state: installed
 
-- name: configure collectd.conf 
+- name: deploy initial grafana.db
+  copy:
+    src: grafana.db
+    dest: /var/lib/grafana/grafana.db
+    force: false
+  notify:
+    - restart grafana-server
+
+- name: modify graphite datasource in grafana.db
+  shell: sqlite3 /var/lib/grafana/grafana.db "update data_source set url = 'https://{{graphite.nginx.host_name}}' where id=2;"
+
+- name: Ensure grafana.db are owned by grafana
+  file:
+    path: /var/lib/grafana/grafana.db
+    owner: grafana
+    group: grafana
+
+- name: deploy grafana.ini
   template:
     src: grafana.ini.j2
     dest: /etc/grafana/grafana.ini
