@@ -83,11 +83,15 @@ function is_default() {
 
 {% if ffrl_tun is defined %}
 filter export_to_upstream_filter {
-	if source = RTS_OSPF_EXT2 then reject;
-	if net ~ [{{ff_network.v6_network}}{48,56}] then accept;
+	if source = RTS_STATIC then accept;
 	reject;
 };
 {% endif %}
+
+protocol static static_Gesamtnetzwerk {
+	table ffnet;
+	route [{{ff_network.v6_network}}] reject;
+};
 
 {% if domaenenliste is defined %}
 {% for domaene in domaenenliste|dictsort %}
