@@ -90,7 +90,7 @@ filter export_to_upstream_filter {
 
 protocol static static_Gesamtnetzwerk {
 	table ffnet;
-	route [{{ff_network.v6_network}}] reject;
+	route {{ff_network.v6_network}} reject;
 };
 
 {% if domaenenliste is defined %}
