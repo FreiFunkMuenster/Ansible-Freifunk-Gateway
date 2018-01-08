@@ -619,7 +619,7 @@ LoadPlugin write_graphite
 {% endfor %}
 {% if hosts|length and hosts.pop() %}
 {% endif %}
-{% for host in groups['services']+groups['mapserver'] %}
+{% for host in groups['mapserver'] %}
 {% if hosts.append(host) %}
 {% endif %}
 {% endfor %}
@@ -723,7 +723,7 @@ LoadPlugin write_graphite
 
 <Plugin processes>
 #	Process "name"
-{% if 'services' in group_names or 'gateways' in group_names %}
+{% if 'gateways' in group_names %}
 	Process "named"
 {% endif %}
 {% if 'gateways' in group_names %}
