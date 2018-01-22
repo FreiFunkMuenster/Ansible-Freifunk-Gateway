@@ -29,11 +29,13 @@ COMMIT
 -N DNS
 -A OUTPUT -p udp -m udp --dport 53 -j DNS
 -A OUTPUT -p tcp -m tcp --dport 53 -j DNS
+{% if 'dienste' in groups %}
 {% for host in groups['dienste'] %}
 {% if hostvars[host].inventory_hostname_short == "dnsmaster" %}
 -A DNS -d {{hostvars[host].ansible_ssh_host}}/32 -j RETURN
 {% endif %}
 {% endfor %}
+{% endif %}
 {% if v4dnsips is defined %}
 {% for entry in v4dnsips %}
 -A DNS -d {{entry}}/32 -j RETURN
