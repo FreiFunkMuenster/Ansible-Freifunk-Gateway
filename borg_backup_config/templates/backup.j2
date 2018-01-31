@@ -15,16 +15,38 @@ mysqldump --defaults-file=/etc/mysql/debian.cnf -v {{db}} > /root/mysqlbackup/ba
 {% endfor %}
 {% endif %}
 
-echo "Borg create"
-/usr/local/bin/borg create -v --stats --list --filter=AME --compression lzma \
-        $REPOSITORY::'{hostname}-{now:%Y-%m-%d-%H-%M-%S}'\
-        {{ item.directories | join(' ') }}{% if item.mysqldatabases is defined %} \
-{% for db in item.mysqldatabases %}
-        /root/mysqlbackup/backup-{{db}}-db-{{ item.name }}.sql {% if not loop.last %}\{% endif %}
-
+{% if item.pgsqldatabases is defined %}
+mkdir -p /root/pgsqlbackup/
+{% for db in item.pgsqldatabases %}
+echo "Dumping {{db}} pgsql DB"
+/usr/bin/sudo -u postgres /usr/bin/pg_dump {{db}} > /root/pgsqlbackup/backup-{{db}}-db-{{ item.name }}.pgsql
 {% endfor %}
 {% endif %}
 
+echo "Borg create"
+/usr/local/bin/borg create {{ item.borg_options }} \
+        $REPOSITORY::'{hostname}-{now:%Y-%m-%d-%H-%M-%S}'\
+        {{ item.directories | join(' ') }}{% if item.mysqldatabases is defined or item.pgsqldatabases is defined %} \{% endif %}
+{% if item.mysqldatabases is defined %}
+{% for db in item.mysqldatabases %}
+
+        /root/mysqlbackup/backup-{{db}}-db-{{ item.name }}.sql {% if not loop.last or item.pgsqldatabases is defined %} \{% endif %}
+{% endfor %}
+{% endif %}
+{% if item.pgsqldatabases is defined %}
+{% for db in item.pgsqldatabases %}
+
+        /root/pgsqlbackup/backup-{{db}}-db-{{ item.name }}.pgsql {% if not loop.last %}\{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if item.borg_prune is defined %}
+BORGRESULT=$?
+echo "Borg prune"
+if [ $BORGRESULT -eq 0 ] ; then
+/usr/local/bin/borg prune -v --list $REPOSITORY --prefix '{hostname}-' {{ item.borg_prune }}
+fi
+{% endif %}
 echo "------------------------------------------------------------------STOP-------------------------------------------------------------------"
 echo "Date: $(date) Backup: $(hostname) to $REPOSITORY"
 echo "-----------------------------------------------------------------------------------------------------------------------------------------"
