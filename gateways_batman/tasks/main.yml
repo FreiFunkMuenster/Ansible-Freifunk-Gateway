@@ -4,16 +4,72 @@
     pkg: "{{ item }}"
     state: installed
   with_items:
+    - dkms
     - build-essential
+    - linux-headers-{{ansible_kernel}}
     - checkinstall
     - pkg-config
     - libnl-3-dev
     - libnl-genl-3-dev
   when: domaenenliste is defined 
 
-- name: batctl-Quellen laden und entpacken
-  unarchive: src=batctl-2016.4.tar.gz dest=/usr/src
+- name: create directory for batman-adv
+  file:
+    name: /opt/batman-adv
+    state: directory
   when: domaenenliste is defined
+
+- name: get batman 
+  get_url:
+    url: "https://downloads.open-mesh.org/batman/releases/batman-adv-2017.4/batman-adv-2017.4.tar.gz"
+    dest: /opt/batman-adv/batman-adv-2017.4.tar.gz
+  register: getbatman
+  when: domaenenliste is defined
+
+- name: batman-Quellen und entpacken
+  unarchive:
+    src: /opt/batman-adv/batman-adv-2017.4.tar.gz
+    dest: /usr/src
+    remote_src: True
+  when: 
+    - domaenenliste is defined
+    - getbatman.changed
+
+- stat: 
+    path: /lib/modules/{{ansible_kernel}}/updates/net/batman-adv/batman-adv.ko
+  register: batman_adv_file
+  when: domaenenliste is defined
+
+- name: Batman bauen
+  shell: "make && make install"
+  args:
+    chdir: /usr/src/batman-adv-2017.4
+  when:
+    - batman_adv_file.stat.exists == False
+    - domaenenliste is defined
+
+# batctl
+- name: create directory for batctl
+  file:
+    name: /opt/batctl
+    state: directory
+  when: domaenenliste is defined
+
+- name: get batctl
+  get_url:
+    url: "https://downloads.open-mesh.org/batman/releases/batman-adv-2017.4/batctl-2017.4.tar.gz"
+    dest: /opt/batctl/batctl-2017.4.tar.gz
+  register: getbatctl
+  when: domaenenliste is defined
+
+- name: batctl-Quellen und entpacken
+  unarchive:
+    src: /opt/batctl/batctl-2017.4.tar.gz
+    dest: /usr/src
+    remote_src: True
+  when:
+    - domaenenliste is defined
+    - getbatctl.changed
 
 - stat: path=/usr/local/sbin/batctl
   register: batctl
@@ -31,10 +87,10 @@
 - name: batctl bauen
   shell: "make && checkinstall -y make install"
   args:
-    chdir: /usr/src/batctl-2016.4
+    chdir: /usr/src/batctl-2017.4
   when:
     - domaenenliste is defined
-    - batctl.stat.exists == False or batctl_version.stdout_lines[0] != "batctl 2016.4"
+    - batctl.stat.exists == False or batctl_version.stdout_lines[0] != "batctl 2017.4"
 
 # creating batman interface
 - name: Create interfaces - batman file
