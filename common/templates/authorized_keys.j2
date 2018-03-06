@@ -1,4 +1,8 @@
 {% for admin in administratorenteam %}
 {{ lookup('file', 'keyfiles/' + admin + '.pub') }}
 {% endfor %}
-
+{% if additionaladmins is defined %}
+{% for additionaladmin in additionaladmins %}
+{{ lookup('file', 'keyfiles/' + additionaladmin + '.pub') }}
+{% endfor %}
+{% endif %}
