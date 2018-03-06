@@ -70,14 +70,14 @@
                         "code": 3,
                         "space": "dhcp4",
                         "csv-format": true,
-                        "data": "{{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }}{% if kea.routers.all_gateways is defined and kea.routers.all_gateways == True %}{% for gateway in groups['gateways'] %}{% if gateway != inventory_hostname and domaene[0] in hostvars[gateway].domaenenliste %}, {{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars[gateway].domaenenliste[domaene[0]].server_id) | ipaddr('address') }}{% endif %}{% endfor %}{% endif %}"
+                        "data": "{{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }}{% if kea.routers.all_gateways is defined and kea.routers.all_gateways == True %}{% for gateway in groups['gateways'] %}{% if gateway != inventory_hostname and hostvars[gateway].domaenenliste is defined and domaene[0] in hostvars[gateway].domaenenliste %}, {{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars[gateway].domaenenliste[domaene[0]].server_id) | ipaddr('address') }}{% endif %}{% endfor %}{% endif %}"
                     },
                     {
                         "name": "domain-name-servers",
                         "code": 6,
                         "space": "dhcp4",
                         "csv-format": true,
-                        "data": "{{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }}{% if kea.dns.all_gateways is defined and kea.dns.all_gateways == True %}{% for gateway in groups['gateways'] %}{% if gateway != inventory_hostname and domaene[0] in hostvars[gateway].domaenenliste %}, {{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars[gateway].domaenenliste[domaene[0]].server_id) | ipaddr('address') }}{% endif %}{% endfor %}{% endif %}{% if kea.dns.additional %}{% for entry in kea.dns.additional %}, {{entry}}{% endfor %}{% endif %}"
+                        "data": "{{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }}{% if kea.dns.all_gateways is defined and kea.dns.all_gateways == True %}{% for gateway in groups['gateways'] %}{% if gateway != inventory_hostname and hostvars[gateway].domaenenliste is defined and domaene[0] in hostvars[gateway].domaenenliste %}, {{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars[gateway].domaenenliste[domaene[0]].server_id) | ipaddr('address') }}{% endif %}{% endfor %}{% endif %}{% if kea.dns.additional %}{% for entry in kea.dns.additional %}, {{entry}}{% endfor %}{% endif %}"
                     },
                     {
                         "name": "domain-name",
