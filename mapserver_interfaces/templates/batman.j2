@@ -51,7 +51,7 @@ iface t{{domaene[0]}}-{{ host }} inet manual
 {% if build_tunnels_over_ipv6_if_available is defined and build_tunnels_over_ipv6_if_available and ipv6 is defined and hostvars[host].ipv6 is defined %}
         pre-up ip link add $IFACE type ip6gretap local {{ipv6}} remote {{hostvars[host].ipv6}} dev {{ansible_default_ipv6.interface}} key {{domaene[0]|int}}
 {% else %}
-        pre-up ip link add $IFACE type gretap local {{ansible_default_ipv4.address}} remote {{hostvars[host].ansible_ssh_host}} dev eth0 key {{domaene[0]|int}}
+        pre-up ip link add $IFACE type gretap local {{ansible_default_ipv4.address}} remote {{hostvars[host].ipv4}} dev eth0 key {{domaene[0]|int}}
 {% endif %}
         pre-up ip link set dev $IFACE address de:ad:be:ef:{{ '%02x' % indexer[0] }}:{{server_id}}
         pre-up ip link set $IFACE up
