@@ -32,6 +32,7 @@ iface bat{{domaene[0]}} inet6 static
         post-up batctl -m bat{{domaene[0]}} if add tap-{{ host }} ||:
 {% endif %}
 {% endfor %}
+        post-up batctl -m bat{{domaene[0]}} mm 0
 	post-up ip -6 addr add {{domaene[1].ffv6_network | ipaddr(server_id) | ipaddr('address')}}/64 dev bat{{domaene[0]}}
 	post-up pgrep -a -x -f "batadv-vis -i bat{{domaene[0]}}.*" || batadv-vis -i bat{{domaene[0]}} -u /run/batadvvis.{{domaene[0]}}.sock -s >/dev/null 2>&1&
         pre-down pkill -x -f "batadv-vis -i bat{{domaene[0]}}.*" ||:
