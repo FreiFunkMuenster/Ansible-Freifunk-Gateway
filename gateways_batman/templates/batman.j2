@@ -14,6 +14,7 @@ iface bat{{item[0]}} inet static
         post-up ip link set dev bat{{item[0]}} up
         post-up batctl -m bat{{item[0]}} it 10000
         post-up batctl -m bat{{item[0]}} gw server {{batman.downstream}}/{{batman.upstream}}
+        post-up batctl -m bat{{item[0]}} mm 0
         post-up batctl -m bat{{item[0]}} if add br{{item[0]}} ||:
 {% for host in groups['gateways'] %}
 {% if host != inventory_hostname %}
