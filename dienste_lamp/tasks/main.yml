@@ -148,4 +148,4 @@
     weekday: "1"
     hour: "2"
     minute: "30"
-    job: "/usr/bin/letsencrypt renew >> /var/log/le-renew.log"
+    job: "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:; /usr/bin/letsencrypt renew >> /var/log/le-renew.log"
