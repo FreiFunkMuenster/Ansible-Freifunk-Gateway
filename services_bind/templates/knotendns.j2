@@ -4,7 +4,7 @@ LINK="https://karte.{{freifunk.domain}}/data/nodes.zone"
 function update_dns {
 	mv nodes.zone nodes.alt	
 {% for domain in domains %}
-	sed -e 's/{{freifunk.domain}}/{{domain}}/g' nodes.alt > db.knoten.{{domain}}
+	sed -e 's/{{freifunk.domain}}/{{domain}}/g;s/\(\([0-9]\)\{10\}\)[0-9]*/\1/' nodes.alt > db.knoten.{{domain}}
 {% endfor %}
 	systemctl reload bind9.service	
 }

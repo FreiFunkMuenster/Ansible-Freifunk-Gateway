@@ -197,7 +197,7 @@
     weekday: "1"
     hour: "2"
     minute: "30"
-    job: "/usr/bin/letsencrypt renew | tee -a /var/log/le-renew.log | grep 'No renewals' >> /dev/null || omd restart >> /dev/null"
+    job: "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:; /usr/bin/letsencrypt renew | tee -a /var/log/le-renew.log | grep 'No renewals' >> /dev/null || omd restart >> /dev/null"
 
 - name: Permissions on /etc/letsencrypt/archive for icingaAPI
   file:
