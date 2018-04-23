@@ -1,0 +1,32 @@
+#!/bin/bash
+nodeid=$1
+
+if [ -z "$nodeid" ]; then
+	while true; do
+		read -p"Node ID? " nodeid
+		if [ ! -z "$nodeid" ]; then
+			break
+		fi
+	done
+fi
+
+hostname=$(jq '.["'$nodeid'"]|.nodeinfo.hostname' < /etc/hopglass-server/default/raw.json)
+
+if [ "$hostname" == "null" ]; then
+	echo "Es wurde kein Knoten mit der ID $nodeid gefunden."
+	exit 2;
+fi
+
+while true; do
+	read -p"Bist du dir sicher das du den Knoten $hostname mit der ID $nodeid löschen möchtest? (j/n) " response
+	if [ "$response" == "j" ]; then
+		systemctl stop hopglass-server@default.service
+    	cp /etc/hopglass-server/default/raw.json /etc/hopglass-server/default/raw.old
+		jq 'del(.["'$nodeid'"])' < /etc/hopglass-server/default/raw.old > /etc/hopglass-server/default/raw.json
+		systemctl start hopglass-server@default.service
+		break
+	elif [ "$response" == "n" ]; then
+	    echo "Gut das ich gefragt hab..."
+		break
+	fi
+done

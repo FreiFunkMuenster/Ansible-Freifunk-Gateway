@@ -53,7 +53,7 @@
 - name: Install nodejs
   apt:
     pkg: nodejs
-    state: installed
+    state: present
 
 - name: Create HopGlass-server directory if not existent
   file:
@@ -67,28 +67,33 @@
     createhome: yes
     home: /opt/hopglass
 
-- name: Clone HopGlass Server Repo
-  git: repo=https://github.com/hopglass/hopglass-server.git dest=/opt/hopglass/server force=yes
-  notify:
-    - "restart hopglass"
-  register: hopglass_server_git_clone
-
-- name: Adjust permissions
-  file:
-    path: /opt/hopglass
-    owner: hopglass
-    group: hopglass
-    recurse: yes
-  when: hopglass_server_git_clone.changed
-
-- name: install dependencies
-  shell: npm install
-  args:
-    chdir: /opt/hopglass/server
-  when: hopglass_server_git_clone.changed
+#- name: Clone HopGlass Server Repo
+#  git: 
+#    repo: https://github.com/hopglass/hopglass-server.git
+#    dest: /opt/hopglass/server
+#    force: yes
+#  notify:
+#    - "restart hopglass"
+#  register: hopglass_server_git_clone
+#
+#- name: Adjust permissions
+#  file:
+#    path: /opt/hopglass
+#    owner: hopglass
+#    group: hopglass
+#    recurse: yes
+#  when: hopglass_server_git_clone.changed
+#
+#- name: install dependencies
+#  shell: npm install
+#  args:
+#    chdir: /opt/hopglass/server
+#  when: hopglass_server_git_clone.changed
 
 - name: Create HopGlass-server Config directory if not existent
-  file: path=/etc/hopglass-server/default state=directory
+  file:
+    path: /etc/hopglass-server/default
+    state: directory
 
 - name: Setup systemd service
   copy:
@@ -113,5 +118,13 @@
   notify:
     - "restart hopglass"
 
+- name: Copy delnode helper script
+  copy:
+    src: delnode
+    dest: /usr/bin/delnode
+    mode: a+x
+
 - name: install hopglass server service hopglass-server
-  service: name=hopglass-server@default enabled=yes
+  service: 
+    name: hopglass-server@default
+    enabled: yes
