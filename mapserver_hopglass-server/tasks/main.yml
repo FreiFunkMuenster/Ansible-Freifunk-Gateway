@@ -118,6 +118,11 @@
   notify:
     - "restart hopglass"
 
+- name: Install jq for delnode script
+  apt:
+    pkg: jq
+    state: present
+
 - name: Copy delnode helper script
   copy:
     src: delnode
