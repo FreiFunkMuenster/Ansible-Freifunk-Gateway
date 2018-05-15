@@ -5,7 +5,7 @@
     - restart isc-dhcp-server
 
 - name: install isc-dhcp-server
-  apt: pkg=isc-dhcp-server state=installed
+  apt: pkg=isc-dhcp-server state=present
 
 - name: create dhcp defaults 
   template: src=isc-dhcp-server.j2 dest=/etc/default/isc-dhcp-server

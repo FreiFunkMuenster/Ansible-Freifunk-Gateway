@@ -12,7 +12,7 @@
   apt:
     pkg: "{{ item }}"
     update_cache: yes
-    state: installed
+    state: present
   with_items:
     - fastd
     - haveged

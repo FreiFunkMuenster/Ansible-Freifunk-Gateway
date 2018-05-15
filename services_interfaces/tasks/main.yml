@@ -2,7 +2,7 @@
 - name: benötigte Pakete installieren
   apt:
     pkg: "{{ item }}"
-    state: installed
+    state: present
   with_items:
     - build-essential
     - checkinstall

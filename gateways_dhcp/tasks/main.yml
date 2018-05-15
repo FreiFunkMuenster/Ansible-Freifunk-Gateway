@@ -1,7 +1,7 @@
 ---
 
 - name: install requirements
-  apt: pkg=rsync state=installed
+  apt: pkg=rsync state=present
 
 - name: create persitent folder dhcpd data
   file: path=/var/lib/dhcp_persistent state=directory mode=0755

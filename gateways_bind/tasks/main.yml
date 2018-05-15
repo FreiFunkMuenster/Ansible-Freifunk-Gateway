@@ -1,7 +1,9 @@
 # install bind9 service 
 # ---
 - name: install bind9
-  apt: pkg=bind9 state=installed
+  apt:
+    pkg: bind9
+    state: present
 
 - name: create folder for named logging
   file:

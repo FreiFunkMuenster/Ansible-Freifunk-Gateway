@@ -3,7 +3,7 @@
 - name: Install unattended-upgrades package
   apt:
     pkg: "unattended-upgrades"
-    state: installed
+    state: present
     update_cache: yes
     cache_valid_time: 1800
 

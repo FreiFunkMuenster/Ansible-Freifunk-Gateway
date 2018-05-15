@@ -13,7 +13,7 @@
   apt: 
     pkg: omd
     update_cache: yes
-    state: installed
+    state: present
 
 - name: Create OMD {{freifunk.kurzname}} site
   command: omd create {{freifunk.kurzname}}
@@ -163,7 +163,7 @@
   apt:
     pkg: python-letsencrypt-apache
     update_cache: no
-    state: installed
+    state: present
 
 - name: install pyOpenSSL
   pip:

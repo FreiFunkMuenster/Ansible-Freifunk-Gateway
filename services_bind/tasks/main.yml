@@ -1,5 +1,5 @@
 - name: install bind9
-  apt: pkg=bind9 state=installed
+  apt: pkg=bind9 state=present
 
 - name: deploy named.conf.local
   template: src=named.conf.local.j2 dest=/etc/bind/named.conf.local

@@ -2,7 +2,7 @@
   apt:
     pkg: "{{ item }}"
     update_cache: no
-    state: installed
+    state: present
   with_items:
     - sendmail
     - unzip

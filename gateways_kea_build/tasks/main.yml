@@ -5,7 +5,7 @@
     pkg: "{{ item }}"
     update_cache: yes
     cache_valid_time: 1800
-    state: installed
+    state: present
     install_recommends: no
   with_items:
     - git

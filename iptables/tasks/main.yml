@@ -3,7 +3,7 @@
   apt:
     pkg: "iptables-persistent"
     update_cache: yes
-    state: installed
+    state: present
 
 - name: Get IPv4-DNS-servers
   shell: grep '^nameserver' /etc/resolv.conf|sed -e 's/.*nameserver *//' -e 's/#.*//'|grep -v ':' || true

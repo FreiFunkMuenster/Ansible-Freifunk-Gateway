@@ -18,7 +18,7 @@
     name: "{{item}}"
     update_cache: yes
     cache_valid_time: 1800
-    state: installed
+    state: present
   with_items:
     - postgresql-9.5
     - python-psycopg2

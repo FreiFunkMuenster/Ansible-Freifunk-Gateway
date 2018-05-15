@@ -42,7 +42,7 @@
 - name: Install nodejs
   apt:
     pkg: nodejs
-    state: installed
+    state: present
 
 - name: Install dependencies
   shell: npm install

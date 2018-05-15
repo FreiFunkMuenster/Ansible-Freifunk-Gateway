@@ -2,7 +2,7 @@
 - name: install figlet
   apt: 
     pkg: figlet
-    state: installed
+    state: present
 
 - name: check figlet
   stat: 
