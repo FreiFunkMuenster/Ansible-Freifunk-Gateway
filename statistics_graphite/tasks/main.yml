@@ -58,6 +58,13 @@
   shell: "graphite-manage syncdb --noinput"
   args:
     creates: "/var/lib/graphite/graphite.db"
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '16.04'
+
+- name: Create database for graphite-web
+  shell: "PYTHONPATH=$GRAPHITE_ROOT/webapp django-admin migrate --settings=graphite.settings --run-syncdb"
+  args:
+    creates: "/var/lib/graphite/graphite.db"
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04'
 
 - name: Ensure directories are owned by www-data
   file:

@@ -33,10 +33,18 @@ server {
         include uwsgi_params;
     }
 
+{% if ansible_distribution_version == '16.04' %}
     # Proxy for graphite content
     location /content/ {
         alias /usr/share/graphite-web/static/;
     }
+{% endif %}
+{% if ansible_distribution_version == '18.04' %}
+    # Proxy for graphite content
+    location /static/ {
+        alias /usr/share/graphite-web/static/;
+    }
+{% endif %}
 
     location /.well-known/acme-challenge {
         root /var/www/letsencrypt;
