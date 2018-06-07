@@ -31,8 +31,13 @@
 {% if mapconfig.globalInfos is defined %}
   "globalInfos": [
 {% for globalInfo in mapconfig.globalInfos %}
-    { "name": "{{ globalInfo.name }}",
-      "iframe": "{{ globalInfo.iframe }}"{% if globalInfo.caption is defined %},
+    { "name": "{{ globalInfo.name }}",{% if globalInfo.href is defined %}
+
+      "href": "{{ globalInfo.href }}",{% endif %}{% if globalInfo.iframe is defined %}
+
+      "iframe": "{{ globalInfo.iframe }}"{% endif %}{% if globalInfo.thumbnail is defined %}
+
+      "thumbnail": "{{ globalInfo.thumbnail }}"{% endif %}{% if globalInfo.caption is defined %},
       "caption": "{{ globalInfo.caption }}"{% endif %}
 
     }{% if not loop.last %},{% endif %}
@@ -43,8 +48,13 @@
 {% if mapconfig.nodeInfos is defined %}
   "nodeInfos": [
 {% for nodeInfo in mapconfig.nodeInfos %}
-    { "name": "{{ nodeInfo.name }}",
-      "iframe": "{{ nodeInfo.iframe }}"{% if nodeInfo.caption is defined %},
+    { "name": "{{ nodeInfo.name }}",{% if nodeInfo.href is defined %}
+
+      "href": "{{ nodeInfo.href }}",{% endif %}{% if nodeInfo.iframe is defined %}
+
+      "iframe": "{{ nodeInfo.iframe }}"{% endif %}{% if nodeInfo.thumbnail is defined %}
+
+      "thumbnail": "{{ nodeInfo.thumbnail }}"{% endif %}{% if nodeInfo.caption is defined %},
       "caption": "{{ nodeInfo.caption }}"{% endif %}
 
     }{% if not loop.last %},{% endif %}
