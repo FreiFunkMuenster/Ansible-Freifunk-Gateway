@@ -1,0 +1,95 @@
+- name: Create User git
+  user:
+    name: git
+    shell: /bin/bash
+
+- name: clone gitolite repo
+  git:
+    repo: https://github.com/sitaramc/gitolite
+    dest: /home/git/gitolite
+    update: no
+  become: yes
+  become_user: git
+  register: gitolite_clone
+
+- name: create /home/git/bin directory if not existent
+  file:
+    path: /home/git/bin
+    state: directory
+  become: yes
+  become_user: git
+
+- name: install gitolite
+  shell: gitolite/install -ln
+  args:
+    chdir: /home/git
+  become: yes
+  become_user: git
+  when: gitolite_clone.changed
+
+- name: setup gitolite admin
+  shell: /home/git/bin/gitolite setup -a dunny
+  args:
+    chdir: /home/git
+  become: yes
+  become_user: git
+  when: gitolite_clone.changed
+
+- name: remove gitolite-admin repo
+  file:
+    path: /home/git/repositories/gitolite-admin.git
+    state: absent
+
+- name: create /home/git/.gitolite/keydir directory if not existent
+  file:
+    path: /home/git/.gitolite/keydir
+    state: directory
+  become: yes
+  become_user: git
+
+- name: copy administratorenteam ssh keys
+  copy:
+    src: keyfiles/{{item}}.pub
+    dest: /home/git/.gitolite/keydir/{{item}}.pub
+    owner: git
+    group: git
+  with_items: "{{administratorenteam}}"
+
+- name: copy additional user ssh keys
+  copy:
+    src: keyfiles/{{item}}.pub
+    dest: /home/git/.gitolite/keydir/{{item}}.pub
+    owner: git
+    group: git
+  with_items: "{{gitolite.users}}"
+  when: gitolite.users is defined
+
+- name: get a list of all keys on the server
+  shell: '/bin/ls /home/git/.gitolite/keydir/ | /bin/sed s/.pub//g'
+  changed_when: False
+  failed_when: False
+  check_mode: no
+  register: keys_on_server
+
+- name: remove unneded user ssh keys
+  file:
+    path: /home/git/.gitolite/keydir/{{item}}.pub
+    state: absent
+  with_items: "{{keys_on_server.stdout_lines}}"
+  when: item not in administratorenteam and item not in gitolite.users
+
+- name: generate gitolite config
+  template:
+    src: gitolite.conf.j2
+    dest: /home/git/.gitolite/conf/gitolite.conf
+  become: yes
+  become_user: git
+  register: gitolite_config
+
+- name: trigger gitolite compile
+  shell: /home/git/bin/gitolite compile; /home/git/bin/gitolite trigger POST_COMPILE
+  args:
+    chdir: /home/git
+  become: yes
+  become_user: git
+  when: gitolite_config.changed

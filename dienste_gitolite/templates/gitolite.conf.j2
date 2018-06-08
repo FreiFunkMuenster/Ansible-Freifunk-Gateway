@@ -1,0 +1,20 @@
+@adminteam = {{ administratorenteam | join(',') | regex_replace(',', ' ') }}
+
+{% for repo in gitolite.repos %}
+repo {{ repo.name }}
+{% if repo.admin_users is defined %}
+    RW+     =   {% for admin_user in repo.admin_users %}{{ admin_user }} {% endfor %}
+{% endif %}
+
+{% if repo.readwrite_users is defined %}
+    RW      =   {% for readwrite_user in repo.readwrite_users %}{{ readwrite_user }} {% endfor %}
+{% endif %}
+
+{% if repo.readonly_users is defined %}
+    R       =   {% for readonly_user in repo.readonly_users %}{{ readonly_user }} {% endfor %}
+{% endif %}
+
+{% endfor %}
+
+repo testing
+    RW+     =   @all
