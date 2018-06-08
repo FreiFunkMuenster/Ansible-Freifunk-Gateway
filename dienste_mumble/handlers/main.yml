@@ -1,0 +1,5 @@
+---
+- name: restart mumble
+  service: 
+    name: mumble-server
+    state: restarted

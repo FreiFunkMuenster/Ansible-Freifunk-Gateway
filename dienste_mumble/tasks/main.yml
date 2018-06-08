@@ -1,0 +1,54 @@
+---
+- name: add key for mumble repo
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: 22C54CD5AAE0971730875E0285DECED27F05CF9E 
+
+- name: add mumble repo
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items:
+    - "deb http://ppa.launchpad.net/mumble/release/ubuntu xenial main"
+    - "deb-src http://ppa.launchpad.net/mumble/release/ubuntu xenial main"
+
+- name: Install Mumble-Server
+  apt:
+    pkg: "{{ item }}"
+    update_cache: yes
+    state: present
+  with_items:
+    - mumble-server
+
+### TODO ### 
+# Funktioniert noch nicht!
+#
+#- name: configure Mumble Server
+#  expect:
+#    command: dpkg-reconfigure mumble-server
+#    responses:
+#      'Autostart mumble-server on server boot?': "\n"
+#      'Allow mumble-server to use higher priority?': "\n"
+#      'Password to set on SuperUser account:': '123456'
+
+- name: acme install
+  shell: wget -O -  https://get.acme.sh | sh
+  args:
+    creates: /root/.acme.sh/acme.sh
+
+- name: Create certificate
+  shell: '/root/.acme.sh/acme.sh --issue{% for domain in mumble.domains %} -d {{inventory_hostname_short}}.{{domain}}{% endfor %} --standalone {% if mumble.generateCertViaIpv6 %}--listen-v6 {% endif %}--cert-file /etc/ssl/cert.pem --key-file /etc/ssl/key.pem --ca-file /etc/ssl/ca.pem --fullchain-file /etc/ssl/fullchain.pem --reloadcmd "systemctl restart mumble-server.service" && touch /root/.certcreated'
+  args:
+    creates: /root/.certcreated
+
+- name: Adjust permissions
+  file:
+    path: /etc/ssl/key.pem
+    mode: 0644
+
+- name: configure mumble-server
+  template:
+    src: mumble-server.ini.j2
+    dest: /etc/mumble-server.ini
+  notify:
+    - restart mumble
