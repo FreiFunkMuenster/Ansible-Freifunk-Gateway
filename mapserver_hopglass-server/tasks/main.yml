@@ -41,7 +41,12 @@
     url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
     state: present
 
-- name: Add repo for nodejs
+- name: Add yarn repo keys
+  apt_key:
+    url: "https://dl.yarnpkg.com/debian/pubkey.gpg"
+    state: present
+
+- name: Add repo for nodejs and yarn
   apt_repository:
     repo: "{{ item }}"
     state: present
@@ -49,11 +54,16 @@
   with_items:
     - "deb https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
     - "deb-src https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
+    - "deb https://dl.yarnpkg.com/debian/ stable main"
 
-- name: Install nodejs
+- name: Install nodejs, npm and yarn
   apt:
-    pkg: nodejs
+    pkg: "{{item}}"
     state: present
+  with_items:
+    - nodejs
+    - yarn
+    - npm
 
 - name: Create HopGlass-server directory if not existent
   file:
@@ -67,28 +77,28 @@
     createhome: yes
     home: /opt/hopglass
 
-#- name: Clone HopGlass Server Repo
-#  git: 
-#    repo: https://github.com/hopglass/hopglass-server.git
-#    dest: /opt/hopglass/server
-#    force: yes
-#  notify:
-#    - "restart hopglass"
-#  register: hopglass_server_git_clone
-#
-#- name: Adjust permissions
-#  file:
-#    path: /opt/hopglass
-#    owner: hopglass
-#    group: hopglass
-#    recurse: yes
-#  when: hopglass_server_git_clone.changed
-#
-#- name: install dependencies
-#  shell: npm install
-#  args:
-#    chdir: /opt/hopglass/server
-#  when: hopglass_server_git_clone.changed
+- name: Clone HopGlass Server Repo
+  git:
+    repo: https://github.com/hopglass/hopglass-server.git
+    dest: /opt/hopglass/server
+    version: 5bab4dac7eb9fc7502d1473b77d180d8c4a90241
+  notify:
+    - "restart hopglass"
+  register: hopglass_server_git_clone
+
+- name: Adjust permissions
+  file:
+    path: /opt/hopglass
+    owner: hopglass
+    group: hopglass
+    recurse: yes
+  when: hopglass_server_git_clone.changed
+
+- name: install dependencies
+  shell: npm install
+  args:
+    chdir: /opt/hopglass/server
+  when: hopglass_server_git_clone.changed
 
 - name: Create HopGlass-server Config directory if not existent
   file:
