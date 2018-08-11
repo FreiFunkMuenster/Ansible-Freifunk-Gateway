@@ -150,13 +150,21 @@ template bgp internal {
 	next hop self;
 };
 
-{% if ffrl_tun is defined and ffrl_nat_ip is defined %}
+{% if ffrl_tun is defined %}
 {% for tun in ffrl_tun %}
 protocol bgp ffrl_{{tun.name}} from uplink {
 	source address {{ tun.v4_remote | ipaddr( tun.v4_remote.split('.')[3] | int + 1) | ipaddr('address') }};
 	neighbor {{tun.v4_remote | regex_replace("^(\d+\.\d+\.\d+\.\d+)/\d+$","\\1")}} as 201701;
 {% if "bgp_local_pref" in  tun %}
 	default bgp_local_pref {{tun.bgp_local_pref}};
+{% endif %}
+{% if ffrl_nat_ip is not defined %}
+        import filter {
+                reject;
+        };
+        export filter {
+                reject;
+        };
 {% endif %}
 };
 

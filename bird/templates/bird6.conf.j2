@@ -173,7 +173,6 @@ protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 {% endif %}
 {% endfor %}
 
-{% if ffrl_tun is defined %}
 template bgp uplink {
 	table ffnet;
 	local as {{ff_network.as_number}};
@@ -182,6 +181,7 @@ template bgp uplink {
 	gateway recursive;
 }
 
+{% if ffrl_tun is defined %}
 {% for tun in ffrl_tun %}
 protocol bgp ffrl_{{tun.name}} from uplink {
 	description "Rheinland Backbone";
@@ -192,3 +192,18 @@ protocol bgp ffrl_{{tun.name}} from uplink {
 {% endfor %}
 {% endif %}
 
+{% if ffnw_tun is defined %}
+{% for tun in ffnw_tun %}
+protocol bgp ffnw_{{tun.name}} from uplink {
+        description "Nordwest Backbone";
+        neighbor {{tun.v6_remote | ipaddr('address')}}%'tun-ffnw-{{tun.name}}' as 206313;
+	import filter {
+		reject;
+	};
+	export filter {
+		reject;
+	};
+};
+
+{% endfor %}
+{% endif %}
