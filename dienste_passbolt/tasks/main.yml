@@ -1,0 +1,283 @@
+---
+- include_vars: passwords.yml
+
+- name: Install dependencies
+  apt:
+    pkg: "{{ item }}"
+    update_cache: yes
+    state: present
+  with_items:
+    - make
+    - git
+    - composer
+    - unzip
+    - g++
+
+## MariaDB ##
+- name: Unattended package installation
+  shell: export DEBIAN_FRONTEND=noninteractive
+  changed_when: false
+
+- name: Install MariaDB
+  apt:
+    pkg: "{{ item }}"
+    update_cache: no
+    state: present
+  with_items:
+    - mariadb-server
+    - mariadb-client
+    - python-mysqldb
+
+- name: Start and enable mysql
+  service:
+    name: mysql
+    state: started
+    enabled: yes
+
+- name: Set root Password
+  mysql_user: 
+    name: root
+    host: "{{ item }}"
+    password: "{{ mysql_root_password }}"
+    state: present
+  with_items:
+    - localhost
+    - 127.0.0.1
+    - ::1
+
+- name: Reload privilege tables
+  command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - FLUSH PRIVILEGES
+  changed_when: False
+
+- name: Add .my.cnf
+  template:
+    src: my.cnf.j2
+    dest: /root/.my.cnf
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Remove anonymous users
+  command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - DELETE FROM mysql.user WHERE User=''
+  changed_when: False
+
+- name: Disallow root login remotely
+  command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')
+  changed_when: False
+
+- name: Remove test database and access to it
+  command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - DROP DATABASE IF EXISTS test
+    - DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%'
+  changed_when: False
+
+- name: Reload privilege tables
+  command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - FLUSH PRIVILEGES
+  changed_when: False
+
+- name: Create database for passbolt
+  mysql_db:
+    name: passbolt
+    state: present
+
+- name: Create database user for passbolt
+  mysql_user:
+    name: passbolt
+    host: localhost
+    password: passbolt
+    state: present
+    priv: 'passbolt.*:ALL'
+  register: createdbuser
+
+- name: Reload privilege tables
+  command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - FLUSH PRIVILEGES
+  changed_when: False
+  when: createdbuser.changed
+
+## apache ##
+- name: Install Apache
+  apt:
+    pkg: "{{ item }}"
+    update_cache: no
+    state: present
+  with_items:
+    - apache2
+
+- name: Enable mod_rewrite
+  shell: a2enmod rewrite
+
+- name: Install PHP
+  apt:
+    pkg: "{{ item }}"
+    update_cache: no
+    state: present
+  with_items:
+    - php7.2
+    - php7.2-cli
+    - php7.2-common
+    - libapache2-mod-php7.2
+    - php7.2-json
+    - php7.2-readline
+    - php7.2-mysqlnd
+    - libonig4
+    - libqdbm14
+    - php7.2-gd
+    - php7.2-intl
+    - php7.2-simplexml
+    - php7.2-curl
+    - php7.2-dom
+    - php7.2-mbstring
+    - libgpgme11-dev
+    - php7.2-gnupg
+
+- name: Deploy virthost config
+  template:
+    src: templates/virthost.conf.j2
+    dest: /etc/apache2/sites-available/{{inventory_hostname_short}}.{{freifunk.domain}}.conf
+  notify:
+    - "restart apache"
+
+- name: Enable virthost site with a2ensite 
+  shell: a2ensite -q {{inventory_hostname_short}}.{{freifunk.domain}}.conf
+  args:
+    creates: /etc/apache2/sites-enabled/{{inventory_hostname_short}}.{{freifunk.domain}}.conf
+  notify:
+    - "restart apache"
+
+- name: clone passbolt repo
+  git:
+    repo: https://github.com/passbolt/passbolt_api.git
+    dest: /var/www/passbolt
+    update: no
+  register: gitolite_clone
+
+- name: acme install
+  shell: wget -O -  https://get.acme.sh | sh
+  args:
+    creates: /root/.acme.sh/acme.sh
+
+- name: Create certificate
+  shell: '/root/.acme.sh/acme.sh --issue{% for domain in passbolt.domains %} -d {{inventory_hostname_short}}.{{domain}}{% endfor %} --apache --cert-file /etc/ssl/cert.pem --key-file /etc/ssl/key.pem --ca-file /etc/ssl/ca.pem --fullchain-file /etc/ssl/fullchain.pem --reloadcmd "systemctl restart apache2.service" && touch /root/.certcreated'
+  args:
+    creates: /root/.certcreated
+
+- name: Deploy ssl virthost config
+  template:
+    src: templates/virthost-ssl.conf.j2
+    dest: /etc/apache2/sites-available/{{inventory_hostname_short}}.{{freifunk.domain}}-ssl.conf
+  notify:
+    - "restart apache"
+
+- name: Enable ssl virthost site with a2ensite
+  shell: a2ensite -q {{inventory_hostname_short}}.{{freifunk.domain}}-ssl.conf
+  args:
+    creates: /etc/apache2/sites-enabled/{{inventory_hostname_short}}.{{freifunk.domain}}-ssl.conf
+  notify:
+    - "restart apache"
+
+- name: Enable mod_ssl
+  shell: a2enmod ssl
+  notify:
+    - "restart apache"
+
+- name: Enable mod_headers
+  shell: a2enmod headers
+  notify:
+    - "restart apache"
+
+- name: Install haveged
+  apt:
+    pkg: "{{ item }}"
+    update_cache: no
+    state: present
+  with_items:
+    - haveged
+
+- name: copy genkey
+  template:
+    src: genkey.j2
+    dest: /root/genkey
+  register: copy_genkey
+
+- name: generate an OpenPGP key
+  shell: gpg --batch --gen-key /root/genkey
+  changed_when: false
+  when: copy_genkey.changed
+
+- name: get key fingerprint
+  shell: gpg --list-keys | grep -i -B 1 '{{freifunk.email}}' | head -n1 | sed 's/ //g'
+  changed_when: false
+  register: gpgfingerprint
+
+- name: Copy the private key to the passbolt config location
+  shell: gpg --armor --export-secret-keys {{freifunk.email}} > /var/www/passbolt/config/gpg/serverkey_private.asc
+
+- name: Copy the public key to the passbolt config location
+  shell: gpg --armor --export {{freifunk.email}} > /var/www/passbolt/config/gpg/serverkey.asc
+
+- name: Adjust permissions
+  file:
+    path: /var/www/passbolt/config/gpg/serverkey_private.asc
+    mode: 0640
+
+- name: Adjust permissions
+  file:
+    path: /var/www/passbolt/config/gpg/serverkey.asc
+    mode: 0640
+
+- name: Adjust permissions
+  file:
+    path: /var/www
+    owner: www-data
+    group: www-data
+    recurse: yes
+
+- name: create the keyring for the webserver
+  shell: gpg --list-keys
+  become: yes
+  become_user: www-data
+
+- name: composer install
+  shell: composer install
+  args:
+    chdir: /var/www/passbolt
+  become: yes
+  become_user: www-data
+
+- name: copy passbolt config
+  template:
+    src: passbolt.php.j2
+    dest: /var/www/passbolt/config/passbolt.php
+    owner: www-data
+    group: www-data
+
+- name: passbolt install
+  shell: ./bin/cake passbolt install --no-admin --data && touch /root/.passbolt_install_ok
+  args:
+    chdir: /var/www/passbolt
+    creates: /root/.passbolt_install_ok
+  become: yes
+  become_user: www-data
+
+- name: passbolt install User
+  shell: ./bin/cake passbolt register_user --first-name '{{ passbolt.admin.firstname }}' --last-name '{{ passbolt.admin.lastname }}' --username '{{ passbolt.admin.mail }}' --role 'admin' && touch /root/.passbolt_admin_ok
+  args:
+    chdir: /var/www/passbolt
+    creates: /root/.passbolt_admin_ok
+  become: yes
+  become_user: www-data
+
+## TODO
+## Mail Cron!
+

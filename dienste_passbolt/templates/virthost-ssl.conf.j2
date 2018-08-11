@@ -1,0 +1,43 @@
+<IfModule mod_ssl.c>
+<VirtualHost *:443>
+    ServerAdmin {{freifunk.email}}
+{% for domain in passbolt.domains %}
+{% if loop.first %}
+    ServerName {{inventory_hostname_short}}.{{domain}}
+{% endif %}
+{% endfor %}
+    ServerAlias {% for domain in passbolt.domains %}{% if not loop.first %}{{inventory_hostname_short}}.{{domain}} {% endif %}{% endfor %}
+
+    DocumentRoot /var/www/passbolt
+
+    ErrorLog ${APACHE_LOG_DIR}/{{inventory_hostname_short}}.{{freifunk.domain}}-error.log
+    CustomLog ${APACHE_LOG_DIR}/{{inventory_hostname_short}}.{{freifunk.domain}}-access.log combined
+
+    <Directory /var/www/passbolt>
+        Options FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    <FilesMatch “\.(php)$”>
+        SSLOptions +StdEnvVars
+    </FilesMatch>
+
+    BrowserMatch “MSIE [2–6]” \
+      nokeepalive ssl-unclean-shutdown \
+      downgrade-1.0 force-response-1.0
+    BrowserMatch “MSIE [17–9]” ssl-unclean-shutdown
+
+    SSLCertificateFile /etc/ssl/fullchain.pem
+    SSLCertificateKeyFile /etc/ssl/key.pem
+
+    SSLEngine on
+    SSLProtocol             all -SSLv2 -SSLv3
+    SSLCipherSuite          ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA
+    SSLHonorCipherOrder     on
+    SSLCompression          off
+
+    SSLOptions +StrictRequire
+</VirtualHost>
+</IfModule>
+

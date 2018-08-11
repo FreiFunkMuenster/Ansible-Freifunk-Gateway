@@ -1,0 +1,20 @@
+<VirtualHost *:80>
+    ServerAdmin {{freifunk.email}}
+{% for domain in passbolt.domains %}
+{% if loop.first %}
+    ServerName {{inventory_hostname_short}}.{{domain}}
+{% endif %}
+{% endfor %}
+    ServerAlias {% for domain in passbolt.domains %}{% if not loop.first %}{{inventory_hostname_short}}.{{domain}} {% endif %}{% endfor %}
+
+    DocumentRoot /var/www/passbolt
+
+    ErrorLog ${APACHE_LOG_DIR}/{{inventory_hostname_short}}.{{freifunk.domain}}-error.log
+    CustomLog ${APACHE_LOG_DIR}/{{inventory_hostname_short}}.{{freifunk.domain}}-access.log combined
+
+    <Directory /var/www/passbolt>
+        Options FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>

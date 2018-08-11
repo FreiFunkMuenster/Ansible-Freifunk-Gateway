@@ -1,0 +1,57 @@
+<?php
+return [
+
+    'App' => [
+        'fullBaseUrl' => 'https://{{inventory_hostname_short}}.{{freifunk.domain}}',
+    ],
+
+    // Database configuration.
+    'Datasources' => [
+        'default' => [
+            'host' => 'localhost',
+            'username' => 'passbolt',
+            'password' => 'passbolt',
+            'database' => 'passbolt',
+        ],
+    ],
+
+    'EmailTransport' => [
+        'default' => [
+            'host' => '{{ passbolt.smtp.host }}',
+            'port' => {{ passbolt.smtp.port }},
+            'username' => '{{ passbolt.smtp.username }}',
+            'password' => '{{ passbolt.smtp.password }}',
+            // Is this a secure connection? true if yes, null if no.
+{% if passbolt.smtp.tls %}
+            'tls' => 'yes',
+{% else %}
+            'tls' => null,
+{% endif %}
+            //'timeout' => 30,
+            //'client' => null,
+            //'url' => null,
+        ],
+    ],
+    'Email' => [
+        'default' => [
+            // Defines the default name and email of the sender of the emails.
+            'from' => ['{{ passbolt.smtp.from.mail }}' => '{{ passbolt.smtp.from.name }}'],
+            //'charset' => 'utf-8',
+            //'headerCharset' => 'utf-8',
+        ],
+    ],
+
+    'passbolt' => [
+        'gpg' => [
+            'serverKey' => [
+                'fingerprint' => '{{ gpgfingerprint.stdout }}',
+            ],
+        ],
+        'ssl' => [
+            'force' => true,
+        ],
+        'registration' => [
+            'public' => false,
+        ],
+    ],
+];
