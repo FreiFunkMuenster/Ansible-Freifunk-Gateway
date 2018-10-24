@@ -132,3 +132,11 @@
     line: "TimeoutStopSec=60"
     state: present
   when: ansible_distribution == "Debian" and ansible_distribution_major_version == "8"
+
+- name: vnstat Bandbreiten limit auf 1000 Mbit erhöhen.
+  lineinfile:
+    dest: /etc/vnstat.conf
+    regexp: "^MaxBandwidth"
+    line: "MaxBandwidth 1000"
+    state: present
+
