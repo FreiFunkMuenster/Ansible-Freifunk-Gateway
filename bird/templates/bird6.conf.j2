@@ -81,12 +81,10 @@ function is_default() {
 	return (net ~ [::/0]);
 };
 
-{% if ffrl_tun is defined %}
 filter export_to_upstream_filter {
 	if source = RTS_STATIC then accept;
 	reject;
 };
-{% endif %}
 
 protocol static static_Gesamtnetzwerk {
 	table ffnet;
@@ -173,7 +171,6 @@ protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 {% endif %}
 {% endfor %}
 
-{% if ffrl_tun is defined %}
 template bgp uplink {
 	table ffnet;
 	local as {{ff_network.as_number}};
@@ -181,6 +178,7 @@ template bgp uplink {
 	export filter export_to_upstream_filter;
 	gateway recursive;
 }
+{% if ffrl_tun is defined %}
 
 {% for tun in ffrl_tun %}
 protocol bgp ffrl_{{tun.name}} from uplink {
