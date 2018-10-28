@@ -2,39 +2,60 @@
    stat: path=/sbin/ifreload
    register: ifreload
 
- - name: install dependencies (for compilation and runtime)
-   apt:
-     pkg: "{{ item }}"    
-     state: present
-   with_items:
-     - python-all
-     - debhelper
-     - dh-systemd
-     - python-ipaddr
-     - python-argcomplete
-   when: ifreload.stat.exists == False
+ - name: set default for use_ifupdown2 if not defined
+   when: use_ifupdown2 is not defined
+   set_fact: use_ifupdown2=True
+
+# - name: install dependencies (for compilation and runtime)
+#   apt:
+#     pkg: "{{ item }}"    
+#     state: present
+#   with_items:
+#     - python-all
+#     - debhelper
+#     - dh-systemd
+#     - python-ipaddr
+#     - python-argcomplete
+#   when: ifreload.stat.exists == False and use_ifupdown2
 
  - name: clone repository
    git:
-     repo: 'https://github.com/CumulusNetworks/ifupdown2.git'
+     repo: 'https://github.com/FreiFunkMuenster/ifupdown2.git'
      dest: /opt/ifupdown2
      version: debian-prep2
      update: yes
      force: yes
-   when: ifreload.stat.exists == False
+   when: ifreload.stat.exists == False and use_ifupdown2
 
  - name: compile and create deb
    shell: "dpkg-buildpackage -us -uc -rfakeroot -b"
    args:
      chdir: "/opt/ifupdown2"
-   when: ifreload.stat.exists == False
+   when: ifreload.stat.exists == False and use_ifupdown2
 
  - name: remove ifupdown1
    apt:
      pkg: ifupdown
      state: absent
-   when: ifreload.stat.exists == False
+   when: ifreload.stat.exists == False and use_ifupdown2
 
- - name: install created deb package
-   shell: "dpkg -i /opt/ifupdown2*deb"
-   when: ifreload.stat.exists == False
+# - name: install deb package
+#   apt:
+#     deb: "/opt/ifupdown2_1.0~git20180313-1_all.deb"
+#   when: ifreload.stat.exists == False and use_ifupdown2
+
+ - name: install deb package
+   shell: "dpkg -i /opt/ifupdown2*.deb"
+   when: ifreload.stat.exists == False and use_ifupdown2
+
+ - name: remove ifupdown2
+   apt:
+     pkg: ifupdown2
+     state: absent
+   when: ifreload.stat.exists == True and use_ifupdown2 == False
+ 
+ - name: install ifupdown1
+   apt:
+     pkg: ifupdown
+     state: present
+   when: ifreload.stat.exists == True and use_ifupdown2 == False
