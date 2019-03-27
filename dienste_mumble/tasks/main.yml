@@ -9,8 +9,10 @@
     repo: "{{ item }}"
     state: present
   with_items:
-    - "deb http://ppa.launchpad.net/mumble/release/ubuntu xenial main"
-    - "deb-src http://ppa.launchpad.net/mumble/release/ubuntu xenial main"
+    - "deb http://ppa.launchpad.net/mumble/release/ubuntu {{ ansible_distribution_release }} main"
+    - "deb-src http://ppa.launchpad.net/mumble/release/ubuntu {{ ansible_distribution_release }} main"
+    - "deb http://ppa.launchpad.net/mumble/snapshot/ubuntu {{ ansible_distribution_release }} main"
+    - "deb-src http://ppa.launchpad.net/mumble/snapshot/ubuntu {{ ansible_distribution_release }} main"
 
 - name: Install Mumble-Server
   apt:
@@ -37,7 +39,7 @@
     creates: /root/.acme.sh/acme.sh
 
 - name: Create certificate
-  shell: '/root/.acme.sh/acme.sh --issue{% for domain in mumble.domains %} -d {{inventory_hostname_short}}.{{domain}}{% endfor %} --standalone {% if mumble.generateCertViaIpv6 %}--listen-v6 {% endif %}--cert-file /etc/ssl/cert.pem --key-file /etc/ssl/key.pem --ca-file /etc/ssl/ca.pem --fullchain-file /etc/ssl/fullchain.pem --reloadcmd "systemctl restart mumble-server.service" && touch /root/.certcreated'
+  shell: '/root/.acme.sh/acme.sh --issue{% for domain in mumble.domains %} -d {{inventory_hostname_short}}.{{domain}}{% endfor %} --standalone {% if mumble.generateCertViaIpv6 %}--listen-v6 {% endif %}--cert-file /etc/ssl/cert.pem --key-file /etc/ssl/key.pem --ca-file /etc/ssl/ca.pem --fullchain-file /etc/ssl/fullchain.pem --reloadcmd "pkill murmurd -10" && touch /root/.certcreated'
   args:
     creates: /root/.certcreated
 
