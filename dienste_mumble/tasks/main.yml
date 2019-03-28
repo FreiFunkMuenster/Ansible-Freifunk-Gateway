@@ -16,11 +16,9 @@
 
 - name: Install Mumble-Server
   apt:
-    pkg: "{{ item }}"
+    pkg: ['mumble-server']
     update_cache: yes
     state: present
-  with_items:
-    - mumble-server
 
 ### TODO ### 
 # Funktioniert noch nicht!

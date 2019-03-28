@@ -15,15 +15,10 @@
 
 - name: Install PostgreSQL
   apt:
-    name: "{{item}}"
+    name: ['postgresql-9.5', 'python-psycopg2', 'python3-psycopg2', 'sudo']
     update_cache: yes
     cache_valid_time: 1800
     state: present
-  with_items:
-    - postgresql-9.5
-    - python-psycopg2
-    - python3-psycopg2
-    - sudo
   when: domaenenliste is defined
 
 - name: Configure PostgreSQL

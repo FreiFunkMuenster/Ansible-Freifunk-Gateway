@@ -1,15 +1,7 @@
 - name: Abhängigkeiten installieren
   apt:
-    pkg: "{{ item }}"
+    pkg: ['dkms', 'build-essential', 'linux-headers-{{ansible_kernel}}', 'checkinstall', 'pkg-config', 'libnl-3-dev', 'libnl-genl-3-dev']
     state: present
-  with_items:
-    - dkms
-    - build-essential
-    - linux-headers-{{ansible_kernel}}
-    - checkinstall
-    - pkg-config
-    - libnl-3-dev
-    - libnl-genl-3-dev
 
 - name: create directory for batman-adv
   file:

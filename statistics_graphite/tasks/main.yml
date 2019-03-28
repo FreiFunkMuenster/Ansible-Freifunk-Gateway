@@ -2,14 +2,9 @@
 
 - name: Install graphite
   apt:
-    pkg: "{{ item }}"
+    pkg: ['graphite-web', 'graphite-carbon', 'uwsgi', 'uwsgi-plugin-python']
     update_cache: yes
     state: present
-  with_items:
-    - graphite-web
-    - graphite-carbon
-    - uwsgi
-    - uwsgi-plugin-python
 
 - name: Deploy local_settings.py
   template:

@@ -1,11 +1,8 @@
 - name: Install required packages for osTicket
   apt:
-    pkg: "{{ item }}"
+    pkg: ['sendmail', 'unzip']
     update_cache: no
     state: present
-  with_items:
-    - sendmail
-    - unzip
  
 - name: Create database for osticket
   mysql_db: name=osticket state=present

@@ -3,20 +3,14 @@
 
 - name: install required packages
   apt:
-    pkg: "{{ item }}"
+    pkg: ['collectd', 'python-pip']
     update_cache: yes
     state: present
-  with_items:
-    - collectd
-    - python-pip
 
 - name: install pip packages
   pip: 
-    name: "{{ item }}"
+    name: ['ipaddress', 'pybrctl']
     state: present 
-  with_items:
-    - ipaddress
-    - pybrctl
 
 - name: enable collectd
   service: name=collectd enabled=yes    

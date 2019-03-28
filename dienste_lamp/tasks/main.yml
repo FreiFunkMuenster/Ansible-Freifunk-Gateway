@@ -7,13 +7,9 @@
 
 - name: Install MariaDB
   apt:
-    pkg: "{{ item }}"
+    pkg: ['mariadb-server', 'mariadb-client', 'python-mysqldb']
     update_cache: no
     state: present
-  with_items:
-    - mariadb-server
-    - mariadb-client
-    - python-mysqldb
 
 - name: Start and enable mysql
   service: name=mysql state=started enabled=yes
@@ -67,22 +63,9 @@
 
 - name: Install Apache and PHP 
   apt:
-    pkg: "{{ item }}"
+    pkg: ['apache2', 'php5.6', 'php5.6-cli', 'php5.6-mysql', 'php-gettext', 'php5.6-mbstring', 'libapache2-mod-php5.6', 'php5.6-gd', 'php5.6-imap', 'php5.6-xml', 'php5.6-intl', 'php5.6-apcu']
     update_cache: no
     state: present
-  with_items:
-    - apache2
-    - php5.6
-    - php5.6-cli
-    - php5.6-mysql
-    - php-gettext
-    - php5.6-mbstring
-    - libapache2-mod-php5.6
-    - php5.6-gd
-    - php5.6-imap
-    - php5.6-xml
-    - php5.6-intl
-    - php5.6-apcu
   notify:
     - "restart apache"
 

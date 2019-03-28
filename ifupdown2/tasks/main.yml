@@ -4,14 +4,8 @@
 
  - name: install dependencies (for compilation and runtime)
    apt:
-     pkg: "{{ item }}"    
+     pkg: ['python-all', 'debhelper', 'dh-systemd', 'python-ipaddr', 'python-argcomplete']
      state: present
-   with_items:
-     - python-all
-     - debhelper
-     - dh-systemd
-     - python-ipaddr
-     - python-argcomplete
    when: ifreload.stat.exists == False
 
  - name: clone repository

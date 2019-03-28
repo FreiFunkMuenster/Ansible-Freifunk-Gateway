@@ -1,10 +1,8 @@
 - name: install nginx
   apt:
-    pkg: "{{ item }}"
+    pkg: ['nginx']
     update_cache: yes
     state: latest
-  with_items:
-    - nginx
 
 - name: create letsencrypt directory
   file:

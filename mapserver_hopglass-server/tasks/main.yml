@@ -58,12 +58,8 @@
 
 - name: Install nodejs, npm and yarn
   apt:
-    pkg: "{{item}}"
+    pkg: ['nodejs', 'yarn', 'npm']
     state: present
-  with_items:
-    - nodejs
-    - yarn
-    - npm
 
 - name: Create HopGlass-server directory if not existent
   file:

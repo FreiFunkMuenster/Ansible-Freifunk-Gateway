@@ -2,25 +2,11 @@
 ---
 - name: Install required packages for building KEA
   apt:
-    pkg: "{{ item }}"
+    pkg: ['git', 'g++', 'automake', 'autoconf', 'libtool', 'pkg-config', 'libboost-all-dev', 'openssl', 'libssl-dev', 'ca-certificates', 'liblog4cplus-dev', 'postgresql-server-dev-all', 'libpq-dev']
     update_cache: yes
     cache_valid_time: 1800
     state: present
     install_recommends: no
-  with_items:
-    - git
-    - g++
-    - automake
-    - autoconf
-    - libtool
-    - pkg-config
-    - libboost-all-dev
-    - openssl
-    - libssl-dev
-    - ca-certificates
-    - liblog4cplus-dev
-    - postgresql-server-dev-all
-    - libpq-dev
   when: domaenenliste is defined
 
 - name: Clone ISC KEA git repo and checkout branch v1_2_0

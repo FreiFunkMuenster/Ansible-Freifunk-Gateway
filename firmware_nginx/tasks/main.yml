@@ -1,12 +1,8 @@
 - name: install nginx
   apt:
-    pkg: "{{ item }}"
+    pkg: ['nginx', 'php5-fpm', 'unzip']
     update_cache: no
     state: latest
-  with_items:
-    - nginx
-    - php5-fpm
-    - unzip
 
 - name: create config directory
   file: name=/etc/nginx/sites-available/default.d state=directory

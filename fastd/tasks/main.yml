@@ -10,12 +10,9 @@
 
 - name: install fastd (vpn daemon) and haveged (entropy daemon)
   apt:
-    pkg: "{{ item }}"
+    pkg: ['fastd', 'haveged']
     update_cache: yes
     state: present
-  with_items:
-    - fastd
-    - haveged
 
 - name: create config directory
   file: path=/etc/fastd/vpn state=directory
