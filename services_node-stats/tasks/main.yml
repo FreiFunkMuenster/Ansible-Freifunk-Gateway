@@ -1,9 +1,0 @@
----
-# Pakete installieren
-
-- name: git für node-stats
-  git: repo=https://github.com/FreiFunkMuenster/node-stats.git dest=/usr/src/node-stats version=master force=yes
-
-- name: cron für node-stats
-  cron: name="node-stats" minute="*" job="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin /usr/src/node-stats/update.sh >/dev/null 2>&1"
-
