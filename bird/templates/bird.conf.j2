@@ -44,6 +44,14 @@ protocol device {
         scan time 10;
 };
 
+{% if ipv4_direkt_ausleiten is defined and ipv4_direkt_ausleiten %}
+protocol static {
+        table ffnet;
+        preference 1000;
+        route 0.0.0.0/0 via {{ ansible_default_ipv4.address }};
+};
+{% endif %}
+
 {% if domaenenliste is defined %}
 protocol static dhcp_Bereich {
 	table ffnet;
