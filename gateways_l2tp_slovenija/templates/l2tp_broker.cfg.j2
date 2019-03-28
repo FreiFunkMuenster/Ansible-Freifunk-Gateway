@@ -1,0 +1,57 @@
+[broker]
+; IP address the broker will listen and accept tunnels on
+address={{ansible_eth0.ipv4.address}}
+; Ports where the broker will listen on
+port={{20000 + (item.key | int)}}
+; Interface with that IP address
+interface={{tunneldigger.interface}}
+; Maximum number of tunnels that will be allowed by the broker
+max_tunnels={{tunneldigger.max_tunnels}}
+; Tunnel port base. This port is not visible to clients, but must be free on the server.
+; This port is used by the actual l2tp tunnel, but tunneldigger sets up NAT rules so that clients
+; can keep using the control port.
+port_base={{tunneldigger.port_base}}
+; Tunnel id base
+tunnel_id_base={{100 + (item.key | int)}}
+; Namespace (for running multiple brokers); note that you must also
+; configure disjunct ports, and tunnel identifiers in order for
+; namespacing to work
+namespace=domaene_{{item.key}}
+; Reject connections if there are less than N seconds since the last connection.
+; Can be less than a second (e.g., 0.1).
+connection_rate_limit=10
+; Set PMTU to a fixed value.  Use 0 for automatic PMTU discovery.  A non-0 value also disables
+; PMTU discovery on the client side, by having the server not respond to client-side PMTU
+; discovery probes.
+pmtu=0
+
+[log]
+; Log filename
+filename=/var/log/tunneldigger-broker_domain{{item.key}}.log
+; Verbosity
+verbosity=DEBUG
+; Should IP addresses be logged or not
+log_ip_addresses=false
+
+[hooks]
+; Note that hooks are called asynchonously!
+
+; Arguments to the session.{up,pre-down,down} hooks are as follows:
+;
+;    <tunnel_id> <session_id> <interface> <mtu> <endpoint_ip> <endpoint_port> <local_port>
+;
+; Arguments to the session.mtu-changed hook are as follows:
+;
+;    <tunnel_id> <session_id> <interface> <old_mtu> <new_mtu>
+;
+
+; Called after the tunnel interface goes up
+session.up=/srv/tunneldigger/broker/scripts/addif_domain{{item.key}}.sh
+; Called just before the tunnel interface goes down
+; (However, due to hooks being asynchonous, the hook may actually execute after the interface was
+; already removed.)
+session.pre-down=/srv/tunneldigger/broker/scripts/delif_domain{{item.key}}.sh
+; Called after the tunnel interface goes down
+session.down=
+; Called after the tunnel MTU gets changed because of PMTU discovery
+session.mtu-changed=

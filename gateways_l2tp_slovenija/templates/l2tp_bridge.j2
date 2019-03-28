@@ -1,0 +1,24 @@
+# This file is managed by ansible, don't make changes here - they will be overwritten.
+
+{% for item in domaenenliste|dictsort %}
+auto br{{item[0]}}
+iface br{{item[0]}} inet manual
+        # Bring up interface
+        pre-up brctl addbr $IFACE
+{% if item[0] | length > 2 %}
+        pre-up ip link set address 02:ca:ff:{{item[0][0:2]}}:{{item[0][2:]}}:{{item[1].server_id}} dev $IFACE
+{% else %}
+        pre-up ip link set address 02:ca:ff:ee:{{item[0]}}:{{item[1].server_id}} dev $IFACE
+{% endif %}
+        pre-up ip link set dev $IFACE mtu 1364
+        pre-up ip link set $IFACE promisc on
+        pre-up ip link set dev $IFACE up
+        post-up ebtables -A FORWARD --logical-in $IFACE -j DROP
+        post-up batctl -m bat{{item[0]}} if add $IFACE
+        # Shutdown interface
+        pre-down batctl -m bat{{item[0]}} if del $IFACE
+        pre-down ebtables -D FORWARD --logical-in $IFACE -j DROP
+        down ip link set dev $IFACE down
+        post-down brctl delbr $IFACE
+
+{% endfor %}

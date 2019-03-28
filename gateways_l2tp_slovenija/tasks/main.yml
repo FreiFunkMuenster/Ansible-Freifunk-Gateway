@@ -1,0 +1,106 @@
+- name: Install dependencies for this role
+  apt:
+    pkg: ['bridge-utils', 'ebtables', 'python-pip', 'python-virtualenv', 'libnfnetlink-dev', 'libnetfilter-conntrack-dev', 'libffi-dev']
+    state: present
+  when: domaenenliste is defined
+
+- name: Install Debian dependencies for this role
+  apt:
+    pkg: ['iproute', 'libnetfilter_conntrack', 'python-devel', 'libevent-devel', 'libnl-devel', 'gcc']
+    state: present
+  when: ansible_distribution == 'Debian' and ansible_distribution_version == '8' and domaenenliste is defined
+
+- name: Install Ubuntu dependencies for this role
+  apt:
+    pkg: ['iproute2', 'libnetfilter-conntrack3', 'python-dev', 'libevent-dev', 'libnl-3-dev']
+    state: present
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04' and domaenenliste is defined
+
+- name: Get all enabled tunneldigger (domain specific) instances
+  shell: '/bin/ls /etc/systemd/system/multi-user.target.wants/tunneldigger@* | grep -oE "[0-9]+"'
+  changed_when: False
+  failed_when: False
+  check_mode: no
+  register: _td_domain_instances
+  when: domaenenliste is defined
+
+- name: Stop and disable obsolete td instances
+  service: name="tunneldigger@{{item}}.service" enabled=no state=stopped
+  with_items: "{{_td_domain_instances.stdout_lines}}"
+  when: domaenenliste is defined and item not in domaenenliste and _td_per_domain_installed.stat.exists == True
+
+- name: Clone tunneldigger 
+  git:
+    repo: https://github.com/wlanslovenija/tunneldigger
+    dest: /srv/tunneldigger
+    force: yes
+    update: yes
+#    version: 18f365f329795400f4d7a101a6d45bc859100144
+  when: domaenenliste is defined
+
+- name: generate virtualenv.
+  shell: "virtualenv env_tunneldigger"
+  args:
+    chdir: /srv/tunneldigger/
+    creates: "/srv/tunneldigger/env_tunneldigger/bin/python"
+  when: domaenenliste is defined
+
+- name: Install python dependencies
+  command: "/srv/tunneldigger/env_tunneldigger/bin/python setup.py install"
+  args:
+    chdir: /srv/tunneldigger/broker
+  when: domaenenliste is defined
+
+- name: Deploy addif.sh for each domain
+  template: src=addif.sh.j2 dest="/srv/tunneldigger/broker/scripts/addif_domain{{item.key}}.sh" mode=0755
+  with_dict: "{{domaenenliste}}"
+  when: domaenenliste is defined
+
+- name: Deploy delif.sh for each domain
+  template: src=delif.sh.j2 dest="/srv/tunneldigger/broker/scripts/delif_domain{{item.key}}.sh" mode=0755
+  with_dict: "{{domaenenliste}}"
+  when: 
+    - domaenenliste is defined
+
+- name: Create sperrliste.txt if not exists
+  command: touch /srv/tunneldigger/broker/scripts/sperrliste.txt
+  args:
+    creates: /srv/tunneldigger/broker/scripts/sperrliste.txt
+  when: domaenenliste is defined
+
+- name: Deploy tunneldigger.conf to /etc/modules-load.d/
+  copy: src=tunneldigger.conf dest=/etc/modules-load.d/tunneldigger.conf
+  notify: load kernel modules
+  when: domaenenliste is defined
+
+- name: Deploy l2tp_broker.cfg for each domain
+  template: src="l2tp_broker.cfg.j2" dest="/srv/tunneldigger/broker/l2tp_broker_domain{{item.key}}.cfg"
+  notify: restart tunneldigger per domain
+  with_dict: "{{domaenenliste}}"
+  when:
+    - domaenenliste is defined
+
+- name: l2tp-bridge einrichten
+  template: src=l2tp_bridge.j2 dest=/etc/network/interfaces.d/20_l2tp_bridge.cfg
+  notify: restart networking
+  when: domaenenliste is defined
+
+- name: Deploy tunneldigger@.service template file
+  copy: src=tunneldigger@.service dest=/lib/systemd/system/tunneldigger@.service
+  register: _domain_td_systemd
+  notify:
+  - restart tunneldigger per domain
+  when:
+    - domaenenliste is defined
+
+- name: reload systemd
+  shell: systemctl daemon-reload
+  when:
+    - domaenenliste is defined
+    - _domain_td_systemd.changed
+
+- name: enable all tunneldigger instances
+  service: name="tunneldigger@{{item.key}}.service" enabled=yes
+  with_dict: "{{domaenenliste}}"
+  when:
+    - domaenenliste is defined

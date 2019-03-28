@@ -1,0 +1,12 @@
+- name: load kernel modules
+  shell: /etc/init.d/kmod start || true
+
+- name: restart networking
+  shell: systemctl restart networking; if systemctl -q is-active isc-dhcp-server; then systemctl restart isc-dhcp-server; fi; if systemctl -q is-active kea-dhcp4.service; then systemctl restart kea-dhcp4.service; fi; if systemctl -q is-active tunneldigger; then systemctl restart tunneldigger; fi
+
+- name: restart tunneldigger per domain
+  service: name="tunneldigger@{{item.key}}.service" state=restarted
+  with_dict: "{{domaenenliste}}"
+
+- name: restart tunneldigger
+  service: name=tunneldigger.service state=restarted
