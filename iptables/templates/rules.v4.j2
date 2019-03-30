@@ -20,6 +20,9 @@ COMMIT
 -A POSTROUTING -o gre+ -p tcp -m tcp --dport 53 -j SNAT --to-source 10.0.0.{{vm_id}}
 -A POSTROUTING -o gre+ -p udp -m udp --dport 53 -j SNAT --to-source 10.0.0.{{vm_id}}
 {% endif %}
+{% if ipv4_direkt_ausleiten is defined and ipv4_direkt_ausleiten %}
+-A POSTROUTING -o eth0 -j SNAT --to-source {{ ansible_default_ipv4.address }}
+{% endif %}
 COMMIT
 *mangle
 :PREROUTING ACCEPT [0:0]
