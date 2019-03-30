@@ -104,3 +104,10 @@
   with_dict: "{{domaenenliste}}"
   when:
     - domaenenliste is defined
+
+- name: Logrotate Rotationszyklus und Anzahl anpassen
+  template:
+    src: logrotate-tunneldigger
+    dest: /etc/logrotate.d/tunneldigger
+  when:
+    - domaenenliste is defined

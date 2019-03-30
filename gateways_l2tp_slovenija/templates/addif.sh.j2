@@ -5,6 +5,7 @@ then
 	echo "Der Knoten $8 ist auf der Sperrliste, verweigere Zugang."
 	exit 1
 else
+	echo $(date) "Verbindung von Knoten "$8" aufgebaut. Interface: "$3" IP: "$5 >> /var/log/tunneldigger-broker_domain{{item.key}}.log
 	ip link set dev $INTERFACE up mtu 1364
 	brctl addif br{{item.key}} $INTERFACE
 fi

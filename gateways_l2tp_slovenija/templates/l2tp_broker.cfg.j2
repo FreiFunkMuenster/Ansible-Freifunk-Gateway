@@ -23,11 +23,9 @@ connection_rate_limit=10
 ; Set PMTU to a fixed value.  Use 0 for automatic PMTU discovery.  A non-0 value also disables
 ; PMTU discovery on the client side, by having the server not respond to client-side PMTU
 ; discovery probes.
-pmtu=0
+pmtu=1364
 
 [log]
-; Log filename
-filename=/var/log/tunneldigger-broker_domain{{item.key}}.log
 ; Verbosity
 verbosity=DEBUG
 ; Should IP addresses be logged or not
