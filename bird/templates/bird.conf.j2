@@ -48,7 +48,7 @@ protocol device {
 protocol static {
         table ffnet;
         preference 1000;
-        route 0.0.0.0/0 via {{ ansible_default_ipv4.address }};
+        route 0.0.0.0/0 via {{ ansible_default_ipv4.gateway }};
 };
 {% endif %}
 
