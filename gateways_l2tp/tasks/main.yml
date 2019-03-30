@@ -83,7 +83,12 @@
     - (tunneldigger.instance_per_domain == False and _td_per_domain_installed.stat.exists == True) or (tunneldigger.instance_per_domain == True and (_td_global_installed.stat.exists == True or _old_td_systemd.changed == True))
 
 - name: Clone tunneldigger (ffrl fork)
-  git: repo=https://github.com/ffrl/tunneldigger dest=/srv/tunneldigger force=yes update=yes version=e6b09f365f8d3459488680840feb77c54a9c9668
+  git:
+    repo: https://github.com/ffrl/tunneldigger
+    dest: /srv/tunneldigger
+    force: no
+    update: no
+    version: e6b09f365f8d3459488680840feb77c54a9c9668
   when: domaenenliste is defined
 
 - name: patch l2tp_broker.py if mode is global
