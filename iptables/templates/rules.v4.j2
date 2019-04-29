@@ -10,18 +10,16 @@ COMMIT
 :INPUT ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
 :POSTROUTING ACCEPT [0:0]
-{% if ffrl_tun is defined and ffrl_nat_ip is defined %}
--A POSTROUTING -o tun-ffrl+ -j SNAT --to-source {{ffrl_nat_ip | ipaddr('address')}}
-{% endif %}
-{% if ffnw_tun is defined %}
--A POSTROUTING -o tun-ffnw+ -j SNAT --to-source {{ffnw_nat_ip| ipaddr('address')}}
-{% endif %}
-{% if ffnw_tun is not defined and ffrl_tun is not defined %}
--A POSTROUTING -o gre+ -p tcp -m tcp --dport 53 -j SNAT --to-source 10.0.0.{{vm_id}}
--A POSTROUTING -o gre+ -p udp -m udp --dport 53 -j SNAT --to-source 10.0.0.{{vm_id}}
-{% endif %}
 {% if ipv4_direkt_ausleiten is defined and ipv4_direkt_ausleiten %}
 -A POSTROUTING -o eth0 -j SNAT --to-source {{ ansible_default_ipv4.address }}
+{% elif ffrl_tun is defined and ffrl_nat_ip is defined %}
+-A POSTROUTING -o tun-ffrl+ -j SNAT --to-source {{ffrl_nat_ip | ipaddr('address')}}
+{% elif ffnw_tun is defined and ffnw_nat_ip is defined %}
+-A POSTROUTING -o tun-ffnw+ -j SNAT --to-source {{ffnw_nat_ip| ipaddr('address')}}
+{% endif %}
+{% if ffnw_tun is not defined and ffnw_nat_ip is not defined and ffrl_tun is not defined and ffrl_nat_ip is not defined %}
+-A POSTROUTING -o gre+ -p tcp -m tcp --dport 53 -j SNAT --to-source 10.0.0.{{vm_id}}
+-A POSTROUTING -o gre+ -p udp -m udp --dport 53 -j SNAT --to-source 10.0.0.{{vm_id}}
 {% endif %}
 COMMIT
 *mangle
