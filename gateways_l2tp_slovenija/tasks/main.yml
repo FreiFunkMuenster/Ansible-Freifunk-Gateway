@@ -6,7 +6,7 @@
 
 - name: Install Debian dependencies for this role
   apt:
-    pkg: ['iproute', 'libnetfilter_conntrack', 'python-devel', 'libevent-devel', 'libnl-devel', 'gcc']
+    pkg: ['iproute', 'libnetfilter-conntrack3', 'libnetfilter-conntrack-dev', 'python-dev', 'libevent-dev', 'libnl-3-dev', 'gcc']
     state: present
   when: ansible_distribution == 'Debian' and ansible_distribution_version == '8' and domaenenliste is defined
 
