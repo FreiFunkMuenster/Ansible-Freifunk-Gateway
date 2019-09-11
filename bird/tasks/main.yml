@@ -1,14 +1,13 @@
 ---
 # Role for configure bird and bird6 for our gateway servers.
-- name: add key for bird repo
+- name: Add repo key for bird (Debian)
   apt_key:
-    keyserver: keyserver.ubuntu.com 
-    id: AC0E47584A7A714D
+    url: https://bird.network.cz/debian/apt.gpg
   when: ansible_distribution == "Debian"
 
 - name: add bird repo
   apt_repository:
-    repo: "deb http://bird.network.cz/debian/ {{ ansible_distribution_release }} main"
+    repo: "deb [trusted=yes] http://bird.network.cz/debian/ {{ ansible_distribution_release }} main"
     state: present
   when: ansible_distribution == "Debian" and ansible_distribution_major_version == "8"
 

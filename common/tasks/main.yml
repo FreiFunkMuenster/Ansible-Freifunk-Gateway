@@ -38,7 +38,7 @@
   with_items:
     - "deb http://ftp.de.debian.org/debian/ jessie main"
     - "deb-src http://ftp.de.debian.org/debian/ jessie main"
-    - "deb http://ftp.de.debian.org/debian jessie main"
+#    - "deb http://ftp.de.debian.org/debian jessie main"
     - "deb-src http://ftp.de.debian.org/debian jessie main"
 
     - "deb http://ftp.de.debian.org/debian/ jessie-updates main"
