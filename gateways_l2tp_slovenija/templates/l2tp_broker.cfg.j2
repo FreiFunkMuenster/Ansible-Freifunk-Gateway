@@ -12,7 +12,8 @@ max_tunnels={{tunneldigger.max_tunnels}}
 ; can keep using the control port.
 port_base={{tunneldigger.port_base}}
 ; Tunnel id base
-tunnel_id_base={{100 + (item.key | int)}}
+tunnel_id_base={% for domaene in domaenenliste %}{% if domaene == item.key %}{{loop.index * 1000 - 1000}}{% endif %}{% endfor %}
+
 ; Namespace (for running multiple brokers); note that you must also
 ; configure disjunct ports, and tunnel identifiers in order for
 ; namespacing to work
