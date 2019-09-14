@@ -23,13 +23,13 @@
   template: src=closeramdisk.j2 dest=/usr/src/dhcpd/closeramdisk mode="a+x"
 
 - name: tmpfs systemd service for dhcpd
-  template: src=dhcpd-tmpfs.service.j2 dest=/lib/systemd/system/dhcpd-tmpfs.service
+  template: src=dhcpd-tmpfs.service.j2 dest=/etc/systemd/system/dhcpd-tmpfs.service
 
 - name: enable dhcpd-tmpfs service
   service: name=dhcpd-tmpfs enabled=yes state=started
 
 - name: install isc-dhcp-server
-  apt: pkg=isc-dhcp-server state=installed
+  apt: pkg=isc-dhcp-server state=present
 
 - name: create dhcp defaults 
   template: src=isc-dhcp-server.j2 dest=/etc/default/isc-dhcp-server
