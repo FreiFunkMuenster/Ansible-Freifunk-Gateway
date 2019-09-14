@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+
+{% if 'gateways' in group_names %}
+/var/log/tunneldigger-broker.log {
+    {{logrotate.cycle}}
+    rotate {{logrotate.count}}
+    copytruncate
+}
+{% endif %}
