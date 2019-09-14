@@ -38,7 +38,7 @@
 {% if 'gateways' in group_names %}
 			"br_iface": "br{{domaene[0]}}",
 {%endif%}
-			"site_code": "ffmsd{{domaene[0]}}"
+			"site_code": "{{freifunk.kurzname}}d{{domaene[0]}}"
 		}{% if not loop.last %},{% endif %}
 {% endfor %}
 
