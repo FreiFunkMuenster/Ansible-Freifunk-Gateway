@@ -1,11 +1,4 @@
 ---
-# Prüfe Repo-Quelle
-- name: Schlüssel hinzufügen
-  apt_key: keyserver=keyserver.ubuntu.com  id=16EF3F64CB201D9C
-
-- name: set fastd-repo
-  apt_repository: repo='deb http://repo.universe-factory.net/debian/ sid main' state=present
-
 # Fastd-Daemon, Habeged-Daemon
 
 - name: install fastd (vpn daemon) and haveged (entropy daemon)
