@@ -1,11 +1,11 @@
-- name: IPv4 Paketweiterleitung aktivieren
-  sysctl: name="net.ipv4.conf.all.forwarding" value=1 sysctl_set=yes state=present reload=yes
+- name: IPv4-Paketweiterleitung aktivieren
+  sysctl: name="net.ipv4.conf.all.forwarding" value=1 sysctl_set=yes state=present reload=yes sysctl_file=/etc/sysctl.d/ff-ip_forwarding.conf
 
-- name: IPv6 Paketweiterleitung aktivieren
-  sysctl: name="net.ipv6.conf.all.forwarding" value=1 sysctl_set=yes state=present reload=yes
+- name: IPv6-Paketweiterleitung aktivieren
+  sysctl: name="net.ipv6.conf.all.forwarding" value=1 sysctl_set=yes state=present reload=yes sysctl_file=/etc/sysctl.d/ff-ip_forwarding.conf
 
-- name: sysctl rc_filter default deaktivieren
-  sysctl: name="net.ipv4.conf.default.rp_filter" value=0 sysctl_set=yes state=present reload=yes
+- name: sysctl Reverse-Path-Filter default deaktivieren - Quellroute nicht prüfen
+  sysctl: name="net.ipv4.conf.default.rp_filter" value=0 sysctl_set=yes state=present reload=yes sysctl_file=/etc/sysctl.d/ff-ip_forwarding.conf
 
-- name: sysctl rc_filter all deaktivieren
-  sysctl: name="net.ipv4.conf.all.rp_filter" value=0 sysctl_set=yes state=present reload=yes
+- name: sysctl Reverse-Path-Filter all deaktivieren - Quellroute nicht prüfen
+  sysctl: name="net.ipv4.conf.all.rp_filter" value=0 sysctl_set=yes state=present reload=yes sysctl_file=/etc/sysctl.d/ff-ip_forwarding.conf
