@@ -21,7 +21,7 @@ options {
 	recursive-clients 10000;
 
 };
-{% if collectd.collect_bind %}
+{% if collectd is defined and collectd.collect_bind %}
 statistics-channels {
         inet 127.0.0.1 port 8053 allow { 127.0.0.1; };
 };
