@@ -8,7 +8,9 @@ protocol kernel 'kernel_ffnet' {
         scan time 20;
         import all;
 	export filter {
+{% if 'domaene-06' in group_names %}
 		if net ~ 10.43.48.0/21 then accept;
+{% endif %}
 {% if domaenenliste is defined %}
 {% for domaene in domaenenliste|dictsort %}
 		if net ~ [{{ domaenen[domaene[0]].ffv4_network }}{ {{- domaenen[domaene[0]].ffv4_network | ipaddr('prefix') + 1 }},32}] then reject;
@@ -26,8 +28,12 @@ protocol direct {
         interface "lo";
         interface "gre-*";
         interface "bck-*";
+{% if ffrl_tun is defined %}
         interface "tun-ffrl*";
+{% endif %}
+{% if ffnw_tun is defined %}
         interface "tun-ffnw*";
+{% endif %}
         interface "bat*";
         table ffnet;
 }
@@ -67,12 +73,21 @@ protocol static dhcp_Bereich {
 {% endif %}
 
 filter freifunk {
+{% if ffrl_tun is defined %}
+	# FFRL
 	if net ~ [185.66.192.0/22+] then accept;
+{% endif %}
+{% if ffnw_tun is defined %}
+	# FFNW
 	if net ~ [185.197.132.0/24+] then accept;
+{% endif %}
+
 	if net ~ [10.0.0.0/8+] then accept;
 {% if not ffrl_tun is defined and not ffnw_tun is defined %}
 	if net ~ [0.0.0.0/0] then accept;
 {% endif %}
+
+	# interne Tunnel-IPs
 	if net ~ [192.168.0.0/16+] then accept;
 	reject;
 };
@@ -89,7 +104,7 @@ protocol ospf {
 		interface "bat*" {
 			stub;
 		};
-{% for host in groups['gateways']+groups['domaene-06'] %}
+{% for host in groups['gateways']+groups['domaene-06']|default([]) %}
 {% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
 		interface "bck-{{host}}" {
 			cost 1000;
@@ -192,7 +207,7 @@ protocol bgp ffnw_{{tun.name}} from uplink {
 {% endfor %}
 {% endif %}
 
-{% for host in groups['gateways']+groups['domaene-06'] %}
+{% for host in groups['gateways']+groups['domaene-06']|default([]) %}
 {% if hostvars[host].vm_id != vm_id %}
 protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 {% if hostvars[host].vm_id < vm_id %}
