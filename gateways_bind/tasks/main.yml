@@ -57,7 +57,15 @@
   with_items: "{{domaenenliste | default([])}}"
   when: "{{domaenenliste is defined}}"
 
-- name: bind9.service kopieren
-  copy: src=bind9.service dest=/lib/systemd/system/bind9.service
+- name: create folder for bind9.service file
+  file: path=/etc/systemd/system/bind9.service.d state=directory mode=0755
+
+- name: copy bind9.service
+  copy: src=bind9.service dest=/etc/systemd/system/bind9.service.d/override.conf
   notify:
     - restart bind9
+
+- name: reread systemd configs
+  systemd:
+    daemon_reload: yes
+
