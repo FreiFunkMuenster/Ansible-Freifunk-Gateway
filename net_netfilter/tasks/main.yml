@@ -12,7 +12,7 @@
   when: ansible_kernel is version_compare('4.19', '<')
 
 - name: Enable nf_conntrack_ipv4 on system startup
- blockinfile:
+  blockinfile:
     path: /etc/modules
     marker: "# {mark} Ansible managed block"
     block: |
