@@ -1,4 +1,5 @@
-# This file is managed by ansible, don't make changes here - they will be overwritten.
+# {{ ansible_managed }}
+
 # Bind to a fixed address and port, IPv4 and IPv6
 bind {{ansible_eth0.ipv4.address}}:{{fastd.port}} interface "eth0";
 
