@@ -1,0 +1,14 @@
+---
+
+- name: ensure systemd NTP client is disabled
+  shell: "timedatectl | grep 'NTP enabled: no' || timedatectl set-ntp 0"
+  register: ntp_shell_result
+  changed_when: "ntp_shell_result.stdout == '' and ntp_shell_result.rc == 0"
+  failed_when: "ntp_shell_result.rc != 0"
+
+- name: Ensure ntp is installed
+  apt: name=ntp
+
+- name: Install ntp.conf
+  template: src=ntp.conf.j2 dest=/etc/ntp.conf
+  notify: Restart ntpd
