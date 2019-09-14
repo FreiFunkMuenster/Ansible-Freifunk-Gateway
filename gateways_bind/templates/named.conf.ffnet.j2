@@ -1,6 +1,8 @@
+# {{ ansible_managed }}
+
 {% if domaenenliste is defined %}
 {% for domaene in domaenenliste|dictsort -%}
-#view for (broadcast-)domain domaene-{{domaene[0]}}   
+# view for (broadcast-)domain domaene-{{domaene[0]}}   
 view "domaene-{{domaene[0]}}" {
         match-clients {
                 {{domaenen[domaene[0]].ffv4_network}};

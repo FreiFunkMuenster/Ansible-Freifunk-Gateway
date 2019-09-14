@@ -1,3 +1,5 @@
+; {{ ansible_managed }}
+
 ; zonefile for {{freifunk.kurzname}}. for domaene-{{item}}
 $TTL    86400
 @       IN      SOA     {{bind_zonemaster.server}}. {{bind_zonemaster.email | regex_replace('@', '.') }}. (
