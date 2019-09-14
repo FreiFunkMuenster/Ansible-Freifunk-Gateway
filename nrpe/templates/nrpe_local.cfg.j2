@@ -13,7 +13,7 @@ command[check_speedtest-cli-50]=/usr/lib/nagios/plugins/check_speedtest-cli.sh -
 command[check_speedtest-cli-100]=/usr/lib/nagios/plugins/check_speedtest-cli.sh -w 100 -c 50 -W 10 -C 5 -p -s 4193
 
 # Bandwith
-#command[check_bandwidth]=/usr/lib/nagios/plugins/check_bandwidth rx 60 {{ansible_default_ipv4.interface}} bw
+#command[check_bandwidth]=/usr/lib/nagios/plugins/check_bandwidth rx 60 eth0 bw
 command[check_bandwidth]=/usr/lib/nagios/plugins/check_eth -i {{ansible_default_ipv4.interface}} -w 200M Bps -c 200M Bps ### TODO: check ist falschherum. Meldet bei Ueberschreiten aber leider nicht bei unterschreiten.
  
 # Debian Server
