@@ -29,9 +29,9 @@
 
 # write public & private key to seperate keyfiles, if new fastd key is generated
 - template: src=secret.key.j2 dest=/etc/fastd/vpn/secret.key owner=root group=root mode=0600
-  when: fastd_key_generated|changed
+  when: fastd_key_generated is changed
 - template: src=public.key.j2 dest=/etc/fastd/vpn/public.key
-  when: fastd_key_generated|changed
+  when: fastd_key_generated is changed
 
 - name: create dummy peer directory
   file: path=/etc/fastd/vpn/peers state=directory
