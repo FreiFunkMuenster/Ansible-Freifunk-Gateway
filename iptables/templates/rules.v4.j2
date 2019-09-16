@@ -3,6 +3,7 @@
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
+-A INPUT -p udp -m udp --dport 111 -j DROP
 
 COMMIT
 *nat
