@@ -1,7 +1,7 @@
 # This file is managed by ansible, don't make changes here - they will be overwritten.
 
-# Batman Interface 
-# - Erstellt das virtuelle Interface fuer das Batman-Modul und bindet dieses an die Netzwerkbruecke
+# Batman Interface
+# - Erstellt das virtuelle Interface fuer das Batman-Modul und bindet dieses, falls L2TP benutzt wird, an die Netzwerkbruecke
 # - Die unten angelegte Routing-Tabelle wird spaeter fuer das Routing innerhalb von Freifunk (Router/VPN) verwendet
 
 {% for item in domaenenliste|dictsort %}
@@ -15,7 +15,9 @@ iface bat{{item[0]}} inet static
         post-up batctl -m bat{{item[0]}} it 10000
         post-up batctl -m bat{{item[0]}} gw server {{batman.downstream}}/{{batman.upstream}}
         post-up batctl -m bat{{item[0]}} mm 0
+{% if tunneldigger is defined %}
         post-up batctl -m bat{{item[0]}} if add br{{item[0]}} ||:
+{% endif %}
 {% for host in groups['gateways'] %}
 {% if host != inventory_hostname %}
 {% if hostvars[host].domaenenliste is defined %}
