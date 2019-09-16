@@ -1,6 +1,6 @@
 [broker]
 ; IP address the broker will listen and accept tunnels on
-address={{ansible_eth0.ipv4.address}}
+address={{ansible_default_ipv4.address}}
 ; Ports where the broker will listen on
 port={{20000 + (item.key | int)}}
 ; Interface with that IP address

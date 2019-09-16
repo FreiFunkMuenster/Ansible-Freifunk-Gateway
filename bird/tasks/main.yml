@@ -26,7 +26,8 @@
     cache_valid_time: 1800
     state: present
   when: (ansible_distribution == "Ubuntu") or
-        (ansible_distribution == "Debian" and ansible_distribution_major_version == "9")
+        (ansible_distribution == "Debian" and ansible_distribution_major_version == "9") or
+        (ansible_distribution == "Debian" and ansible_distribution_major_version == "10")
 
 - name: calculate more specific routes for DHCP pools
   shell: ipcalc {{ domaenenliste[item].dhcp_start }} - {{ domaenenliste[item].dhcp_ende}} | grep -v "deaggregate" | sed -e 's/\(^.*$\)/route \1 via "bat{{item}}";/g'
@@ -50,19 +51,29 @@
   notify:
     - configure bird6
 
+- name: create folder for bird.service file
+  file: path=/etc/systemd/system/bird.service.d state=directory mode=0755
+
 - name: bird.service kopieren
   copy: 
     src: bird.service
-    dest: /lib/systemd/system/bird.service
+    dest: /etc/systemd/system/bird.service.d/override.conf
   notify:
     - configure bird
+
+- name: create folder for bird6.service file
+  file: path=/etc/systemd/system/bird6.service.d state=directory mode=0755
 
 - name: bird6.service kopieren
   copy: 
     src: bird6.service
-    dest: /lib/systemd/system/bird6.service
+    dest: /etc/systemd/system/bird6.service.d/override.conf
   notify:
     - configure bird6
+
+- name: reread systemd configs
+  systemd:
+    daemon_reload: yes
 
 - name: activate and start bird
   service:

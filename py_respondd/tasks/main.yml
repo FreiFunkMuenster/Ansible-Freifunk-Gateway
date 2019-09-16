@@ -3,23 +3,32 @@
   apt:
     pkg: ['python3-pip']
     state: present
+  when: not (ansible_distribution == 'Debian' and ansible_distribution_version == '10')
 
 - name: Install dependencies
   apt:
     pkg: ['python3-distutils', 'python3-setuptools', 'python3-dev']
     state: present
-  when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04'
+  when: (ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04') or
+        (ansible_distribution == 'Debian' and ansible_distribution_version == '10')
+
+- name: Install python dependencies
+  apt:
+    pkg: ['python3-psutil', 'python3-netifaces']
+    state: present
+  when: ansible_distribution == 'Debian' and ansible_distribution_version == '10'
 
 - name: Install python dependencies
   pip: 
     name: ['psutil', 'netifaces']
     state: present
     executable: pip3
+  when: not (ansible_distribution == 'Debian' and ansible_distribution_version == '10')
 
 - name: create systemd files
   template: 
     src: py-respondd.service.j2
-    dest: /lib/systemd/system/py-respondd.service
+    dest: /etc/systemd/system/py-respondd.service
   notify: systemctl reload
 
 - name: Clone py-respondd repo

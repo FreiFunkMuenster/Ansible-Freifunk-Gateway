@@ -4,7 +4,9 @@
 		"port" : 1001,
 		"cache_time_s" : 59,
 		"interface_type_regex_patterns" : {
+{% if tunneldigger is defined %}
 			"l2tp" : "br.+",
+{% endif %}
 			"gretap" : "t.+"
 		},
 		"additional_static_nodeinfo" : {
@@ -35,10 +37,10 @@
 {% for domaene in respondd_domaenen|dictsort %}
 		{
 			"bat_iface": "bat{{domaene[0]}}",
-{% if 'gateways' in group_names %}
+{% if 'gateways' in group_names and tunneldigger is defined %}
 			"br_iface": "br{{domaene[0]}}",
 {%endif%}
-			"site_code": "ffmsd{{domaene[0]}}"
+			"site_code": "{{freifunk.kurzname}}d{{domaene[0]}}"
 		}{% if not loop.last %},{% endif %}
 {% endfor %}
 

@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+
+# no packages own wtmp, or btmp -- we'll rotate them here
+/var/log/wtmp {
+    missingok
+    {{logrotate.cycle}}
+    create 0664 root utmp
+    rotate {{logrotate.count}}
+}

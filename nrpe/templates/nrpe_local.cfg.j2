@@ -4,7 +4,7 @@
 connection_timeout=600
 command_timeout=600
 
-allowed_hosts=127.0.0.1,{{ ansible_eth0.ipv4.address }},{{ hostvars[groups['monitoring'][0]]['ansible_ssh_host'] }}
+allowed_hosts=127.0.0.1,{{ ansible_default_ipv4.address }},{{ hostvars[groups['monitoring'][0]]['ansible_ssh_host'] }}
 
 # Speedtest
 command[check_speedtest-cli-2]=/usr/lib/nagios/plugins/check_speedtest-cli.sh -w 2 -c 1 -W 0.2 -C 0.1 -p -s 4193
@@ -14,7 +14,7 @@ command[check_speedtest-cli-100]=/usr/lib/nagios/plugins/check_speedtest-cli.sh 
 
 # Bandwith
 #command[check_bandwidth]=/usr/lib/nagios/plugins/check_bandwidth rx 60 eth0 bw
-command[check_bandwidth]=/usr/lib/nagios/plugins/check_eth -i eth0 -w 200M Bps -c 200M Bps ### TODO: check ist falschherum. Meldet bei Ueberschreiten aber leider nicht bei unterschreiten.
+command[check_bandwidth]=/usr/lib/nagios/plugins/check_eth -i {{ansible_default_ipv4.interface}} -w 200M Bps -c 200M Bps ### TODO: check ist falschherum. Meldet bei Ueberschreiten aber leider nicht bei unterschreiten.
  
 # Debian Server
 command[check_load]=/usr/lib/nagios/plugins/check_load -w 15,10,5 -c 30,25,20
@@ -34,7 +34,7 @@ command[check_collectd]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C colle
 command[check_pyrespondd]=/usr/lib/nagios/plugins/check_systemd_service py-respondd
 command[check_tunneldigger]=/usr/lib/nagios/plugins/check_tunneldigger
 command[check_dhcp-server]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C kea-dhcp4
-command[check_vnstat]=/usr/lib/nagios/plugins/check_vnstat.sh -i eth0
+command[check_vnstat]=/usr/lib/nagios/plugins/check_vnstat.sh -i {{ansible_default_ipv4.interface}} 
 command[check-dhcp-client]=/usr/lib/nagios/plugins/check_dhcp -t 5
 command[check-dns4-client]=/usr/lib/nagios/plugins/check_dns -H ipv4.google.com -w 0.5 -c 1
 command[check-dns6-client]=/usr/lib/nagios/plugins/check_dns -H ipv6.google.com -w 0.5 -c 1

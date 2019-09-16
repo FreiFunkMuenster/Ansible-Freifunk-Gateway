@@ -1,6 +1,10 @@
+# {{ ansible_managed }}
+
 # see "man logrotate" for details
+# rotate log files this often
 {{logrotate.cycle}}
 
+# keep X weeks worth of backlogs
 rotate {{logrotate.count}}
 
 # create new (empty) log files after rotating old ones
@@ -12,41 +16,5 @@ create
 # packages drop log rotation information into this directory
 include /etc/logrotate.d
 
-# no packages own wtmp, or btmp -- we'll rotate them here
-/var/log/wtmp {
-    missingok
-    monthly
-    create 0664 root utmp
-    rotate 1
-}
+# system-specific logs may be also be configured here.
 
-/var/log/btmp {
-    missingok
-    monthly
-    create 0660 root utmp
-    rotate 1
-}
-{% if 'gateways' in group_names or 'services' in group_names %}
-/var/log/named/bind.log {
-    {{logrotate.cycle}}
-    rotate {{logrotate.count}}
-    copytruncate
-}
-{% endif %}
-
-{% if 'gateways' in group_names %}
-/var/log/tunneldigger-broker.log {
-    {{logrotate.cycle}}
-    rotate {{logrotate.count}}
-    copytruncate
-}
-{% endif %}
-
-# system-specific logs may be configured here
-{% if 'dhcp_type' in hostvars[inventory_hostname] and dhcp_type == 'kea' %}
-/var/log/kea-dhcp4.log {
-    {{logrotate.cycle}}
-    rotate {{logrotate.count}}
-    copytruncate
-}
-{% endif %}
