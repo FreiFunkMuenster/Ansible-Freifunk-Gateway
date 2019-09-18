@@ -1,4 +1,5 @@
-# This file is managed by ansible, don't make changes here - they will be overwritten.
+# {{ ansible_managed }}
+
 {% for host in groups['gateways']+groups['domaene-06'] %}
 {% if host != inventory_hostname %}
 auto bck-{{host}}

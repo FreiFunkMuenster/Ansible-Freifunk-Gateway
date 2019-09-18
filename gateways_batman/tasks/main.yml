@@ -13,7 +13,11 @@
   when: domaenenliste is defined
 
 - name: Routingtabelle 42 auch ffnet nennen
-  lineinfile: dest="/etc/iproute2/rt_tables" line="42   ffnet"
+  blockinfile:
+    path: "/etc/iproute2/rt_tables"
+    marker: "# {mark} Ansible managed block"
+    block: |
+      42   ffnet
   when: domaenenliste is defined
 
 - name: Drei Sekunden nach Kernelpanik automatisch neu starten
