@@ -19,7 +19,7 @@
 - name: create systemd files
   template: 
     src: py-respondd.service.j2
-    dest: /lib/systemd/system/py-respondd.service
+    dest: /etc/systemd/system/py-respondd.service
   notify: systemctl reload
 
 - name: Clone py-respondd repo
