@@ -13,7 +13,7 @@ COMMIT
 :OUTPUT ACCEPT [0:0]
 :POSTROUTING ACCEPT [0:0]
 {% if ipv4_direkt_ausleiten is defined and ipv4_direkt_ausleiten %}
--A POSTROUTING -o eth0 -j SNAT --to-source {{ ansible_default_ipv4.address }}
+-A POSTROUTING -o {{ansible_default_ipv4.interface}} -j SNAT --to-source {{ansible_default_ipv4.address}}
 {% elif ffrl_tun is defined and ffrl_nat_ip is defined %}
 -A POSTROUTING -o tun-ffrl+ -j SNAT --to-source {{ffrl_nat_ip | ipaddr('address')}}
 {% elif ffnw_tun is defined and ffnw_nat_ip is defined %}
