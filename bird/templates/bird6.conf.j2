@@ -62,7 +62,7 @@ protocol ospf {
 		interface "bat*" {
 			stub;
 		};
-{% for host in groups['gateways']+groups['domaene-06'] %}
+{% for host in groups['gateways']+groups['domaene-06']|default([]) %}
 {% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
 		interface "bck-{{host}}" {
 			cost 1000;
@@ -124,7 +124,9 @@ protocol static {
 
 protocol direct {
 	interface "lo";
+{% if ffrl_tun is defined %}
 	interface "tun-ffrl*";
+{% endif %}
 	interface "gre-*";
 	interface "bck-*";
 	interface "bat*";
@@ -153,7 +155,7 @@ template bgp internal {
 	next hop self;
 };
 
-{% for host in groups['gateways']+groups['domaene-06'] %}
+{% for host in groups['gateways']+groups['domaene-06']|default([]) %}
 {% if hostvars[host].vm_id != vm_id %}
 protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 {% if hostvars[host].vm_id < vm_id %}
