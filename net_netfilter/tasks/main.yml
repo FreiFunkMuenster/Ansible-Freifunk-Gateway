@@ -14,13 +14,13 @@
   lineinfile: dest=/etc/modules line="nf_conntrack_ipv4"
 
 - name: Set nf_conntrack_max to a higher value
-  sysctl: name="net.netfilter.nf_conntrack_max" value=524288 sysctl_set=yes state=present reload=yes
+  sysctl: name="net.netfilter.nf_conntrack_max" value=524288 sysctl_set=yes state=present reload=yes sysctl_file=/etc/sysctl.d/ff-netfilter.conf
 
 - name: Set nf_conntrack_tcp_timeout_established to 86400 (one day)
-  sysctl: name="net.netfilter.nf_conntrack_tcp_timeout_established" value=86400 sysctl_set=yes state=present reload=yes
+  sysctl: name="net.netfilter.nf_conntrack_tcp_timeout_established" value=86400 sysctl_set=yes state=present reload=yes sysctl_file=/etc/sysctl.d/ff-netfilter.conf
 
 - name: Set nf_conntrack_tcp_timeout_time_wait to 60
-  sysctl: name="net.netfilter.nf_conntrack_tcp_timeout_time_wait" value=60 sysctl_set=yes state=present reload=yes
+  sysctl: name="net.netfilter.nf_conntrack_tcp_timeout_time_wait" value=60 sysctl_set=yes state=present reload=yes sysctl_file=/etc/sysctl.d/ff-netfilter.conf
 
 - name: Get current nf_conntrack hashsize
   shell: "cat /sys/module/nf_conntrack/parameters/hashsize"
