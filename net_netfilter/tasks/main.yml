@@ -9,9 +9,28 @@
 
 - name: Enable nf_conntrack_ipv4 module
   modprobe: name=nf_conntrack_ipv4 state=present
+  when: ansible_kernel is version_compare('4.19', '<')
 
 - name: Enable nf_conntrack_ipv4 on system startup
-  lineinfile: dest=/etc/modules line="nf_conntrack_ipv4"
+  blockinfile:
+    path: /etc/modules
+    marker: "# {mark} Ansible managed block"
+    block: |
+      nf_conntrack_ipv4
+  when: ansible_kernel is version_compare('4.19', '<')
+
+- name: Enable nf_conntrack module
+  modprobe: name=nf_conntrack state=present
+  when: ansible_kernel is version_compare('4.19', '>=')
+
+- name: Enable nf_conntrack on system startup
+  blockinfile:
+    path: /etc/modules
+    marker: "# {mark} Ansible managed block"
+    block: |
+      nf_conntrack
+  when: ansible_kernel is version_compare('4.19', '>=')
+
 
 - name: Set nf_conntrack_max to a higher value
   sysctl: name="net.netfilter.nf_conntrack_max" value=524288 sysctl_set=yes state=present reload=yes sysctl_file=/etc/sysctl.d/ff-netfilter.conf

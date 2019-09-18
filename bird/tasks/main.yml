@@ -26,7 +26,8 @@
     cache_valid_time: 1800
     state: present
   when: (ansible_distribution == "Ubuntu") or
-        (ansible_distribution == "Debian" and ansible_distribution_major_version == "9")
+        (ansible_distribution == "Debian" and ansible_distribution_major_version == "9") or
+        (ansible_distribution == "Debian" and ansible_distribution_major_version == "10")
 
 - name: calculate more specific routes for DHCP pools
   shell: ipcalc {{ domaenenliste[item].dhcp_start }} - {{ domaenenliste[item].dhcp_ende}} | grep -v "deaggregate" | sed -e 's/\(^.*$\)/route \1 via "bat{{item}}";/g'

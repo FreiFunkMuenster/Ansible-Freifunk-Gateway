@@ -1,11 +1,4 @@
 ---
-# Prüfe Repo-Quelle
-- name: Schlüssel hinzufügen
-  apt_key: keyserver=keyserver.ubuntu.com  id=16EF3F64CB201D9C
-
-- name: set fastd-repo
-  apt_repository: repo='deb http://repo.universe-factory.net/debian/ sid main' state=present
-
 # Fastd-Daemon, Habeged-Daemon
 
 - name: install fastd (vpn daemon) and haveged (entropy daemon)
@@ -26,6 +19,7 @@
     creates: /etc/fastd/vpn/secret.key
   notify:
     - restart fastd
+    - restart fastd@vpn
 
 # write public & private key to seperate keyfiles, if new fastd key is generated
 - template: src=secret.key.j2 dest=/etc/fastd/vpn/secret.key owner=root group=root mode=0600
@@ -45,6 +39,7 @@
   template: src=fastd.conf.j2 dest=/etc/fastd/vpn/fastd.conf
   notify:
     - restart fastd
+    - restart fastd@vpn
 
 - name: create verify directory
   file: path=/var/gateway-ffms/fastd/ state=directory
@@ -63,3 +58,11 @@
 - name: status.pl nach /root kopieren
   copy: src=status.pl dest=/root/status.pl owner=root group=root mode=0755
 
+- name: enable fastd
+  systemd:
+    name: fastd@vpn
+    enabled: yes
+    masked: no
+  when: ansible_distribution == "Debian" and ansible_distribution_major_version == "10"
+  notify:
+    - restart fastd@vpn
