@@ -1,4 +1,3 @@
-{% set MaxTunnels = (65535 / domaenenliste|length)|round|int %}
 [broker]
 ; IP address the broker will listen and accept tunnels on
 address={{ansible_eth0.ipv4.address}}
@@ -15,16 +14,12 @@ port={{ports|join(',')}}
 ; Interface with that IP address
 interface={{tunneldigger.interface}}
 ; Maximum number of tunnels that will be allowed by the broker
-{% if tunneldigger.instance_per_domain == True %}
-max_tunnels={{ MaxTunnels - 1 }}
-{% else %}
-max_tunnels={{tunneldigger.max_tunnels}}
-{% endif %}
+max_tunnels={{ tunneldigger.max_tunnels - 1 }}
 ; Tunnel port base
 port_base={{tunneldigger.port_base}}
 ; Tunnel id base
 {% if tunneldigger.instance_per_domain == True %}
-tunnel_id_base={% for domaene in domaenenliste %}{% if domaene == item.key %}{{loop.index * MaxTunnels - MaxTunnels}}{% endif %}{% endfor %}
+tunnel_id_base={% for domaene in domaenenliste %}{% if domaene == item.key %}{{loop.index *  tunneldigger.max_tunnels - tunneldigger.max_tunnels }}{% endif %}{% endfor %}
 
 {% else %}
 tunnel_id_base=0

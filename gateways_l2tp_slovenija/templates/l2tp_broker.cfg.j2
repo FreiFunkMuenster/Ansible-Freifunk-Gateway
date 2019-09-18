@@ -1,4 +1,3 @@
-{% set MaxTunnels = (65535 / domaenenliste|length)|round|int %}
 [broker]
 ; IP address the broker will listen and accept tunnels on
 address={{ansible_eth0.ipv4.address}}
@@ -7,13 +6,13 @@ port={{20000 + (item.key | int)}}
 ; Interface with that IP address
 interface={{tunneldigger.interface}}
 ; Maximum number of tunnels that will be allowed by the broker
-max_tunnels={{ MaxTunnels - 1 }}
+max_tunnels={{ tunneldigger.max_tunnels - 1 }}
 ; Tunnel port base. This port is not visible to clients, but must be free on the server.
 ; This port is used by the actual l2tp tunnel, but tunneldigger sets up NAT rules so that clients
 ; can keep using the control port.
 port_base={{tunneldigger.port_base}}
 ; Tunnel id base
-tunnel_id_base={% for domaene in domaenenliste %}{% if domaene == item.key %}{{loop.index * MaxTunnels - MaxTunnels}}{% endif %}{% endfor %}
+tunnel_id_base={% for domaene in domaenenliste %}{% if domaene == item.key %}{{loop.index * tunneldigger.max_tunnels - tunneldigger.max_tunnels}}{% endif %}{% endfor %}
 
 ; Namespace (for running multiple brokers); note that you must also
 ; configure disjunct ports, and tunnel identifiers in order for
