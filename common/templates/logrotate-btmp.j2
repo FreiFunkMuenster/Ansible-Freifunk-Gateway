@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+
+/var/log/btmp {
+    missingok
+    {{logrotate.cycle}}
+    create 0660 root utmp
+    rotate {{logrotate.count}}
+}
