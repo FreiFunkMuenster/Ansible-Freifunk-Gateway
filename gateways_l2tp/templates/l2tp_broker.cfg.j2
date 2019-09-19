@@ -14,14 +14,15 @@ port={{ports|join(',')}}
 ; Interface with that IP address
 interface={{ansible_default_ipv4.address}}
 ; Maximum number of tunnels that will be allowed by the broker
-max_tunnels={{tunneldigger.max_tunnels}}
+max_tunnels={{ tunneldigger.max_tunnels - 1 }}
 ; Tunnel port base
 port_base={{tunneldigger.port_base}}
 ; Tunnel id base
 {% if tunneldigger.instance_per_domain == True %}
-tunnel_id_base={{100 + (item.key | int)}}
+tunnel_id_base={% for domaene in domaenenliste %}{% if domaene == item.key %}{{loop.index *  tunneldigger.max_tunnels - tunneldigger.max_tunnels }}{% endif %}{% endfor %}
+
 {% else %}
-tunnel_id_base=100
+tunnel_id_base=0
 {% endif %}
 ; Namespace (for running multiple brokers); note that you must also
 ; configure disjunct ports, and tunnel identifiers in order for
