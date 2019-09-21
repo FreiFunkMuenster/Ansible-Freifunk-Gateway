@@ -86,7 +86,7 @@
   when: domaenenliste is defined
 
 - name: Deploy tunneldigger@.service template file
-  copy: src=tunneldigger@.service dest=/lib/systemd/system/tunneldigger@.service
+  copy: src=tunneldigger@.service dest=/etc/systemd/system/tunneldigger@.service
   register: _domain_td_systemd
   notify:
   - restart tunneldigger per domain
