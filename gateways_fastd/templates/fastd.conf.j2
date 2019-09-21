@@ -17,11 +17,7 @@ interface "mesh-vpn";
 mode tap;
 
 # Set the mtu of the interface (salsa2012 with ipv6 will need 1406)
-{% if fastd.mtu is defined %}
-mtu {{fastd.mtu}};
-{% else %}
-mtu 1406;
-{% endif %}
+mtu {{ fastd.mtu|default('1406') }};
 
 # Set the methods (aes128-gcm preferred, salsa2012+umac preferred for nodes)
 method "aes128-gcm";
