@@ -19,12 +19,12 @@
   when: domaenenliste is defined
 
 - name: Determine whether the global version of tunneldigger is installed or not
-  stat: path=/lib/systemd/system/tunneldigger.service
+  stat: path=/etc/systemd/system/tunneldigger.service
   register: _td_global_installed
   when: domaenenliste is defined
 
 - name: Determine whether the per domain version of tunneldigger is installed or not
-  stat: path=/lib/systemd/system/tunneldigger@.service
+  stat: path=/etc/systemd/system/tunneldigger@.service
   register: _td_per_domain_installed
   when: domaenenliste is defined
 
@@ -56,13 +56,13 @@
     - tunneldigger.instance_per_domain == True and (_td_global_installed.stat.exists == True or _old_td_systemd.changed == True)
 
 - name: Delete global td systemd config if change to per domain instances is ongoing
-  file: path=/lib/systemd/system/tunneldigger.service state=absent
+  file: path=/etc/systemd/system/tunneldigger.service state=absent
   when: 
     - domaenenliste is defined
     - tunneldigger.instance_per_domain == True and (_td_global_installed.stat.exists == True or _old_td_systemd.changed == True)
 
 - name: Delete per domain td systemd config if change to global td is ongoing
-  file: path=/lib/systemd/system/tunneldigger@.service state=absent
+  file: path=/etc/systemd/system/tunneldigger@.service state=absent
   when: 
     - domaenenliste is defined
     - tunneldigger.instance_per_domain == False and _td_per_domain_installed.stat.exists == True
@@ -159,7 +159,7 @@
   when: domaenenliste is defined
 
 - name: Deploy tunneldigger@.service template file
-  copy: src=tunneldigger@.service dest=/lib/systemd/system/tunneldigger@.service
+  copy: src=tunneldigger@.service dest=/etc/systemd/system/tunneldigger@.service
   register: _domain_td_systemd
   notify:
   - restart tunneldigger per domain
@@ -168,7 +168,7 @@
     - tunneldigger.instance_per_domain == True
 
 - name: Deploy tunneldigger.service file
-  copy: src=tunneldigger.service dest=/lib/systemd/system/tunneldigger.service
+  copy: src=tunneldigger.service dest=/etc/systemd/system/tunneldigger.service
   register: _global_td_systemd
   notify:
   - restart tunneldigger
