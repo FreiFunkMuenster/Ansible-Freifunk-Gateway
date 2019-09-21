@@ -11,7 +11,7 @@ bind [{{ ansible_default_ipv6.address }}]:{{ fastd.port_base + (item.key | int) 
 user "nobody";
 
 # Set the interface name
-interface "vpn-fastd{{ item.key }}";
+interface "fastd{{ item.key }}";
 
 # Set the mode, the interface will work as
 mode tap;
