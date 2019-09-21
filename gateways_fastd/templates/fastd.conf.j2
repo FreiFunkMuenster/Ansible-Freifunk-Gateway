@@ -49,8 +49,4 @@ on up "
   ip link set dev $INTERFACE address de:ad:be:ef:43:{{server_id}}
   ip link set dev $INTERFACE up
   batctl if add $INTERFACE
-{% if fastd.ip_rule_42 %}
-  ip rule add from {{ffrl_nat_ip}} lookup 42
-  ip -6 rule add from {{ff_network.v6_network}} lookup 42
-{% endif %}
 ";
