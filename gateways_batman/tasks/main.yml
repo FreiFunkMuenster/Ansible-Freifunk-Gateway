@@ -5,7 +5,7 @@
     - restart networking
   when: domaenenliste is defined
 
-# create a br<domain> interface for each domain
+# create a br<domain> bridge interface for each domain
 - name: Create a bridge interface for each domain
   template: src=domain_bridge.j2 dest=/etc/network/interfaces.d/20_domain_bridge.cfg
   notify:
