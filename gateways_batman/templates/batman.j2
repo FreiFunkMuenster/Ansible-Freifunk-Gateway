@@ -15,7 +15,7 @@ iface bat{{item[0]}} inet static
         post-up batctl -m bat{{item[0]}} it 10000
         post-up batctl -m bat{{item[0]}} gw server {{batman.downstream}}/{{batman.upstream}}
         post-up batctl -m bat{{item[0]}} mm 0
-{% if tunneldigger is defined %}
+{% if tunneldigger is defined or fastd is defined %}
         post-up batctl -m bat{{item[0]}} if add br{{item[0]}} ||:
 {% endif %}
 {% for host in groups['gateways'] %}
