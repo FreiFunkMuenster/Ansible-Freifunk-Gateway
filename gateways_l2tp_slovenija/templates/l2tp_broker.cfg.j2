@@ -4,7 +4,7 @@ address={{ansible_default_ipv4.address}}
 ; Ports where the broker will listen on
 port={{20000 + (item.key | int)}}
 ; Interface with that IP address
-interface={{tunneldigger.interface}}
+interface={{ansible_default_ipv4.interface}}
 ; Maximum number of tunnels that will be allowed by the broker
 max_tunnels={{ tunneldigger.max_tunnels - 1 }}
 ; Tunnel port base. This port is not visible to clients, but must be free on the server.
