@@ -46,7 +46,7 @@
 
 # todo: bessere location wählen
 - name: create verify script (blacklisting)
-  template: src=verify.sh.j2 dest=/var/gateway-ffms/fastd/verify.sh
+  template: src=blacklist.sh.j2 dest=/var/gateway-ffms/fastd/blacklist.sh
 
 - stat: path=/var/gateway-ffms/fastd/blacklist
   register: blacklist_file
