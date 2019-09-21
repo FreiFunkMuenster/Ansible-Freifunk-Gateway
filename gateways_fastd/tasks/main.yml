@@ -6,9 +6,19 @@
     pkg: ['fastd', 'haveged']
     update_cache: yes
     state: present
+  when: domaenenliste is defined
 
-- name: create config directory
-  file: path=/etc/fastd/vpn state=directory
+- name: create config directories
+  file:
+    path: /etc/fastd/{{ item.key }}
+    state: directory
+  with_dict: "{{ domaenenliste }}"
+
+- name: create keys directories
+  file:
+    path: /etc/fastd/{{ item.key }}/keys
+    state: directory
+  with_dict: "{{ domaenenliste }}"
 
 # generate new fastd keypair if no fastd_key file exists
 # new key will only be generated, if no secret,key file exists (public key doesn't matter)
@@ -16,53 +26,68 @@
   shell: fastd --generate-key
   register: fastd_key_generated
   args:
-    creates: /etc/fastd/vpn/secret.key
+    creates: /etc/fastd/{{ item.key }}/keys/secret.key
+  with_dict: "{{ domaenenliste }}"
   notify:
-    - restart fastd
-    - restart fastd@vpn
+    - restart fastd per domain
 
 # write public & private key to seperate keyfiles, if new fastd key is generated
-- template: src=secret.key.j2 dest=/etc/fastd/vpn/secret.key owner=root group=root mode=0600
-  when: fastd_key_generated|changed
-- template: src=public.key.j2 dest=/etc/fastd/vpn/public.key
-  when: fastd_key_generated|changed
+- template: src=secret.key.j2 dest=/etc/fastd/{{ item.item.key }}/keys/secret.key owner=root group=root mode=0600
+  when: item.changed
+  with_items: "{{ fastd_key_generated.results }}"
+- template: src=public.key.j2 dest=/etc/fastd/{{ item.item.key }}/keys/public.key
+  when: item.changed
+  with_items: "{{ fastd_key_generated.results }}"
 
 - name: create dummy peer directory
-  file: path=/etc/fastd/vpn/peers state=directory
+  file: path=/etc/fastd/{{ item.key }}/peers state=directory
+  with_dict: "{{ domaenenliste }}"
 
 # create dummy peer file
 - name: create dummy peer
-  template: src=dummy.j2 dest=/etc/fastd/vpn/peers/dummy
+  template: src=dummy.j2 dest=/etc/fastd/{{ item.key }}/peers/dummy
+  with_dict: "{{ domaenenliste }}"
 
 # create fastd config
 - name: create config
-  template: src=fastd.conf.j2 dest=/etc/fastd/vpn/fastd.conf
+  template: src=fastd.conf.j2 dest=/etc/fastd/{{ item.key }}/fastd.conf
   notify:
-    - restart fastd
-    - restart fastd@vpn
+    - restart fastd per domain
+  with_dict: "{{ domaenenliste }}"
 
 - name: create verify directory
-  file: path=/var/gateway-ffms/fastd/ state=directory
+  file: path=/var/freifunk/gateway-{{ freifunk.kurzname }}/fastd/ state=directory
 
-# todo: bessere location wählen
 - name: create verify script (blacklisting)
-  template: src=blacklist.sh.j2 dest=/var/gateway-ffms/fastd/blacklist.sh
+  template: src=blacklist.sh.j2 dest=/var/freifunk/gateway-{{ freifunk.kurzname }}/fastd/blacklist.sh
 
-- stat: path=/var/gateway-ffms/fastd/blacklist
+- stat: path=/var/freifunk/gateway-{{ freifunk.kurzname }}/fastd/blacklist
   register: blacklist_file
 
-- name: create blacklist file (if not exists)
-  file: path=/var/gateway-ffms/fastd/blacklist state=touch
+- name: create global blacklist file (if not exists)
+  file: path=/var/freifunk/gateway-{{ freifunk.kurzname }}/fastd/blacklist state=touch
   when: blacklist_file.stat.exists == False
 
 - name: status.pl nach /root kopieren
   copy: src=status.pl dest=/root/status.pl owner=root group=root mode=0755
 
+- name: create folder for fastd@ service file
+  file: path=/etc/systemd/system/fastd@.service.d state=directory mode=0755
+
+- name: override fastd@ service
+  copy: src=fastd@.service.override dest=/etc/systemd/system/fastd@.service.d/ansible-managed.conf
+  notify:
+    - restart fastd per domain
+
+- name: reread systemd configs
+  systemd:
+    daemon_reload: yes
+
 - name: enable fastd
   systemd:
-    name: fastd@vpn
+    name: fastd@{{ item.key }}
     enabled: yes
     masked: no
-  when: ansible_distribution == "Debian" and ansible_distribution_major_version == "10"
+  with_dict: "{{ domaenenliste }}"
   notify:
-    - restart fastd@vpn
+    - restart fastd per domain
