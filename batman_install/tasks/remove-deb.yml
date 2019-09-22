@@ -1,0 +1,4 @@
+- name: batctl-Paket deinstallieren
+  apt:
+    pkg: ['batctl']
+    state: absent
