@@ -107,7 +107,7 @@
 
 - name: Logrotate Rotationszyklus und Anzahl anpassen
   template:
-    src: logrotate-tunneldigger
+    src: logrotate-tunneldigger.j2
     dest: /etc/logrotate.d/tunneldigger
   when:
     - domaenenliste is defined
