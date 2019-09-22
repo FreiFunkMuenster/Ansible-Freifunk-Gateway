@@ -1,7 +1,0 @@
-# {{ ansible_managed }}
-
-/var/log/kea-dhcp4.log {
-    {{logrotate.cycle}}
-    rotate {{logrotate.count}}
-    copytruncate
-}

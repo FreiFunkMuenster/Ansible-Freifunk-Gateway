@@ -141,18 +141,6 @@
     dest: /etc/logrotate.d/bind
   when: logrotate is defined and ('gateways' in group_names or 'services' in group_names)
 
-- name: Logrotate konfigurieren für KEA-dhcpd4
-  template:
-    src: logrotate-kea-dhcp4.j2
-    dest: /etc/logrotate.d/kea-dhcp4
-  when: logrotate is defined and ('dhcp_type' in hostvars[inventory_hostname] and dhcp_type == 'kea')
-
-- name: Logrotate konfigurieren für Tunneldigger-Broker
-  template:
-    src: logrotate-tunneldigger-broker.j2
-    dest: /etc/logrotate.d/tunneldigger-broker
-  when: logrotate is defined and ('gateways' in group_names)
-
 - name: Setze Timeout für das stopen von Interfaces
   lineinfile:
     dest: /lib/systemd/system/networking.service.d/network-pre.conf
