@@ -1,0 +1,7 @@
+/var/log/tunneldigger-broker_domain*.log {
+    {{logrotate.cycle}}
+    rotate {{logrotate.count}}
+    copytruncate
+    delaycompress
+    compress
+}
