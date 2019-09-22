@@ -1,6 +1,6 @@
 - name: Abhängigkeiten installieren
   apt:
-    pkg: ['dkms', 'build-essential', 'linux-headers-{{ansible_kernel}}', 'checkinstall', 'pkg-config', 'libnl-3-dev', 'libnl-genl-3-dev']
+    pkg: ['dkms', 'build-essential', 'linux-headers-{{ansible_kernel}}', 'pkg-config', 'libnl-3-dev', 'libnl-genl-3-dev']
     state: present
 
 - name: create directory for batman-adv
@@ -32,7 +32,7 @@
   register: batman_adv_file
 
 - name: Batman bauen
-  shell: "dkms add -m batman-adv -v {{batman_version}} && dkms build -m batman-adv -v {{batman_version}} && dkms install -m batman-adv -v {{batman_version}}"
+  shell: "dkms add -m batman-adv -v {{batman_version}} && dkms build -m batman-adv -v {{batman_version}} && dkms install -m batman-adv -v {{batman_version}} --force"
   when:
     - batman_adv_file.stat.exists == False or getbatman.changed
 
@@ -68,7 +68,7 @@
   check_mode: no
 
 - name: batctl bauen
-  shell: "make && checkinstall -y make install"
+  shell: "make && make install"
   args:
     chdir: /usr/src/batctl-{{batman_version}}
   when:
