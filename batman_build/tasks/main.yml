@@ -32,7 +32,7 @@
   register: batman_adv_file
 
 - name: Batman bauen
-  shell: "dkms add -m batman-adv -v {{batman_version}} && dkms build -m batman-adv -v {{batman_version}} && dkms install -m batman-adv -v {{batman_version}}"
+  shell: "dkms add -m batman-adv -v {{batman_version}} && dkms build -m batman-adv -v {{batman_version}} && dkms install -m batman-adv -v {{batman_version}} --force"
   when:
     - batman_adv_file.stat.exists == False or getbatman.changed
 
