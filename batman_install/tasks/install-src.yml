@@ -10,13 +10,13 @@
 
 - name: Download Batman 
   get_url:
-    url: "https://downloads.open-mesh.org/batman/releases/batman-adv-{{batman_version}}/batman-adv-{{batman_version}}.tar.gz"
-    dest: /opt/batman-adv/batman-adv-{{batman_version}}.tar.gz
+    url: "https://downloads.open-mesh.org/batman/releases/batman-adv-{{batman.version}}/batman-adv-{{batman.version}}.tar.gz"
+    dest: /opt/batman-adv/batman-adv-{{batman.version}}.tar.gz
   register: getbatman
 
 - name: batman-Quellen entpacken
   unarchive:
-    src: /opt/batman-adv/batman-adv-{{batman_version}}.tar.gz
+    src: /opt/batman-adv/batman-adv-{{batman.version}}.tar.gz
     dest: /usr/src
     remote_src: True
   when: 
@@ -25,14 +25,14 @@
 - name: configure dkms
   template: 
     src: dkms.conf
-    dest: /usr/src/batman-adv-{{batman_version}}/dkms.conf
+    dest: /usr/src/batman-adv-{{batman.version}}/dkms.conf
 
 - stat: 
     path: /lib/modules/{{ansible_kernel}}/updates/dkms/batman-adv.ko
   register: batman_adv_file
 
 - name: Batman bauen
-  shell: "dkms add -m batman-adv -v {{batman_version}} && dkms build -m batman-adv -v {{batman_version}} && dkms install -m batman-adv -v {{batman_version}} --force"
+  shell: "dkms add -m batman-adv -v {{batman.version}} && dkms build -m batman-adv -v {{batman.version}} && dkms install -m batman-adv -v {{batman.version}} --force"
   when:
     - batman_adv_file.stat.exists == False or getbatman.changed
 
@@ -44,13 +44,13 @@
 
 - name: get batctl
   get_url:
-    url: "https://downloads.open-mesh.org/batman/releases/batman-adv-{{batman_version}}/batctl-{{batman_version}}.tar.gz"
-    dest: /opt/batctl/batctl-{{batman_version}}.tar.gz
+    url: "https://downloads.open-mesh.org/batman/releases/batman-adv-{{batman.version}}/batctl-{{batman.version}}.tar.gz"
+    dest: /opt/batctl/batctl-{{batman.version}}.tar.gz
   register: getbatctl
 
 - name: batctl-Quellen und entpacken
   unarchive:
-    src: /opt/batctl/batctl-{{batman_version}}.tar.gz
+    src: /opt/batctl/batctl-{{batman.version}}.tar.gz
     dest: /usr/src
     remote_src: True
   when:
@@ -70,6 +70,6 @@
 - name: batctl bauen
   shell: "make && make install"
   args:
-    chdir: /usr/src/batctl-{{batman_version}}
+    chdir: /usr/src/batctl-{{batman.version}}
   when:
-    - batctl.stat.exists == False or batctl_version.stdout_lines[0] != "batctl {{batman_version}}"
+    - batctl.stat.exists == False or batctl_version.stdout_lines[0] != "batctl {{batman.version}}"

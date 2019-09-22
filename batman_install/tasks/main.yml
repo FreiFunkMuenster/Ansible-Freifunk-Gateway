@@ -2,33 +2,33 @@
 - name: Prüfe installierte batman-adv-Version
   shell: "modinfo -F version batman-adv"
   register: installed_batman_version
-  when: batman_version is defined and batman_version
+  when: batman.version is defined and batman.version
   changed_when: False
 
-# batman_version != installierte Version: evtl vorhandenes DKMS-batman-adv deinstallieren
+# batman.version != installierte Version: evtl vorhandenes DKMS-batman-adv deinstallieren
 - include: remove-src.yml
-  when: batman_version is not defined or batman_version == "kernel" or
-        (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman_version)
+  when: batman.version is not defined or batman.version == "kernel" or
+        (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman.version)
 
 # installierte batman-Version erneut prüfen
 - name: Prüfe batman-adv-Version des Kernels
   shell: "modinfo -F version batman-adv"
   register: installed_batman_version
-  when: batman_version is defined and batman_version != "kernel" and
-        (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman_version)
+  when: batman.version is defined and batman.version != "kernel" and
+        (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman.version)
   changed_when: False
 
 # batman-adv-Version im Kernel passt -> nur batctl installieren
 - include: install-deb.yml
-  when: batman_version is not defined or batman_version == "kernel" or
-        (installed_batman_version.stdout is defined and installed_batman_version.stdout == batman_version)
+  when: batman.version is not defined or batman.version == "kernel" or
+        (installed_batman_version.stdout is defined and installed_batman_version.stdout == batman.version)
 
 # batman-adv-Version im Kernel passt nicht -> batctl-Paket deinstallieren und batman-adv und batctl aus Sourcen installieren
 - include: remove-deb.yml
-  when: (batman_version is defined and batman_version != "kernel") and
-        (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman_version)
+  when: (batman.version is defined and batman.version != "kernel") and
+        (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman.version)
 
 # batman-adv und batctl aus Quellen bauen
 - include: install-src.yml
-  when: (batman_version is defined and batman_version != "kernel") and
-        (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman_version)
+  when: (batman.version is defined and batman.version != "kernel") and
+        (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman.version)
