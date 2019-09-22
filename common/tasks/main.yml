@@ -135,12 +135,6 @@
     dest: /etc/logrotate.d/wtmp
   when: logrotate is defined
 
-- name: Logrotate konfigurieren für bind
-  template:
-    src: logrotate-bind.j2
-    dest: /etc/logrotate.d/bind
-  when: logrotate is defined and ('gateways' in group_names or 'services' in group_names)
-
 - name: Setze Timeout für das stopen von Interfaces
   lineinfile:
     dest: /lib/systemd/system/networking.service.d/network-pre.conf

@@ -61,3 +61,11 @@
   copy: src=bind9.service dest=/lib/systemd/system/bind9.service
   notify:
     - restart bind9
+
+- name: Deploy logrotate template file
+  template:
+    src: logrotate-bind.j2
+    dest: /etc/logrotate.d/bind
+  when:
+    - domaenenliste is defined
+
