@@ -189,3 +189,10 @@
   when:
     - domaenenliste is defined
     - tunneldigger.instance_per_domain == False
+
+- name: Deploy logrotate template file
+  template:
+    src: logrotate-tunneldigger-broker.j2
+    dest: /etc/logrotate.d/tunneldigger-broker
+  when:
+    - domaenenliste is defined
