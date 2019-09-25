@@ -33,7 +33,7 @@
 
 - name: Clone py-respondd repo
   git: 
-    repo: https://github.com/descilla/py-respondd.git
+    repo: https://github.com/FreiFunkMuenster/py-respondd.git
     dest: /opt/py-respondd/
     clone: yes
     update: yes
