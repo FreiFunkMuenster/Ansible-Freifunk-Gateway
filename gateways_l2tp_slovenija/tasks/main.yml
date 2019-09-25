@@ -80,11 +80,6 @@
   when:
     - domaenenliste is defined
 
-- name: l2tp-bridge einrichten
-  template: src=l2tp_bridge.j2 dest=/etc/network/interfaces.d/20_l2tp_bridge.cfg
-  notify: restart networking
-  when: domaenenliste is defined
-
 - name: Deploy tunneldigger@.service template file
   copy: src=tunneldigger@.service dest=/etc/systemd/system/tunneldigger@.service
   register: _domain_td_systemd
