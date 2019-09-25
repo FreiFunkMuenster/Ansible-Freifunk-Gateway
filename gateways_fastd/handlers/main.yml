@@ -1,0 +1,6 @@
+---
+- name: restart fastd per domain
+  systemd:
+    name: fastd@{{ item.key }}.service
+    state: restarted
+  with_dict: "{{ domaenenliste }}"

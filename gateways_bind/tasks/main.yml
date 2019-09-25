@@ -69,3 +69,10 @@
   systemd:
     daemon_reload: yes
 
+- name: Deploy logrotate template file
+  template:
+    src: logrotate-bind.j2
+    dest: /etc/logrotate.d/bind
+  when:
+    - domaenenliste is defined
+

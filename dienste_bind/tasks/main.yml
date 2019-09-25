@@ -57,6 +57,11 @@
   notify:
     - restart bind9
 
+- name: Deploy logrotate template file
+  template:
+    src: logrotate-bind.j2
+    dest: /etc/logrotate.d/bind
+
 - name: knotendns.sh kopieren
   template: src=knotendns.j2 dest=/etc/bind/knotendns.sh mode=0755
 
