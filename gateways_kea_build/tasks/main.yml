@@ -36,3 +36,9 @@
     - reload systemd
   when: domaenenliste is defined
 
+- name: Deploy logrotate template file
+  template:
+    src: logrotate-kea-dhcp4.j2
+    dest: /etc/logrotate.d/kea-dhcp4
+  when:
+    - domaenenliste is defined
