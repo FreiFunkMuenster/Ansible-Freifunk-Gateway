@@ -5,7 +5,7 @@ zone "{{domain}}" IN {
 	type slave;
         file "/etc/bind/slave/db.{{domain}}";
 	masters {
-{% for master in bind.ffms_zone_masters %}
+{% for master in bind.ffnet_zone_masters %}
 		{{master}};
 {% endfor %}
 	};
@@ -14,7 +14,7 @@ zone "servers.{{domain}}." IN {
 	type slave;
         file "/etc/bind/slave/db.servers.{{domain}}";
 	masters {
-{% for master in bind.ffms_zone_masters %}
+{% for master in bind.ffnet_zone_masters %}
 		{{master}};
 {% endfor %}
 	};
@@ -23,7 +23,7 @@ zone "services.{{domain}}." IN {
 	type slave;
         file "/etc/bind/slave/db.services.{{domain}}";
 	masters {
-{% for master in bind.ffms_zone_masters %}
+{% for master in bind.ffnet_zone_masters %}
 		{{master}};
 {% endfor %}
 	};
@@ -32,7 +32,7 @@ zone "knoten.{{domain}}." IN {
 	type slave;
         file "/etc/bind/slave/db.knoten.{{domain}}";
 	masters {
-{% for master in bind.ffms_zone_masters %}
+{% for master in bind.ffnet_zone_masters %}
 		{{master}};
 {% endfor %}
 	};

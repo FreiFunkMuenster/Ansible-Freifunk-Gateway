@@ -8,12 +8,6 @@ options {
 
         notify yes;
 	also-notify {
-{% if bind.ffms_for_groups is defined and bind.ffms_for_groups.0 is defined %}
-{% for group in bind.ffms_for_groups %}
-{% for host in groups[group] %}
-           {{hostvars[host].ff_network.v4_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }};
-{% endfor %}
-{% endfor %}
 {% for host in groups['gateways'] %}
 {% if hostvars[host].domaenenliste is defined %}
 {% for domaene in hostvars[host].domaenenliste|dictsort %}
@@ -21,7 +15,6 @@ options {
 {% endfor %}
 {% endif %}
 {% endfor %}
-{% endif %}
 	};
         
         auth-nxdomain no;    # conform to RFC1035

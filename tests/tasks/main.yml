@@ -1,5 +1,0 @@
----
-
-- include: tests_tunnel.yml
-  tags: tests_tunnel
-
