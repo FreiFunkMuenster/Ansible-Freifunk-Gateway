@@ -9,14 +9,6 @@ $TTL    86400
 ;
 @			IN      NS      {{bind.ns_name}}.servers.{{freifunk.kurzname}}.
 {{bind.ns_name}}			IN      A       {{ansible_default_ipv4.address}}
-{% if bind.ffms_for_groups is defined and bind.ffms_for_groups.0 is defined %}
-{% for group in bind.ffms_for_groups %}
-{% for host in groups[group] %}
-{{host}}	IN      A       {{hostvars[host].ff_network.v4_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }};
-{{host}}	IN      AAAA    {{hostvars[host].ff_network.v6_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }};
-{% endfor %}
-{% endfor %}
-{% endif %}
 {% for host in groups['gateways'] %}
 {% if hostvars[host].domaenenliste is defined %}
 {% for domaene in hostvars[host].domaenenliste|dictsort %}
