@@ -1,9 +1,0 @@
----
-- name: Neustarten
-  shell: sleep 2 && shutdown -r now "Ansible updates triggered"
-  async: 1
-  poll: 0
-  ignore_errors: true
-
-- name: Neustart abwarten
-  local_action: wait_for port={{ ansible_ssh_port }} host={{ ansible_host }} state=started delay=60 timeout=900 connect_timeout=15

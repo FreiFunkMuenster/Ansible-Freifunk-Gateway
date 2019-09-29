@@ -13,13 +13,6 @@ $TTL    3600
 {% if i.append(i.pop() + 1) %}{% endif %}
 {% endif %}
 {% endfor %}
-{% if bind.ffms_for_groups is defined and bind.ffms_for_groups.0 is defined %}
-{% for group in bind.ffms_for_groups %}
-{% for host in groups[group] %}
-{{host}}	IN      A       {{hostvars[host].ansible_ssh_host}};
-{% endfor %}
-{% endfor %}
-{% endif %}
 {% for host in groups['gateways']+groups['hypervisors'] %}
 {{host}}	IN      A       {{hostvars[host].ansible_ssh_host}};
 {% endfor %}

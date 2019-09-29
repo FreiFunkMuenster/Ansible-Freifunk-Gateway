@@ -31,11 +31,6 @@
   notify:
     - restart bind9
 
-- name: create own db file for services
-  template: src=db.services.ffnet.j2 dest=/etc/bind/db.services.ffnet
-  notify:
-    - restart bind9
-
 - name: create own db file for each domain
   template: src=db.tld-template.j2 dest=/etc/bind/db.{{item.key}}
   tags: debug

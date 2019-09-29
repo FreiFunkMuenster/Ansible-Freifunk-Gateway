@@ -1,6 +1,6 @@
 # {{ ansible_managed }}
 
-{% for host in groups['gateways']+groups['domaene-06'] %}
+{% for host in groups['gateways'] %}
 {% if host != inventory_hostname %}
 auto bck-{{host}}
 iface bck-{{host}} inet static

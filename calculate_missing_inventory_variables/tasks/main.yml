@@ -1,7 +1,0 @@
-- name: Prüfen, wo Variablen nachberechnet werden müssen
-  include: set_calculation_needed.yml dom={{item}}
-  with_items: "{{domaenenliste}}"
-
-- name: Domaenenliste ausgeben
-  debug:
-    var: domaenenliste

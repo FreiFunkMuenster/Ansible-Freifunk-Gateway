@@ -1,3 +1,0 @@
-- name: Setze Kernelparameter maxcpus=0 in grub.cfg
-  replace: dest=/etc/default/grub regexp="^GRUB_CMDLINE_LINUX_DEFAULT=.*" replace='GRUB_CMDLINE_LINUX_DEFAULT="maxcpus=0 quiet"'
-  notify: update-grub
