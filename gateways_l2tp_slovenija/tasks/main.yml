@@ -27,7 +27,7 @@
 - name: Stop and disable obsolete td instances
   service: name="tunneldigger@{{item}}.service" enabled=no state=stopped
   with_items: "{{_td_domain_instances.stdout_lines}}"
-  when: domaenenliste is defined and item not in domaenenliste and _td_per_domain_installed.stat.exists == True
+  when: domaenenliste is defined and item not in domaenenliste
 
 - name: Clone tunneldigger 
   git:
