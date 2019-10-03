@@ -32,3 +32,4 @@
 - include: install-src.yml
   when: (batman.version is defined and batman.version != "kernel") and
         (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman.version)
+
