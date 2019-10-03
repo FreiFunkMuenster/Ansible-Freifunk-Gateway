@@ -13,11 +13,23 @@ COMMIT
 :OUTPUT ACCEPT [0:0]
 :POSTROUTING ACCEPT [0:0]
 {% if ipv4_direkt_ausleiten is defined and ipv4_direkt_ausleiten %}
--A POSTROUTING -o {{ansible_default_ipv4.interface}} -j SNAT --to-source {{ansible_default_ipv4.address}}
+{% if domaenenliste is defined %}
+{% for domaene in domaenenliste|dictsort %}
+-A POSTROUTING -o {{ ansible_default_ipv4.interface }} --source {{ domaenen[domaene[0]].ffv4_network }} -j SNAT --to-source {{ ansible_default_ipv4.address }}
+{% endfor %}
+{% endif %}
 {% elif ffrl_tun is defined and ffrl_nat_ip is defined %}
--A POSTROUTING -o tun-ffrl+ -j SNAT --to-source {{ffrl_nat_ip | ipaddr('address')}}
+{% if domaenenliste is defined %}
+{% for domaene in domaenenliste|dictsort %}
+-A POSTROUTING -o tun-ffrl+ --source {{ domaenen[domaene[0]].ffv4_network }} -j SNAT --to-source {{ ffrl_nat_ip | ipaddr('address') }}
+{% endfor %}
+{% endif %}
 {% elif ffnw_tun is defined and ffnw_nat_ip is defined %}
--A POSTROUTING -o tun-ffnw+ -j SNAT --to-source {{ffnw_nat_ip| ipaddr('address')}}
+{% if domaenenliste is defined %}
+{% for domaene in domaenenliste|dictsort %}
+-A POSTROUTING -o tun-ffnw+ --source {{ domaenen[domaene[0]].ffv4_network }} -j SNAT --to-source {{ ffnw_nat_ip | ipaddr('address') }}
+{% endfor %}
+{% endif %}
 {% endif %}
 {% if ffnw_tun is not defined and ffnw_nat_ip is not defined and ffrl_tun is not defined and ffrl_nat_ip is not defined %}
 -A POSTROUTING -o gre+ -p tcp -m tcp --dport 53 -j SNAT --to-source 10.0.0.{{vm_id}}
@@ -29,23 +41,6 @@ COMMIT
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
--N DNS
--A OUTPUT -p udp -m udp --dport 53 -j DNS
--A OUTPUT -p tcp -m tcp --dport 53 -j DNS
-{% if 'dienste' in groups %}
-{% for host in groups['dienste'] %}
-{% if hostvars[host].inventory_hostname_short == "dnsmaster" %}
--A DNS -d {{hostvars[host].ansible_ssh_host}}/32 -j RETURN
-{% endif %}
-{% endfor %}
-{% endif %}
-{% if v4dnsips is defined %}
-{% for entry in v4dnsips %}
--A DNS -d {{entry}}/32 -j RETURN
-{% endfor %}
-{% endif %}
--A DNS -j MARK --set-mark 0x1
--A DNS -j RETURN
 :POSTROUTING ACCEPT [0:0]
 {% if ffrl_tun is defined or ffnw_tun is defined %}
 -A POSTROUTING -o tun-+ -p tcp -m tcp --tcp-flags SYN,RST SYN -m tcpmss ! --mss 0:1240 -j TCPMSS --set-mss 1240
