@@ -1,7 +1,7 @@
 ---
-- name: install figlet
-  apt: 
-    pkg: figlet
+- name: install figlet and lsb-release
+  apt:
+    pkg: [ 'figlet', 'lsb-release' ]
     state: present
 
 - name: check figlet
