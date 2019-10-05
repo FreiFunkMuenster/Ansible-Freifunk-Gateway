@@ -4,6 +4,7 @@
   register: installed_batman_version
   when: batman.version is defined and batman.version
   changed_when: False
+  check_mode: no
 
 # batman.version != installierte Version: evtl vorhandenes DKMS-batman-adv deinstallieren
 - include: remove-src.yml
@@ -17,6 +18,7 @@
   when: batman.version is defined and batman.version != "kernel" and
         (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman.version)
   changed_when: False
+  check_mode: no
 
 # batman-adv-Version im Kernel passt -> nur batctl installieren
 - include: install-deb.yml
