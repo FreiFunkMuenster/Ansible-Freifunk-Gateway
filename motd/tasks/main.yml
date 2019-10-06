@@ -8,9 +8,9 @@
   stat: 
     path: /usr/bin/figlet
   register: figlet_stat
-  
+
 - name: figlet name
-  command: /usr/bin/figlet -D -c -w 50 {{freifunk.kurzname}}
+  command: /usr/bin/figlet -c -w 50 {{ freifunk.kurzname }}
   register: figlethost
   check_mode: no
   when: figlet_stat.stat.exists
