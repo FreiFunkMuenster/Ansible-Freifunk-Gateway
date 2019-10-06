@@ -15,7 +15,7 @@ echo " IP address  : $(hostname -I | cut -d' ' -f1){% if ansible_default_ipv6.ad
 echo " System type : $(uname -s) $(uname -m)"
 echo " Kernel      : $(uname -r)"
 echo " "
-echo " Owner       : {{ server_besitzer }}"
+echo " Besitzer    : {{ server_besitzer }}"
 
 cat << 'EOF'
 
