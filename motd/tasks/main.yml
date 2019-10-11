@@ -1,19 +1,20 @@
 ---
-- name: install figlet
-  apt: 
-    pkg: figlet
+- name: install figlet and lsb-release
+  apt:
+    pkg: [ 'figlet', 'lsb-release' ]
     state: present
 
 - name: check figlet
   stat: 
     path: /usr/bin/figlet
   register: figlet_stat
-  
+
 - name: figlet name
-  command: /usr/bin/figlet -D -c -w 50 {{freifunk.kurzname}}
+  command: /usr/bin/figlet -c -w 50 {{ freifunk.kurzname }}
   register: figlethost
   check_mode: no
   when: figlet_stat.stat.exists
+  changed_when: False
 
 - name: Create /etc/update-motd.d/ directory if not existent
   file:
