@@ -11,6 +11,24 @@
     - restart networking
   when: domaenenliste is defined
 
+- name: 20_l2tp_bridge.cfg exist?
+  stat:
+    path: /etc/network/interfaces.d/20_l2tp_bridge.cfg
+  register: stat_l2tp_bridge
+
+- name: example copying file with owner and permissions
+  copy:
+    src: /etc/network/interfaces.d/20_l2tp_bridge.cfg
+    dest: /etc/network/interfaces.d/20_domain_bridge.cfg
+    remote_src: true
+  when: stat_l2tp_bridge.stat.exists
+
+- name: remove 20_l2tp_bridge.cfg
+  file:
+    state: absent
+    path: /etc/network/interfaces.d/20_l2tp_bridge.cfg
+  when: stat_l2tp_bridge.stat.exists
+
 # create a br<domain> bridge interface for each domain
 - name: Create a bridge interface for each domain
   template: src=domain_bridge.j2 dest=/etc/network/interfaces.d/20_domain_bridge.cfg

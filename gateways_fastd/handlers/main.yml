@@ -3,4 +3,5 @@
   systemd:
     name: fastd@{{ item.key }}.service
     state: restarted
+  when: item.value.fastd is defined and item.value.fastd
   with_dict: "{{ domaenenliste }}"
