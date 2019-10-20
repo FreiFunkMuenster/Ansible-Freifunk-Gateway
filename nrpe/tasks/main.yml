@@ -27,6 +27,11 @@
     name: vnstati
     state: latest
 
+- name: Install sudo
+  apt:
+    name: sudo
+    state: present
+
 - name: Install RAM check
   copy: "src=check_ram dest='/usr/lib/nagios/plugins/check_ram' owner=root group=root mode=a+x"
 
