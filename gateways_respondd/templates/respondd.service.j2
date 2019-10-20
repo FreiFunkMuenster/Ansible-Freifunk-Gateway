@@ -3,7 +3,7 @@ Description=Respondd
 After=network.target
 
 [Service]
-ExecStart=/opt/mesh-announce/respondd.py -d /opt/mesh-announce/providers -i br%I -b bat%I
+ExecStart=/opt/mesh-announce/respondd.py -d /opt/mesh-announce/providers -i br%I -i bat%I -b bat%I
 Restart=always
 Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
