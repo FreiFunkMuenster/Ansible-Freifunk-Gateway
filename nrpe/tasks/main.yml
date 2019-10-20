@@ -76,15 +76,8 @@
 - name: Install check_bird6_sessions
   copy: "src=check_bird6_sessions dest='/usr/lib/nagios/plugins/check_bird6_sessions' owner=root group=root mode=a+x"
 
-- name: Sudo Recht check_bird_sessions
-  lineinfile: dest=/etc/sudoers line='nagios ALL=NOPASSWD{{ ":" }} /usr/lib/nagios/plugins/check_bird_sessions' state=present
-
-- name: Sudo Recht check_bird6_sessions
-  lineinfile: dest=/etc/sudoers line='nagios ALL=NOPASSWD{{ ":" }} /usr/lib/nagios/plugins/check_bird6_sessions' state=present
-
-- name: Sudo Recht check_FFTester
-  lineinfile: dest=/etc/sudoers line='nagios ALL=NOPASSWD{{ ":" }} /root/gits/tools/Freifunk-Tester/icinga_reporter.sh' state=present
-  when: is_ff_tester is defined
+- name: Install sudo permissions
+  template: "src=sudoers.j2 dest='/etc/sudoers.d/nrpe' owner=root group=root mode=440"
 
 - name: stop NRPE-Server
   service:
