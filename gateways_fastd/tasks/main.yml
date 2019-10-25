@@ -1,5 +1,5 @@
 ---
-# Fastd-Daemon, Habeged-Daemon
+# Fastd-Daemon, Haveged-Daemon
 
 - name: check if fastd needs to be installed
   set_fact:
@@ -23,10 +23,10 @@
 
 - name: Stop and disable obsolete fastd instances
   service:
-    name: "fastd@{{item}}.service"
+    name: "fastd@{{ item }}.service"
     enabled: no
     state: stopped
-  with_items: "{{_fastd_domain_instances.stdout_lines}}"
+  with_items: "{{ _fastd_domain_instances.stdout_lines }}"
   when: domaenenliste is defined and item not in domaenenliste or not domaenenliste[item].fastd
 
 - name: remove fastd (vpn daemon) and haveged (entropy daemon)
@@ -137,14 +137,24 @@
   register: _domain_fastd_systemd
   when: fastd_on_this_gw is defined and fastd_on_this_gw
   notify:
+    - reread systemd configs
     - restart fastd per domain
 
-- name: reread systemd configs
-  systemd:
-    daemon_reload: yes
+- name: create folder for haveged service override file
+  file: path=/etc/systemd/system/haveged.service.d state=directory mode=0755
   when: fastd_on_this_gw is defined and fastd_on_this_gw
 
-- name: enable fastd
+- name: override haveged service
+  template:
+    src: haveged.service.override.j2
+    dest: /etc/systemd/system/haveged.service.d/ansible-managed.conf
+  register: _domain_fastd_systemd
+  when: fastd_on_this_gw is defined and fastd_on_this_gw
+  notify:
+    - reread systemd configs
+    - restart haveged
+
+- name: enable fastd for each domain
   systemd:
     name: fastd@{{ item.key }}
     enabled: yes

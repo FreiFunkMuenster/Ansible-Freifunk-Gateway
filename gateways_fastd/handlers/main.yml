@@ -5,3 +5,12 @@
     state: restarted
   when: item.value.fastd is defined and item.value.fastd
   with_dict: "{{ domaenenliste }}"
+
+- name: restart haveged
+  systemd:
+    name: haveged.service
+    state: restarted
+
+- name: reread systemd configs
+  systemd:
+    daemon_reload: yes
