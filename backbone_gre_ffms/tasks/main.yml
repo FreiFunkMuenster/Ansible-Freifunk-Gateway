@@ -4,7 +4,11 @@
   notify: restart networking
 
 - name: Routingtabelle 42 auch ffnet nennen
-  lineinfile: dest="/etc/iproute2/rt_tables" line="42   ffnet"
+  blockinfile:
+    path: "/etc/iproute2/rt_tables"
+    marker: "# {mark} Ansible managed block"
+    block: |
+      42   ffnet
 
 #append line in interfaces file for reading additional config files
 - name: let read interfaces.d from interfaces
