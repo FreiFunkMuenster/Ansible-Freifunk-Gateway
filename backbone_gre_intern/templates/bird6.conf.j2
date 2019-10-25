@@ -1,0 +1,18 @@
+{% for host in groups['gateways']|default([]) %}
+{% if hostvars[host].vm_id != vm_id %}
+protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
+{% if hostvars[host].vm_id < vm_id %}
+	neighbor 2a03:2260:115:ffa1::{{hostvars[host].vm_id}}:{{vm_id}}:1 as {{ff_network.as_number}};
+{% else %}
+	neighbor 2a03:2260:115:ffa1::{{vm_id}}:{{hostvars[host].vm_id}}:0 as {{ff_network.as_number}};
+{% endif %}
+{% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
+	import filter {
+		preference = 50;
+		accept;
+	};
+{% endif %}
+}
+
+{% endif %}
+{% endfor %}

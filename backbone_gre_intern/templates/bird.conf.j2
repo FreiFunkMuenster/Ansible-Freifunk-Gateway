@@ -1,0 +1,19 @@
+{% for host in groups['gateways']|default([]) %}
+{% if hostvars[host].vm_id != vm_id %}
+protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
+{% if hostvars[host].vm_id < vm_id %}
+	neighbor 192.168.{{ hostvars[host].vm_id-1 }}.{{vm_id*2}} as {{ff_network.as_number}};
+{% else %}
+	neighbor 192.168.{{ vm_id-1 }}.{{hostvars[host].vm_id*2+1}} as {{ff_network.as_number}};
+{% endif %}
+{% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
+	import filter {
+		preference = 50;
+		accept;
+	};
+{% endif %}
+
+}
+
+{% endif %}
+{% endfor %}

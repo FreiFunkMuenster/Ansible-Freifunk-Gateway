@@ -6,6 +6,20 @@
 - name: Routingtabelle 42 auch ffnet nennen
   lineinfile: dest="/etc/iproute2/rt_tables" line="42   ffnet"
 
+- name: Add tunnels to bird configuration
+  blockinfile:
+    path: /etc/bird/bird.conf
+    marker: "# {mark} {{ role_name }}"
+    block: "{{ lookup('template','bird.conf.j2') }}"
+  notify: reload bird
+
+- name: Add tunnels to bird6 configuration
+  blockinfile:
+    path: /etc/bird/bird6.conf
+    marker: "# {mark} {{ role_name }}"
+    block: "{{ lookup('template','bird6.conf.j2') }}"
+  notify: reload bird6
+
 #append line in interfaces file for reading additional config files
 - name: let read interfaces.d from interfaces
   lineinfile: dest="/etc/network/interfaces" line="source /etc/network/interfaces.d/*"
