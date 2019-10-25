@@ -62,7 +62,7 @@ command[check_batip_{{domaene[0]}}]=/usr/lib/nagios/plugins/check_batip -D {{dom
 #{% if 'monitoring-satellites' in group_names and is_ff_tester is defined %}
 ## Freifunk-Tester
 # {% for domaene in domaenen|dictsort %}
-#command[check_FFTesterV4_{{domaene[0]}}]=sudo /root/gits/tools/Freifunk-Tester/icinga_reporter.sh ffmsd{{domaene[0]}} IPv4-ping-test-to-google.de random
-#command[check_FFTesterV6_{{domaene[0]}}]=sudo /root/gits/tools/Freifunk-Tester/icinga_reporter.sh ffmsd{{domaene[0]}} IPv6-ping-test-to-google.de random
+#command[check_FFTesterV4_{{domaene[0]}}]=sudo /root/gits/tools/Freifunk-Tester/icinga_reporter.sh {{freifunk.kurzname}}d{{domaene[0]}} IPv4-ping-test-to-google.de random
+#command[check_FFTesterV6_{{domaene[0]}}]=sudo /root/gits/tools/Freifunk-Tester/icinga_reporter.sh {{freifunk.kurzname}}d{{domaene[0]}} IPv6-ping-test-to-google.de random
 # {% endfor %}
 #{% endif %}
