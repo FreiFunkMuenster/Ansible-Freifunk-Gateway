@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 ExecStart=/opt/mesh-announce/respondd.py -d /opt/mesh-announce/providers -i br%I -i bat%I -b bat%I
-Restart=always
+Restart=on-failure
 Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 [Install]
