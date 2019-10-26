@@ -53,7 +53,7 @@
   when: domaenenliste is defined
 
 - name: Initialize kea_leases database
-  shell: "kea-admin lease-init pgsql -u kea -p {{kea_postgres_pw}} -n kea_leases"
+  shell: "kea-admin db-init pgsql -u kea -p {{kea_postgres_pw}} -n kea_leases"
   when:
     - domaenenliste is defined
     - "_kea_leses_db_created.changed == True"

@@ -9,8 +9,13 @@
     install_recommends: no
   when: domaenenliste is defined
 
-- name: Clone ISC KEA git repo and checkout branch v1_2_0
-  git: repo=https://github.com/isc-projects/kea.git dest=/srv/kea clone=yes update=no version=v1_2_0
+- name: Clone ISC KEA git repo and checkout release Kea-1.6.0 
+  git: 
+    repo: https://github.com/isc-projects/kea.git
+    dest: /srv/kea
+    clone: yes
+    update: no
+    version: Kea-1.6.0
   when: domaenenliste is defined
 
 - name: Build ISC KEA
@@ -20,14 +25,16 @@
     creates: "/usr/local/sbin/kea-dhcp4"
   with_items:
     - "autoreconf --install"
-    - "./configure --with-dhcp-pgsql"
+    - "./configure --with-pgsql"
     - "make -j $(grep -ic 'model name' /proc/cpuinfo)"
     - "make install"
     - "ldconfig"
   when: domaenenliste is defined
 
 - name: Depoly systemd files
-  template: src="{{item}}" dest="/lib/systemd/system/{{item[:-3]}}"
+  template:
+    src: "{{item}}"
+    dest: "/lib/systemd/system/{{item[:-3]}}"
   with_items:
     - kea-dhcp4.service.j2
     - kea-dhcp6.service.j2

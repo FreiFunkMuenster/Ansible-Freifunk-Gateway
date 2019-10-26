@@ -46,10 +46,15 @@
     state: absent
   when: motd_stat.stat.exists and motd_stat.stat.islnk == False
 
+- name: get /var/run/motd state
+  stat:
+    path: /var/run/motd
+  register: run_motd_stat
+
 - name: Create /var/run/motd if necessary
-  command: touch /var/run/motd
-  args:
-    creates: /var/run/motd
+  file:
+    path: /var/run/motd
+    state: '{{ "file" if  run_motd_stat.stat.exists else "touch" }}'
   when: ansible_distribution == "Debian"
 
 - name: get /var/run/motd state
