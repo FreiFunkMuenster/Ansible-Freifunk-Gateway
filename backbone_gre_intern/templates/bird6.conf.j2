@@ -1,5 +1,3 @@
-# {{ ansible_managed }}
-
 {% for host in groups['gateways']|default([]) %}
 {% if hostvars[host].vm_id != vm_id %}
 protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {

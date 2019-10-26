@@ -7,20 +7,18 @@
   lineinfile: dest="/etc/iproute2/rt_tables" line="42   ffnet"
 
 - name: Add tunnels to bird configuration
-  template:
-    src: bird.conf.j2
-    dest: /etc/bird/protocols/gre_interbackbone.conf
-    owner: bird
-    group: bird
+  blockinfile:
+    path: /etc/bird/bird.conf
+    marker: "# {mark} {{ role_name }}"
+    block: "{{ lookup('template','bird.conf.j2') }}"
   notify: reload bird
 
-- name: Add tunnels to bird configuration
-  template:
-    src: bird6.conf.j2
-    dest: /etc/bird/protocols6/gre_interbackbone.conf
-    owner: bird
-    group: bird
-  notify: reload bird
+- name: Add tunnels to bird6 configuration
+  blockinfile:
+    path: /etc/bird/bird6.conf
+    marker: "# {mark} {{ role_name }}"
+    block: "{{ lookup('template','bird6.conf.j2') }}"
+  notify: reload bird6
 
 #append line in interfaces file for reading additional config files
 - name: let read interfaces.d from interfaces

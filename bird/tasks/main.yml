@@ -38,7 +38,7 @@
   when: domaenenliste is defined
 
 - name: configure bird.conf
-  template:
+  template: 
     src: bird.conf.j2
     dest: /etc/bird/bird.conf
   notify:
@@ -51,35 +51,38 @@
   notify:
     - configure bird6
 
-- name: create folders for additional protocol configurations
-  file:
-    path: "/etc/bird/{{ item }}"
-    state: directory
-    mode: 0750
-    owner: bird
-    group: bird
-  with_items:
-    - protocols
-    - protocols6
-
 - name: create folder for bird.service file
   file: path=/etc/systemd/system/bird.service.d state=directory mode=0755
 
 - name: bird.service kopieren
-  copy:
+  copy: 
     src: bird.service
     dest: /etc/systemd/system/bird.service.d/override.conf
   notify:
-    - reread systemd configs
-    - restart bird
+    - configure bird
 
 - name: create folder for bird6.service file
   file: path=/etc/systemd/system/bird6.service.d state=directory mode=0755
 
 - name: bird6.service kopieren
-  copy:
+  copy: 
     src: bird6.service
     dest: /etc/systemd/system/bird6.service.d/override.conf
   notify:
-    - reread systemd configs
-    - restart bird6
+    - configure bird6
+
+- name: reread systemd configs
+  systemd:
+    daemon_reload: yes
+
+- name: activate and start bird
+  service:
+    name: bird
+    state: started 
+    enabled: yes
+
+- name: activate and start bird6
+  service: 
+    name: bird6
+    state: started
+    enabled: yes
