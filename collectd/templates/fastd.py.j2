@@ -103,5 +103,5 @@ def config (config):
 		collectd.info("ffms_fastd plugin: Successful configured with server_address %s." % server_address)
 	
 collectd.register_read(read);
-collectd.register_write(write);
+#collectd.register_write(write);
 collectd.register_config(config);
