@@ -15,19 +15,25 @@ $TTL    3600
 {% endfor %}
 {% for host in groups['gateways']+groups['hypervisors'] %}
 {{host}}	IN      A       {{hostvars[host].ansible_ssh_host}};
+{{host}}	IN      AAAA       {{hostvars[host].ipv6}};
 {% endfor %}
 {% for host in groups['gateways'] %}
 {% if hostvars[host].domaenenliste is defined %}
 {% for domaene in hostvars[host].domaenenliste|dictsort %}
 domaene{{domaene[0]}}	IN	A	{{hostvars[host].ansible_ssh_host}};
+domaene{{domaene[0]}}	IN	AAAA	{{hostvars[host].ipv6}};
 {% if domaene[1].server_id is defined and domaene[1].server_id == 2 %}
 domaene{{domaene[0]}}-A IN	A	{{hostvars[host].ansible_ssh_host}};
+domaene{{domaene[0]}}-A IN	AAAA	{{hostvars[host].ipv6}};
 {% elif domaene[1].server_id is defined and domaene[1].server_id == 3 %}
 domaene{{domaene[0]}}-B IN	A	{{hostvars[host].ansible_ssh_host}};
+domaene{{domaene[0]}}-B IN	AAAA	{{hostvars[host].ipv6}};
 {% elif domaene[1].server_id is defined and domaene[1].server_id == 4 %}
 domaene{{domaene[0]}}-C IN	A	{{hostvars[host].ansible_ssh_host}};
+domaene{{domaene[0]}}-C IN	AAAA	{{hostvars[host].ipv6}};
 {% elif domaene[1].server_id is defined and domaene[1].server_id == 5 %}
 domaene{{domaene[0]}}-D IN	A	{{hostvars[host].ansible_ssh_host}}; 
+domaene{{domaene[0]}}-D IN	AAAA	{{hostvars[host].ipv6}}; 
 {% endif %}
 {% endfor %}
 {% endif %}
