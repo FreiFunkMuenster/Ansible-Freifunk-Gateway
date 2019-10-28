@@ -39,6 +39,8 @@
   template:
     src: bird.conf.j2
     dest: /etc/bird/bird.conf
+    owner: bird
+    group: bird
   notify:
     - reload bird
 
@@ -46,11 +48,16 @@
   template:
     src: bird6.conf.j2
     dest: /etc/bird/bird6.conf
+    owner: bird
+    group: bird
   notify:
     - reload bird6
 
 - name: create folder for bird.service file
-  file: path=/etc/systemd/system/bird.service.d state=directory mode=0755
+  file:
+    path: /etc/systemd/system/bird.service.d
+    state: directory
+    mode: 0755
 
 - name: bird.service kopieren
   copy:
@@ -61,7 +68,10 @@
     - restart bird
 
 - name: create folder for bird6.service file
-  file: path=/etc/systemd/system/bird6.service.d state=directory mode=0755
+  file:
+    path: /etc/systemd/system/bird6.service.d
+    state: directory
+    mode: 0755
 
 - name: bird6.service kopieren
   copy:
