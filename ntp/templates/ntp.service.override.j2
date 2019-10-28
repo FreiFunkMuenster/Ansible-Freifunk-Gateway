@@ -1,4 +1,7 @@
 # {{ ansible_managed }}
 
+[Unit]
+After=network-online.target
+
 [Service]
 Restart=on-failure
