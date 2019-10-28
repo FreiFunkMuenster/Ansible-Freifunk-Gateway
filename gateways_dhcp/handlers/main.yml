@@ -1,3 +1,10 @@
 ---
 - name: restart isc-dhcp-server
-  service: name=isc-dhcp-server state=restarted
+  systemd:
+    name: isc-dhcp-server
+    state: restarted
+
+- name: reread systemd configs
+  systemd:
+    daemon_reload: yes
+
