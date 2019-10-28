@@ -90,6 +90,19 @@
     dest: /etc/logrotate.d/wtmp
   when: logrotate is defined
 
+- name: Prüfe ob journald benutzt wird
+  stat:
+    path: /etc/systemd/journald.conf
+  register: journald_conf
+
+- name: journald-Logging zeitlich beschränken
+  lineinfile:
+    dest: /etc/systemd/journald.conf
+    regexp: "^[#]?MaxRetentionSec"
+    line: "MaxRetentionSec={{ logrotate.count }}week"
+  when: journald_conf.stat.exists == True
+  notify: restart journald
+
 - name: Setze Timeout für das stopen von Interfaces
   lineinfile:
     dest: /lib/systemd/system/networking.service.d/network-pre.conf
