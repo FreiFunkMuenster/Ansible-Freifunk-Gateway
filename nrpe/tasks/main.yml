@@ -6,6 +6,7 @@
 
 - name: Configure NRPE-Server
   template: "src=nrpe_local.cfg.j2 dest='/etc/nagios/nrpe_local.cfg' owner=root group=root"
+  notify: Reload nagios-nrpe-server
 
 - name: Install Nagios Plugins
   package:
@@ -26,6 +27,11 @@
   package:
     name: vnstati
     state: latest
+
+- name: Install sudo
+  apt:
+    name: sudo
+    state: present
 
 - name: Install RAM check
   copy: "src=check_ram dest='/usr/lib/nagios/plugins/check_ram' owner=root group=root mode=a+x"
@@ -71,24 +77,11 @@
 - name: Install check_bird6_sessions
   copy: "src=check_bird6_sessions dest='/usr/lib/nagios/plugins/check_bird6_sessions' owner=root group=root mode=a+x"
 
-- name: Sudo Recht check_bird_sessions
-  lineinfile: dest=/etc/sudoers line='nagios ALL=NOPASSWD{{ ":" }} /usr/lib/nagios/plugins/check_bird_sessions' state=present
+- name: Install sudo permissions
+  template: "src=sudoers.j2 dest='/etc/sudoers.d/nrpe' owner=root group=root mode=440"
 
-- name: Sudo Recht check_bird6_sessions
-  lineinfile: dest=/etc/sudoers line='nagios ALL=NOPASSWD{{ ":" }} /usr/lib/nagios/plugins/check_bird6_sessions' state=present
-
-- name: Sudo Recht check_FFTester
-  lineinfile: dest=/etc/sudoers line='nagios ALL=NOPASSWD{{ ":" }} /root/gits/tools/Freifunk-Tester/icinga_reporter.sh' state=present
-  when: is_ff_tester is defined
-
-- name: stop NRPE-Server
-  service:
-    name: nagios-nrpe-server
-    state: stopped
-
-- name: start NRPE-Server
-  service:
+- name: enable NRPE-Server
+  systemd:
     name: nagios-nrpe-server
     state: started
-
-
+    enabled: yes

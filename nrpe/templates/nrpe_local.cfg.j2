@@ -1,10 +1,9 @@
-######################################
-# Do any local nrpe configuration here
-######################################
+# {{ ansible_managed }}
+
 connection_timeout=600
 command_timeout=600
 
-allowed_hosts=127.0.0.1,{{ ansible_default_ipv4.address }},{{ hostvars[groups['monitoring'][0]]['ansible_ssh_host'] }}
+allowed_hosts=127.0.0.1,{{ ansible_default_ipv4.address }},{{ groups['monitoring']|default([]) | map('extract',hostvars, ['ansible_ssh_host']) | join(',') }}
 
 # Speedtest
 command[check_speedtest-cli-2]=/usr/lib/nagios/plugins/check_speedtest-cli.sh -w 2 -c 1 -W 0.2 -C 0.1 -p -s 4193
@@ -63,7 +62,7 @@ command[check_batip_{{domaene[0]}}]=/usr/lib/nagios/plugins/check_batip -D {{dom
 #{% if 'monitoring-satellites' in group_names and is_ff_tester is defined %}
 ## Freifunk-Tester
 # {% for domaene in domaenen|dictsort %}
-#command[check_FFTesterV4_{{domaene[0]}}]=sudo /root/gits/tools/Freifunk-Tester/icinga_reporter.sh ffmsd{{domaene[0]}} IPv4-ping-test-to-google.de random
-#command[check_FFTesterV6_{{domaene[0]}}]=sudo /root/gits/tools/Freifunk-Tester/icinga_reporter.sh ffmsd{{domaene[0]}} IPv6-ping-test-to-google.de random
+#command[check_FFTesterV4_{{domaene[0]}}]=sudo /root/gits/tools/Freifunk-Tester/icinga_reporter.sh {{freifunk.kurzname}}d{{domaene[0]}} IPv4-ping-test-to-google.de random
+#command[check_FFTesterV6_{{domaene[0]}}]=sudo /root/gits/tools/Freifunk-Tester/icinga_reporter.sh {{freifunk.kurzname}}d{{domaene[0]}} IPv6-ping-test-to-google.de random
 # {% endfor %}
 #{% endif %}
