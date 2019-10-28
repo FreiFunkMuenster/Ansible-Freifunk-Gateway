@@ -40,31 +40,8 @@
     path: /etc/motd
   register: motd_stat
 
-- name: remove /etc/motd on Ubuntu
+- name: remove /etc/motd
   file:
     path: /etc/motd
     state: absent
   when: motd_stat.stat.exists and motd_stat.stat.islnk == False
-
-- name: get /var/run/motd state
-  stat:
-    path: /var/run/motd
-  register: run_motd_stat
-
-- name: Create /var/run/motd if necessary
-  file:
-    path: /var/run/motd
-    state: '{{ "file" if  run_motd_stat.stat.exists else "touch" }}'
-  when: ansible_distribution == "Debian"
-
-- name: get /var/run/motd state
-  stat:
-    path: /var/run/motd
-  register: run_motd_stat
-
-- name: link /etc/motd to /var/run/motd on Debian
-  file:
-    src: /var/run/motd
-    dest: /etc/motd
-    state: link
-  when: ansible_distribution == "Debian" and run_motd_stat.stat.exists
