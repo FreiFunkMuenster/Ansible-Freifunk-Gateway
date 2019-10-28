@@ -29,7 +29,10 @@ method "null";
 include "/etc/fastd/{{ item.key }}/keys/secret.key";
 
 # Log everything to syslog
-log to syslog level debug;
+log to syslog level warn;
+
+# Hide IP addresses in log output
+hide ip addresses yes;
 
 # Include peers from our git-repos
 include peers from "/etc/fastd/{{ item.key }}/peers/";
@@ -47,4 +50,9 @@ on verify "
 on up "
   # Add fastd interface to bridge, then enable it
   ip link set dev $INTERFACE master br{{ item.key }} && ip link set dev $INTERFACE up
+";
+
+on down "
+  # Remove fastd interface from bridge
+  ip link set dev $INTERFACE nomaster
 ";
