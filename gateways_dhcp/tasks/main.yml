@@ -35,7 +35,7 @@
   template: src=isc-dhcp-server.j2 dest=/etc/default/isc-dhcp-server
   notify:
     - restart isc-dhcp-server
-  
+
 - name: create dhcpd config
   template: src=dhcpd.conf.j2 dest=/etc/dhcp/dhcpd.conf
   notify:
@@ -43,3 +43,14 @@
 
 - stat: path=/var/lib/dhcp/dhcpd.leases
   register: leases4_file
+
+- name: create folder for isc-dhcp-server service override file
+  file: path=/etc/systemd/system/isc-dhcp-server.service.d state=directory mode=0755
+
+- name: override isc-dhcp-server service
+  template:
+    src: isc-dhcp-server.service.override.j2
+    dest: /etc/systemd/system/isc-dhcp-server.service.d/ansible-managed.conf
+  notify:
+    - reread systemd configs
+    - restart isc-dhcp-server
