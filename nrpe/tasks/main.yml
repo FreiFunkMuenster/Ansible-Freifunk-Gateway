@@ -6,6 +6,7 @@
 
 - name: Configure NRPE-Server
   template: "src=nrpe_local.cfg.j2 dest='/etc/nagios/nrpe_local.cfg' owner=root group=root"
+  notify: Reload nagios-nrpe-server
 
 - name: Install Nagios Plugins
   package:
@@ -79,14 +80,8 @@
 - name: Install sudo permissions
   template: "src=sudoers.j2 dest='/etc/sudoers.d/nrpe' owner=root group=root mode=440"
 
-- name: stop NRPE-Server
-  service:
-    name: nagios-nrpe-server
-    state: stopped
-
-- name: start NRPE-Server
-  service:
+- name: enable NRPE-Server
+  systemd:
     name: nagios-nrpe-server
     state: started
-
-
+    enabled: yes
