@@ -34,3 +34,14 @@
     src: 99-custom.j2 
     dest: /etc/update-motd.d/99-custom
     mode: "u+rwx,g+rx,o+rx"
+
+- name: get /etc/motd state
+  stat: 
+    path: /etc/motd
+  register: motd_stat
+
+- name: remove /etc/motd
+  file:
+    path: /etc/motd
+    state: absent
+  when: motd_stat.stat.exists and motd_stat.stat.islnk == False
