@@ -4,11 +4,6 @@
     name: isc-dhcp-server
     state: restarted
 
-- name: restart isc-dhcp6-server
-  service:
-    name: isc-dhcp6-server
-    state: restarted
-
 - name: reread systemd configs
   systemd:
     daemon_reload: yes
