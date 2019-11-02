@@ -54,4 +54,3 @@
   notify:
     - reread systemd configs
     - restart isc-dhcp-server
-

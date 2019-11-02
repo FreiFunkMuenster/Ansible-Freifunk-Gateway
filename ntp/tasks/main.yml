@@ -7,14 +7,20 @@
     masked: yes
 
 - name: Install ntp
-  apt: name=ntp
+  apt:
+    name: ntp
 
 - name: Install ntp.conf
-  template: src=ntp.conf.j2 dest=/etc/ntp.conf
+  template:
+    src: ntp.conf.j2
+    dest: /etc/ntp.conf
   notify: Restart ntpd
 
 - name: create folder for ntp service override file
-  file: path=/etc/systemd/system/ntp.service.d state=directory mode=0755
+  file:
+    path: /etc/systemd/system/ntp.service.d
+    state: directory
+    mode: 0755
 
 - name: override ntp service
   template:
@@ -23,4 +29,3 @@
   notify:
     - reread systemd configs
     - Restart ntpd
-

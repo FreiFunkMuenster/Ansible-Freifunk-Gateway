@@ -61,7 +61,7 @@
   notify:
     - restart fastd per domain
 
-- name:  write private key to seperate keyfiles, if new fastd key is generated
+- name: write private key to seperate keyfiles, if new fastd key is generated
   template:
     src: secret.key.j2
     dest: /etc/fastd/{{ item.item.key }}/keys/secret.key
@@ -71,7 +71,7 @@
   when: item.changed
   with_items: "{{ fastd_key_generated.results }}"
 
-- name:  write public private key to seperate keyfiles, if new fastd key is generated
+- name: write public private key to seperate keyfiles, if new fastd key is generated
   template:
     src: public.key.j2
     dest: /etc/fastd/{{ item.item.key }}/keys/public.key
@@ -115,19 +115,31 @@
     dest: /var/freifunk/gateway-{{ freifunk.kurzname }}/fastd/blacklist.sh
   when: fastd_on_this_gw is defined and fastd_on_this_gw
 
-- stat: path=/var/freifunk/gateway-{{ freifunk.kurzname }}/fastd/blacklist
+- name: check if global blacklist exists
+  stat:
+    path: /var/freifunk/gateway-{{ freifunk.kurzname }}/fastd/blacklist
   register: blacklist_file
 
 - name: create global blacklist file (if not exists)
-  file: path=/var/freifunk/gateway-{{ freifunk.kurzname }}/fastd/blacklist state=touch
+  file:
+    path: /var/freifunk/gateway-{{ freifunk.kurzname }}/fastd/blacklist
+    state: touch
   when: blacklist_file.stat.exists == False and fastd_on_this_gw is defined and fastd_on_this_gw
 
 - name: status.pl nach /root kopieren
-  copy: src=status.pl dest=/root/status.pl owner=root group=root mode=0755
+  copy:
+    src: status.pl
+    dest: /root/status.pl
+    owner: root
+    group: root
+    mode: 0755
   when: fastd_on_this_gw is defined and fastd_on_this_gw
 
 - name: create folder for fastd@ service file
-  file: path=/etc/systemd/system/fastd@.service.d state=directory mode=0755
+  file:
+    path: /etc/systemd/system/fastd@.service.d
+    state: directory
+    mode: 0755
   when: fastd_on_this_gw is defined and fastd_on_this_gw
 
 - name: override fastd@ service
@@ -141,7 +153,10 @@
     - restart fastd per domain
 
 - name: create folder for haveged service override file
-  file: path=/etc/systemd/system/haveged.service.d state=directory mode=0755
+  file:
+    path: /etc/systemd/system/haveged.service.d
+    state: directory
+    mode: 0755
   when: fastd_on_this_gw is defined and fastd_on_this_gw
 
 - name: override haveged service
