@@ -1,0 +1,5 @@
+- name: install Icinga2
+  apt:
+    pkg: [ 'icingacli', 'icinga2', 'monitoring-plugins-basic' ]
+    state: present
+

@@ -1,36 +1,7 @@
-- name: install python3-pymysql (required by Ansible)
-  apt:
-    pkg: [ 'python3-pymysql' ]
+- import_tasks: icinga2.yml
+  tags:
+    - 'role::icinga2'
 
-- name: install Icinga2
-  apt:
-    pkg: [ 'icingacli', 'icinga2', 'monitoring-plugins-basic' ]
-    state: present
-
-- name: install MariaDB and Icinga2 IDO modules
-  apt:
-    pkg: [ 'mariadb-server', 'icinga2-ido-mysql' ]
-    state: present
-
-- name: enable Icinga2 IDO module
-  shell: 'icinga2 feature enable ido-mysql'
-  # TODO
-
-- name: create database for Icinga Web 2
-  mysql_db:
-    name: icingaweb2
-    login_unix_socket: /run/mysqld/mysqld.sock
-
-- name: create database user for Icinga Web 2
-  mysql_user:
-    name: icingaweb2
-    password: icingaweb2
-    host: localhost
-    priv: 'icingaweb2.*:ALL'
-    login_unix_socket: /run/mysqld/mysqld.sock
-
-- name: install Icinga Web 2
-  apt:
-    pkg: [ 'icingaweb2', 'icingaweb2-module-monitoring', 'apache2' ]
-    state: present
-
+- import_tasks: icingaweb2.yml
+  tags:
+    - 'role::icingaweb2'

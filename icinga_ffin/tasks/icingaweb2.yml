@@ -1,0 +1,172 @@
+- name: install python3-pymysql, python3-passlib (required by Ansible)
+  apt:
+    pkg: [ 'python3-pymysql', 'python3-passlib' ]
+
+- name: install Icinga Web 2
+  apt:
+    pkg: [ 'icingaweb2', 'apache2' ]
+    state: present
+
+- name: install MariaDB and Icinga2 IDO modules
+  apt:
+    pkg: [ 'mariadb-server', 'icinga2-ido-mysql' ]
+    state: present
+
+### IDO
+- name: create IDO database for Icinga Web 2
+  mysql_db:
+    login_unix_socket: /run/mysqld/mysqld.sock
+    name: icinga2_ido
+  register: icinga2_ido_db
+
+- name: create IDO database user for Icinga Web 2
+  mysql_user:
+    login_unix_socket: /run/mysqld/mysqld.sock
+    name: icinga2_ido
+    password: SECRETIDO
+    host: localhost
+    priv: 'icinga2_ido.*:ALL'
+
+- name: import IDO database schema
+  mysql_db:
+    login_unix_socket: /run/mysqld/mysqld.sock
+    name: icinga2_ido
+    state: import
+    target: /usr/share/icinga2-ido-mysql/schema/mysql.sql
+  when: icinga2_ido_db.changed == true
+
+- name: configure icinga2 ido feature
+  template:
+    src: ido-mysql.conf.j2
+    dest: /etc/icinga2/features-available/ido-mysql.conf
+    owner: nagios
+    group: nagios
+    mode: 0600
+  notify: restart icinga2
+
+- name: enable icinga2 ido feature
+  file:
+    src: /etc/icinga2/features-available/ido-mysql.conf
+    dest: /etc/icinga2/features-enabled/ido-mysql.conf
+    state: link
+
+- name: set IDO database in icinga2 web
+  template:
+    src: resources.ini.j2
+    dest: /etc/icingaweb2/resources.ini
+    owner: www-data
+    group: icingaweb2
+    mode: '0640'
+
+
+### Icingaweb2 DB (Auth)
+#- name: create Icinga2 web database
+#  mysql_db:
+#    login_unix_socket: /run/mysqld/mysqld.sock
+#    name: icinga2_web
+#  register: icingaweb2_db
+#
+#- name: create Icingaweb2 database user
+#  mysql_user:
+#    login_unix_socket: /run/mysqld/mysqld.sock
+#    name: icinga2_web
+#    password: SECRETWEB2
+#    host: localhost
+#    priv: 'icinga2_web.*:ALL'
+#
+#- name: import Icingaweb2 database schema
+#  mysql_db:
+#    login_unix_socket: /run/mysqld/mysqld.sock
+#    name: icinga2_web
+#    state: import
+#    target: /usr/share/icingaweb2/etc/schema/mysql.schema.sql
+#  when: icingaweb2_db.changed == true
+#
+#- name: configure IcingaWeb2 for database
+#  template:
+#    src: resource.ini.tmpl
+#    dest: /etc/icingaweb2/resources.ini
+#    owner: www-data
+#    group: icingaweb2
+#    mode: 0660
+
+
+### monitoring module
+- name: install Icinga Web 2 monitoring module
+  apt:
+    pkg: [ 'icingaweb2-module-monitoring' ]
+    state: present
+
+- name: create enabledModules directory
+  file:
+    path: /etc/icingaweb2/enabledModules
+    state: directory
+    owner: www-data
+    group: icingaweb2
+    mode: '2750'
+
+- name: enable Icingaweb2 monitoring module
+  file:
+    src: /usr/share/icingaweb2/modules/monitoring
+    dest: /etc/icingaweb2/enabledModules/monitoring
+    state: link
+
+- name: copy Icingaweb2 monitoring module config
+  template:
+    src: '{{ item.src }}'
+    dest: '/etc/icingaweb2/modules/monitoring/{{ item.path }}'
+    owner: www-data
+    group: www-data
+    mode: '0660'
+  with_filetree: '../templates/modules/monitoring'
+  when: item.state == 'file'
+
+- name: create config directory for monitoring modules
+  file:
+    path: /etc/icingaweb2/modules/monitoring
+    state: directory
+    owner: www-data
+    group: icingaweb2
+    mode: '2770'
+
+- name: configure basic authentication in apache
+  template:
+    src: apache.conf.j2
+    dest: /etc/apache2/conf-enabled/icingaweb2-local.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload apache2
+
+- name: create htpasswd file (freifunk/freifunk)
+  htpasswd:
+    path: /etc/icingaweb2/.http-users
+    name: freifunk
+    password: 'freifunk'
+    owner: root
+    group: www-data
+    mode: '0640'
+
+- name: enable apache authentication provider
+  template:
+    src: authentication.ini.j2
+    dest: /etc/icingaweb2/authentication.ini
+    owner: www-data
+    group: icingaweb2
+    mode: '0640'
+
+- name: configure logging
+  template:
+    src: config.ini.j2
+    dest: /etc/icingaweb2/config.ini
+    owner: www-data
+    group: icingaweb2
+    mode: '0640'
+
+- name: configure user roles
+  template:
+    src: roles.ini.j2
+    dest: /etc/icingaweb2/roles.ini
+    owner: www-data
+    group: icingaweb2
+    mode: '0640'
