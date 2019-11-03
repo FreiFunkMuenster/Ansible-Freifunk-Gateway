@@ -1,3 +1,5 @@
+# FIXME: icingaweb2-benutzer/passwort in vault setzen, oder nur per localhost zulassen, oder icingaweb2 gar nicht ausrollen
+
 - name: install python3-pymysql, python3-passlib (required by Ansible)
   apt:
     pkg: [ 'python3-pymysql', 'python3-passlib' ]
@@ -23,7 +25,7 @@
   mysql_user:
     login_unix_socket: /run/mysqld/mysqld.sock
     name: icinga2_ido
-    password: SECRETIDO
+    password: "{{ lookup('password', '/tmp/mysqlpwd-icinga2_ido.ansible length=16') }}"
     host: localhost
     priv: 'icinga2_ido.*:ALL'
 
@@ -37,7 +39,7 @@
 
 - name: configure icinga2 ido feature
   template:
-    src: ido-mysql.conf.j2
+    src: icinga2_ido-mysql.conf.j2
     dest: /etc/icinga2/features-available/ido-mysql.conf
     owner: nagios
     group: nagios
@@ -52,12 +54,11 @@
 
 - name: set IDO database in icinga2 web
   template:
-    src: resources.ini.j2
+    src: icingaweb2_resources.ini.j2
     dest: /etc/icingaweb2/resources.ini
     owner: www-data
     group: icingaweb2
     mode: '0640'
-
 
 ### Icingaweb2 DB (Auth)
 #- name: create Icinga2 web database
@@ -70,7 +71,7 @@
 #  mysql_user:
 #    login_unix_socket: /run/mysqld/mysqld.sock
 #    name: icinga2_web
-#    password: SECRETWEB2
+#    password: "{{ lookup('password', '/tmp/mysqlpwd-icinga2_web.ansible length=16') }}"
 #    host: localhost
 #    priv: 'icinga2_web.*:ALL'
 #
@@ -82,14 +83,13 @@
 #    target: /usr/share/icingaweb2/etc/schema/mysql.schema.sql
 #  when: icingaweb2_db.changed == true
 #
-#- name: configure IcingaWeb2 for database
+#- name: configure IcingaWeb2 for database # BLOCKINFILE!
 #  template:
 #    src: resource.ini.tmpl
 #    dest: /etc/icingaweb2/resources.ini
 #    owner: www-data
 #    group: icingaweb2
 #    mode: 0660
-
 
 ### monitoring module
 - name: install Icinga Web 2 monitoring module
@@ -111,28 +111,27 @@
     dest: /etc/icingaweb2/enabledModules/monitoring
     state: link
 
-- name: copy Icingaweb2 monitoring module config
-  template:
-    src: '{{ item.src }}'
-    dest: '/etc/icingaweb2/modules/monitoring/{{ item.path }}'
-    owner: www-data
-    group: www-data
-    mode: '0660'
-  with_filetree: '../templates/modules/monitoring'
-  when: item.state == 'file'
+#- name: create config directory for monitoring modules
+#  file:
+#    path: /etc/icingaweb2/modules/monitoring
+#    state: directory
+#    owner: www-data
+#    group: icingaweb2
+#    mode: '2770'
 
-- name: create config directory for monitoring modules
-  file:
-    path: /etc/icingaweb2/modules/monitoring
-    state: directory
+- name: copy Icingaweb2 monitoring module config
+  copy:
+    src: 'icingaweb2/modules/monitoring/'
+    dest: '/etc/icingaweb2/modules/monitoring'
     owner: www-data
     group: icingaweb2
-    mode: '2770'
+    mode: '0660'
+    directory_mode: '2770'
 
 - name: configure basic authentication in apache
-  template:
-    src: apache.conf.j2
-    dest: /etc/apache2/conf-enabled/icingaweb2-local.conf
+  copy:
+    src: 'apache2-icingaweb2-local.conf'
+    dest: '/etc/apache2/conf-enabled/icingaweb2-local.conf'
     owner: root
     group: root
     mode: '0644'
@@ -140,7 +139,7 @@
 
 - name: create htpasswd file (freifunk/freifunk)
   htpasswd:
-    path: /etc/icingaweb2/.http-users
+    path: '/etc/icingaweb2/.http-users'
     name: freifunk
     password: 'freifunk'
     owner: root
@@ -148,25 +147,25 @@
     mode: '0640'
 
 - name: enable apache authentication provider
-  template:
-    src: authentication.ini.j2
-    dest: /etc/icingaweb2/authentication.ini
+  copy:
+    src: 'icingaweb2/authentication.ini'
+    dest: '/etc/icingaweb2/authentication.ini'
     owner: www-data
     group: icingaweb2
     mode: '0640'
 
 - name: configure logging
-  template:
-    src: config.ini.j2
-    dest: /etc/icingaweb2/config.ini
+  copy:
+    src: 'icingaweb2/config.ini'
+    dest: '/etc/icingaweb2/config.ini'
     owner: www-data
     group: icingaweb2
     mode: '0640'
 
 - name: configure user roles
-  template:
-    src: roles.ini.j2
-    dest: /etc/icingaweb2/roles.ini
+  copy:
+    src: 'icingaweb2/roles.ini'
+    dest: '/etc/icingaweb2/roles.ini'
     owner: www-data
     group: icingaweb2
     mode: '0640'
