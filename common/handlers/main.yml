@@ -3,3 +3,8 @@
 
 - name: reload resolv config
   shell: resolvconf -u
+
+- name: restart journald
+  service:
+    name: systemd-journald
+    state: restarted
