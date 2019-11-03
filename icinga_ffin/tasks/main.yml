@@ -2,6 +2,6 @@
   tags:
     - 'role::icinga2'
 
-- import_tasks: icingaweb2.yml
-  tags:
-    - 'role::icingaweb2'
+#- import_tasks: icingaweb2.yml
+#  tags:
+#    - 'role::icingaweb2'

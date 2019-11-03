@@ -1,0 +1,11 @@
+[icinga_ido]
+type = "db"
+db = "mysql"
+host = "localhost"
+port = ""
+dbname = "icinga2_ido"
+username = "icinga2_ido"
+password = "{{ lookup('password', '/tmp/mysqlpwd-icinga2_ido.ansible length=16') }}"
+charset = "utf8mb4"
+use_ssl = "0"
+
