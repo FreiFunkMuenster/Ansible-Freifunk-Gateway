@@ -45,7 +45,7 @@
 
 - name: configure icinga2 ido feature
   template:
-    src: icinga2_ido-mysql.conf.j2
+    src: icinga2/ido-mysql.conf.j2
     dest: /etc/icinga2/features-available/ido-mysql.conf
     owner: nagios
     group: nagios
@@ -60,7 +60,7 @@
 
 - name: set IDO database in icinga2 web
   template:
-    src: icingaweb2_resources.ini.j2
+    src: icingaweb2/resources.ini.j2
     dest: /etc/icingaweb2/resources.ini
     owner: www-data
     group: icingaweb2
@@ -91,7 +91,7 @@
 #
 #- name: configure IcingaWeb2 for database # BLOCKINFILE!
 #  template:
-#    src: resource.ini.tmpl
+#    src: icingaweb2/resource.ini.j2
 #    dest: /etc/icingaweb2/resources.ini
 #    owner: www-data
 #    group: icingaweb2
