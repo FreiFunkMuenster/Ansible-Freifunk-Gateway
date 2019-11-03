@@ -9,18 +9,6 @@
     name: bird6
     state: reloaded
 
-- name: restart bird
-  systemd:
-    name: bird
-    state: restarted
-    enabled: yes
-
-- name: restart bird6
-  service:
-    name: bird6
-    state: restarted
-    enabled: yes
-
 - name: reread systemd configs
   systemd:
     daemon_reload: yes

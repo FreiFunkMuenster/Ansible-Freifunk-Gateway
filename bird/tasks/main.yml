@@ -65,7 +65,6 @@
     dest: /etc/systemd/system/bird.service.d/override.conf
   notify:
     - reread systemd configs
-    - restart bird
 
 - name: create folder for bird6.service file
   file:
@@ -79,4 +78,3 @@
     dest: /etc/systemd/system/bird6.service.d/override.conf
   notify:
     - reread systemd configs
-    - restart bird6
