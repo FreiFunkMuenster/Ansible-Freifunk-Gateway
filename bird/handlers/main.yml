@@ -1,7 +1,15 @@
 ---
-- name: configure bird
-  shell: birdc configure || systemctl restart bird
+- name: reload bird
+  systemd:
+    name: bird
+    state: reloaded
 
-- name: configure bird6
-  shell: birdc6 configure || systemctl restart bird6
+- name: reload bird6
+  systemd:
+    name: bird6
+    state: reloaded
+
+- name: reread systemd configs
+  systemd:
+    daemon_reload: yes
 
