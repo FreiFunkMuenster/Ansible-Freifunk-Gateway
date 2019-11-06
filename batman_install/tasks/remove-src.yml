@@ -18,7 +18,11 @@
 
 - name: DKMS-Modul batman-adv entfernen
   shell: "dkms remove batman-adv/{{ dkms_version_batman.stdout }} -k {{ ansible_kernel }}"
-  when: stat_dkms.stat.exists and dkms_version_batman.stdout
+  when: (batman.version is not defined or batman.version != "2013.4.0") and stat_dkms.stat.exists and dkms_version_batman.stdout
+
+- name: Legacy DKMS-Modul batman-adv entfernen
+  shell: "dkms remove batman-adv/{{ dkms_version_batman.stdout }} --all"
+  when: (batman.version is defined and batman.version == "2013.4.0") and stat_dkms.stat.exists and dkms_version_batman.stdout
 
 
 # batctl
