@@ -10,7 +10,7 @@
 
 # Evtl. vorhandenes batman-adv-DKMS-Modul deinstallieren
 - name: Prüfe ob batman-adv als DKMS-Modul installiert wurde
-  shell: dkms status batman-adv -k {{ ansible_kernel }} | grep -Eo '[[:digit:]]{4}\.[[:digit:]]' || true
+  shell: dkms status batman-adv -k {{ ansible_kernel }} | grep -Eo '[[:digit:]]{4}\.[[:digit:]](\.[[:digit:]])?' || true
   register: dkms_version_batman
   when: stat_dkms.stat.exists
   changed_when: False
