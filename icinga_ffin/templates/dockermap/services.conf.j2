@@ -1,0 +1,72 @@
+# {{ ansible_managed }}
+
+apply Service "web-yanic-json" {
+    display_name = "Yanic: meshviewer.json"
+    check_command =			"http"
+    vars.http_vhost =			host.vars.vhost
+    vars.http_ssl =			"true"
+    vars.http_uri =			"/yanic/meshviewer.json"
+    vars.http_maxage =			"300"				# max. age of http document in seconds
+    vars.http_pagesize =		"100000"			# min. size in bytes
+    vars.http_expect_body_eregi =	"^\\{\"timestamp\".+\"nodes\":\\[(\\{\"firstseen\".+?\\},){20,}\\{\"firstseen\".+?\\}\\]}$$"
+    vars.http_headerstring =		"Content-Type: application/json"
+    assign where host.vars.vhost && "web-meshviewer" in host.vars.webpage
+}
+
+apply Service "web-meshviewer" {
+    display_name =			"Website: Meshviewer"
+    check_command =			"http"
+    vars.http_vhost =			host.vars.vhost
+    vars.http_ssl =			"true"
+    vars.http_uri =			"/"
+    vars.http_pagesize =		"15000"				# min. size of http document in bytes
+    vars.http_string =			"Freifunk Ingolstadt Meshviewer"
+    assign where host.vars.vhost && "web-meshviewer" in host.vars.webpage
+}
+
+apply Service "web-firmware-selector" {
+    display_name =			"Website: Firmware Selector"
+    check_command =			"http"
+    vars.http_vhost =			host.vars.vhost
+    vars.http_ssl =			"true"
+    vars.http_uri =			"/"
+    vars.http_pagesize =		"2500"				# min. size of http document in bytes
+    vars.http_string =			"Routermodell"
+    assign where host.vars.vhost && "web-firmware" in host.vars.webpage
+}
+
+apply Service "web-firmware-images-stable-sysupgrade" {
+    display_name =			"Website: Firmware Images - Stable, Sysupgrade"
+    check_command =			"http"
+    vars.http_vhost =			host.vars.vhost
+    vars.http_ssl =			"true"
+    vars.http_uri =			"/images/stable/sysupgrade/"
+    vars.http_linespan =		"true",				# do regex span over all lines
+    vars.http_ereg =			"(<a href=\"gluon\\-ffin.+?\">gluon\\-ffin.+?</a>.+?){100,}"	# regex for number of images (min: 100)
+    vars.http_pagesize =		"15000"				# min. size of http document in bytes
+    assign where host.vars.vhost && "web-firmware" in host.vars.webpage
+}
+
+apply Service "web-firmware-images-stable-factory" {
+    display_name =			"Website: Firmware Images - Stable, Factory"
+    check_command =			"http"
+    vars.http_vhost =			host.vars.vhost
+    vars.http_ssl =			"true"
+    vars.http_uri =			"/images/stable/factory/"
+    vars.http_linespan =		"true",				# do regex span over all lines
+    vars.http_ereg =			"(<a href=\"gluon\\-ffin.+?\">gluon\\-ffin.+?</a>.+?){100,}"	# regex for number of images (min: 100)
+    vars.http_pagesize =		"15000"				# min. size of http document in bytes
+    assign where host.vars.vhost && "web-firmware" in host.vars.webpage
+}
+
+apply Service "web-grafana" {
+    display_name =			"Website: Grafana"
+    check_command =			"http"
+    vars.http_vhost =			host.vars.vhost
+    vars.http_ssl =			"true"
+    vars.http_uri =			"/render/d-solo/00000002/freifunk-ingolstadt-knoten?orgId=1&refresh=5m&var-saveinterval=5m&panelId=18&width=520&height=300"	# simple rendered PNG, randomly taken from "Freifunk Ingolstadt - Gesamt" dashboard
+    vars.http_pagesize =		"5000"			# min. size in bytes
+    vars.http_maxage =			"60"			# max. age of http document in seconds
+    vars.http_headerstring =		"Content-Type: image/png"
+    assign where host.vars.vhost && "web-grafana" in host.vars.webpage
+}

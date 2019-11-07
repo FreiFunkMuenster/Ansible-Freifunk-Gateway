@@ -9,25 +9,21 @@
     pkg: [ 'icingacli', 'icinga2', 'monitoring-plugins-basic', 'nagios-nrpe-plugin' ]
     state: present
 
-### Icinga Web2
-- name: install Icinga Web 2
-  apt:
-    pkg: [ 'icingaweb2', 'apache2' ]
-    state: present
+### Command-Module: Icinga2
+- name: enable icinga2 ido feature
+  file:
+    src: /etc/icinga2/features-available/command.conf
+    dest: /etc/icinga2/features-enabled/command.conf
+    state: link
 
-- name: install MariaDB and Icinga2 IDO modules
-  apt:
-    pkg: [ 'mariadb-server', 'icinga2-ido-mysql' ]
-    state: present
-
-### IDO
-- name: create IDO database for Icinga Web 2
+### IDO-Module: Icinga2
+- name: create IDO database
   mysql_db:
     login_unix_socket: /run/mysqld/mysqld.sock
     name: icinga2_ido
   register: icinga2_ido_db
 
-- name: create IDO database user for Icinga Web 2
+- name: create IDO database user
   mysql_user:
     login_unix_socket: /run/mysqld/mysqld.sock
     name: icinga2_ido
@@ -58,6 +54,18 @@
     dest: /etc/icinga2/features-enabled/ido-mysql.conf
     state: link
 
+### Icinga Web2
+- name: install Icinga Web 2
+  apt:
+    pkg: [ 'icingaweb2', 'apache2' ]
+    state: present
+
+- name: install MariaDB and Icinga2 IDO modules
+  apt:
+    pkg: [ 'mariadb-server', 'icinga2-ido-mysql' ]
+    state: present
+
+# IDO: Icinga Web2
 - name: set IDO database in icinga2 web
   template:
     src: icingaweb2/resources.ini.j2
@@ -135,14 +143,15 @@
     mode: '0644'
   notify: reload apache2
 
-- name: create htpasswd file (freifunk/freifunk)
+- name: create htpasswd file
   htpasswd:
     path: '/etc/icingaweb2/.http-users'
-    name: freifunk
-    password: 'freifunk'
+    name: "{{ item.user }}"
+    password: "{{ item.pw }}"
     owner: root
     group: www-data
     mode: '0640'
+  with_items: '{{ icinga_user }}'
 
 - name: enable apache authentication provider
   copy:
