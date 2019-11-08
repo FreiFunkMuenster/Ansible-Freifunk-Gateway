@@ -8,6 +8,7 @@
     - "downtimes.conf"
     - "groups.conf"
     - "hosts.conf"
+  notify: reload icinga2
 
 
 - name: Create configuration directories
@@ -23,3 +24,4 @@
     dest: "/etc/icinga2/conf.d/{{ item.path|regex_replace('.j2','') }}"
   with_filetree: "templates/"
   when: item.state == "file"
+  notify: reload icinga2
