@@ -1,0 +1,6 @@
+---
+
+- name: reload icinga2
+  service:
+    name: icinga2
+    state: reloaded
