@@ -1,0 +1,53 @@
+- name: Add yarn repo key
+  apt_key:
+    url: "https://dl.yarnpkg.com/debian/pubkey.gpg"
+    state: present
+
+- name: Add yarn repo
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - "deb https://dl.yarnpkg.com/debian/ stable main"
+
+- name: Install yarn
+  apt:
+    name: [ 'yarn', 'nodejs' ]
+    state: present
+    install_recommends: no
+
+- name: Create Meshviewer directory if not existent
+  file:
+    path: /opt/meshviewer
+    state: directory
+
+- name: Git for Meshviewer
+  git:
+    repo: https://github.com/FreiFunkMuenster/meshviewer-1.git
+    dest: /opt/meshviewer
+    update: no
+  register: meshviewer_git_clone
+
+- name: Install Meshviewer dependencies
+  shell: "{{item}}"
+  args:
+    chdir: /opt/meshviewer
+  when: meshviewer_git_clone.changed
+  with_items:
+    - "yarn"
+    - "yarn global add gulp-cli"
+
+- name: Deploy config.js
+  template:
+    src: config.js.j2
+    dest: /opt/meshviewer/config.js
+  register: meshviewer_config
+
+- name: Build Meshviewer
+  shell: "{{item}}"
+  args:
+    chdir: /opt/meshviewer
+  when: meshviewer_git_clone.changed or meshviewer_config.changed
+  with_items:
+    - "gulp"
