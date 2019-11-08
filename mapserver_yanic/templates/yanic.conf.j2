@@ -1,0 +1,173 @@
+# This is the config file for Yanic written in "Tom's Obvious, Minimal Language."
+# syntax: https://github.com/toml-lang/toml
+# (if you need somethink multiple times, checkout out the [[array of table]] section)
+
+# Send respondd request to update information
+[respondd]
+enable           = true
+# Delay startup until a multiple of the period since zero time
+synchronize      = "1m"
+# how often request per multicast
+collect_interval = "1m"
+
+# table of a site to save stats for (not exists for global only)
+#[respondd.sites.example]
+## list of domains on this site to save stats for (empty for global only)
+#domains = []
+## example
+[respondd.sites.{{freifunk.kurzname}}]
+domains = [{% for domaene in domaenen|dictsort %}"{{freifunk.kurzname}}d{{domaene[0]}}"{% if not loop.last %},{% endif %}{% endfor %}]
+
+
+# interface that has an IP in your mesh network
+#[[respondd.interfaces]]
+# name of interface on which this collector is running
+#ifname = "bat0"
+# ip address which is used for sending
+# (optional - without definition used a address of ifname)
+#ip_address = "fd2f:5119:f2d::5"
+# disable sending multicast respondd request
+# (for receiving only respondd packages e.g. database respondd)
+#send_no_request = false
+# multicast address to destination of respondd
+# (optional - without definition used batman default ff02::2:1001)
+#multicast_address = "ff05::2:1001"
+# define a port to listen
+# if not set or set to 0 the kernel will use a random free port at its own
+#port = 10001
+
+{% for domaene in domaenen|dictsort %}
+[[respondd.interfaces]]
+ifname = "bat{{domaene[0]}}"
+
+{% endfor %}
+# A little build-in webserver, which statically serves a directory.
+# This is useful for testing purposes or for a little standalone installation.
+[webserver]
+enable  = true
+bind    = "0.0.0.0:8080"
+webroot = "/var/www/html/meshviewer"
+
+[nodes]
+# Cache file
+# a json file to cache all data collected directly from respondd
+state_path    = "/var/lib/yanic/state.json"
+# prune data in RAM, cache-file and output json files (i.e. nodes.json)
+# that were inactive for longer than
+prune_after   = "{{meshviewer.yanic.nodes.prune_after}}"
+# Export nodes and graph periodically
+save_interval = "{{meshviewer.yanic.nodes.save_interval}}"
+# Set node to offline if not seen within this period
+offline_after = "{{meshviewer.yanic.nodes.offline_after}}"
+
+# definition for the new more compressed meshviewer.json
+[[nodes.output.meshviewer-ffrgb]]
+enable   = true
+path = "/var/www/html/meshviewer/data/meshviewer.json"
+
+[nodes.output.meshviewer-ffrgb.filter]
+# WARNING: if it is not set, it will publish contact information of other persons
+no_owner = {{meshviewer.yanic.meshviewerJson.no_owner|lower}}
+#blacklist = ["00112233445566", "1337f0badead"]
+#sites = ["ffhb"]
+#has_location = true
+
+#[nodes.output.meshviewer-ffrgb.filter.in_area]
+#latitude_min = 34.30
+#latitude_max = 71.85
+#longitude_min = -24.96
+#longitude_max = 39.72
+
+{% for domaene in domaenen|dictsort %}
+[[nodes.output.meshviewer-ffrgb]]
+enable   = true
+path = "/var/www/html/meshviewer/data_{{freifunk.kurzname}}d{{domaene[0]}}/meshviewer.json"
+
+[nodes.output.meshviewer-ffrgb.filter]
+no_owner = {{meshviewer.yanic.meshviewerJson.no_owner|lower}}
+sites = ["{{freifunk.kurzname}}d{{domaene[0]}}"]
+
+{% endfor %}
+
+
+# definition for nodelist.json
+[[nodes.output.nodelist]]
+enable   = true
+path = "/var/www/html/meshviewer/data/nodelist.json"
+
+[nodes.output.nodelist.filter]
+# WARNING: if it is not set, it will publish contact information of other persons
+no_owner = {{meshviewer.yanic.nodelistJson.no_owner|lower}}
+
+{% for domaene in domaenen|dictsort %}
+[[nodes.output.nodelist]]
+enable   = true
+path = "/var/www/html/meshviewer/data_{{freifunk.kurzname}}d{{domaene[0]}}/nodelist.json"
+
+[nodes.output.nodelist.filter]
+no_owner = {{meshviewer.yanic.nodelistJson.no_owner|lower}}
+sites = ["{{freifunk.kurzname}}d{{domaene[0]}}"]
+
+{% endfor %}
+
+
+[database]
+# this will send delete commands to the database to prune data
+# which is older than:
+delete_after    = "{{meshviewer.yanic.database.delete_after}}"
+# how often run the cleaning
+delete_interval = "{{meshviewer.yanic.database.delete_interval}}"
+
+## [[database.connection.example]]
+# Each database-connection has its own config block and needs to be enabled by adding:
+#enable = true
+
+# Save collected data to InfluxDB.
+# There are the following measurments:
+#   node: store node specific data i.e. clients memory, airtime
+#   global: store global data, i.e. count of clients and nodes
+#   firmware: store the count of nodes tagged with firmware
+#   model: store the count of nodes tagged with hardware model
+[[database.connection.influxdb]]
+enable   = {{meshviewer.yanic.influxdb.enable|lower}}
+address  = "{{meshviewer.yanic.influxdb.address}}"
+database = "{{meshviewer.yanic.influxdb.database}}"
+username = "{{meshviewer.yanic.influxdb.username}}"
+password = "{{meshviewer.yanic.influxdb.password}}"
+
+# Tagging of the data (optional)
+[database.connection.influxdb.tags]
+# Tags used by Yanic would override the tags from this config
+# nodeid, hostname, owner, model, firmware_base, firmware_release,frequency11g and frequency11a are tags which are already used
+#tagname1 = "tagvalue 1"
+# some useful e.g.:
+#system   = "productive"
+#site     = "ffhb"
+
+# Graphite settings
+[[database.connection.graphite]]
+enable   = false
+address  = "localhost:2003"
+# Graphite is replacing every "." in the metric name with a slash "/" and uses
+# that for the file system hierarchy it generates. it is recommended to at least
+# move the metrics out of the root namespace (that would be the empty prefix).
+# If you only intend to run one community and only freifunk on your graphite node
+# then the prefix can be set to anything (including the empty string) since you
+# probably wont care much about "polluting" the namespace.
+prefix   = "freifunk"
+
+# respondd (yanic)
+# forward collected respondd package to a address
+# (e.g. to another respondd collector like a central yanic instance or hopglass)
+[[database.connection.respondd]]
+enable   = false
+# type of network to create a connection
+type     = "udp6"
+# destination address to connect/send respondd package
+address  = "stats.bremen.freifunk.net:11001"
+
+# Logging
+# Don't use das... Wenn true dann yanic Kapod...
+[[database.connection.logging]]
+enable   = false
+path     = "/var/log/yanic.log"

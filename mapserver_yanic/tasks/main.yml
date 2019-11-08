@@ -1,0 +1,70 @@
+---
+- name: Copy yanic binary to target
+  copy:
+    src: yanic
+    dest: /usr/bin/yanic
+    mode: a+x
+  notify:
+    - "restart yanic"
+
+- name: Setup systemd service
+  template:
+    src: yanic.service.j2
+    dest: /lib/systemd/system/yanic.service
+  register: yanicservice
+
+- name: daemon-reload to activate yanic service
+  systemd:
+    daemon_reload: yes
+  when: yanicservice.changed
+  notify:
+    - "restart yanic"
+
+- name: enable service yanic and ensure it is not masked
+  systemd:
+    enabled: yes
+    masked: no
+    name: yanic
+
+- name: Config Yanic
+  template:
+    src: yanic.conf.j2
+    dest: /etc/yanic.conf
+  notify:
+    - "restart yanic"
+
+- name: Create yanic User
+  user:
+    name: yanic
+    system: yes
+    createhome: no
+    home: /var/lib/yanic
+
+- name: Create yanic directory if not existent
+  file:
+    path: /var/lib/yanic
+    state: directory
+    owner: yanic
+    group: yanic
+
+- name: Create yanic webroot directory if not existent
+  file:
+    path: /var/www/html/meshviewer
+    state: directory
+    owner: yanic
+    group: yanic
+
+- name: Create yanic data directory if not existent
+  file:
+    path: /var/www/html/meshviewer/data
+    state: directory
+    owner: yanic
+    group: yanic
+
+- name: Create yanic data directory for each domain if not existent
+  file:
+    path: /var/www/html/meshviewer/data_{{freifunk.kurzname}}d{{item}}
+    state: directory
+    owner: yanic
+    group: yanic
+  with_items: "{{domaenen}}"
