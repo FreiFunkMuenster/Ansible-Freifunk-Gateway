@@ -44,47 +44,47 @@ object Service "APT Updates" {
   vars.nrpe_command = "check_apt_succesful"
 }
 
-object Service "DNSv4 vs. ipv4.google.com" {
-  import "generic-service"
-  host_name = "{{ item }}"
-  check_command = "nrpe2"
-  vars.nrpe_command = "check-dns4-client"
-}
+#object Service "DNSv4 vs. ipv4.google.com" {
+#  import "generic-service"
+#  host_name = "{{ item }}"
+#  check_command = "nrpe2"
+#  vars.nrpe_command = "check-dns4-client"
+#}
 
-object Service "DNSv6 vs. ipv6.google.com" {
-  import "generic-service"
-  host_name = "{{ item }}"
-  check_command = "nrpe2"
-  vars.nrpe_command = "check-dns6-client"
-}
+#object Service "DNSv6 vs. ipv6.google.com" {
+#  import "generic-service"
+#  host_name = "{{ item }}"
+#  check_command = "nrpe2"
+#  vars.nrpe_command = "check-dns6-client"
+#}
 
-object Service "HTTPv4 vs. ipv4.google.com" {
-  import "generic-service"
-  host_name = "{{ item }}"
-  check_command = "nrpe2"
-  vars.nrpe_command = "check-http4-client"
-}
+#object Service "HTTPv4 vs. ipv4.google.com" {
+#  import "generic-service"
+#  host_name = "{{ item }}"
+#  check_command = "nrpe2"
+#  vars.nrpe_command = "check-http4-client"
+#}
 
-object Service "HTTPv6 vs. ipv6.google.com" {
-  import "generic-service"
-  host_name = "{{ item }}"
-  check_command = "nrpe2"
-  vars.nrpe_command = "check-http6-client"
-}
+#object Service "HTTPv6 vs. ipv6.google.com" {
+#  import "generic-service"
+#  host_name = "{{ item }}"
+#  check_command = "nrpe2"
+#  vars.nrpe_command = "check-http6-client"
+#}
 
-object Service "v4 Ping vs. google.de" {
-  import "generic-service"
-  host_name = "{{ item }}"
-  check_command = "nrpe2"
-  vars.nrpe_command = "check-ping-v4"
-}
+#object Service "v4 Ping vs. google.de" {
+#  import "generic-service"
+#  host_name = "{{ item }}"
+#  check_command = "nrpe2"
+#  vars.nrpe_command = "check-ping-v4"
+#}
 
-object Service "v6 Ping vs. google.de" {
-  import "generic-service"
-  host_name = "{{ item }}"
-  check_command = "nrpe2"
-  vars.nrpe_command = "check-ping-v6"
-}
+#object Service "v6 Ping vs. google.de" {
+#  import "generic-service"
+#  host_name = "{{ item }}"
+#  check_command = "nrpe2"
+#  vars.nrpe_command = "check-ping-v6"
+#}
 
 object Service "current bandwidth" {
   import "generic-service"
