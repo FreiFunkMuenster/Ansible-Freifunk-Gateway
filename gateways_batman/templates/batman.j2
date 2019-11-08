@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 
 # Batman Interface
-# - Erstellt das virtuelle Interface fuer das Batman-Modul und bindet dieses, falls L2TP benutzt wird, an die Netzwerkbruecke
+# - Erstellt das virtuelle Interface fuer das Batman-Modul und bindet dieses, falls L2TP oder Fastd benutzt wird, an die Netzwerkbruecke
 # - Die unten angelegte Routing-Tabelle wird spaeter fuer das Routing innerhalb von Freifunk (Router/VPN) verwendet
 
 {% for item in domaenenliste|dictsort %}
@@ -9,6 +9,11 @@ auto bat{{item[0]}}
 iface bat{{item[0]}} inet static
         address {{domaenen[item[0]].ffv4_network | ipaddr(item[1].server_id) | ipaddr('address') }}
         netmask {{domaenen[item[0]].ffv4_network | ipaddr('netmask')}}
+{% if item[0] | length > 2 %}
+        pre-up ip link set address aa:ff:ca:{{item[0][0:2]}}:{{item[0][2:]}}:{{item[1].server_id}} dev $IFACE
+{% else %}
+        pre-up ip link set address aa:ff:ca:00:{{item[0]}}:{{item[1].server_id}} dev $IFACE
+{% endif %}
         pre-up modprobe batman-adv
         pre-up ip link add bat{{item[0]}} type batadv
         post-up ip link set dev bat{{item[0]}} up
