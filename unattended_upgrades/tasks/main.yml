@@ -21,7 +21,7 @@
 - name: Let restart server once a week but not all at the same time
   cron:
     name: weekly restart
-    weekday: "{{(vm_id-2)%7}}"
+    weekday: "{{ (vm_id|default(0)-2)%7 }}"
     hour: "3"
-    minute: "{{(vm_id*2)%30+30}}"
+    minute: "{{ (vm_id|default(0)*2)%30+30 }}"
     job: "if [ -f /var/run/reboot-required ]; then /sbin/shutdown -r +5; fi"
