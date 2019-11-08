@@ -10,7 +10,6 @@
     dest: /opt/mesh-announce
     clone: yes
     update: yes
-    force: yes
   notify: restart respondd
 
 - name: create systemd file
