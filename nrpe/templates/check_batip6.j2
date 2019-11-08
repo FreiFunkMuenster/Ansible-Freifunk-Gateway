@@ -7,11 +7,16 @@ STATE_CRITICAL=2
 STATE_UNKNOWN=3
 
 #########################################################################
-# Pro Dom‰ne die a.b.c.2, a.b.c.3, a.b.c.11 und a.b.c.12 pingen, falls zwei nicht pingbar ? Wahrscheinlich h‰ngt das Batman 
+# Pro Dom√§ne max. f√ºnf Server pingen, falls mehr als die H√§lfte nicht pingbar ? Wahrscheinlich h√§ngt das Batman 
+#########################################################################
 # iPV6
 #########################################################################
 
-CHECKIP="2 3 b c"
+MAPSERVER="{{ (groups['mapserver'] | default([]))[:1] | map('extract',hostvars,'server_id') | join(" ") }}"
+GATEWAYS="{{ (groups['gateways'] | default([]))[:4] | map('extract',hostvars,'server_id') | join(" ") }}"
+CHECKIP="$MAPSERVER $GATEWAYS"
+
+COUNTREQUIRED=$(($(echo $CHECKIP | wc -w)/2))
 
 PATH="/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
 export PATH
@@ -29,7 +34,7 @@ print_usage() {
 print_help() {
     print_usage
     echo ""
-    echo "Batman pro Domain per IP ¸berwachen"
+    echo "Batman pro Domain per IP √ºberwachen"
     echo ""
     support
 }
@@ -82,7 +87,7 @@ done
 
 #echo es antworten $COUNTOK IPs 
 
-if [ $COUNTOK -lt 3 ]; then
+if [ $COUNTOK -lt $COUNTREQUIRED ]; then
   echo "CRITICAL: Es antworten nur $COUNTOK der V6Domain-IPs $CHECKIP"
   exit $STATE_CRITICAL
 else
