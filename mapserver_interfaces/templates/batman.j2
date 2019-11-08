@@ -3,14 +3,6 @@
 {% set indexer = [0] -%}
 {% for domaene in domaenen|dictsort %}
 
-{% set group = "gateways" -%}
-{% if domaene[0] == "00" -%}
-{% set group = "domaene-test" -%}
-{% endif -%}
-{% if "domaene-"+domaene[0] in groups -%}
-{% set group = "domaene-"+domaene[0] -%}
-{% endif -%}
-
 # BEGIN: Domäne-{{domaene[0]}}
 {% if indexer.append(indexer.pop() + 1) %}{% endif %}{# increment indexer by 1 #}
 # BATMAN Interface für Domäne-{{domaene[0]}}
@@ -19,23 +11,17 @@ iface bat{{domaene[0]}} inet6 static
         address fe80::dcad:beff:feef:{{ '%02x' % indexer[0] }}{{'%02d' % server_id}}
         netmask 64
         pre-up modprobe batman-adv
-	pre-up ip link add bat{{domaene[0]}} type batadv
-	post-up ip link set address de:ad:be:ef:{{ '%02x' % indexer[0] }}:{{server_id}} dev bat{{domaene[0]}}
+        pre-up ip link add bat{{domaene[0]}} type batadv
+        post-up ip link set address de:ad:be:ef:{{ '%02x' % indexer[0] }}:{{server_id}} dev bat{{domaene[0]}}
         post-up ip link set dev bat{{domaene[0]}} up
         post-up batctl -m bat{{domaene[0]}} it 10000
-{% for host in groups[group] %}
-{% if group == "gateways" %}
+{% for host in groups["gateways"] %}
 {% if domaene[0] in hostvars[host].domaenenliste %}
-	post-up batctl -m bat{{domaene[0]}} if add t{{domaene[0]}}-{{ host }} ||:
-{% endif %}
-{% else %}
-        post-up batctl -m bat{{domaene[0]}} if add tap-{{ host }} ||:
+        post-up batctl -m bat{{domaene[0]}} if add t{{domaene[0]}}-{{ host }} ||:
 {% endif %}
 {% endfor %}
         post-up batctl -m bat{{domaene[0]}} mm 0
-	post-up ip -6 addr add {{domaene[1].ffv6_network | ipaddr(server_id) | ipaddr('address')}}/64 dev bat{{domaene[0]}}
-	post-up pgrep -a -x -f "batadv-vis -i bat{{domaene[0]}}.*" || batadv-vis -i bat{{domaene[0]}} -u /run/batadvvis.{{domaene[0]}}.sock -s >/dev/null 2>&1&
-        pre-down pkill -x -f "batadv-vis -i bat{{domaene[0]}}.*" ||:
+        post-up ip -6 addr add {{domaene[1].ffv6_network | ipaddr(server_id) | ipaddr('address')}}/64 dev bat{{domaene[0]}}
 
 iface bat{{domaene[0]}} inet static
         address {{domaene[1].ffv4_network | ipaddr(server_id) | ipaddr('address') }}
@@ -43,8 +29,7 @@ iface bat{{domaene[0]}} inet static
         post-down ip link del bat{{domaene[0]}}
 
 # Tunnel-Interfaces für Domäne-{{domaene[0]}}
-{% for host in groups[group] %}
-{% if group == "gateways" %}
+{% for host in groups["gateways"] %}
 {% if domaene[0] in hostvars[host].domaenenliste %}
 {% if indexer.append(indexer.pop() + 1) %}{% endif %}{# increment indexer by 1 #}
 auto t{{domaene[0]}}-{{ host }}
@@ -54,18 +39,6 @@ iface t{{domaene[0]}}-{{ host }} inet manual
 {% else %}
         pre-up ip link add $IFACE type gretap local {{ansible_default_ipv4.address}} remote {{hostvars[host].ipv4}} dev {{ansible_default_ipv4.interface}} key {{domaene[0]|int}}
 {% endif %}
-        pre-up ip link set dev $IFACE address de:ad:be:ef:{{ '%02x' % indexer[0] }}:{{server_id}}
-        pre-up ip link set $IFACE up
-        post-up batctl -m bat{{domaene[0]}} if add $IFACE ||:
-        pre-down batctl -m bat{{domaene[0]}} if del $IFACE ||:
-        post-down ip link del $IFACE
-
-{% endif %}
-{% else %}
-{% if indexer.append(indexer.pop() + 1) %}{% endif %}{# increment indexer by 1 #}
-auto tap-{{ host }}
-iface tap-{{ host }} inet manual
-        pre-up ip link add $IFACE type gretap local {{ansible_default_ipv4.address}} remote {{hostvars[host].ansible_ssh_host}} dev {{ansible_default_ipv4.interface}} 
         pre-up ip link set dev $IFACE address de:ad:be:ef:{{ '%02x' % indexer[0] }}:{{server_id}}
         pre-up ip link set $IFACE up
         post-up batctl -m bat{{domaene[0]}} if add $IFACE ||:
