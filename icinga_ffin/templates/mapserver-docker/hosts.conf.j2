@@ -5,7 +5,7 @@ object Host "firmware.freifunk.de" {
   address = "176.9.98.92"
   vars.vhost = "firmware.freifunk-ingolstadt.de"
   vars.webpage = ["web-firmware"]
-  groups = ["dockermap"]
+  groups = ["mapserver-docker"]
 }
 
 object Host "map.freifunk-ingolstadt.de" {
@@ -13,7 +13,7 @@ object Host "map.freifunk-ingolstadt.de" {
   address = "176.9.98.92"
   vars.vhost = "map.freifunk-ingolstadt.de"
   vars.webpage = ["web-meshviewer"]
-  groups = ["dockermap"]
+  groups = ["mapserver-docker"]
 }
 
 object Host "grafana.freifunk.de" {
@@ -21,5 +21,5 @@ object Host "grafana.freifunk.de" {
   address = "176.9.98.92"
   vars.vhost = "grafana.freifunk-ingolstadt.de"
   vars.webpage = ["web-grafana"]
-  groups = ["dockermap"]
+  groups = ["mapserver-docker"]
 }
