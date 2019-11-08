@@ -10,6 +10,11 @@ STATE_UNKNOWN=3
 # Pro Domäne die a.b.c.2, a.b.c.3, a.b.c.11 und a.b.c.12 pingen, falls zwei nicht pingbar ? Wahrscheinlich hängt das Batman 
 #########################################################################
 
+# 2=fanlin
+# 3=des1
+# 11=testkarte
+# 12=karte
+
 CHECKIP="2 3 11 12"
 
 PATH="/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"

@@ -1,0 +1,186 @@
+# {{ ansible_managed }}
+
+{% for item in groups['gateways']|default([]) %}
+
+object Service "CPU load" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_load"
+}
+
+object Service "RAM" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_ram"
+}
+
+object Service "zombie procs" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_zombie_procs"
+}
+
+object Service "Total Procs" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_total_procs"
+}
+
+object Service "Disk" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_disk"
+}
+
+object Service "APT Updates" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_apt_succesful"
+}
+
+object Service "Bird v4" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_bird"
+}
+
+object Service "Bird v6" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_bird6"
+}
+
+object Service "Bind" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_bind"
+}
+
+#object Service "collectd" {
+#  import "generic-service"
+#  host_name = "{{ item }}"
+#  check_command = "nrpe2"
+#  vars.nrpe_command = "check_collectd"
+#}
+
+object Service "ISC-DHCPd Leases" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_active_leases"
+}
+
+{% if hostvars[item].domaenenliste is defined %}
+object Service "py-respondd" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_pyrespondd"
+}
+
+object Service "Tunneldigger" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_tunneldigger"
+}
+
+object Service "DHCP-Server" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_isc-dhcp-server"
+}
+{% endif %}
+
+object Service "DNSv4 vs. ipv4.google.com" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check-dns4-client"
+}
+
+object Service "DNSv6 vs. ipv6.google.com" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check-dns6-client"
+}
+
+object Service "HTTPv4 vs. ipv4.google.com" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check-http4-client"
+}
+
+object Service "v4 Ping vs. google.de" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check-ping-v4"
+}
+
+object Service "current bandwidth" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_bandwidth"
+}
+
+object Service "Check IP Route" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_iproute"
+}
+
+object Service "Check IPv6 Route" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_iproute6"
+}
+
+object Service "Check Bird Sessions" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_bird_sessions"
+}
+
+object Service "Check Bird6 Sessions" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_bird6_sessions"
+}
+
+{% if hostvars[item].domaenenliste is defined %}
+{% for domaene in hostvars[item].domaenenliste|dictsort %}
+object Service "Check BATMAN Dom {{domaene[0]}} via IP" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_batip_{{domaene[0]}}"
+}
+
+object Service "Check BATMAN Dom {{domaene[0]}} via IPv6" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_batip6_{{domaene[0]}}"
+}
+{% endfor %}
+{% endif %}
+
+{% endfor %}
