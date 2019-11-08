@@ -57,7 +57,9 @@
   copy: src=check_speedtest-cli.sh dest=/usr/lib/nagios/plugins/check_speedtest-cli.sh owner=root group=root mode=a+x
 
 - name: Install DHCP lease check
-  copy: "src=check_active-leases dest='/usr/lib/nagios/plugins/check_active-leases' owner=root group=root mode=a+x"
+  package:
+    name: dhcpd-pools
+    state: present
 
 - name: Install check_batip
   copy: "src=check_batip dest='/usr/lib/nagios/plugins/check_batip' owner=root group=root mode=a+x"

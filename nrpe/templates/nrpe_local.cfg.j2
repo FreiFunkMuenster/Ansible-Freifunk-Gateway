@@ -35,6 +35,7 @@ command[check_respondd]=/usr/lib/nagios/plugins/check_systemd_service respondd
 command[check_tunneldigger]=/usr/lib/nagios/plugins/check_tunneldigger
 command[check_dhcp-server]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C kea-dhcp4
 command[check_isc-dhcp-server]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C dhcpd
+command[check_isc-dhcp-server-leases]=/usr/bin/dhcpd-pools -c /etc/dhcp/dhcpd.conf -l /var/lib/dhcp/dhcpd.leases --warning=80 --critical=90
 command[check_vnstat]=/usr/lib/nagios/plugins/check_vnstat.sh -i {{ansible_default_ipv4.interface}} 
 command[check-dhcp-client]=/usr/lib/nagios/plugins/check_dhcp -t 5
 command[check-dns4-client]=/usr/lib/nagios/plugins/check_dns -H ipv4.google.com -w 0.5 -c 1

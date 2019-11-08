@@ -76,7 +76,7 @@ object Service "ISC-DHCPd Leases" {
   import "generic-service"
   host_name = "{{ item }}"
   check_command = "nrpe2"
-  vars.nrpe_command = "check_active_leases"
+  vars.nrpe_command = "check_isc-dhcp-server-leases"
 }
 
 {% if hostvars[item].domaenenliste is defined %}
