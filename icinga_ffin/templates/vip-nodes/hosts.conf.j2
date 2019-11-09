@@ -6,6 +6,9 @@ object Host "{{ item }}" {
   import "generic-host"
   address6 = "{{ hostvars[item].ansible_ssh_host }}"
   check_command = "ping6"
+  vars.notification["mail"] = {
+    groups = [ "freifunk_admins" ]
+  }
 }
 
 {% endfor %}

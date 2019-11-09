@@ -7,6 +7,9 @@ object Host "{{ item }}" {
   address = "{{ hostvars[item].ansible_ssh_host }}"
   check_command = "hostalive"
   groups = [ "gateways" ]
+  vars.notification["mail"] = {
+    groups = [ "freifunk_admins" ]
+  }
 }
 
 {% endfor %}

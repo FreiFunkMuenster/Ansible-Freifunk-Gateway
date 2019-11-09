@@ -1,0 +1,23 @@
+# {{ ansible_managed }}
+
+object UserGroup "icinga_admins" {
+  display_name = "Icinga2-Adminstratoren"
+}
+
+object UserGroup "freifunk_admins" {
+  display_name = "Freifunk-Adminstratoren"
+}
+
+object UserGroup "wordpress_admins" {
+  display_name = "Wordpress-Adminstratoren"
+}
+
+
+object User "geierb" {
+  import "generic-user"
+
+  display_name = "geierb"
+  groups = [ "icinga_admins", "freifunk_admins", "wordpress_admins" ]
+
+  email = "geierb@geierb.de"
+}

@@ -1,8 +1,12 @@
 # {{ ansible_managed }}
 
 object Host "freifunk-ingolstadt.de" {
-    import "generic-host"
-    address = "freifunk-ingolstadt.de"
-    vars.vhost = "freifunk-ingolstadt.de"
-    vars.webpage = ["web-homepage"]
+  import "generic-host"
+  address = "freifunk-ingolstadt.de"
+  vars.vhost = "freifunk-ingolstadt.de"
+  vars.webpage = ["web-homepage"]
+  vars.notification["mail"] = {
+    groups = [ "wordpress_admins" ]
+  }
 }
+
