@@ -12,3 +12,5 @@
     state: reloaded
     enabled: yes
 
+- name: update-exim4.conf
+  shell: update-exim4.conf

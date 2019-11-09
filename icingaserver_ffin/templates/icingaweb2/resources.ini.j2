@@ -5,7 +5,7 @@ host = "localhost"
 port = ""
 dbname = "icinga2_ido"
 username = "icinga2_ido"
-password = "{{ lookup('password', '/tmp/mysqlpwd-icinga2_ido.ansible length=16') }}"
+password = "{{ icinga2_ido_db_pw }}"
 charset = "utf8mb4"
 use_ssl = "0"
 
