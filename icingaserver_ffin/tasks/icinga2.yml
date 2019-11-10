@@ -201,23 +201,32 @@
     pkg: [ 'exim4-daemon-light' ]
     state: present
 
-- name: configure remote smtp authentication
+- name: "Configure exim4"
+  template:
+    src: 'exim4/update-exim4.conf.conf.j2'
+    dest: '/etc/exim4/update-exim4.conf.conf'
+  notify: update-exim4.conf
+
+- name: "Configure remote smtp authentication"
   template:
     src: 'exim4/passwd.client.j2'
     dest: '/etc/exim4/passwd.client'
     mode: '0640'
     group: 'Debian-exim'
+  notify: reload exim4
 
-- name: configure sender mail address
+- name: "Configure sender email address"
   template:
     src: 'exim4/email-addresses.j2'
     dest: '/etc/email-addresses'
+  notify: reload exim4
 
-- name: configure sender mail address
-  template:
-    src: 'exim4/update-exim4.conf.conf.j2'
-    dest: '/etc/exim4/update-exim4.conf.conf'
-  notify: update-exim4.conf
+- name: "Enable sender email address as catchall"
+  replace:
+    path: "/etc/exim4/exim4.conf.template"
+    regexp: '^(.*\${lookup{\${local_part}})lsearch({/etc/email-addresses}.*)$'
+    replace: '\1wildlsearch\2'
+  notify: reload exim4
 
 - name: "Update logrotate cycle in /etc/logrotate.d/"
   replace:
@@ -236,4 +245,3 @@
   with_items:
     - /etc/logrotate.d/exim4-base
     - /etc/logrotate.d/exim4-paniclog
-

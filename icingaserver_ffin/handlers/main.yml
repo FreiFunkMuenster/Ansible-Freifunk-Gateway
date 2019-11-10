@@ -4,13 +4,16 @@
   service:
     name: icinga2
     state: restarted
-    enabled: yes
 
 - name: reload apache2
   service:
     name: apache2
     state: reloaded
-    enabled: yes
+
+- name: reload exim4
+  service:
+    name: exim4
+    state: reloaded
 
 - name: update-exim4.conf
   shell: update-exim4.conf
