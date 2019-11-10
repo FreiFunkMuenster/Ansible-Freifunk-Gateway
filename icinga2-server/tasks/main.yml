@@ -1,0 +1,8 @@
+- import_tasks: icinga2.yml
+  tags:
+    - 'role::icinga2'
+
+- import_tasks: icingaweb2.yml
+  when: icingaweb2_users is defined
+  tags:
+    - 'role::icingaweb2'

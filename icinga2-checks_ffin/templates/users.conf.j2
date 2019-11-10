@@ -1,0 +1,16 @@
+# {{ ansible_managed }}
+
+object UserGroup "freifunk_admins" {
+  display_name = "Freifunk-Adminstratoren"
+}
+
+{% for item in icinga2_emails %}
+object User "{{ item }}" {
+  import "generic-user"
+  groups = ["freifunk_admins"]
+
+  display_name = "{{ item }}"
+  email = "{{ item }}"
+}
+
+{% endfor %}

@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+
+{% for item in groups['gateways']|default([]) %}
+
+object Host "{{ item }}" {
+  import "generic-host"
+  address = "{{ hostvars[item].ansible_ssh_host }}"
+  check_command = "hostalive"
+  groups = ["gateways"]
+  vars.notification["mail"] = {
+    groups = ["freifunk_admins"]
+  }
+}
+
+{% endfor %}

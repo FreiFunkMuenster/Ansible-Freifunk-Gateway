@@ -1,0 +1,72 @@
+### Ansible Prerequisites
+- name: Install python3-pymysql (required by Ansible)
+  apt:
+    pkg: [ 'python3-pymysql']
+
+### Icinga2
+- name: Install Icinga2
+  apt:
+    pkg: [ 'icingacli', 'icinga2', 'monitoring-plugins-basic', 'nagios-nrpe-plugin' ]
+    state: present
+
+### Command-Module
+- name: Enable Icinga2 command module
+  file:
+    src: '../features-available/command.conf'
+    dest: '/etc/icinga2/features-enabled/command.conf'
+    state: link
+  notify: restart icinga2
+
+### IDO-Module
+- name: Install MariaDB and Icinga2 IDO modules
+  apt:
+    pkg: [ 'mariadb-server', 'icinga2-ido-mysql' ]
+    state: present
+
+- name: Get icinga2/ido-mysql.conf state
+  stat:
+    path: '/etc/icinga2/features-enabled/ido-mysql.conf'
+  register: icinga2_ido_db_conf
+
+# fixme: vielleicht statt "get..state" oben den rückgabewert vom verlinken unten prüfen? wenn frisch verlinkt, dann....
+- name: Configure Icinga2 ido feature with random mysql password
+  template:
+    src: 'icinga2/ido-mysql.conf.j2'
+    dest: '/etc/icinga2/features-enabled/ido-mysql.conf'
+    owner: 'nagios'
+    group: 'nagios'
+    mode: '0600'
+  when: icinga2_ido_db_conf.stat.exists == False
+  notify: restart icinga2
+
+- name: Read ido-mysql.conf
+  slurp:
+    src: '/etc/icinga2/features-enabled/ido-mysql.conf'
+  register: icinga2_ido_db_conf_file
+
+- name: Extract Icinga2 IDO database password from ido-mysql.conf
+  set_fact:
+    icinga2_ido_db_pw: "{{ icinga2_ido_db_conf_file['content'] | b64decode | regex_findall('password = \"(.+)\"') | first }}"
+
+- name: Create IDO database
+  mysql_db:
+    login_unix_socket: '/run/mysqld/mysqld.sock'
+    name: 'icinga2_ido'
+  register: icinga2_ido_db
+
+- name: Create IDO database user
+  mysql_user:
+    login_unix_socket: '/run/mysqld/mysqld.sock'
+    name: 'icinga2_ido'
+    password: '{{ icinga2_ido_db_pw }}'
+    host: localhost
+    priv: 'icinga2_ido.*:ALL'
+
+- name: Import IDO database schema
+  mysql_db:
+    login_unix_socket: '/run/mysqld/mysqld.sock'
+    name: 'icinga2_ido'
+    state: import
+    target: '/usr/share/icinga2-ido-mysql/schema/mysql.sql'
+  when: icinga2_ido_db.changed == true
+  notify: restart icinga2

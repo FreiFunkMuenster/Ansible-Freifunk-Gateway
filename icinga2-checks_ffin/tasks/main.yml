@@ -1,0 +1,26 @@
+- name: Clean default config files
+  file:
+    state: absent
+    path: "/etc/icinga2/conf.d/{{ item }}"
+  with_items:
+    - "app.conf"
+    - "apt.conf"
+    - "downtimes.conf"
+    - "groups.conf"
+    - "hosts.conf"
+  notify: reload icinga2
+
+- name: Create configuration directories
+  file:
+    path: "/etc/icinga2/conf.d/{{ item.path }}"
+    state: directory
+  with_filetree: "templates/"
+  when: item.state == "directory"
+
+- name: Create configuration files
+  template:
+    src: "{{ item.src }}"
+    dest: "/etc/icinga2/conf.d/{{ item.path|regex_replace('.j2','') }}"
+  with_filetree: "templates/"
+  when: item.state == "file"
+  notify: reload icinga2
