@@ -1,7 +1,6 @@
 # {{ ansible_managed }}
 
 {% for item in groups['monitoring']|default([]) %}
-
 object Service "CPU load" {
   import "generic-service"
   host_name = "{{ item }}"
@@ -92,5 +91,4 @@ object Service "current bandwidth" {
   check_command = "nrpe2"
   vars.nrpe_command = "check_bandwidth"
 }
-
 {% endfor %}

@@ -1,6 +1,7 @@
 # {{ ansible_managed }}
 
 apply Service "web-homepage" {
+    import "generic-service"
     display_name =			"Website: freifunk-ingolstadt.de"
     vars.http_vhost =			host.vars.vhost
     check_command =			"http"

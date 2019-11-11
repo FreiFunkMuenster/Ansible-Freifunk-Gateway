@@ -1,6 +1,7 @@
 # {{ ansible_managed }}
 
 apply Service "web-tls-cert" {
+    import "generic-service"
     display_name =			"Website: TLS certificate"
     check_command =			"http"
     vars.http_vhost =			host.vars.vhost

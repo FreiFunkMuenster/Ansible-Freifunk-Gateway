@@ -1,7 +1,8 @@
 # {{ ansible_managed }}
 
 apply Service "web-yanic-json" {
-    display_name = "Yanic: meshviewer.json"
+    import "generic-service"
+    display_name =			"Yanic: meshviewer.json"
     check_command =			"http"
     vars.http_vhost =			host.vars.vhost
     vars.http_ssl =			"true"
@@ -14,6 +15,7 @@ apply Service "web-yanic-json" {
 }
 
 apply Service "web-meshviewer" {
+    import "generic-service"
     display_name =			"Website: Meshviewer"
     check_command =			"http"
     vars.http_vhost =			host.vars.vhost
@@ -25,6 +27,7 @@ apply Service "web-meshviewer" {
 }
 
 apply Service "web-firmware-selector" {
+    import "generic-service"
     display_name =			"Website: Firmware Selector"
     check_command =			"http"
     vars.http_vhost =			host.vars.vhost
@@ -36,6 +39,7 @@ apply Service "web-firmware-selector" {
 }
 
 apply Service "web-firmware-images-stable-sysupgrade" {
+    import "generic-service"
     display_name =			"Website: Firmware Images - Stable, Sysupgrade"
     check_command =			"http"
     vars.http_vhost =			host.vars.vhost
@@ -48,6 +52,7 @@ apply Service "web-firmware-images-stable-sysupgrade" {
 }
 
 apply Service "web-firmware-images-stable-factory" {
+    import "generic-service"
     display_name =			"Website: Firmware Images - Stable, Factory"
     check_command =			"http"
     vars.http_vhost =			host.vars.vhost
@@ -60,6 +65,7 @@ apply Service "web-firmware-images-stable-factory" {
 }
 
 apply Service "web-grafana" {
+    import "generic-service"
     display_name =			"Website: Grafana"
     check_command =			"http"
     vars.http_vhost =			host.vars.vhost

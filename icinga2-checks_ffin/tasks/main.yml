@@ -8,6 +8,7 @@
     - "downtimes.conf"
     - "groups.conf"
     - "hosts.conf"
+    - "services.conf"
   notify: reload icinga2
 
 - name: Create configuration directories

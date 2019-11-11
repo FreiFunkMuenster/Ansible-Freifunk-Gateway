@@ -1,7 +1,6 @@
 # {{ ansible_managed }}
 
 {% for item in groups['gateways']|default([]) %}
-
 object Service "CPU load" {
   import "generic-service"
   host_name = "{{ item }}"
@@ -182,5 +181,4 @@ object Service "Check BATMAN Dom {{domaene[0]}} via IPv6" {
 }
 {% endfor %}
 {% endif %}
-
 {% endfor %}
