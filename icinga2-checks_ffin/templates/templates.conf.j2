@@ -14,9 +14,9 @@
  * Check the documentation for details.
  */
 template Host "generic-host" {
-  max_check_attempts = 3
-  check_interval = 1m
-  retry_interval = 30s
+  max_check_attempts = 6
+  check_interval = 2m
+  retry_interval = 1m
 
   check_command = "hostalive"
 }
@@ -26,9 +26,9 @@ template Host "generic-host" {
  * all services should import this template.
  */
 template Service "generic-service" {
-  max_check_attempts = 5
-  check_interval = 1m
-  retry_interval = 30s
+  max_check_attempts = 10
+  check_interval = 2m
+  retry_interval = 1m
 }
 
 /**
