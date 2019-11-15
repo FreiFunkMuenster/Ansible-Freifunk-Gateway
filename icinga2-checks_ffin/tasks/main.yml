@@ -1,16 +1,3 @@
-- name: Clean default config files
-  file:
-    state: absent
-    path: "/etc/icinga2/conf.d/{{ item }}"
-  with_items:
-    - "app.conf"
-    - "apt.conf"
-    - "downtimes.conf"
-    - "groups.conf"
-    - "hosts.conf"
-    - "services.conf"
-  notify: reload icinga2
-
 - name: Create configuration directories
   file:
     path: "/etc/icinga2/conf.d/{{ item.path }}"

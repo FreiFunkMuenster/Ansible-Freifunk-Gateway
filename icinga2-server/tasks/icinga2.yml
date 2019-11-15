@@ -31,7 +31,7 @@
 # fixme: vielleicht statt "get..state" oben den rückgabewert vom verlinken unten prüfen? wenn frisch verlinkt, dann....
 - name: Configure Icinga2 ido feature with random mysql password
   template:
-    src: 'icinga2/ido-mysql.conf.j2'
+    src: 'icinga2/features/ido/ido-mysql.conf.j2'
     dest: '/etc/icinga2/features-enabled/ido-mysql.conf'
     owner: 'nagios'
     group: 'nagios'
@@ -70,3 +70,25 @@
     target: '/usr/share/icinga2-ido-mysql/schema/mysql.sql'
   when: icinga2_ido_db.changed == true
   notify: restart icinga2
+
+### Config Files
+- name: Clean default config files
+  file:
+    state: absent
+    path: "/etc/icinga2/conf.d/{{ item }}"
+  with_items:
+    - "apt.conf"
+    - "downtimes.conf"
+    - "groups.conf"
+    - "hosts.conf"
+    - "services.conf"
+  notify: reload icinga2
+
+- name: Create base configuration
+  template:
+    src: "{{ item.src }}"
+    dest: "/etc/icinga2/conf.d/{{ item.path|regex_replace('.j2','') }}"
+  with_filetree: "templates/icinga2/conf.d/"
+  when: item.state == "file"
+  notify: reload icinga2
+ 
