@@ -85,7 +85,7 @@ done
 
 #echo es antworten $COUNTOK IPs 
 
-if [ $COUNTOK -lt $COUNTREQUIRED ]; then
+if [ $COUNTOK -le $COUNTREQUIRED ]; then
   echo "CRITICAL: Es antworten nur $COUNTOK der Domain-IPs $CHECKIP"
   exit $STATE_CRITICAL
 else
