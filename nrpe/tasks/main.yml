@@ -60,10 +60,10 @@
   copy: "src=check_active-leases dest='/usr/lib/nagios/plugins/check_active-leases' owner=root group=root mode=a+x"
 
 - name: Install check_batip
-  copy: "src=check_batip dest='/usr/lib/nagios/plugins/check_batip' owner=root group=root mode=a+x"
+  template: "src=check_batip.j2 dest='/usr/lib/nagios/plugins/check_batip' owner=root group=root mode=a+x"
 
 - name: Install check_batip6
-  copy: "src=check_batip6 dest='/usr/lib/nagios/plugins/check_batip6' owner=root group=root mode=a+x"
+  template: "src=check_batip6.j2 dest='/usr/lib/nagios/plugins/check_batip6' owner=root group=root mode=a+x"
 
 - name: Install check_iproute
   copy: "src=check_iproute dest='/usr/lib/nagios/plugins/check_iproute' owner=root group=root mode=a+x"
