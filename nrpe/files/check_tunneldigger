@@ -3,12 +3,12 @@
 PLUGINDIR=$(dirname $0)
 . $PLUGINDIR/utils.sh
 
-if [ -e /lib/systemd/system/tunneldigger@.service ] ; then
+if [ -e /etc/systemd/system/tunneldigger@.service ] ; then
         domains=$(/bin/ls /etc/systemd/system/multi-user.target.wants/tunneldigger@* | grep -oE "[0-9]+")
 fi
 
 
-if [ -e /lib/systemd/system/tunneldigger.service ] ; then
+if [ -e /etc/systemd/system/tunneldigger.service ] ; then
         systemctl --quiet is-active tunneldigger.service
         if [ $? -ne 0 ]; then
                 echo "ERROR: service tunneldigger is not running"
@@ -20,7 +20,7 @@ if [ -e /lib/systemd/system/tunneldigger.service ] ; then
 fi
 
 ERROR_IN_DOM=''
-if [ -e /lib/systemd/system/tunneldigger@.service ] ; then
+if [ -e /etc/systemd/system/tunneldigger@.service ] ; then
         for domain in $domains ; do
                 systemctl --quiet is-active tunneldigger@${domain}.service
                 if [ $? -ne 0 ] ; then
