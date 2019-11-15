@@ -24,6 +24,8 @@
 
 - name: tmpfs systemd service for dhcpd
   template: src=dhcpd-tmpfs.service.j2 dest=/etc/systemd/system/dhcpd-tmpfs.service
+  notify:
+    - reread systemd configs
 
 - name: enable dhcpd-tmpfs service
   service: name=dhcpd-tmpfs enabled=yes state=started
@@ -53,4 +55,3 @@
     dest: /etc/systemd/system/isc-dhcp-server.service.d/ansible-managed.conf
   notify:
     - reread systemd configs
-    - restart isc-dhcp-server

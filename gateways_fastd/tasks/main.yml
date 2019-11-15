@@ -150,7 +150,6 @@
   when: fastd_on_this_gw is defined and fastd_on_this_gw
   notify:
     - reread systemd configs
-    - restart fastd per domain
 
 - name: create folder for haveged service override file
   file:
@@ -167,7 +166,6 @@
   when: fastd_on_this_gw is defined and fastd_on_this_gw
   notify:
     - reread systemd configs
-    - restart haveged
 
 - name: enable fastd for each domain
   systemd:

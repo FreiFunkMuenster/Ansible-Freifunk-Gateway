@@ -28,4 +28,3 @@
     dest: /etc/systemd/system/ntp.service.d/ansible-managed.conf
   notify:
     - reread systemd configs
-    - Restart ntpd
