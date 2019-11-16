@@ -23,20 +23,19 @@
     pkg: [ 'mariadb-server', 'icinga2-ido-mysql' ]
     state: present
 
-- name: Get icinga2/ido-mysql.conf state
+- name: Check state of Icinga2 IDO configuration
   stat:
     path: '/etc/icinga2/features-enabled/ido-mysql.conf'
   register: icinga2_ido_db_conf
 
-# fixme: vielleicht statt "get..state" oben den rückgabewert vom verlinken unten prüfen? wenn frisch verlinkt, dann....
-- name: Configure Icinga2 ido feature with random mysql password
+- name: Configure Icinga2 IDO feature with random mysql password
   template:
     src: 'icinga2/features/ido/ido-mysql.conf.j2'
     dest: '/etc/icinga2/features-enabled/ido-mysql.conf'
     owner: 'nagios'
     group: 'nagios'
     mode: '0600'
-  when: icinga2_ido_db_conf.stat.exists == False
+  when: not icinga2_ido_db_conf.stat.exists
   notify: restart icinga2
 
 - name: Read ido-mysql.conf
@@ -68,8 +67,9 @@
     name: 'icinga2_ido'
     state: import
     target: '/usr/share/icinga2-ido-mysql/schema/mysql.sql'
-  when: icinga2_ido_db.changed == true
+  when: icinga2_ido_db.changed
   notify: restart icinga2
+  tags: skip_ansible_lint
 
 ### Config Files
 - name: Clean default config files
@@ -91,4 +91,3 @@
   with_filetree: "templates/icinga2/conf.d/"
   when: item.state == "file"
   notify: reload icinga2
- 

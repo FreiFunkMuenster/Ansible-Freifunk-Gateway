@@ -1,2 +1,27 @@
+galaxy_info:
+  author: citronalco
+  min_ansible_version: 2.2
+  license: GPLv3
+  platforms:
+    - name: Debian
+      versions:
+        - 10
+  description: |
+    Installiert Icinga2 und IcingaWeb2
+    Hängt ab von der Rolle exim4-daemon-light
+
+    Wenn die Variable icinga2_emails existiert, werden Icinga2-Notifications an die dort angegebenen Email-Adressen versendet:
+
+    icinga2_emails:
+      - foo@bar.com
+      - baz@example.com
+
+    IcingaWeb2 wird nur installiert, wenn die Variable icingaweb2_users existiert.
+    Die dort aufgeführten User werden zur Authentifizierung verwendet:
+
+    icingaweb2_users:
+      username1: passwort1
+      username2: passwort2
+
 dependencies:
   - role: exim4-daemon-light
