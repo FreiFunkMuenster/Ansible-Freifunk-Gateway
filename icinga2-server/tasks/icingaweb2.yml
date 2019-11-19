@@ -55,6 +55,14 @@
     mode: '0660'
     directory_mode: '2770'
 
+### Enable IcingaWeb2 in Apache
+- name: Enable IcingaWeb2 in Apache
+  file:
+    src: '/etc/apache2/conf-available/icingaweb2.conf'
+    dest: '/etc/apache2/conf-enabled/icingaweb2.conf'
+    state: link
+  notify: reload apache2
+
 ### Authentication
 - name: Configure basic authentication in Apache
   copy:
@@ -68,12 +76,13 @@
 - name: Create htpasswd file
   htpasswd:
     path: '/etc/icingaweb2/.http-users'
-    name: '{{ item.key }}'
-    password: '{{ item.value }}'
+    name: '{{ item.user }}'
+    password: '{{ item.pw }}'
     owner: 'root'
     group: 'www-data'
     mode: '0640'
-  with_dict: '{{ icingaweb2_users }}'
+  with_items: "{{ icinga2.userliste }}"
+  when: item.user is defined and item.pw is defined
 
 - name: Configure IcingaWeb2 to use Apache authentication provider
   copy:
