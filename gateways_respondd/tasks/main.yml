@@ -1,0 +1,26 @@
+---
+- name: Install dependencies
+  apt:
+    pkg: ['python3', 'ethtool', 'lsb-release' ]
+    state: present
+
+- name: Clone mesh-announce repo
+  git:
+    repo: https://github.com/ffnord/mesh-announce.git
+    dest: /opt/mesh-announce
+    clone: yes
+    update: yes
+  notify: restart respondd
+
+- name: create systemd file
+  template:
+    src: respondd.service.j2
+    dest: /etc/systemd/system/respondd.service
+  notify: systemctl reload
+
+- name: enable respondd
+  systemd:
+    name: respondd
+    enabled: yes
+    masked: no
+  notify: systemctl reload

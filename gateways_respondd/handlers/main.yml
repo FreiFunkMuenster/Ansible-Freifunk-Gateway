@@ -1,0 +1,8 @@
+- name: systemctl reload
+  shell: systemctl daemon-reload
+
+- name: restart respondd
+  service:
+    name: respondd.service
+    state: restarted
+    enabled: yes

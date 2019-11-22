@@ -30,6 +30,7 @@ command[check_bird6]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C bird6
 command[check_bind]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C named
 command[check_collectd]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C collectd
 command[check_pyrespondd]=/usr/lib/nagios/plugins/check_systemd_service py-respondd
+command[check_respondd]=/usr/lib/nagios/plugins/check_systemd_service respondd
 command[check_tunneldigger]=/usr/lib/nagios/plugins/check_tunneldigger
 command[check_dhcp-server]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C kea-dhcp4
 command[check_isc-dhcp-server]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C dhcpd
