@@ -51,8 +51,3 @@ on up "
   # Add fastd interface to bridge, then enable it
   ip link set dev $INTERFACE master br{{ item.key }} && ip link set dev $INTERFACE up
 ";
-
-on down "
-  # Remove fastd interface from bridge
-  ip link set dev $INTERFACE nomaster
-";
