@@ -13,7 +13,7 @@ galaxy_info:
     Beispiel:
 
     mail:
-      address: icinga2@example.com
+      senderemail: icinga2@example.com
       smtp: mail.foo.bar
       user: benutzername
       pw: geheim
