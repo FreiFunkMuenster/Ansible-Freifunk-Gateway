@@ -14,9 +14,9 @@
  * Check the documentation for details.
  */
 template Host "generic-host" {
-  max_check_attempts = 6
-  check_interval = 2m
-  retry_interval = 1m
+  max_check_attempts = 10
+  check_interval = 5m
+  retry_interval = 2m
 
   check_command = "hostalive"
 }
@@ -27,8 +27,8 @@ template Host "generic-host" {
  */
 template Service "generic-service" {
   max_check_attempts = 10
-  check_interval = 2m
-  retry_interval = 1m
+  check_interval = 5m
+  retry_interval = 2m
 }
 
 /**
