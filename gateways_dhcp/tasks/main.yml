@@ -55,3 +55,8 @@
     dest: /etc/systemd/system/isc-dhcp-server.service.d/ansible-managed.conf
   notify:
     - reread systemd configs
+
+- name: disable ISC DHCP IPv6 server
+  service: name=isc-dhcp-server6 enabled=no
+  when: ansible_distribution == 'Ubuntu' and (ansible_distribution_version == '16.04' or ansible_distribution_version == '18.04')
+
