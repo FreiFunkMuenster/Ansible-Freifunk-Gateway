@@ -1,4 +1,4 @@
 - name: batctl-Paket installieren
   apt:
-    pkg: ['batctl']
+    name: ['batctl']
     state: present

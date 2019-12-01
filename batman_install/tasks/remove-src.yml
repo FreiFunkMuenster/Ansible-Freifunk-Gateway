@@ -10,20 +10,20 @@
 
 # Evtl. vorhandenes batman-adv-DKMS-Modul deinstallieren
 - name: Prüfe ob batman-adv als DKMS-Modul installiert wurde
-  shell: dkms status batman-adv -k {{ ansible_kernel }} | grep -Eo '[[:digit:]]{4}\.[[:digit:]](\.[[:digit:]])?' || true
+  shell: |
+    set -o pipefail
+    dkms status batman-adv -k {{ ansible_kernel }} | grep -Eo '[[:digit:]]{4}\.[[:digit:]](\.[[:digit:]])?' || true
+  args:
+    executable: bash
   register: dkms_version_batman
   when: stat_dkms.stat.exists
   changed_when: False
   check_mode: no
 
 - name: DKMS-Modul batman-adv entfernen
-  shell: "dkms remove batman-adv/{{ dkms_version_batman.stdout }} -k {{ ansible_kernel }}"
-  when: (batman.version is not defined or batman.version != "2013.4.0") and stat_dkms.stat.exists and dkms_version_batman.stdout
-
-- name: Legacy DKMS-Modul batman-adv entfernen
-  shell: "dkms remove batman-adv/{{ dkms_version_batman.stdout }} --all"
-  when: (batman.version is defined and batman.version == "2013.4.0") and stat_dkms.stat.exists and dkms_version_batman.stdout
-
+  shell: "dkms remove batman-adv/{{ dkms_version_batman.stdout }} -k {{ ansible_kernel }} || rm -rf /var/lib/dkms/batman-adv/{{ dkms_version_batman.stdout }}"
+  when: stat_dkms.stat.exists and dkms_version_batman.stdout
+  notify: restart batman
 
 # batctl
 - name: /usr/local/sbin/batctl löschen
