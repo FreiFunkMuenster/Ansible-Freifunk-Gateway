@@ -1,6 +1,10 @@
 # installierte batman-Version prüfen
 - name: Prüfe installierte batman-adv-Version
-  shell: "modinfo -F version batman-adv"
+  shell: |
+    set -o pipefail
+    modinfo -F version batman-adv | grep -oE '^[0-9\.]+'
+  args:
+    executable: bash
   register: installed_batman_version
   when: batman.version is defined and batman.version
   changed_when: False
@@ -13,7 +17,11 @@
 
 # installierte batman-Version erneut prüfen
 - name: Prüfe batman-adv-Version des Kernels
-  shell: "modinfo -F version batman-adv"
+  shell: |
+    set -o pipefail
+    modinfo -F version batman-adv | grep -oE '^[0-9\.]+'
+  args:
+    executable: bash
   register: installed_batman_version
   when: batman.version is defined and batman.version != "kernel" and
         (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman.version)
