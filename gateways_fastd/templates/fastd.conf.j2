@@ -1,10 +1,10 @@
 # {{ ansible_managed }}
 
 # Bind to a fixed address and port, IPv4 and IPv6
-bind {{ ansible_default_ipv4.address }}:{{ fastd.port_base + (item.key | int) }} interface "{{ ansible_default_ipv4.interface }}";
+bind {{ ansible_default_ipv4.address }}:{{ domaenen[item.key].fastd_port_forced | default(fastd.port_base + (item.key | int)) }} interface "{{ ansible_default_ipv4.interface }}";
 
 {% if ansible_default_ipv6 %}
-bind [{{ ansible_default_ipv6.address }}]:{{ fastd.port_base + (item.key | int) }} interface "{{ ansible_default_ipv6.interface }}";
+bind [{{ ansible_default_ipv6.address }}]:{{ domaenen[item.key].fastd_port_forced | default(fastd.port_base + (item.key | int)) }} interface "{{ ansible_default_ipv6.interface }}";
 {% endif %}
 
 # Set the user, fastd will work as
@@ -50,9 +50,4 @@ on verify "
 on up "
   # Add fastd interface to bridge, then enable it
   ip link set dev $INTERFACE master br{{ item.key }} && ip link set dev $INTERFACE up
-";
-
-on down "
-  # Remove fastd interface from bridge
-  ip link set dev $INTERFACE nomaster
 ";
