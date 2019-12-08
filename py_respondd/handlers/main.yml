@@ -1,8 +1,9 @@
 - name: systemctl reload
-  shell: systemctl daemon-reload
+  systemd:
+    daemon_reload: yes
 
 - name: restart respondd
-  service: 
-    name: py-respondd.service 
+  systemd:
+    name: py-respondd.service
     state: restarted
     enabled: yes

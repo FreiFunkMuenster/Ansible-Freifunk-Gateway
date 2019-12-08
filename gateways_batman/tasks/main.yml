@@ -2,7 +2,6 @@
 - name: bridge-utils-Paket installieren
   apt:
     pkg: ['bridge-utils']
-    state: present
 
 # creating batman interface
 - name: Create interfaces - batman file

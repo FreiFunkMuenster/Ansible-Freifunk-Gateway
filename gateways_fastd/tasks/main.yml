@@ -15,7 +15,11 @@
   when: fastd_on_this_gw is defined and fastd_on_this_gw
 
 - name: Get all enabled fastd instances
-  shell: 'set -o pipefail && /bin/ls /etc/systemd/system/multi-user.target.wants/fastd@* | grep -oE "[0-9]+"'
+  shell: |
+    set -o pipefail
+    /bin/ls /etc/systemd/system/multi-user.target.wants/fastd@* | grep -oE "[0-9]+"
+  args:
+    executable: bash
   changed_when: False
   failed_when: False
   check_mode: no
@@ -33,7 +37,7 @@
 
 - name: remove fastd (vpn daemon) and haveged (entropy daemon)
   apt:
-    pkg: ['fastd', 'haveged']
+    name: ['fastd', 'haveged']
     state: absent
   when: fastd_on_this_gw is not defined or not fastd_on_this_gw
 
