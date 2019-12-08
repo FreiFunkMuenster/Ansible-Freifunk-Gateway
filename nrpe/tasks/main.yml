@@ -60,6 +60,7 @@
   package:
     name: dhcpd-pools
     state: present
+  when: not (ansible_distribution == 'Ubuntu' and ansible_distribution_version == '16.04')
 
 - name: Install check_batip
   template: "src=check_batip.j2 dest='/usr/lib/nagios/plugins/check_batip' owner=root group=root mode=a+x"

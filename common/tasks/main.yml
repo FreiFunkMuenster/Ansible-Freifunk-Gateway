@@ -27,9 +27,9 @@
 
 - name: install common packages
   apt:
-    pkg: ['vim', 'wget', 'vnstat', 'tmux', 'pastebinit', 'htop', 'jnettop', 'iotop', 'tcpdump', 'screen', 'strace', 'socat', 'dnsutils', 'host', 'apt-transport-https', 'tshark', 'dwdiff', 'molly-guard', 'git', 'iperf3', 'mtr-tiny', 'dhcpdump', 'dhcping', 'irqbalance', 'build-essential', 'ethtool']
+    name: ['vim', 'wget', 'vnstat', 'tmux', 'pastebinit', 'htop', 'jnettop', 'iotop', 'tcpdump', 'screen', 'strace', 'socat', 'dnsutils', 'host', 'ifupdown',
+      'apt-transport-https', 'tshark', 'dwdiff', 'molly-guard', 'git', 'iperf3', 'mtr-tiny', 'dhcpdump', 'dhcping', 'irqbalance', 'build-essential', 'ethtool']
     update_cache: yes
-    state: present
 
 - name: uninstall unneeded packages
   apt:
@@ -50,7 +50,8 @@
     line: "PasswordAuthentication no"
   notify: reload sshd
 
-- locale_gen: name=de_DE.UTF-8 state=present
+- name: Unterstützung für deutsche Sprache aktivieren
+  locale_gen: name=de_DE.UTF-8 state=present
 
 - name: "Get all files in /etc/logrotate.d/"
   raw: find /etc/logrotate.d/ -type f
@@ -60,17 +61,17 @@
 
 - name: "Update logrotate cycle in /etc/logrotate.d/"
   replace:
-    dest: "{{item}}"
+    dest: "{{ item }}"
     regexp: 'daily|weekly|monthly'
-    replace: '{{logrotate.cycle}}'
-  with_items: "{{logrotate_files.stdout_lines}}"
+    replace: '{{ logrotate.cycle }}'
+  with_items: "{{ logrotate_files.stdout_lines }}"
 
 - name: "Update logrotate count in /etc/logrotate.d/"
   replace:
-    dest: "{{item}}"
+    dest: "{{ item }}"
     regexp: 'rotate[ \t]+[0-9]+'
-    replace: 'rotate {{logrotate.count}}'
-  with_items: "{{logrotate_files.stdout_lines}}"
+    replace: 'rotate {{ logrotate.count }}'
+  with_items: "{{ logrotate_files.stdout_lines }}"
 
 - name: Logrotate Rotationszyklus und Anzahl anpassen
   template:
@@ -100,23 +101,8 @@
     dest: /etc/systemd/journald.conf
     regexp: "^[#]?MaxRetentionSec"
     line: "MaxRetentionSec={{ logrotate.count }}week"
-  when: journald_conf.stat.exists == True
+  when: journald_conf.stat.exists
   notify: restart journald
-
-- name: Setze Timeout für das stopen von Interfaces
-  lineinfile:
-    dest: /lib/systemd/system/networking.service.d/network-pre.conf
-    line: "[Service]"
-    state: present
-  when: ansible_distribution == "Debian" and ansible_distribution_major_version == "8"
-
-- name: Setze Timeout für das stopen von Interfaces
-  lineinfile:
-    dest: /lib/systemd/system/networking.service.d/network-pre.conf
-    regexp: "^TimeoutStopSec="
-    line: "TimeoutStopSec=60"
-    state: present
-  when: ansible_distribution == "Debian" and ansible_distribution_major_version == "8"
 
 - name: vnstat Bandbreiten limit auf 1000 Mbit erhöhen.
   lineinfile:
@@ -124,4 +110,3 @@
     regexp: "^MaxBandwidth"
     line: "MaxBandwidth 1000"
     state: present
-
