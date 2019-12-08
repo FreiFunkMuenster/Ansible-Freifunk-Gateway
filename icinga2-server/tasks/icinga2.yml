@@ -91,3 +91,5 @@
   with_filetree: "templates/icinga2/conf.d/"
   when: item.state == "file"
   notify: reload icinga2
+  tags:
+    - skip_ansible_lint

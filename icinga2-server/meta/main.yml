@@ -29,7 +29,8 @@ galaxy_info:
      icingaweb2: IcingaWeb2-Weboberfläche ein- (=true) oder ausschalten (=false). Standard: false
 
      userliste: Enthält eine Liste mit Benutzern. Ein Benutzer muss Benutzername und Passwort und/oder E-Mailadresse haben.
-     Wenn die Icinga2-API und/oder IcingaWeb2 eingeschaltet ist, dann haben alle in "userliste" mit Benutzername ("user") und Passwort ("pw") angebenen Benutzer darauf Zugriff.
+     Wenn die Icinga2-API und/oder IcingaWeb2 eingeschaltet ist, dann haben alle in "userliste" mit Benutzername ("user") und Passwort ("pw") angebenen
+     Benutzer darauf Zugriff.
 
      An alle in "userliste" angegebenen E-Mail-Adressen ("email") versendet Icinga2 Notifications.
      Dazu ist ein MTA nötig, der die E-Mails lokal annimmt und an einen SMTP-Server weiterleitet, z.B. die Rolle exim4-daemon-light.
