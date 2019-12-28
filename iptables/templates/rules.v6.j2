@@ -10,14 +10,6 @@ COMMIT
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
--N DNS 
--A INPUT -p udp -m udp --dport 53 -j DNS 
--A INPUT -p tcp -m tcp --dport 53 -j DNS 
-{% if v6dnsips is defined %}
-{% for entry in v6dnsips %}
--A DNS -d {{entry}}/32 -j RETURN
-{% endfor %}
-{% endif %}
 :POSTROUTING ACCEPT [0:0]
 {% if ffrl_tun is defined %}
 -A POSTROUTING -o tun-+ -p tcp -m tcp --tcp-flags SYN,RST SYN -m tcpmss ! --mss 0:1220 -j TCPMSS --set-mss 1220
