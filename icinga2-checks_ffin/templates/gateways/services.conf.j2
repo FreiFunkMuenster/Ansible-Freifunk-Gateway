@@ -93,6 +93,13 @@ object Service "Tunneldigger" {
   vars.nrpe_command = "check_tunneldigger"
 }
 
+object Service "fastd" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_fastd"
+}
+
 object Service "DHCP-Server" {
   import "generic-service"
   host_name = "{{ item }}"

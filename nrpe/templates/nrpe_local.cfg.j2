@@ -32,6 +32,7 @@ command[check_collectd]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C colle
 command[check_pyrespondd]=/usr/lib/nagios/plugins/check_systemd_service py-respondd
 command[check_respondd]=/usr/lib/nagios/plugins/check_systemd_service respondd
 command[check_tunneldigger]=/usr/lib/nagios/plugins/check_tunneldigger
+command[check_fastd]=/usr/lib/nagios/plugins/check_fastd
 command[check_dhcp-server]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C kea-dhcp4
 command[check_isc-dhcp-server]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C dhcpd
 command[check_isc-dhcp-server-leases]=/usr/bin/dhcpd-pools -c /etc/dhcp/dhcpd.conf -l /var/lib/dhcp/dhcpd.leases --warning=80 --critical=90 --perfdata
