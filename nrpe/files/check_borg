@@ -1,0 +1,51 @@
+#!/bin/bash
+#
+#exitcodes
+STATE_OK=0
+STATE_WARNING=1
+STATE_CRITICAL=2
+STATE_UNKNOWN=3
+
+#########################################################################
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <Name> <URL>"
+    exit $STATE_UNKNOWN
+fi
+
+REPOKEY="/root/backup-$1.repokey"
+if [ ! -f "${REPOKEY}" ]; then
+    echo "Passphrase-Datei ${REPOKEY} nicht gefunden"
+    exit $STATE_CRITICAL
+fi
+
+export BORG_PASSPHRASE=$(cat ${REPOKEY})
+export BORG_RSH='ssh -i /root/.ssh/id_rsa_borg'
+REPOSITORY=$2
+
+# return STATE_CRITICAL if last successful backup is older than MAXAGE seconds 
+MAXAGE=$((25*3600))
+
+
+# get date of last successful run
+LASTSUCCESS_DATETIME=$(borg list --last 1 --sort timestamp --format '{time}' ${REPOSITORY})
+
+# return STATE_UNKNOWN if no date of last successful run
+if [ -z "${LASTSUCCESS_DATETIME}" ]; then
+  echo "UNKNOWN: Zeitpunkt des letzten erfolgreichen Backups unbekannt"
+  exit $STATE_UNKNOWN
+fi
+
+# return STATE_CRITICAL if timestamp of last successful run is older than MAXAGE
+LASTSUCCESS_TS=$(date --date="${LASTSUCCESS_DATETIME}" "+%s")
+NOW_TS=$(date "+%s")
+CRITICAL_AGE_TS=$((NOW_TS-3600*MAXAGE))
+
+if [ "${LASTSUCCESS_TS}" -lt "${CRITICAL_AGE_TS}" ]; then
+  echo "CRITICAL: Letztes erfolgreiches Backup war vor $(((NOW_TS-LASTSUCCESS_TS)/3600)) Stunden"
+  exit $STATE_CRITICAL
+fi
+
+# return STATE_OK
+echo "OK: Letztes erfolgreiches Backup war vor $(((NOW_TS-LASTSUCCESS_TS)/3600)) Stunden"
+exit $STATE_OK
