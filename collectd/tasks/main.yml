@@ -84,7 +84,7 @@
   template: src=kea.py.j2 dest=/opt/collectd-python/kea.py
   notify:
     - restart collectd
-  when: collectd.collect_dhcp and domaenenliste is defined
+  when: collectd.collect_dhcp and (domaenenliste is defined and dhcp_type == 'kea')
 
 - name: deploy ipv4ipv6.py
   template: src=ipv4ipv6.py.j2 dest=/opt/collectd-python/ipv4ipv6.py
