@@ -67,7 +67,7 @@
     secretkey: "{{ item.value.fastd_key.secret }}"
   with_dict: "{{ domaenenliste }}"
 
-- name: write public private key to seperate keyfiles, if fastd key is defined as host variable
+- name: write public key to seperate keyfiles, if fastd key is defined as host variable
   template:
     src: public.key.j2
     dest: /etc/fastd/{{ item.key }}/keys/public.key
