@@ -13,10 +13,12 @@ view "domaene-{{domaene[0]}}" {
 {% if is_external_nameserver is defined and is_external_nameserver %}
 	include "/etc/bind/named.conf.tld";
 {% endif %}
+{% if have_local_kurzname_zone is defined and have_local_kurzname_zone %}
 	zone "{{freifunk.kurzname}}." {
 		type master;
 		file "/etc/bind/db.domaene-{{domaene[0]}}.ffnet";
 	};
+{% endif %}
 };
 {% endfor %}
 {% if is_external_nameserver is defined and is_external_nameserver %}
