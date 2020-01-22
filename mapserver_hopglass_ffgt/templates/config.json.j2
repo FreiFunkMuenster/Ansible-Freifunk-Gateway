@@ -1,0 +1,77 @@
+{% set proxy_urls = [] %}
+{% for domain in domaenen|dictsort %}
+{% if domain[1].proxy_map_data_url is defined and domain[1].proxy_map_data_url %}
+{% if proxy_urls.append(domain[1].site_code) %}{% endif %}
+{% endif %}
+{% endfor %}
+{
+  "dataPath": [ {% for url in proxy_urls %}"/proxy_{{ url }}/",{% endfor %}"/data/" ],
+  "siteName": "{{freifunk.name}}",
+  "mapSigmaScale": {{ mapconfig.globalMap.map_scale }},
+  "showContact": {{ mapconfig.globalMap.map_show_contact | lower}},
+  "maxAge": {{ mapconfig.globalMap.map_max_age }},
+{% if "max_goto_zoom" in mapconfig.globalMap %}
+  "maxGotoZoom": {{ mapconfig.globalMap.max_goto_zoom }},
+{% endif %}
+  "mapLayers": [
+{% for layer in mapconfig.layers %}
+    {
+      "name": "{{layer.name}}",
+      "url": "{{layer.url}}",
+      "config": {
+{% for k,v in layer.config|dictsort %}
+        "{{k}}": {% if v is number %}{{v}}{% else %}"{{v}}"{% endif %}{% if not loop.last %},{% endif %}
+
+{% endfor %}
+
+      }
+    }{% if not loop.last %},{% endif %}
+
+{% endfor %}
+  ],
+  "siteNames": [
+{% for domaene in domaenen|dictsort %}
+    { "site": "{{domaene[1].site_code}}", "name": "Mesh {{domaene[0]}} - {{domaene[1].name}}" }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% if mapconfig.globalInfos is defined %}
+  "globalInfos": [
+{% for globalInfo in mapconfig.globalInfos %}
+    { "name": "{{ globalInfo.name }}",{% if globalInfo.href is defined %}
+
+      "href": "{{ globalInfo.href }}",{% endif %}{% if globalInfo.iframe is defined %}
+
+      "iframe": "{{ globalInfo.iframe }}"{% endif %}{% if globalInfo.thumbnail is defined %}
+
+      "thumbnail": "{{ globalInfo.thumbnail }}"{% endif %}{% if globalInfo.caption is defined %},
+      "caption": "{{ globalInfo.caption }}"{% endif %}
+
+    }{% if not loop.last %},{% endif %}
+
+{% endfor %}
+  ],
+{% endif %}
+{% if mapconfig.nodeInfos is defined %}
+  "nodeInfos": [
+{% for nodeInfo in mapconfig.nodeInfos %}
+    { "name": "{{ nodeInfo.name }}",{% if nodeInfo.href is defined %}
+
+      "href": "{{ nodeInfo.href }}",{% endif %}{% if nodeInfo.iframe is defined %}
+
+      "iframe": "{{ nodeInfo.iframe }}"{% endif %}{% if nodeInfo.thumbnail is defined %}
+
+      "thumbnail": "{{ nodeInfo.thumbnail }}"{% endif %}{% if nodeInfo.caption is defined %},
+      "caption": "{{ nodeInfo.caption }}"{% endif %}
+
+    }{% if not loop.last %},{% endif %}
+
+{% endfor %}
+  ],
+{% endif %}
+  "hwImg": [
+    {
+      "thumbnail": "/hwpics/{MODELHASH}.svg",
+      "caption": "Knoten {MODELHASH}"
+    }
+  ]
+}

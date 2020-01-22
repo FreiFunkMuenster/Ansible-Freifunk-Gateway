@@ -1,0 +1,141 @@
+- name: install nginx
+  apt:
+    pkg: ['nginx']
+    update_cache: no
+    state: latest
+
+- name: create letsencrypt directory
+  file: name=/var/www/letsencrypt state=directory
+
+- name: Install default nginx site for letsencrypt requests and https rewrite
+  template:
+    src: templates/default.j2
+    dest: /etc/nginx/sites-available/default
+  register: gendefconf
+
+- name: Activate default nginx site
+  file: src=/etc/nginx/sites-available/default dest=/etc/nginx/sites-enabled/default state=link
+  register: actdefconf
+
+- name: Reload nginx to activate letsencrypt site
+  service: name=nginx state=restarted
+  when: gendefconf.changed or actdefconf.changed
+
+- name: acme install
+  shell: wget -O -  https://get.acme.sh | sh
+  args:
+    creates: /root/.acme.sh/acme.sh
+
+- name: Create certificate
+  shell: /root/.acme.sh/acme.sh --issue -d {{inventory_hostname_short}}.{{freifunk.domain}} -w /var/www/letsencrypt
+  args:
+    creates: /root/.acme.sh/{{inventory_hostname_short}}.{{freifunk.domain}}/ca.cer
+
+- name: install cert to Nginx
+  shell: /root/.acme.sh/acme.sh --installcert -d {{inventory_hostname_short}}.{{freifunk.domain}} --keypath "/etc/ssl/key.pem" --fullchainpath "/etc/ssl/fullchain.pem" --reloadcmd "systemctl restart nginx"
+  args:
+    creates: /etc/ssl/certs/key.pem
+  
+- name: Generate dhparams
+  shell: openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+  args:
+    creates: /etc/ssl/certs/dhparam.pem
+
+- name: Create nginx caching dir
+  file:
+    path: /opt/hopglass_nginx_cache
+    state: directory
+
+- name: Create nginx caching dirs for tiles caching
+  file:
+    path: "{{item.path}}"
+    state: directory
+  with_items:
+    - "{{nginx_tiles_cache.cache_locations}}"
+  when: nginx_tiles_cache is defined and "cache_locations" in nginx_tiles_cache
+
+- name: Define cache in nginx.conf
+  lineinfile:
+    regexp: "^[\t ]*proxy_cache_path.*hopglass"
+    line: "\tproxy_cache_path /opt/hopglass_nginx_cache levels=1:2 keys_zone=hopglass:10m inactive=1h max_size=1g;"
+    insertafter: "^[\t ]*http[\t ]*\\{"
+    dest: /etc/nginx/nginx.conf
+  notify:
+    - restart nginx
+
+- name: Define include for tiles cache in nginx.conf
+  lineinfile:
+    regexp: "^[\t ]*include /etc/nginx/tiles_cache.conf;"
+    line: "\tinclude /etc/nginx/tiles_cache.conf;"
+    insertafter: "^[\t ]*http[\t ]*\\{"
+    dest: /etc/nginx/nginx.conf
+  notify:
+    - restart nginx
+  when: nginx_tiles_cache is defined
+
+- name: Deploy tiles_cache.conf
+  template:
+    src: tiles_cache.conf.j2
+    dest: /etc/nginx/tiles_cache.conf
+  notify:
+    - restart nginx
+  when: nginx_tiles_cache is defined
+
+- name: Deploy default ssl nginx site
+  template:
+    src: default_ssl.j2
+    dest: /etc/nginx/sites-available/default_ssl
+  notify:
+    - restart nginx
+
+- name: Aktivate default ssl nginx site
+  file: src=/etc/nginx/sites-available/default_ssl dest=/etc/nginx/sites-enabled/default_ssl state=link
+  register: actsslconf
+
+- name: Reload nginx to activate letsencrypt site
+  service: name=nginx state=restarted
+  when: actsslconf.changed
+
+- name: Clone bootstrap and css files
+  git: repo=https://github.com/FreiFunkMuenster/nodesmap-page.git dest=/opt/nodesmappage force=yes
+
+- name: link css
+  file:
+    src: /opt/nodesmappage/css
+    dest: /var/www/html/css
+    state: link
+
+- name: link js
+  file:
+    src: /opt/nodesmappage/js
+    dest: /var/www/html/js
+    state: link
+
+- name: link fonts
+  file:
+    src: /opt/nodesmappage/fonts
+    dest: /var/www/html/fonts
+    state: link
+
+- name: link icons
+  file:
+    src: /opt/nodesmappage/icons
+    dest: /var/www/html/icons
+    state: link
+
+- name: Generate index.html
+  template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+
+- name: link hopglass
+  file:
+    src: /opt/hopglass/client/build
+    dest: /var/www/html/map
+    state: link
+
+- name: link hwpics
+  file:
+    src: /opt/hopglass/hwpics/nodes
+    dest: /var/www/html/hwpics
+    state: link

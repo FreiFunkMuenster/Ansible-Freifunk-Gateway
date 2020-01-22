@@ -1,0 +1,114 @@
+---
+- name: Create HopGlass directory if not existent
+  file:
+    path: /opt/hopglass/client
+    state: directory
+
+- name: Git for HopGlass
+  git:
+    repo: https://github.com/FreiFunkMuenster/hopglass.git
+    dest: /opt/hopglass/client
+    force: yes
+    version: ffms
+  register: hopglass_git_clone
+
+- name: Create hwpics directory if not exists
+  file:
+    path: /opt/hopglass/hwpics
+    state: directory
+
+- name: Clone meshviewer hwpics repo
+  git:
+    repo: https://github.com/Moorviper/meshviewer_hwpics.git
+    dest: /opt/hopglass/hwpics
+    update: yes
+  register: hopglass_git_clone
+
+- name: Add nodejs repo keys
+  apt_key:
+    id: 1655A0AB68576280
+    url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
+    state: present
+
+- name: Add repo for nodejs
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - "deb https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
+    - "deb-src https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
+
+- name: Install nodejs
+  apt:
+    pkg: nodejs
+    state: present
+
+- name: Install dependencies
+  shell: npm install
+  args:
+    chdir: /opt/hopglass/client
+  when: hopglass_git_clone.changed
+
+- name: Install grunt-cli
+  shell: npm install grunt-cli
+  args:
+    chdir: /opt/hopglass/client
+  when: hopglass_git_clone.changed
+
+- name: Build HopGlass
+  shell: node_modules/.bin/grunt
+  args:
+    chdir: /opt/hopglass/client
+  when: hopglass_git_clone.changed
+
+- name: Adjust permissions
+  file:
+    path: /opt/hopglass/client
+    owner: hopglass
+    group: hopglass
+    recurse: yes
+  when: hopglass_git_clone.changed
+
+- name: Create directory
+  file:
+    path: /opt/hopglass/client/build/
+    state: directory
+
+- name: Deploy config.json
+  template:
+    src: config.json.j2
+    dest: /opt/hopglass/client/build/config.json
+    owner: hopglass
+    group: hopglass
+    mode: 0644
+
+- name: Create directory for domainspecific config files
+  file:
+    path: /opt/hopglass/client/build/config/
+    state: directory
+
+- name: Deploy domainspecific config.json files
+  template:
+    src: configdom.json.j2
+    dest: "/opt/hopglass/client/build/config/config_{{item[0]}}.json"
+    owner: hopglass
+    group: hopglass
+    mode: 0644
+  with_items:
+    - "{{domaenen|dictsort}}"
+
+- name: Generate list of all community names
+  set_fact:
+    communities: "{{ domaenen | list | map('extract', domaenen, 'community') | list | unique | sort }}"
+
+- name: Deploy config.json configcommunity
+  template:
+    src: configcommunity.json.j2
+    dest: "/opt/hopglass/client/build/config/config_{{item}}.json"
+    owner: hopglass
+    group: hopglass
+    mode: 0644
+  when: item != "None"
+  with_items:
+    - "{{communities}}"

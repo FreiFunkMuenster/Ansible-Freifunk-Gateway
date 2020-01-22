@@ -1,0 +1,72 @@
+{
+{% if item[1].proxy_map_data_url is defined and item[1].proxy_map_data_url %}
+  "dataPath": "/proxy_{{item[1].site_code}}/",
+{% else %}
+  "dataPath": "/data/map_{{item[0]}}/",
+{% endif %}
+  "siteName": "{% if item[1].community is defined %}Karte {{item[1].community}}{% else %}{{freifunk.name}}{% endif %} - Mesh {{item[1].name}}",
+  "mapSigmaScale": {{item[1].map_scale}},
+  "showContact": {{item[1].map_show_contact | lower}},
+  "maxAge": {{item[1].map_max_age}},
+{% if "max_goto_zoom" in mapconfig.communityMap %}
+  "maxGotoZoom": {{ mapconfig.communityMap.max_goto_zoom }},
+{% endif %}
+  "mapLayers": [
+{% for layer in mapconfig.layers %}
+    {
+      "name": "{{layer.name}}",
+      "url": "{{layer.url}}",
+      "config": {
+{% for k,v in layer.config|dictsort %}
+        "{{k}}": {% if v is number %}{{v}}{% else %}"{{v}}"{% endif %}{% if not loop.last %},{% endif %}
+
+{% endfor %}
+      }
+    }{% if not loop.last %},{% endif %}
+
+{% endfor %}
+  ],
+  "siteNames": [
+    { "site": "{{item[1].site_code}}", "name": "Mesh {{item[0]}} - {{item[1].name}}" }
+  ],
+{% if mapconfig.globalInfos is defined %}
+  "globalInfos": [
+{% for globalInfo in mapconfig.globalInfos %}
+    { "name": "{{ globalInfo.name }}",{% if globalInfo.href is defined %}
+
+      "href": "{{ globalInfo.href }}",{% endif %}{% if globalInfo.iframe is defined %}
+
+      "iframe": "{{ globalInfo.iframe }}"{% endif %}{% if globalInfo.thumbnail is defined %}
+
+      "thumbnail": "{{ globalInfo.thumbnail }}"{% endif %}{% if globalInfo.caption is defined %},
+      "caption": "{{ globalInfo.caption }}"{% endif %}
+
+    }{% if not loop.last %},{% endif %}
+
+{% endfor %}
+  ],
+{% endif %}
+{% if mapconfig.nodeInfos is defined %}
+  "nodeInfos": [
+{% for nodeInfo in mapconfig.nodeInfos %}
+    { "name": "{{ nodeInfo.name }}",{% if nodeInfo.href is defined %}
+
+      "href": "{{ nodeInfo.href }}",{% endif %}{% if nodeInfo.iframe is defined %}
+
+      "iframe": "{{ nodeInfo.iframe }}"{% endif %}{% if nodeInfo.thumbnail is defined %}
+
+      "thumbnail": "{{ nodeInfo.thumbnail }}"{% endif %}{% if nodeInfo.caption is defined %},
+      "caption": "{{ nodeInfo.caption }}"{% endif %}
+
+    }{% if not loop.last %},{% endif %}
+
+{% endfor %}
+  ],
+{% endif %}
+  "hwImg": [
+    {
+      "thumbnail": "/hwpics/{MODELHASH}.svg",
+      "caption": "Knoten {MODELHASH}"
+    }
+  ]
+}

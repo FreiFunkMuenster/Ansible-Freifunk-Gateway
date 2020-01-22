@@ -1,0 +1,125 @@
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+
+    server_name {{inventory_hostname_short}}.{{freifunk.domain}};
+
+    ssl_certificate /etc/ssl/fullchain.pem;
+    ssl_certificate_key /etc/ssl/key.pem;
+
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
+    ssl_ecdh_curve secp384r1;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_tickets off;
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    resolver 8.8.8.8 8.8.4.4 valid=300s;
+    resolver_timeout 5s;
+    add_header Strict-Transport-Security "max-age=63072000; includeSubdomains";
+    add_header X-Content-Type-Options nosniff;
+
+    ssl_dhparam /etc/ssl/certs/dhparam.pem;
+
+    root /var/www/html;
+
+    location / {
+
+        # redirect into directory to get correct docroot
+        rewrite "^/map([0-9]{2})$" /map$1/ permanent;
+        rewrite "^/map_([^/]+)$" /map$1/ permanent;
+
+        # rewrite config.json to special path
+        rewrite "^/map([0-9]{2})/config.json$" /map/config/config_$1.json break;
+        rewrite "^/map_([^/]+)/config.json$" /map/config/config_$1.json break;
+
+        # rewrite all other
+        rewrite "^/map[0-9]{2}/(.*)$" /map/$1 break;
+        rewrite "^/map_[^/]+/(.*)$" /map/$1 break;
+
+        # First attempt to serve request as file, then
+        # as directory, then fall back to displaying a 404.
+        try_files $uri $uri/ =404;
+
+        # enable gzip compression
+        gzip                    on;
+        gzip_http_version       1.0;
+        gzip_vary               on;
+        gzip_comp_level         2;
+        gzip_proxied            any;
+        gzip_types              text/plain text/css text/javascript application/javascript application/json application/x-javascript text/xml application/xml application/xml+rss;
+    }
+
+    # Proxy for external map data (if any)
+{% for domaene in domaenen|dictsort %}
+{% if domaene[1].proxy_map_data_url is defined and domaene[1].proxy_map_data_url %}
+    location /proxy_{{domaene[1].site_code}}/ {
+        #proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+
+        proxy_pass              {{ domaene[1].proxy_map_data_url }};
+        proxy_redirect          off;
+
+        proxy_cache             hopglass;
+        proxy_cache_valid       2m;
+
+        # enable gzip compression
+        gzip                    on;
+        gzip_http_version       1.0;
+        gzip_vary               on;
+        gzip_comp_level         4;
+        gzip_proxied            any;
+        gzip_types              text/plain text/css text/javascript application/javascript application/json application/x-javascript text/xml application/xml application/xml+rss;
+    }
+{% endif %}
+{% endfor %}
+
+    # Proxy for mapdata
+    location /data/ {
+        # mapdata for each domain, because hopglass can't handle args in uri
+{% for domaene in domaenen|dictsort %}
+        rewrite "^/data/map_{{domaene[0]}}/(.+)$" /$1?filter=site&value={{domaenen[domaene[0]].site_code}} break;
+{% endfor %}
+        #rewrite "^/data/map_([^/]+)/(.+)$" /$2?filter=site&value=$1 break;
+
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+
+        proxy_pass              http://127.0.0.1:4000/;
+        proxy_redirect          off;
+
+        proxy_cache             hopglass;
+        proxy_cache_valid       2m;
+
+        # enable gzip compression
+        gzip                    on;
+        gzip_http_version       1.0;
+        gzip_vary               on;
+        gzip_comp_level         4;
+        gzip_proxied            any;
+        gzip_types              text/plain text/css text/javascript application/javascript application/json application/x-javascript text/xml application/xml application/xml+rss;
+    }
+
+{% if nginx_tiles_cache is defined and 'instances' in nginx_tiles_cache %}
+{% for instance in nginx_tiles_cache.instances %}
+    # tiles cache for {{instance.name}}
+    location {{instance.location}} {
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+
+        proxy_pass              {{instance.dest_url}};
+        proxy_redirect          off;
+
+        proxy_cache             {{instance.cache_location_name}};
+        proxy_cache_valid       {{instance.valid_time}};
+    }
+{% endfor %}
+{% endif %}
+}

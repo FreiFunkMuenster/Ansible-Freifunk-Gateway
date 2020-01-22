@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en"><!-- Mit Ansible erzeugt - änderungen werden überschrieben -->
+<head>
+  <title>{{freifunk.name}} - Karten</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png?v=2">
+  <link rel="icon" type="image/png" href="/icons/favicon-32x32.png?v=2" sizes="32x32">
+  <link rel="icon" type="image/png" href="/icons/favicon-16x16.png?v=2" sizes="16x16">
+  <link rel="manifest" href="/icons/manifest.json?v=2">
+  <link rel="mask-icon" href="/icons/safari-pinned-tab.svg?v=2" color="#ffb400">
+  <link rel="shortcut icon" href="/icons/favicon.ico?v=2">
+  <meta name="apple-mobile-web-app-title" content="Freifunk">
+  <meta name="application-name" content="Freifunk">
+  <meta name="msapplication-config" content="/icons/browserconfig.xml?v=2">
+  <meta name="theme-color" content="#dc0067">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/ffms.css">
+</head>
+<body>
+	<div class="container">
+	  <div class="page-header">
+    <div class="row">
+      <div class="col-md-2 col-sm-3">
+        <img id="{{freifunk.kurzname}}-logo" src="logo.svg" class="img" alt="Logo {{freifunk.name}}">
+      </div>
+      <div class="col-md-10 col-sm-9">
+        <h2>Karten - {{freifunk.name}}
+    <br/><small>Karten der einzelnen Meshes und der Communities</small></h2>
+      </div>
+    </div>
+    </div>
+  </div>
+  <div class="container">
+  <div class="row">
+    <!-- Suchfeld und Links -->
+    <div class="col-md-4 col-sm-4 col-xs-12">
+        <form type="text" action="javascript:myScroll()"> 
+        <div class="input-group">
+          <!-- USE TWITTER TYPEAHEAD JSON WITH API TO SEARCH -->
+          <input class="form-control" id="system-search" 
+                name="q" placeholder="Suche nach" autofocus>
+            <span class="input-group-btn">
+                <button type="submit" id="searchbutton" class="btn btn-ffms">                
+                    <i class="glyphicon glyphicon-search"></i>
+                </button>
+            </span>
+          </input>
+        </div>
+        </form>
+      <br/>
+      <h4><strong><a href="map/">Gesamtkarte {{freifunk.name}}</a></strong></h4>
+      <p><a class="btn-ffms-collapse visible-xs" data-toggle="collapse" data-target="#narrow-results">&#187; Mehr Freifunk Links</a></p>
+      <div id="narrow-results" class="narrow-results collapse">
+{% if indexconfig.links is defined %}
+{% for link in indexconfig.links %}
+      <p><a href="{{link.link}}">{{link.name}}</a></p>
+{% endfor %}
+{% endif %}
+      </div>
+    </div>
+    <!-- Spalte mit Domänen -->
+    <div class="col-md-4 col-sm-4 col-xs-6">
+        <div class="ffms-align-center">
+        <table  class="table table-list-search table-hover">
+          <thead>
+            <tr>
+              <th>
+                  <div style=text-align:center><h4>Meshes</h4></div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Alle Domänen einfügen -->
+{% for domaene in domaenen|dictsort %}
+            <tr>
+              <td>
+                  <a href="map{{domaene[0]}}/">{{domaene[0]}} - {{domaene[1].name}}</a> 
+                  &ensp;
+{% if indexconfig.linktofwdownloader is defined %}
+                  <span class="small">
+                      <a class="ffms-muted" href="{{indexconfig.linktofwdownloader}}{{domaene[0]}}">Firmware </a>
+                  </span>
+{% endif %}
+              </td>
+            </tr>
+{% endfor %}
+          </tbody>
+        </table>
+        </div>
+    </div>
+    <!-- Spalte mit Gruppen -->
+{% set communities = domaenen | list | map('extract', domaenen, 'community') | list | unique | sort %}
+    <div class="col-md-4 col-sm-4 col-xs-6">
+        <div class="ffms-align-center">
+        <table class="table  table-list-search table-hover">
+          <thead>
+            <tr>
+              <th><div style=text-align:center><h4>Gruppen</h4></div></th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Alle Communities einfügen -->
+{% for community in communities %}
+{% if community != "None" %}
+            <tr>
+                <td><a Community href="map_{{community}}/">Community {{community}}</a><br/> <span class="ffms-muted">Meshes:</span>  
+{% for domaene in domaenen|dictsort %}
+{% if community == domaene[1].community %}
+                    <a href="map{{domaene[0]}}/">{{domaene[0]}}</a>
+{% endif %}
+{% endfor %}
+                </td>
+            </tr>
+ 
+{% endif %}
+{% endfor %}
+          </tbody>
+        </table>
+        </div>
+    </div>
+  </div>
+  </div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <!-- optional via CDN: <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"  </script> -->
+    <script src="js/bootstrap.min.js"></script> 
+    <script src="js/search.js"></script>
+    <script>
+        function myScroll(my) {
+        $('html, body').animate({
+            scrollTop: $(".table").offset().top
+            }, 200);
+        }
+    </script>
+</body>

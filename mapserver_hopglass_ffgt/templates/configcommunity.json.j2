@@ -1,0 +1,77 @@
+{% set map_domains = [] %}
+{% for domain in domaenen|dictsort %}
+{% if item == domain[1]['community'] %}
+{% if map_domains.append(domain) %}{% endif %}
+{% endif %}
+{% endfor %}
+{
+  "dataPath": [ {% for domain in map_domains %}{% if domaenen[domain[0]].proxy_map_data_url is defined and domaenen[domain[0]].proxy_map_data_url %}"/proxy_{{ domaenen[domain[0]].site_code }}/"{% else %}"/data/map_{{ domain[0] }}/"{% endif %}{% if not loop.last %},{% endif %}{% endfor %} ],
+  "siteName": "Karte {{item}}",
+  "mapSigmaScale": {{ mapconfig.communityMap.map_scale }},
+  "showContact": {{ mapconfig.communityMap.map_show_contact | lower}},
+  "maxAge": {{ mapconfig.communityMap.map_max_age }},
+{% if "max_goto_zoom" in mapconfig.communityMap %}
+  "maxGotoZoom": {{ mapconfig.communityMap.max_goto_zoom }},
+{% endif %}
+  "mapLayers": [
+{% for layer in mapconfig.layers %}
+    {
+      "name": "{{layer.name}}",
+      "url": "{{layer.url}}",
+      "config": {
+{% for k,v in layer.config|dictsort %}
+        "{{k}}": {% if v is number %}{{v}}{% else %}"{{v}}"{% endif %}{% if not loop.last %},{% endif %}
+
+{% endfor %}
+      }
+    }{% if not loop.last %},{% endif %}
+
+{% endfor %}
+  ],
+  "siteNames": [
+{% for domain in map_domains %}
+    { "site": "{{domain[1].site_code}}", "name": "Mesh {{domain[0]}} - {{domain[1].name}}" }{% if not loop.last %},{% endif %}
+
+{% endfor %}
+  ],
+{% if mapconfig.globalInfos is defined %}
+  "globalInfos": [
+{% for globalInfo in mapconfig.globalInfos %}
+    { "name": "{{ globalInfo.name }}",{% if globalInfo.href is defined %}
+
+      "href": "{{ globalInfo.href }}",{% endif %}{% if globalInfo.iframe is defined %}
+
+      "iframe": "{{ globalInfo.iframe }}"{% endif %}{% if globalInfo.thumbnail is defined %}
+
+      "thumbnail": "{{ globalInfo.thumbnail }}"{% endif %}{% if globalInfo.caption is defined %},
+      "caption": "{{ globalInfo.caption }}"{% endif %}
+
+    }{% if not loop.last %},{% endif %}
+
+{% endfor %}
+  ],
+{% endif %}
+{% if mapconfig.nodeInfos is defined %}
+  "nodeInfos": [
+{% for nodeInfo in mapconfig.nodeInfos %}
+    { "name": "{{ nodeInfo.name }}",{% if nodeInfo.href is defined %}
+
+      "href": "{{ nodeInfo.href }}",{% endif %}{% if nodeInfo.iframe is defined %}
+
+      "iframe": "{{ nodeInfo.iframe }}"{% endif %}{% if nodeInfo.thumbnail is defined %}
+
+      "thumbnail": "{{ nodeInfo.thumbnail }}"{% endif %}{% if nodeInfo.caption is defined %},
+      "caption": "{{ nodeInfo.caption }}"{% endif %}
+
+    }{% if not loop.last %},{% endif %}
+
+{% endfor %}
+  ],
+{% endif %}
+  "hwImg": [
+    {
+      "thumbnail": "/hwpics/{MODELHASH}.svg",
+      "caption": "Knoten {MODELHASH}"
+    }
+  ]
+}
