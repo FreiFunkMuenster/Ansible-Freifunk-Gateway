@@ -7,11 +7,17 @@ echo "------------------------------------------------------------------START---
 echo "Date: $(date) Backup: $(hostname) to $REPOSITORY"
 echo "-----------------------------------------------------------------------------------------------------------------------------------------"
 
+{% if item.prebackupcommands is defined %}
+{% for prebackupcommand in item.prebackupcommands %}
+{{prebackupcommand}}
+{% endfor %}
+{% endif %}
+
 {% if item.mysqldatabases is defined %}
 mkdir -p /root/mysqlbackup/
 {% for db in item.mysqldatabases %}
 echo "Dumping {{db}} mysql DB"
-mysqldump --defaults-file=/etc/mysql/debian.cnf -v {{db}} > /root/mysqlbackup/backup-{{db}}-db-{{ item.name }}.sql
+mysqldump --defaults-file=/etc/mysql/debian.cnf {% if item.mysqlparameters is defined %}{% for parameter in item.mysqlparameters %}{{parameter}}{% if not loop.last %} {% endif %}{% endfor %}{% endif %} -v {{db}} > /root/mysqlbackup/backup-{{db}}-db-{{ item.name }}.sql
 {% endfor %}
 {% endif %}
 
@@ -48,6 +54,12 @@ echo "Borg create"
 {% if item.pgsqldumpall is defined and item.pgsqldumpall %}
 
         /root/pgsqlbackup/dumpall_backup-{{ item.name }}.pgsql
+{% endif %}
+
+{% if item.postbackupcommands is defined %}
+{% for postbackupcommand in item.postbackupcommands %}
+{{postbackupcommand}}
+{% endfor %}
 {% endif %}
 {% if item.borg_prune is defined %}
 
