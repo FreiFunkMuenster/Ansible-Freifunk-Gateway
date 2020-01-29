@@ -17,7 +17,7 @@
 - name: Get all enabled fastd instances
   shell: |
     set -o pipefail
-    /bin/ls /etc/systemd/system/multi-user.target.wants/fastd@* | grep -oE "[0-9]+"
+    /bin/ls -1 /etc/systemd/system/multi-user.target.wants/fastd@* | sed -n 's/fastd@\([0-9][0-9]*\)\.service/\1/p'
   args:
     executable: bash
   changed_when: False
