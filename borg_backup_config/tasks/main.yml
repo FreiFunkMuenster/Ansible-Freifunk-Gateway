@@ -1,31 +1,59 @@
-- name: Crate repokey on remotehost
-  shell: 'date +%s | sha256sum | base64 | head -c 32 > /root/backup-{{ item.name }}.repokey'
+# Store Repokey on remote host
+## If required repokey is not in inventory:  Create one on remote host and copy it back to the ansible controller
+- name: Generate new repokey on remote host
+  shell: |
+    set -o pipefail
+    date +%s | sha256sum | base64 | head -c 32 > /root/backup-{{ item.name }}.repokey
   args:
-    creates: /root/backup-{{ item.name }}.repokey  
+    executable: bash
+    creates: /root/backup-{{ item.name }}.repokey
   with_items: '{{ borg_backups }}'
+  when: item.backup_server_passphrase is undefined
+
+- name: Copy repokeys from remote host to Ansible controller
+  fetch:
+    src: /root/backup-{{ item.name }}.repokey
+    dest: keyfiles/borg/{{ inventory_hostname }}-{{ item.name }}.repokey
+    flat: yes
+  with_items: '{{ borg_backups }}'
+  when: item.backup_server_passphrase is undefined
+
+## If required repokey is in inventory: Store it on the remote host
+- name: Store repokey from inventory on remote host
+  copy:
+    content: "{{ item.backup_server_passphrase }}"
+    dest: /root/backup-{{ item.name }}.repokey
+  with_items: '{{ borg_backups }}'
+  when: item.backup_server_passphrase is defined
+
+##
 
 - name: Adjust permissions of repokeys
   file:
     path: /root/backup-{{ item.name }}.repokey
     mode: 0600
   with_items: '{{ borg_backups }}'
+  ignore_errors: '{{ ansible_check_mode }}'
 
-- name: Get repokeys from remote host.
-  fetch:
+- name: Get repokeys from remote host
+  slurp:
     src: /root/backup-{{ item.name }}.repokey
-    dest: keyfiles/borg/{{ inventory_hostname }}-{{ item.name }}.repokey
-    flat: yes
+  register: repokey
   with_items: '{{ borg_backups }}'
+  ignore_errors: '{{ ansible_check_mode }}'
 
 - name: Create Repo on Backuptarget
-  shell: borg init --encryption=repokey-blake2 ssh://{{ item.backup_server_user }}@{{ item.backup_server }}:{{ item.backup_server_port }}/./{{ ansible_hostname }}-bkp && touch /root/.repo-{{ item.name }}-created
+  shell: borg init --encryption=repokey-blake2 \
+           ssh://{{ item.item.backup_server_user }}@{{ item.item.backup_server }}:{{ item.item.backup_server_port }}/./{{ item.item.backup_server_path | default(ansible_hostname + "-bkp") }} \
+           && touch /root/.repo-{{ item.item.name }}-created
   args:
-    creates: /root/.repo-{{ item.name }}-created
+    creates: /root/.repo-{{ item.item.name }}-created
   environment:
-    BORG_PASSPHRASE: "{{ lookup('file', 'keyfiles/borg/' + inventory_hostname + '-' + item.name + '.repokey') }}"
+    BORG_PASSPHRASE: "{{ item['content'] | b64decode }}"
     BORG_DISPLAY_PASSPHRASE: 'no'
-    BORG_RSH: 'ssh -o "StrictHostKeyChecking no" -i /root/.ssh/id_rsa_borg'
-  with_items: '{{ borg_backups }}'
+    BORG_RSH: 'ssh -o "StrictHostKeyChecking no" -o "PasswordAuthentication no" -i /root/.ssh/id_rsa_borg'
+  with_items: '{{ repokey.results }}'
+  ignore_errors: '{{ ansible_check_mode }}'
 
 - name: Create backup scripts
   template: src=backup.j2 dest=/usr/bin/backup-{{ item.name }} mode=0700
@@ -36,8 +64,14 @@
     name: borg backup-{{ item.name }}
     job: /usr/bin/backup-{{ item.name }} >> /var/log/backup-{{ item.name }}.log 2>&1
     day: '*'
-    hour: 4
-    minute: 30
+    hour: '4'
+    minute: '30'
     state: present
     user: root
+  with_items: '{{ borg_backups }}'
+
+- name: Configure logrotate
+  template:
+    src: logrotate-borgbackup.j2
+    dest: /etc/logrotate.d/borgbackup-cron-{{ item.name }}
   with_items: '{{ borg_backups }}'
