@@ -9,3 +9,19 @@ apply Service "web-tls-cert" {
     vars.http_certificate =		"14,7"			# cert expires <7 days: CRIT, <14 days: WARN
     assign where host.vars.vhost && host.vars.webpage
 }
+
+{% for item in groups['all'] %}
+{% if hostvars[item].borg_backups is defined %}
+{% for repo in hostvars[item].borg_backups %}
+apply Service "borg-backup-{{ repo.name }}" {
+    import "generic-service"
+    display_name =			"Borg: {{ repo.name }}"
+    check_command =			"nrpe2"
+    vars.nrpe_command =			"check_borg-{{ repo.name }}"
+    check_interval =			1h
+    retry_interval =			10m
+    assign where host.name == "{{ item }}"
+}
+{% endfor %}
+{% endif %}
+{% endfor %}

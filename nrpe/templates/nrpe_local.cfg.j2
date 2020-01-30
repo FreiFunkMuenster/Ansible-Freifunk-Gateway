@@ -32,6 +32,7 @@ command[check_collectd]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C colle
 command[check_pyrespondd]=/usr/lib/nagios/plugins/check_systemd_service py-respondd
 command[check_respondd]=/usr/lib/nagios/plugins/check_systemd_service respondd
 command[check_tunneldigger]=/usr/lib/nagios/plugins/check_tunneldigger
+command[check_fastd]=/usr/lib/nagios/plugins/check_fastd
 command[check_dhcp-server]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C kea-dhcp4
 command[check_isc-dhcp-server]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C dhcpd
 command[check_isc-dhcp-server-leases]=/usr/bin/dhcpd-pools -c /etc/dhcp/dhcpd.conf -l /var/lib/dhcp/dhcpd.leases --warning=80 --critical=90 --perfdata
@@ -68,3 +69,11 @@ command[check_batip_{{domaene[0]}}]=/usr/lib/nagios/plugins/check_batip -D {{dom
 #command[check_FFTesterV6_{{domaene[0]}}]=sudo /root/gits/tools/Freifunk-Tester/icinga_reporter.sh {{freifunk.kurzname}}d{{domaene[0]}} IPv6-ping-test-to-google.de random
 # {% endfor %}
 #{% endif %}
+
+{% if borg_backups is defined %}
+## Borg Backups
+{% for repo in borg_backups %}
+command[check_borg-{{ repo.name }}]=sudo /usr/lib/nagios/plugins/check_borg "{{ repo.name }}" "ssh://{{ repo.backup_server_user }}@{{ repo.backup_server }}:{{ repo.backup_server_port }}/./{{ repo.backup_server_path | default(ansible_hostname + "-bkp") }}" 
+{% endfor %}
+{% endif %}
+
