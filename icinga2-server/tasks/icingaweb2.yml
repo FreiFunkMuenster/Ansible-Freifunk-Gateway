@@ -1,0 +1,111 @@
+### Ansible Prerequisites
+- name: Install python3-passlib (required by Ansible)
+  apt:
+    pkg: [ 'python3-passlib' ]
+
+- name: Install IcingaWeb2
+  apt:
+    pkg: [ 'icingaweb2', 'apache2' ]
+    state: present
+
+### IDO
+- name: Read ido-mysql.conf
+  slurp:
+    src: '/etc/icinga2/features-enabled/ido-mysql.conf'
+  register: icinga2_ido_db_conf_file
+
+- name: Extract icinga2 ido database password from ido-mysql.conf
+  set_fact:
+    icinga2_ido_db_pw: "{{ icinga2_ido_db_conf_file['content'] | b64decode | regex_findall('password = \"(.+)\"') | first }}"
+
+- name: Configure connection to IDO database
+  template:
+    src: 'icingaweb2/resources.ini.j2'
+    dest: '/etc/icingaweb2/resources.ini'
+    owner: 'www-data'
+    group: 'icingaweb2'
+    mode: '0640'
+
+### Monitoring Module
+- name: Install IcingaWeb2 monitoring module
+  apt:
+    pkg: [ 'icingaweb2-module-monitoring' ]
+    state: present
+
+- name: Create enabledModules directory
+  file:
+    path: '/etc/icingaweb2/enabledModules'
+    state: directory
+    owner: 'www-data'
+    group: 'icingaweb2'
+    mode: '2750'
+
+- name: Enable IcingaWeb2 monitoring module
+  file:
+    src: '/usr/share/icingaweb2/modules/monitoring'
+    dest: '/etc/icingaweb2/enabledModules/monitoring'
+    state: link
+
+- name: Configure IcingaWeb2 monitoring module
+  copy:
+    src: 'icingaweb2/modules/monitoring/'
+    dest: '/etc/icingaweb2/modules/monitoring'
+    owner: 'www-data'
+    group: 'icingaweb2'
+    mode: '0660'
+    directory_mode: '2770'
+
+### Enable IcingaWeb2 in Apache
+- name: Enable IcingaWeb2 in Apache
+  file:
+    src: '/etc/apache2/conf-available/icingaweb2.conf'
+    dest: '/etc/apache2/conf-enabled/icingaweb2.conf'
+    state: link
+  notify: reload apache2
+
+### Authentication
+- name: Configure basic authentication in Apache
+  copy:
+    src: 'apache2-icingaweb2-local.conf'
+    dest: '/etc/apache2/conf-enabled/icingaweb2-local.conf'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify: reload apache2
+
+- name: Create htpasswd file
+  htpasswd:
+    path: '/etc/icingaweb2/.http-users'
+    name: '{{ item.user }}'
+    password: '{{ item.pw }}'
+    owner: 'root'
+    group: 'www-data'
+    mode: '0640'
+  with_items: "{{ icinga2.userliste }}"
+  when: item.user is defined and item.pw is defined
+
+- name: Configure IcingaWeb2 to use Apache authentication provider
+  copy:
+    src: 'icingaweb2/authentication.ini'
+    dest: '/etc/icingaweb2/authentication.ini'
+    owner: 'www-data'
+    group: 'icingaweb2'
+    mode: '0640'
+
+### Logging
+- name: Configure logging
+  copy:
+    src: 'icingaweb2/config.ini'
+    dest: '/etc/icingaweb2/config.ini'
+    owner: 'www-data'
+    group: 'icingaweb2'
+    mode: '0640'
+
+### Users
+- name: Configure user roles
+  template:
+    src: 'icingaweb2/roles.ini.j2'
+    dest: '/etc/icingaweb2/roles.ini'
+    owner: 'www-data'
+    group: 'icingaweb2'
+    mode: '0640'

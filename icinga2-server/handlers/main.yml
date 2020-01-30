@@ -1,0 +1,11 @@
+---
+
+- name: restart icinga2
+  service:
+    name: icinga2
+    state: restarted
+
+- name: reload apache2
+  service:
+    name: apache2
+    state: reloaded
