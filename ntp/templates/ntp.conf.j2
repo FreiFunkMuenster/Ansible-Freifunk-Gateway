@@ -48,9 +48,8 @@ server 3.debian.pool.ntp.org iburst
 # By default, exchange time with everybody, but don't allow configuration.
 # restrict -4 default kod notrap nomodify nopeer noquery
 # restrict -6 default kod notrap nomodify nopeer noquery
-restrict -4 default ignore
-restrict -6 default ignore
-
+restrict -4 default kod limited nomodify notrap nopeer noquery
+restrict -6 default kod limited nomodify notrap nopeer noquery
 
 # Local users may interrogate the ntp server more closely.
 restrict 127.0.0.1
