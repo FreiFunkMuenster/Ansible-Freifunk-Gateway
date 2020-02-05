@@ -74,4 +74,4 @@
   template:
     src: logrotate-borgbackup.j2
     dest: /etc/logrotate.d/borgbackup-cron-{{ item.name }}
-  whith_items: '{{ borg_backups }}'
+  with_items: '{{ borg_backups }}'
