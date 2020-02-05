@@ -80,12 +80,12 @@ COUNTOK=0
 
 for a in $CHECKIP ; do
   #echo $IPBASE$a
-  ping  -c 1 $IPBASE$a > /dev/null && COUNTOK=$[COUNTOK+1] 
+  ping  -c 1 -W 1 $IPBASE$a > /dev/null && COUNTOK=$[COUNTOK+1] 
 done
 
 #echo es antworten $COUNTOK IPs 
 
-if [ $COUNTOK -le $COUNTREQUIRED ]; then
+if [ $COUNTOK -lt $COUNTREQUIRED ]; then
   echo "CRITICAL: Es antworten nur $COUNTOK der Domain-IPs $CHECKIP"
   exit $STATE_CRITICAL
 else
