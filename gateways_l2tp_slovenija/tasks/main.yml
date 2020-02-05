@@ -26,7 +26,7 @@
     repo: https://github.com/wlanslovenija/tunneldigger
     dest: /srv/tunneldigger
     update: yes
-#    version: 18f365f329795400f4d7a101a6d45bc859100144
+    version: f5bb0efb19468e8dfd0726b40c1431f5c526b3b7
   when: domaenenliste is defined
   tags:
     - skip_ansible_lint
