@@ -21,11 +21,23 @@ freifunk			IN      A       {{domaenen[item].ffv4_network | ipaddr(1) | ipaddr('a
 freifunk			IN      AAAA    {{domaenen[item].ffv6_network | ipaddr(1) | ipaddr('address')}}
 {% if freifunk.ffnet_dns_entries_for_internal_tld is defined -%}
 {% for entry in freifunk.ffnet_dns_entries_for_internal_tld %}
-{% if freifunk.ffnet_dns_entries_for_internal_tld[entry].A is defined -%}
-{{entry}}	IN	A	{{freifunk.ffnet_dns_entries_for_internal_tld[entry].A}}
-{% endif -%} 
-{% if freifunk.ffnet_dns_entries_for_internal_tld[entry].AAAA is defined -%}
-{{entry}}	IN	AAAA	{{freifunk.ffnet_dns_entries_for_internal_tld[entry].AAAA}}
-{% endif -%}
+{% if freifunk.ffnet_dns_entries_for_internal_tld[entry].A is defined %}
+{% if freifunk.ffnet_dns_entries_for_internal_tld[entry].A is string %}
+{{entry}}	IN	A	{{ freifunk.ffnet_dns_entries_for_internal_tld[entry].A }}
+{% elif freifunk.ffnet_dns_entries_for_internal_tld[entry].A is iterable %}
+{% for subentry in freifunk.ffnet_dns_entries_for_internal_tld[entry].A %}
+{{entry}}	IN	A	{{subentry}}
 {% endfor %}
 {% endif %}
+{% endif %}
+{% if freifunk.ffnet_dns_entries_for_internal_tld[entry].AAAA is defined %}
+{% if freifunk.ffnet_dns_entries_for_internal_tld[entry].AAAA is string %}
+{{entry}}	IN	AAAA	{{ freifunk.ffnet_dns_entries_for_internal_tld[entry].AAAA }}
+{% elif freifunk.ffnet_dns_entries_for_internal_tld[entry].AAAA is iterable %}
+{% for subentry in freifunk.ffnet_dns_entries_for_internal_tld[entry].AAAA %}
+{{entry}}	IN	AAAA	{{subentry}}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif -%}
