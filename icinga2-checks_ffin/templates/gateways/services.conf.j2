@@ -22,12 +22,13 @@ object Service "zombie procs" {
   vars.nrpe_command = "check_zombie_procs"
 }
 
-object Service "Total Procs" {
-  import "generic-service"
-  host_name = "{{ item }}"
-  check_command = "nrpe2"
-  vars.nrpe_command = "check_total_procs"
-}
+# Abgeschalten, da wir aktuell auf GW2 Docker samt Nginx usw. am laufen haben, die sehr viele Prozesse erzeugen
+#object Service "Total Procs" {
+#  import "generic-service"
+#  host_name = "{{ item }}"
+#  check_command = "nrpe2"
+#  vars.nrpe_command = "check_total_procs"
+#}
 
 object Service "Disk" {
   import "generic-service"
