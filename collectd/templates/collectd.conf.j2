@@ -620,7 +620,7 @@ LoadPlugin write_graphite
 {% endfor %}
 {% if hosts|length and hosts.pop() %}
 {% endif %}
-{% for host in groups['mapserver'] %}
+{% for host in groups['mapserver']|default([]) %}
 {% if hosts.append(host) %}
 {% endif %}
 {% endfor %}
