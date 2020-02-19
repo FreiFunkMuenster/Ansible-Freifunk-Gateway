@@ -1,0 +1,38 @@
+#!/bin/bash
+
+PLUGINDIR=$(dirname $0)
+. $PLUGINDIR/utils.sh
+
+if [ -e /lib/systemd/system/fastd@.service ] ; then
+        domains=$(/bin/ls /etc/systemd/system/multi-user.target.wants/fastd@* | grep -oE "[0-9]+")
+fi
+
+
+if [ -e /etc/systemd/system/fastd.service ] ; then
+        systemctl --quiet is-active fastd.service
+        if [ $? -ne 0 ]; then
+                echo "ERROR: service fastd is not running"
+                exit $STATE_CRITICAL
+        else
+                echo "OK: service fastd is running"
+                exit $STATE_OK
+        fi
+fi
+
+ERROR_IN_DOM=''
+if [ -e /lib/systemd/system/fastd@.service ] ; then
+        for domain in $domains ; do
+                systemctl --quiet is-active fastd@${domain}.service
+                if [ $? -ne 0 ] ; then
+                        ERROR_IN_DOM="$ERROR_IN_DOM $domain"
+                fi
+        done
+
+        if  [[ $ERROR_IN_DOM == '' ]] ; then
+                echo "OK: service fastd is running"
+                exit $STATE_OK
+        else
+                echo "ERROR: service fastd is not running in Dom: $ERROR_IN_DOM"
+                exit $STATE_CRITICAL
+        fi
+fi
