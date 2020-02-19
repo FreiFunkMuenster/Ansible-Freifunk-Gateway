@@ -69,3 +69,11 @@ command[check_batip_{{domaene[0]}}]=/usr/lib/nagios/plugins/check_batip -D {{dom
 #command[check_FFTesterV6_{{domaene[0]}}]=sudo /root/gits/tools/Freifunk-Tester/icinga_reporter.sh {{freifunk.kurzname}}d{{domaene[0]}} IPv6-ping-test-to-google.de random
 # {% endfor %}
 #{% endif %}
+
+{% if borg_backups is defined %}
+## Borg Backups
+{% for repo in borg_backups %}
+command[check_borg-{{ repo.name }}]=sudo /usr/lib/nagios/plugins/check_borg "{{ repo.name }}" "ssh://{{ repo.backup_server_user }}@{{ repo.backup_server }}:{{ repo.backup_server_port }}/./{{ repo.backup_server_path | default(ansible_hostname + "-bkp") }}" 
+{% endfor %}
+{% endif %}
+

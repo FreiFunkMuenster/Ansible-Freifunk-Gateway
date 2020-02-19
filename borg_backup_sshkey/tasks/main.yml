@@ -5,7 +5,7 @@
     ssh_key_bits: 2048
     ssh_key_file: /root/.ssh/id_rsa_borg
 
-- name: Get /root/.ssh/id_rsa_borg.pub from remote host.
+- name: Get /root/.ssh/id_rsa_borg.pub from remote host
   fetch:
     src: /root/.ssh/id_rsa_borg.pub
     dest: keyfiles/borg/{{ inventory_hostname }}.pub

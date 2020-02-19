@@ -14,7 +14,7 @@
     state: present
 
 - name: create home directory if nessesary and audjust permissions
-  file: 
+  file:
     name: "/home/{{ borg_backup_target.config.backup_user }}"
     state: directory
     owner: '{{ borg_backup_target.config.backup_user }}'
@@ -38,14 +38,14 @@
     mode: 0700
 
 - name: deploy authorized keys
-  authorized_key: 
+  authorized_key:
     user: '{{ borg_backup_target.config.backup_user }}'
     key: "{{ lookup('file', 'keyfiles/borg/' + item + '.pub') }}"
     key_options: 'command="cd {{ borg_backup_target.config.path_to_repo_pool }}/{{ item }};borg serve --restrict-to-path {{ borg_backup_target.config.path_to_repo_pool }}/{{ item }}",no-port-forwarding,no-X11-forwarding,no-pty,no-agent-forwarding,no-user-rc'
   with_items: '{{ borg_backup_target.target_for }}'
 
 - name: audjust permissions of authorized_keys
-  file: 
+  file:
     name: "/home/{{ borg_backup_target.config.backup_user }}/.ssh/authorized_keys"
     owner: '{{ borg_backup_target.config.backup_user }}'
     group: '{{ borg_backup_target.config.backup_group }}'
