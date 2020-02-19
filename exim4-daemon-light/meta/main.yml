@@ -1,0 +1,22 @@
+galaxy_info:
+  author: citronalco
+  min_ansible_version: 2.2
+  license: GPLv3
+  platforms:
+    - name: Debian
+      versions:
+      - 10
+  description: |
+    Installiert den Mailserver exim4-daemon-light
+
+    E-Mails werden nur von localhost akzeptiert und dann an den in der Variable "mail" angegebenen SMTP-Server weitergeleitet.
+    Beispiel:
+
+    mail:
+      senderemail: icinga2@example.com
+      smtp: mail.foo.bar
+      user: benutzername
+      pw: geheim
+
+    Als Absenderadresse wird "icinga2@example.com" verwendet.
+    Zur Authentifizierung am SMTP-Server "mail.foo.bar" wird der Benutzername "benutzername" und das Passwort "geheim" benutzt.
