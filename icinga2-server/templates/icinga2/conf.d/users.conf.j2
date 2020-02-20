@@ -1,0 +1,16 @@
+# {{ ansible_managed }}
+
+object UserGroup "freifunk_admins" {
+  display_name = "Freifunk-Adminstratoren"
+}
+
+{% for item in icinga2.userliste | default() | selectattr('email','defined') %}
+object User "{{ item.user | default(item.email) }}" {
+  import "generic-user"
+  groups = ["freifunk_admins"]
+
+  display_name = "{{ item.user | default(item.email) }}"
+  email = "{{ item.email }}"
+}
+
+{% endfor %}

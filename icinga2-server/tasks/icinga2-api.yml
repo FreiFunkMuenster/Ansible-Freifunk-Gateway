@@ -1,0 +1,57 @@
+### API-Module
+- name: Configure hostname for certificates
+  lineinfile:
+    dest: /etc/icinga2/constants.conf
+    regexp: '^const NodeName\s*='
+    line: 'const NodeName = "{{ ansible_hostname }}"'
+  notify: restart icinga2
+
+- name: Create Icinga2 API CA directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: nagios
+    group: nagios
+    mode: "0700"
+  with_items:
+    - '/var/lib/icinga2/ca'
+    - '/var/lib/icinga2/certs'
+
+- name: Create Icinga2 API CA
+  command:
+    cmd: icinga2 pki new-ca
+    creates: '{{ item.creates }}'
+  loop:
+    - creates: '/var/lib/icinga2/ca/ca.key'
+    - creates: '/var/lib/icinga2/ca/ca.crt'
+  notify: restart icinga2
+
+- name: Generate CSR
+  command:
+    cmd: icinga2 pki new-cert \
+      --cn {{ ansible_hostname }} --key /var/lib/icinga2/certs/{{ ansible_hostname }}.key --csr /var/lib/icinga2/certs/{{ ansible_hostname }}.csr
+    creates: '{{ item.creates }}'
+  loop:
+    - creates: '/var/lib/icinga2/certs/{{ ansible_hostname }}.key'
+    - creates: '/var/lib/icinga2/certs/{{ ansible_hostname }}.csr'
+  notify: restart icinga2
+
+- name: Sign CSR and create certifiate
+  command:
+    cmd: icinga2 pki sign-csr --csr /var/lib/icinga2/certs/{{ ansible_hostname }}.csr --cert /var/lib/icinga2/certs/{{ ansible_hostname }}.crt
+    creates: '/var/lib/icinga2/certs/{{ ansible_hostname }}.crt'
+  notify: restart icinga2
+
+- name: Copy CA certificate
+  copy:
+    remote_src: yes
+    src: '/var/lib/icinga2/ca/ca.crt'
+    dest: '/var/lib/icinga2/certs/ca.crt'
+  notify: restart icinga2
+
+- name: Enable Icinga2 API module
+  file:
+    src: '../features-available/api.conf'
+    dest: '/etc/icinga2/features-enabled/api.conf'
+    state: link
+  notify: restart icinga2

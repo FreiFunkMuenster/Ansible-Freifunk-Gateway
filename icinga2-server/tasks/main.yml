@@ -1,0 +1,34 @@
+- import_tasks: icinga2.yml
+  tags:
+    - 'role::icinga2'
+
+- import_tasks: icinga2-api.yml
+  when: icinga2.api is defined and icinga2.api
+  tags:
+    - 'role::icinga2-api'
+
+- name: Disable Icinga2 API module
+  when: icinga2.api is undefined or not icinga2.api
+  file:
+    path: '/etc/icinga2/features-enabled/api.conf'
+    state: absent
+  notify: restart icinga2
+
+- import_tasks: icingaweb2.yml
+  when: icinga2.icingaweb2 is defined and icinga2.icingaweb2
+  tags:
+    - 'role::icingaweb2'
+
+- name: Disable IcingaWeb2 Apache configuration
+  when: icinga2.icingaweb2 is undefined or not icinga2.icingaweb2
+  file:
+    path: '/etc/apache2/conf-enabled/icingaweb2.conf'
+    state: absent
+  notify: reload apache2
+
+- name: Disable IcingaWeb2 Apache authentication
+  when: icinga2.icingaweb2 is undefined or not icinga2.icingaweb2
+  file:
+    path: '/etc/apache2/conf-enabled/icingaweb2-local.conf'
+    state: absent
+  notify: reload apache2
