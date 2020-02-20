@@ -1,8 +1,8 @@
 ---
 
-- name: Restart ntpd
+- name: Restart chrony
   systemd:
-    name: ntp
+    name: chrony
     state: restarted
 
 - name: reread systemd configs
