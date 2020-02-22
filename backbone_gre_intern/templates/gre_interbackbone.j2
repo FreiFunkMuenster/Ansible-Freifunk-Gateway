@@ -14,11 +14,12 @@ iface bck-{{host}} inet static
         pre-up ip link set $IFACE up multicast on
         post-up ip rule add iif $IFACE table ffnet
         pre-down ip rule del iif $IFACE table ffnet ||:
+
 iface bck-{{host}} inet6 static
 {% if hostvars[host].vm_id < vm_id %}
-        address 2a03:2260:115:ffa1::{{hostvars[host].vm_id}}:{{vm_id}}:0
+        address {{ipv6backbone64prefixstr}}{{hostvars[host].vm_id}}:{{vm_id}}:0
 {% else %}
-        address 2a03:2260:115:ffa1::{{vm_id}}:{{hostvars[host].vm_id}}:1
+        address {{ipv6backbone64prefixstr}}{{vm_id}}:{{hostvars[host].vm_id}}:1
 {% endif %}
         netmask 127
         post-up ip -6 rule add iif $IFACE table ffnet
