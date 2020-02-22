@@ -6,25 +6,30 @@
     state: stopped
     masked: yes
 
-- name: Install ntp
+- name: Uninstall ntp
   apt:
     name: ntp
+    state: absent
 
-- name: Install ntp.conf
+- name: Install chrony
+  apt:
+    name: chrony
+
+- name: Install chrony.conf
   template:
     src: ntp.conf.j2
-    dest: /etc/ntp.conf
-  notify: Restart ntpd
+    dest: /etc/chrony/chrony.conf
+  notify: Restart chrony
 
-- name: create folder for ntp service override file
+- name: create folder for chrony service override file
   file:
-    path: /etc/systemd/system/ntp.service.d
+    path: /etc/systemd/system/chrony.service.d
     state: directory
     mode: 0755
 
-- name: override ntp service
+- name: override chrony service
   template:
-    src: ntp.service.override.j2
-    dest: /etc/systemd/system/ntp.service.d/ansible-managed.conf
+    src: chrony.service.override.j2
+    dest: /etc/systemd/system/chrony.service.d/ansible-managed.conf
   notify:
     - reread systemd configs

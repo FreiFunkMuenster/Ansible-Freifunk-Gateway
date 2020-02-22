@@ -1,5 +1,18 @@
 ---
 
+- name: check if service for Kea dhcpd exists
+  command: "systemctl cat kea-dhcp4.service"
+  register: kea_dhcp4_exists
+  failed_when: not (kea_dhcp4_exists.rc == 0 or kea_dhcp4_exists.rc == 1)
+  changed_when: false
+
+- name: stop and disable Kea dhcpd
+  systemd:
+    name: kea-dhcp4.service
+    state: stopped
+    enabled: no
+  when: kea_dhcp4_exists.rc == 0
+
 - name: install requirements
   apt: pkg=rsync state=present
 
@@ -33,7 +46,7 @@
 - name: install isc-dhcp-server
   apt: pkg=isc-dhcp-server state=present
 
-- name: create dhcp defaults 
+- name: create dhcp defaults
   template: src=isc-dhcp-server.j2 dest=/etc/default/isc-dhcp-server
   notify:
     - restart isc-dhcp-server
@@ -42,9 +55,6 @@
   template: src=dhcpd.conf.j2 dest=/etc/dhcp/dhcpd.conf
   notify:
     - restart isc-dhcp-server
-
-- stat: path=/var/lib/dhcp/dhcpd.leases
-  register: leases4_file
 
 - name: create folder for isc-dhcp-server service override file
   file: path=/etc/systemd/system/isc-dhcp-server.service.d state=directory mode=0755

@@ -1,7 +1,7 @@
 - name: Install dependencies for this role
   apt:
-    pkg: ['git', 'libnetfilter-conntrack-dev', 'libnfnetlink-dev', 'python-dev', 'python-virtualenv', 'gcc',
-      'libnl-3-dev', 'libffi-dev', 'libevent-dev', 'libnetfilter-conntrack3', 'bridge-utils', 'ebtables', 'iproute2']
+    pkg: ['git', 'libnetfilter-conntrack-dev', 'libnfnetlink-dev', 'python3-dev', 'python-virtualenv', 'gcc',
+      'libnl-3-dev', 'libevent-dev', 'bridge-utils', 'ebtables', 'iproute2']
   when: domaenenliste is defined
 
 - name: Get all enabled tunneldigger (domain specific) instances
@@ -33,17 +33,19 @@
 
 - name: generate virtualenv.
   command:
-    "virtualenv env_tunneldigger"
+    "virtualenv -p /usr/bin/python3 env_tunneldigger"
   args:
     chdir: /srv/tunneldigger/
     creates: "/srv/tunneldigger/env_tunneldigger/bin/python"
   when: domaenenliste is defined
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Install python dependencies
   command: "/srv/tunneldigger/env_tunneldigger/bin/python setup.py install"
   args:
     chdir: /srv/tunneldigger/broker
   when: domaenenliste is defined
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Deploy addif.sh for each domain
   template: src=addif.sh.j2 dest="/srv/tunneldigger/broker/scripts/addif_domain{{ item.key }}.sh" mode=0755

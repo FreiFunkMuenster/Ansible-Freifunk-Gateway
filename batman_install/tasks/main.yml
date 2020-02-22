@@ -47,4 +47,3 @@
 - include: install-legacy-src.yml
   when: (batman.version is defined and batman.version == "2013.4.0") and
         (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman.version)
-
