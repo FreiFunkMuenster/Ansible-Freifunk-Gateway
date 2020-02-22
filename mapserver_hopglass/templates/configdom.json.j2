@@ -1,6 +1,10 @@
 {
-  "dataPath": "/data/map_{{freifunk.kurzname}}d{{item[0]}}/",
-  "siteName": "{% if item[1].community is defined %}Freifunk {{item[1].community}}{% else %}{{freifunk.name}}{% endif %} - Domäne {{item[1].name}}",
+{% if item[1].proxy_map_data_url is defined and item[1].proxy_map_data_url %}
+  "dataPath": "/proxy_{{item[1].site_code}}/",
+{% else %}
+  "dataPath": "/data/map_{{item[0]}}/",
+{% endif %}
+  "siteName": "{% if item[1].community is defined %}Karte {{item[1].community}}{% else %}{{freifunk.name}}{% endif %} - Mesh {{item[1].name}}",
   "mapSigmaScale": {{item[1].map_scale}},
   "showContact": {{item[1].map_show_contact | lower}},
   "maxAge": {{item[1].map_max_age}},
@@ -23,7 +27,7 @@
 {% endfor %}
   ],
   "siteNames": [
-    { "site": "{{freifunk.kurzname}}d{{item[0]}}", "name": "Domäne {{item[0]}} - {{item[1].name}}" }
+    { "site": "{{item[1].site_code}}", "name": "Mesh {{item[0]}} - {{item[1].name}}" }
   ],
 {% if mapconfig.globalInfos is defined %}
   "globalInfos": [

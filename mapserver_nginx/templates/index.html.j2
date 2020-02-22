@@ -26,7 +26,7 @@
       </div>
       <div class="col-md-10 col-sm-9">
         <h2>Karten - {{freifunk.name}}
-    <br/><small>Karten der einzelnen Domänen und der Communities</small></h2>
+    <br/><small>Karten der einzelnen Meshes und der Communities</small></h2>
       </div>
     </div>
     </div>
@@ -49,7 +49,7 @@
         </div>
         </form>
       <br/>
-      <h4><strong><a href="map/">Gesamtkarte des {{freifunk.name}}</a></strong></h4>
+      <h4><strong><a href="map/">Gesamtkarte {{freifunk.name}}</a></strong></h4>
       <p><a class="btn-ffms-collapse visible-xs" data-toggle="collapse" data-target="#narrow-results">&#187; Mehr Freifunk Links</a></p>
       <div id="narrow-results" class="narrow-results collapse">
 {% if indexconfig.links is defined %}
@@ -66,7 +66,7 @@
           <thead>
             <tr>
               <th>
-                  <div style=text-align:center><h4>Domänen</h4></div>
+                  <div style=text-align:center><h4>Meshes</h4></div>
               </th>
             </tr>
           </thead>
@@ -104,7 +104,7 @@
 {% for community in communities %}
 {% if community != "None" %}
             <tr>
-                <td><a Community href="map_{{community}}/">Community {{community}}</a><br/> <span class="ffms-muted">Domänen:</span>  
+                <td><a Community href="map_{{community}}/">Community {{community}}</a><br/> <span class="ffms-muted">Meshes:</span>  
 {% for domaene in domaenen|dictsort %}
 {% if community == domaene[1].community %}
                     <a href="map{{domaene[0]}}/">{{domaene[0]}}</a>

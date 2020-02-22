@@ -5,8 +5,8 @@
 {% endif %}
 {% endfor %}
 {
-  "dataPath": "/data/map_{% for domain in map_domains %}{{freifunk.kurzname}}d{{domain[0]}}{% if not loop.last %},{% endif %}{% endfor %}/",
-  "siteName": "Freifunk {{item}}",
+  "dataPath": [ {% for domain in map_domains %}{% if domaenen[domain[0]].proxy_map_data_url is defined and domaenen[domain[0]].proxy_map_data_url %}"/proxy_{{ domaenen[domain[0]].site_code }}/"{% else %}"/data/map_{{ domain[0] }}/"{% endif %}{% if not loop.last %},{% endif %}{% endfor %} ],
+  "siteName": "Karte {{item}}",
   "mapSigmaScale": {{ mapconfig.communityMap.map_scale }},
   "showContact": {{ mapconfig.communityMap.map_show_contact | lower}},
   "maxAge": {{ mapconfig.communityMap.map_max_age }},
@@ -30,7 +30,7 @@
   ],
   "siteNames": [
 {% for domain in map_domains %}
-    { "site": "{{freifunk.kurzname}}d{{domain[0]}}", "name": "Domäne {{domain[0]}} - {{domain[1].name}}" }{% if not loop.last %},{% endif %}
+    { "site": "{{domain[1].site_code}}", "name": "Mesh {{domain[0]}} - {{domain[1].name}}" }{% if not loop.last %},{% endif %}
 
 {% endfor %}
   ],

@@ -88,7 +88,7 @@
     path: /opt/hopglass/client/build/config/
     state: directory
 
-- name: Deploy config.json domainspecific
+- name: Deploy domainspecific config.json files
   template:
     src: configdom.json.j2
     dest: "/opt/hopglass/client/build/config/config_{{item[0]}}.json"

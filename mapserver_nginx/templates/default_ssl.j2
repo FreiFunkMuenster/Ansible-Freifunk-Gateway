@@ -51,11 +51,39 @@ server {
         gzip_types              text/plain text/css text/javascript application/javascript application/json application/x-javascript text/xml application/xml application/xml+rss;
     }
 
+    # Proxy for external map data (if any)
+{% for domaene in domaenen|dictsort %}
+{% if domaene[1].proxy_map_data_url is defined and domaene[1].proxy_map_data_url %}
+    location /proxy_{{domaene[1].site_code}}/ {
+        #proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+
+        proxy_pass              {{ domaene[1].proxy_map_data_url }};
+        proxy_redirect          off;
+
+        proxy_cache             hopglass;
+        proxy_cache_valid       2m;
+
+        # enable gzip compression
+        gzip                    on;
+        gzip_http_version       1.0;
+        gzip_vary               on;
+        gzip_comp_level         4;
+        gzip_proxied            any;
+        gzip_types              text/plain text/css text/javascript application/javascript application/json application/x-javascript text/xml application/xml application/xml+rss;
+    }
+{% endif %}
+{% endfor %}
+
     # Proxy for mapdata
     location /data/ {
-
-        # mapdata foreach domain, because hopglass can't handle args in uri)
-        rewrite "^/data/map_([^/]+)/(.+)$" /$2?filter=site&value=$1 break;
+        # mapdata for each domain, because hopglass can't handle args in uri
+{% for domaene in domaenen|dictsort %}
+        rewrite "^/data/map_{{domaene[0]}}/(.+)$" /$1?filter=site&value={{domaenen[domaene[0]].site_code}} break;
+{% endfor %}
+        #rewrite "^/data/map_([^/]+)/(.+)$" /$2?filter=site&value=$1 break;
 
         proxy_set_header        Host $host;
         proxy_set_header        X-Real-IP $remote_addr;
