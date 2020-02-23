@@ -12,11 +12,17 @@
     src: 10periodic.j2
     dest: /etc/apt/apt.conf.d/10periodic
 
-
-- name: Configure unattended upgrades
+- name: Configure unattended upgrades on Debian
   template:
-    src: 50unattended-upgrades.j2
+    src: 50unattended-upgrades-debian.j2
     dest: /etc/apt/apt.conf.d/50unattended-upgrades
+  when: ansible_distribution == 'Debian'
+
+- name: Configure unattended upgrades on Ubuntu
+  template:
+    src: 50unattended-upgrades-ubuntu.j2
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+  when: ansible_distribution == 'Ubuntu'
 
 - name: Let restart server once a week but not all at the same time
   cron:

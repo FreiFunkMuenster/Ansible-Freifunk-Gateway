@@ -36,7 +36,7 @@
     "virtualenv -p /usr/bin/python3 env_tunneldigger"
   args:
     chdir: /srv/tunneldigger/
-    creates: "/srv/tunneldigger/env_tunneldigger/bin/python"
+    creates: "/srv/tunneldigger/env_tunneldigger/bin/python3"
   when: domaenenliste is defined
   ignore_errors: "{{ ansible_check_mode }}"
 

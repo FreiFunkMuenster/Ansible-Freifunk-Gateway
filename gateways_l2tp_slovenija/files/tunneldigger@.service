@@ -5,7 +5,7 @@ After=network.target auditd.service
 [Service]
 Type=simple
 WorkingDirectory=/srv/tunneldigger
-ExecStart=/srv/tunneldigger/env_tunneldigger/bin/python -m tunneldigger_broker.main /srv/tunneldigger/broker/l2tp_broker_domain%i.cfg
+ExecStart=/srv/tunneldigger/env_tunneldigger/bin/python3 -m tunneldigger_broker.main /srv/tunneldigger/broker/l2tp_broker_domain%i.cfg
 KillMode=process
 KillSignal=SIGINT
 Restart=on-failure

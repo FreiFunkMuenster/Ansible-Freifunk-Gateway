@@ -5,6 +5,7 @@
   register: kea_dhcp4_exists
   failed_when: not (kea_dhcp4_exists.rc == 0 or kea_dhcp4_exists.rc == 1)
   changed_when: false
+  check_mode: no
 
 - name: stop and disable Kea dhcpd
   systemd:

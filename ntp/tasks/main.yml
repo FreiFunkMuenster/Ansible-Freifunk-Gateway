@@ -17,7 +17,7 @@
 
 - name: Install chrony.conf
   template:
-    src: ntp.conf.j2
+    src: chrony.conf.j2
     dest: /etc/chrony/chrony.conf
   notify: Restart chrony
 
