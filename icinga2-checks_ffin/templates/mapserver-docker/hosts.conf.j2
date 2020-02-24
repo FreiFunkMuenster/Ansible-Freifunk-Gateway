@@ -1,6 +1,17 @@
 # {{ ansible_managed }}
 
-object Host "firmware.freifunk.de" {
+object Host "api.freifunk-ingolstadt.de" {
+  import "generic-host"
+  address = "176.9.98.92"
+  vars.vhost = "api.freifunk-ingolstadt.de"
+  vars.webpage = ["web-api"]
+  groups = ["mapserver-docker"]
+  vars.notification["mail"] = {
+    groups = ["freifunk_admins"]
+  }
+}
+
+object Host "firmware.freifunk-ingolstadt.de" {
   import "generic-host"
   address = "176.9.98.92"
   vars.vhost = "firmware.freifunk-ingolstadt.de"
@@ -22,7 +33,7 @@ object Host "map.freifunk-ingolstadt.de" {
   }
 }
 
-object Host "grafana.freifunk.de" {
+object Host "grafana.freifunk-ingolstadt.de" {
   import "generic-host"
   address = "176.9.98.92"
   vars.vhost = "grafana.freifunk-ingolstadt.de"

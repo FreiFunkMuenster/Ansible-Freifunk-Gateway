@@ -1,19 +1,66 @@
 # {{ ansible_managed }}
 
-apply Service "web-yanic-json" {
+### API ###
+apply Service "web-api-json" {
+    import "generic-service"
+    display_name =                      "API: api.json"
+    check_command =                     "http"
+    vars.http_vhost =                   host.vars.vhost
+    vars.http_ssl =                     "true"
+    vars.http_uri =                     "/api.json"
+    vars.http_maxage =                  "900"                           # max. age of http document in seconds
+    vars.http_pagesize =                "2000"                          # min. size in bytes
+    vars.http_expect_body_eregi =       "^\\{\\s*\"name\":\\s*\"Freifunk Ingolstadt\""
+    vars.http_headerstring =            "Content-Type: application/json"
+    assign where host.vars.vhost && "web-api" in host.vars.webpage
+}
+
+
+### Yanic ###
+apply Service "web-yanic-meshviewer-json" {
     import "generic-service"
     display_name =			"Yanic: meshviewer.json"
     check_command =			"http"
     vars.http_vhost =			host.vars.vhost
     vars.http_ssl =			"true"
     vars.http_uri =			"/yanic/meshviewer.json"
-    vars.http_maxage =			"300"				# max. age of http document in seconds
-    vars.http_pagesize =		"100000"			# min. size in bytes
-    vars.http_expect_body_eregi =	"^\\{\"timestamp\".+\"nodes\":\\[(\\{\"firstseen\".+?\\},){20,}\\{\"firstseen\".+?\\}\\]}$$"
+    vars.http_maxage =			"900"				# max. age of http document in seconds
+    vars.http_pagesize =		"50000"				# min. size in bytes
+    vars.http_expect_body_eregi =	"^\\{\"timestamp\".+\"nodes\":\\[(\\{\"firstseen\".+?\\},?){20,}\\]}$$"
     vars.http_headerstring =		"Content-Type: application/json"
     assign where host.vars.vhost && "web-meshviewer" in host.vars.webpage
 }
 
+apply Service "web-yanic-nodes-json" {
+    import "generic-service"
+    display_name =			"Yanic: nodes.json"
+    check_command =			"http"
+    vars.http_vhost =			host.vars.vhost
+    vars.http_ssl =			"true"
+    vars.http_uri =			"/yanic/nodes.json"
+    vars.http_maxage =			"900"				# max. age of http document in seconds
+    vars.http_pagesize =		"50000"			# min. size in bytes
+    vars.http_expect_body_eregi =       "^\\{\"version\":.+\"timestamp\".+\"nodes\":\\{\"\\w+\":\\{(\"firstseen\".+){20,}\\}\\}\\}\\}$$"
+    vars.http_headerstring =		"Content-Type: application/json"
+    assign where host.vars.vhost && "web-meshviewer" in host.vars.webpage
+}
+
+apply Service "web-yanic-nodelist-json" {
+    import "generic-service"
+    display_name =			"Yanic: nodelist.json"
+    check_command =			"http"
+    vars.http_vhost =			host.vars.vhost
+    vars.http_ssl =			"true"
+    vars.http_uri =			"/yanic/nodelist.json"
+    vars.http_maxage =			"900"				# max. age of http document in seconds
+    vars.http_pagesize =		"5000"				# min. size in bytes
+    vars.http_expect_body_eregi =	"^\\{\"version\":.+\"updated_at\".+\"nodes\":\\[(\\{\"id\".+?\\},?){20,}]\\}$$"
+    vars.http_headerstring =		"Content-Type: application/json"
+    assign where host.vars.vhost && "web-meshviewer" in host.vars.webpage
+}
+
+
+### Meshviewer ###
 apply Service "web-meshviewer" {
     import "generic-service"
     display_name =			"Website: Meshviewer"
@@ -26,6 +73,8 @@ apply Service "web-meshviewer" {
     assign where host.vars.vhost && "web-meshviewer" in host.vars.webpage
 }
 
+
+### Firmware Selector ###
 apply Service "web-firmware-selector" {
     import "generic-service"
     display_name =			"Website: Firmware Selector"
@@ -38,6 +87,8 @@ apply Service "web-firmware-selector" {
     assign where host.vars.vhost && "web-firmware" in host.vars.webpage
 }
 
+
+### Firmware Images ###
 apply Service "web-firmware-images-stable-sysupgrade" {
     import "generic-service"
     display_name =			"Website: Firmware Images - Stable, Sysupgrade"
@@ -64,6 +115,8 @@ apply Service "web-firmware-images-stable-factory" {
     assign where host.vars.vhost && "web-firmware" in host.vars.webpage
 }
 
+
+### Grafana ####
 apply Service "web-grafana" {
     import "generic-service"
     display_name =			"Website: Grafana"
@@ -76,3 +129,4 @@ apply Service "web-grafana" {
     vars.http_headerstring =		"Content-Type: image/png"
     assign where host.vars.vhost && "web-grafana" in host.vars.webpage
 }
+
