@@ -73,6 +73,11 @@
     mode: '0644'
   notify: reload apache2
 
+- name: Delete old htpasswd file to force password updates and to get rid of deprecated users
+  file:
+    path: '/etc/icingaweb2/.http-users'
+    state: absent
+
 - name: Create htpasswd file
   htpasswd:
     path: '/etc/icingaweb2/.http-users'
