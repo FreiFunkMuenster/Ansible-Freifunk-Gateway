@@ -8,7 +8,7 @@
 - name: calculate more specific routes for DHCP pools
   shell: |
     set -o pipefail
-    ipcalc {{ domaenenliste[item].dhcp_start }} - {{ domaenenliste[item].dhcp_ende }} | \
+    echo 240.255.255.255/32 | \
     grep -v "deaggregate" | sed -e 's/\(^.*$\)/route \1 via "bat{{ item }}";/g'
   args:
     executable: bash

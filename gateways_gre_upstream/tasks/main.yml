@@ -19,5 +19,5 @@
   template: src="gre_upstream.j2" dest="/etc/network/interfaces.d/40_gre_upstream.cfg"
   notify:
     - restart networking
-  when: ffrl_tun is defined or ffnw_tun is defined
+  when: ffrl_tun is defined or ffnw_tun is defined or ffgt_tun is defined
 

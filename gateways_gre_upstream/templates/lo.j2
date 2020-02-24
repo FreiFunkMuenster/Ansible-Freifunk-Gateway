@@ -12,9 +12,20 @@ iface lo inet loopback
         up ip rule add from {{ ffnw_nat_ip }} table ffnet
         up ip rule add iif lo table ffnet suppress_prefixlength 0
         up ip -6 rule add iif lo table ffnet suppress_prefixlength 0
+{% elif ffgt_tun is defined and ffgt_nat_ip is defined %}
+        up ip address add {{ ffgt_nat_ip }} dev lo
+        up ip rule add from {{ ffgt_nat_ip }} table ffnet
+        up ip rule add iif lo table ffnet suppress_prefixlength 0
+        up ip -6 rule add iif lo table ffnet suppress_prefixlength 0
+{% elif ospf_nat_ip is defined %}
+        up ip address add {{ ospf_nat_ip }} dev lo
+        up ip rule add from {{ ospf_nat_ip }} table ffnet
+        up ip rule add iif lo table ffnet suppress_prefixlength 0
+        up ip -6 rule add iif lo table ffnet suppress_prefixlength 0
 {% else %}
         up ip address add 10.0.0.{{vm_id}} dev lo
         up ip rule add from 10.0.0.{{vm_id}} table ffnet
         up ip rule add iif lo table ffnet suppress_prefixlength 0
         up ip -6 rule add iif lo table ffnet suppress_prefixlength 0
 {% endif %}
+

@@ -5,6 +5,30 @@ router id {{ vm_id }};
 
 table ffnet;
 
+function is_default() {
+	return (net ~ [0.0.0.0/0]);
+};
+
+filter freifunk {
+{% if ffrl_tun is defined %}
+	# FFRL
+	if net ~ [185.66.192.0/22+] then accept;
+{% endif %}
+{% if ffnw_tun is defined %}
+	# FFNW
+	if net ~ [185.197.132.0/24+] then accept;
+{% endif %}
+
+	if net ~ [10.0.0.0/8+] then accept;
+{% if not ffrl_tun is defined and not ffnw_tun is defined %}
+	if net ~ [0.0.0.0/0] then accept;
+{% endif %}
+
+	# interne Tunnel-IPs
+	if net ~ [192.168.0.0/16+] then accept;
+	reject;
+};
+
 protocol kernel 'kernel_ffnet' {
         scan time 20;
         import all;
@@ -70,34 +94,52 @@ protocol static dhcp_Bereich {
 }
 {% endif %}
 
-filter freifunk {
-{% if ffrl_tun is defined %}
-	# FFRL
-	if net ~ [185.66.192.0/22+] then accept;
+filter hostroute {
+{% if ffrl_nat_ip is defined %}
+	if net ~ {{ffrl_nat_ip | ipaddr('address')}}/32 then accept;
 {% endif %}
-{% if ffnw_tun is defined %}
-	# FFNW
-	if net ~ [185.197.132.0/24+] then accept;
+{% if ffnw_nat_ip is defined %}
+	if net ~ {{ffnw_nat_ip | ipaddr('address')}}/32 then accept;
 {% endif %}
-
-	if net ~ [10.0.0.0/8+] then accept;
-{% if not ffrl_tun is defined and not ffnw_tun is defined %}
-	if net ~ [0.0.0.0/0] then accept;
+{% if ospf_nat_ip is defined %}
+	if net ~ {{ospf_nat_ip | ipaddr('address')}}/32 then accept;
 {% endif %}
-
-	# interne Tunnel-IPs
-	if net ~ [192.168.0.0/16+] then accept;
 	reject;
 };
 
+{% if ospf_nat_ip is defined %}
+protocol ospf upstream {
+	table ffnet;
+	import where is_default();
+	export filter hostroute;
+{% if ospf_nat_instanceid is defined %}
+	instance id {{ospf_nat_instanceid}};
+{% endif %}
 
-protocol ospf {
+{% if ospf_nat_area is defined %}
+	area {{ospf_nat_area}} {
+{% else %}
+	area 0.0.0.0 {
+{% endif %}
+	    interface "{{ansible_default_ipv4.interface}}" {
+                cost 10;
+{% if ospf_nat_options is defined %}
+            	{{ospf_nat_options}}
+{% endif %}
+	    };
+	    interface "lo" { stub; };
+	};
+};
+{% endif %}
+
+protocol ospf backbone {
 	table ffnet;
 	import filter freifunk;
 	export filter {
 		if net ~ [192.168.0.0/16+] then reject;
 		accept;
 	};
+
 	area 0.0.0.0 {
 		interface "bat*" {
 			stub;
@@ -109,7 +151,10 @@ protocol ospf {
 		};
 {% endif %}
 {% endfor %}
-		interface "bck-*";
+		interface "bck-*" {
+			cost 1000;
+		};
+
 		interface "lo" {
 			stub;
 		};
@@ -131,21 +176,7 @@ protocol static {
         export none;
 };
 
-filter hostroute {
-{% if ffrl_nat_ip is defined %}
-	if net ~ {{ffrl_nat_ip | ipaddr('address')}}/32 then accept;
-{% endif %}
-{% if ffnw_nat_ip is defined %}
-	if net ~ {{ffnw_nat_ip | ipaddr('address')}}/32 then accept;
-{% endif %}
-	reject;
-};
-
 {% if ffrl_tun is defined or ffnw_tun is defined %}
-function is_default() {
-	return (net ~ [0.0.0.0/0]);
-};
-
 template bgp uplink {
 	table ffnet;
 	local as {{ff_network.as_number}};
