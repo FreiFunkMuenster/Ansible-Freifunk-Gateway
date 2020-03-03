@@ -100,7 +100,7 @@
   lineinfile:
     dest: /etc/systemd/journald.conf
     regexp: "^[#]?MaxRetentionSec"
-    line: "MaxRetentionSec={{ logrotate.count }}week"
+    line: "MaxRetentionSec={{ logrotate.cycle | lower | replace('daily',1) | replace('weekly',7) | replace('monthly',30) | replace('yearly',365) | int * logrotate.count | int }}day"
   when: journald_conf.stat.exists
   notify: restart journald
 
