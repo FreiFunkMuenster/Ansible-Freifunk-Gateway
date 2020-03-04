@@ -12,8 +12,8 @@ STATE_UNKNOWN=3
 # iPV6
 #########################################################################
 
-MAPSERVER="{{ (groups['mapserver'] | default([]))[:2] | map('extract',hostvars,'server_id') | join(" ") }}"
-GATEWAYS="{{ (groups['gateways'] | default([]))[:4] | map('extract',hostvars,'server_id') | join(" ") }}"
+MAPSERVER="{{ (groups['mapserver'] | default([]))[:2] | map('extract',hostvars,'vm_id') | join(" ") }}"
+GATEWAYS="{{ (groups['gateways'] | default([]))[:4] | map('extract',hostvars,'vm_id') | join(" ") }}"
 CHECKIP="$MAPSERVER $GATEWAYS"
 
 COUNTREQUIRED=$(($(echo $CHECKIP | wc -w)/2))
