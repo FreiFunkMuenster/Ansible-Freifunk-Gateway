@@ -8,11 +8,11 @@
 # BATMAN Interface für Domäne-{{domaene[0]}}
 auto bat{{domaene[0]}}
 iface bat{{domaene[0]}} inet6 static
-        address fe80::dcad:beff:feef:{{ '%02x' % indexer[0] }}{{'%02d' % server_id}}
+        address fe80::dcad:beff:feef:{{ '%02x' % indexer[0] }}{{'%02d' % vm_id}}
         netmask 64
         pre-up modprobe batman-adv
         pre-up ip link add bat{{domaene[0]}} type batadv
-        post-up ip link set address de:ad:be:ef:{{ '%02x' % indexer[0] }}:{{server_id}} dev bat{{domaene[0]}}
+        post-up ip link set address de:ad:be:ef:{{ '%02x' % indexer[0] }}:{{vm_id}} dev bat{{domaene[0]}}
         post-up ip link set dev bat{{domaene[0]}} up
         post-up batctl -m bat{{domaene[0]}} it 10000
 {% for host in groups["gateways"] %}
@@ -21,10 +21,10 @@ iface bat{{domaene[0]}} inet6 static
 {% endif %}
 {% endfor %}
         post-up batctl -m bat{{domaene[0]}} mm 0
-        post-up ip -6 addr add {{domaene[1].ffv6_network | ipaddr(server_id) | ipaddr('address')}}/64 dev bat{{domaene[0]}}
+        post-up ip -6 addr add {{domaene[1].ffv6_network | ipaddr(vm_id) | ipaddr('address')}}/64 dev bat{{domaene[0]}}
 
 iface bat{{domaene[0]}} inet static
-        address {{domaene[1].ffv4_network | ipaddr(server_id) | ipaddr('address') }}
+        address {{domaene[1].ffv4_network | ipaddr(vm_id) | ipaddr('address') }}
         netmask {{domaene[1].ffv4_network | ipaddr('netmask')}}
         post-down ip link del bat{{domaene[0]}}
 
@@ -39,7 +39,7 @@ iface t{{domaene[0]}}-{{ host }} inet manual
 {% else %}
         pre-up ip link add $IFACE type gretap local {{ansible_default_ipv4.address}} remote {{hostvars[host].ipv4}} dev {{ansible_default_ipv4.interface}} key {{domaene[0]|int}}
 {% endif %}
-        pre-up ip link set dev $IFACE address de:ad:be:ef:{{ '%02x' % indexer[0] }}:{{server_id}}
+        pre-up ip link set dev $IFACE address de:ad:be:ef:{{ '%02x' % indexer[0] }}:{{vm_id}}
         pre-up ip link set $IFACE up
         post-up batctl -m bat{{domaene[0]}} if add $IFACE ||:
         pre-down batctl -m bat{{domaene[0]}} if del $IFACE ||:
