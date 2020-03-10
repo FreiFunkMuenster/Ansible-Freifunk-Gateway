@@ -10,8 +10,8 @@ STATE_UNKNOWN=3
 # Pro Domäne max. sechs Server pingen, falls mehr als die Hälfte nicht pingbar ? Wahrscheinlich hängt das Batman 
 #########################################################################
 
-MAPSERVER="{{ (groups['mapserver'] | default([]))[:2] | map('extract',hostvars,'server_id') | join(" ") }}"
-GATEWAYS="{{ (groups['gateways'] | default([]))[:4] | map('extract',hostvars,'server_id') | join(" ") }}"
+MAPSERVER="{{ (groups['mapserver'] | default([]))[:2] | map('extract',hostvars,'vm_id') | join(" ") }}"
+GATEWAYS="{{ (groups['gateways'] | default([]))[:4] | map('extract',hostvars,'vm_id') | join(" ") }}"
 CHECKIP="$MAPSERVER $GATEWAYS"
 
 COUNTREQUIRED=$(($(echo $CHECKIP | wc -w)/2))
