@@ -14,8 +14,10 @@ echo " Hostname    : $(hostname)"
 echo " IP address  : $(hostname -I | cut -d' ' -f1){% if ansible_default_ipv6.address is defined %} / {{ ansible_default_ipv6.address }}{% endif %}"
 echo " System type : $(uname -s) $(uname -m)"
 echo " Kernel      : $(uname -r)"
+{% if server_besitzer is defined %}
 echo " "
 echo " Besitzer    : {{ server_besitzer }}"
+{% endif %}
 
 cat << 'EOF'
 
