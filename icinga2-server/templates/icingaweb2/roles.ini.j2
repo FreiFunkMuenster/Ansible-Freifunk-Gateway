@@ -1,5 +1,3 @@
-# {{ ansible_managed }}
-
 [Administratoren]
 users = "{{ icinga2.userliste | default() | selectattr('user','defined') | selectattr('pw', 'defined') | map(attribute='user') | list | join(",") }}"
 permissions = "*"
