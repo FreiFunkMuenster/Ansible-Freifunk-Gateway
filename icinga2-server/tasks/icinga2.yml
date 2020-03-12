@@ -71,8 +71,8 @@
   notify: restart icinga2
   tags: skip_ansible_lint
 
-### Config Files
-- name: Clean default config files
+### Configuration
+- name: Delete unneeded default config files
   file:
     state: absent
     path: "/etc/icinga2/conf.d/{{ item }}"
