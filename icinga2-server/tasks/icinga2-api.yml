@@ -28,7 +28,7 @@
 
 - name: Generate CSR
   command:
-    cmd: icinga2 pki new-cert \
+    cmd: icinga2 pki new-cert
       --cn {{ ansible_hostname }} --key /var/lib/icinga2/certs/{{ ansible_hostname }}.key --csr /var/lib/icinga2/certs/{{ ansible_hostname }}.csr
     creates: '{{ item.creates }}'
   loop:
