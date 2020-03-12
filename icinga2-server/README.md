@@ -23,3 +23,9 @@ An alle in "userliste" angegebenen E-Mail-Adressen ("email") versendet Icinga2 N
 
 Im Beispiel oben gibt es drei User: Zwei davon können sich an der API und an IcingaWeb2 anmelden, einer davon bekommt die Alerts zusätzlich per E-Mail. Der dritte User kann sich nirgends anmelden und wird nur per E-Mail über Alerts informiert.
 
+
+Auf die API kann über https, Port 5665, zugegriffen werden. Das von Icinga2 dafür erzeugte CA-Zertifikat wird auf dem Ansible-Controller unter "keyfiles/icinga2/HOSTNAME-ca.crt" abgelegt.
+Auf IcingaWeb2 kann über Port 80 zugegriffen werden.
+
+### Kompatibilität:
+Derzeit nur Debian 10

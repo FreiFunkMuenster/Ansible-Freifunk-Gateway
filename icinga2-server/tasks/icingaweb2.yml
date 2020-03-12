@@ -3,9 +3,10 @@
   apt:
     pkg: [ 'python3-passlib' ]
 
+### IcingaWeb2
 - name: Install IcingaWeb2
   apt:
-    pkg: [ 'icingaweb2', 'apache2' ]
+    pkg: [ 'icingaweb2', 'apache2', 'php-mysql', 'php-curl', 'php-gd', 'php-imagick', 'php-intl', 'php-fpm' ]
     state: present
 
 ### IDO
@@ -55,6 +56,32 @@
     mode: '0660'
     directory_mode: '2770'
 
+## Enable Apache PHP-FPM
+- name: Enable required Apache modules
+  apache2_module:
+    name: '{{ item }}'
+    state: present
+  loop:
+    - proxy_fcgi
+    - setenvif
+  notify: reload apache2
+
+- name: Figure out PHP-FPM Apache configuration file
+  find:
+    paths: '/etc/apache2/conf-available/'
+    file_type: file
+    use_regex: yes
+    patterns: '^php[0-9\.]+\-fpm\.conf'
+  register: find_phpfpmconf
+
+- name: Enable PHP-FPM Apache configuration file
+  file:
+    src: '/etc/apache2/conf-available/{{ item.path | basename }}'
+    dest: '/etc/apache2/conf-enabled/{{ item.path | basename }}'
+    state: link
+  loop: '{{ find_phpfpmconf.files }}'
+  notify: reload apache2
+
 ### Enable IcingaWeb2 in Apache
 - name: Enable IcingaWeb2 in Apache
   file:
@@ -72,6 +99,11 @@
     group: 'root'
     mode: '0644'
   notify: reload apache2
+
+- name: Delete old htpasswd file to force password updates and to get rid of deprecated users
+  file:
+    path: '/etc/icingaweb2/.http-users'
+    state: absent
 
 - name: Create htpasswd file
   htpasswd:

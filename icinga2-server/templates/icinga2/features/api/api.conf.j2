@@ -1,0 +1,13 @@
+/* {{ ansible_managed }} */
+
+/**
+ * The API listener is used for distributed monitoring setups.
+ */
+
+object ApiListener "{{ inventory_hostname_short }}.{{ freifunk.domain }}" {
+  //accept_config = false
+  //accept_commands = false
+
+  ticket_salt = TicketSalt
+}
+

@@ -71,8 +71,8 @@
   notify: restart icinga2
   tags: skip_ansible_lint
 
-### Config Files
-- name: Clean default config files
+### Configuration
+- name: Delete unneeded default config files
   file:
     state: absent
     path: "/etc/icinga2/conf.d/{{ item }}"
@@ -84,7 +84,13 @@
     - "services.conf"
   notify: reload icinga2
 
-- name: Create base configuration
+- name: Create base configuration in /etc/icinga2/
+  template:
+    src: "icinga2/constants.conf.j2"
+    dest: "/etc/icinga2/constants.conf"
+  notify: reload icinga2
+
+- name: Create base configuration in /etc/icinga2/conf.d/
   template:
     src: "{{ item.src }}"
     dest: "/etc/icinga2/conf.d/{{ item.path|regex_replace('.j2','') }}"

@@ -1,10 +1,4 @@
 ### API-Module
-- name: Configure hostname for certificates
-  lineinfile:
-    dest: /etc/icinga2/constants.conf
-    regexp: '^const NodeName\s*='
-    line: 'const NodeName = "{{ ansible_hostname }}"'
-  notify: restart icinga2
 
 - name: Create Icinga2 API CA directories
   file:
@@ -28,18 +22,22 @@
 
 - name: Generate CSR
   command:
-    cmd: icinga2 pki new-cert \
-      --cn {{ ansible_hostname }} --key /var/lib/icinga2/certs/{{ ansible_hostname }}.key --csr /var/lib/icinga2/certs/{{ ansible_hostname }}.csr
+    cmd: icinga2 pki new-cert
+      --cn {{ inventory_hostname_short }}.{{ freifunk.domain }}
+      --key /var/lib/icinga2/certs/{{ inventory_hostname_short }}.{{ freifunk.domain }}.key
+      --csr /var/lib/icinga2/certs/{{ inventory_hostname_short }}.{{ freifunk.domain }}.csr
     creates: '{{ item.creates }}'
   loop:
-    - creates: '/var/lib/icinga2/certs/{{ ansible_hostname }}.key'
-    - creates: '/var/lib/icinga2/certs/{{ ansible_hostname }}.csr'
+    - creates: '/var/lib/icinga2/certs/{{ inventory_hostname_short }}.{{ freifunk.domain }}.key'
+    - creates: '/var/lib/icinga2/certs/{{ inventory_hostname_short }}.{{ freifunk.domain }}.csr'
   notify: restart icinga2
 
 - name: Sign CSR and create certifiate
   command:
-    cmd: icinga2 pki sign-csr --csr /var/lib/icinga2/certs/{{ ansible_hostname }}.csr --cert /var/lib/icinga2/certs/{{ ansible_hostname }}.crt
-    creates: '/var/lib/icinga2/certs/{{ ansible_hostname }}.crt'
+    cmd: icinga2 pki sign-csr
+      --csr /var/lib/icinga2/certs/{{ inventory_hostname_short }}.{{ freifunk.domain }}.csr
+      --cert /var/lib/icinga2/certs/{{ inventory_hostname_short }}.{{ freifunk.domain }}.crt
+    creates: '/var/lib/icinga2/certs/{{ inventory_hostname_short }}.{{ freifunk.domain }}.crt'
   notify: restart icinga2
 
 - name: Copy CA certificate
@@ -49,9 +47,14 @@
     dest: '/var/lib/icinga2/certs/ca.crt'
   notify: restart icinga2
 
+- name: Store CA certificate in keyfiles
+  fetch:
+    src: '/var/lib/icinga2/ca/ca.crt'
+    dest: 'keyfiles/icinga2/{{ inventory_hostname }}-ca.crt'
+    flat: yes
+
 - name: Enable Icinga2 API module
-  file:
-    src: '../features-available/api.conf'
+  template:
+    src: 'icinga2/features/api/api.conf.j2'
     dest: '/etc/icinga2/features-enabled/api.conf'
-    state: link
   notify: restart icinga2
