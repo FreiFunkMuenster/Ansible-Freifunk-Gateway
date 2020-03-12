@@ -23,3 +23,9 @@ An alle in "userliste" angegebenen E-Mail-Adressen ("email") versendet Icinga2 N
 
 Im Beispiel oben gibt es drei User: Zwei davon können sich an der API und an IcingaWeb2 anmelden, einer davon bekommt die Alerts zusätzlich per E-Mail. Der dritte User kann sich nirgends anmelden und wird nur per E-Mail über Alerts informiert.
 
+
+### Kompatibilität:
+- Debian 10: ok
+- Debian 9: ok
+- Ubuntu 18.04: nok, das mitgelieferte IcingaWeb2 scheint zu alt für das mitgelieferte PHP 7.2 zu sein
+- Ubuntu 16:04: nok, Paket icingacli ist nicht verfügbar

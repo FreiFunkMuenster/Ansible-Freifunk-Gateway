@@ -74,10 +74,7 @@
     patterns: '^php[0-9\.]+\-fpm\.conf'
   register: find_phpfpmconf
 
-- debug:
-    var: find_phpfpmconf
-
-- name: Enable PHP-FPM Apache configuration file 
+- name: Enable PHP-FPM Apache configuration file
   file:
     src: '/etc/apache2/conf-available/{{ item.path | basename }}'
     dest: '/etc/apache2/conf-enabled/{{ item.path | basename }}'
