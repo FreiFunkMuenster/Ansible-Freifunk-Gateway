@@ -4,7 +4,9 @@ PLUGINDIR=$(dirname $0)
 . $PLUGINDIR/utils.sh
 
 if [ -e /lib/systemd/system/fastd@.service ] ; then
-        domains=$(/bin/ls /etc/systemd/system/multi-user.target.wants/fastd@* | grep -oE "[0-9]+")
+        #domains=$(/bin/ls /etc/systemd/system/multi-user.target.wants/fastd@* | grep -oE "[0-9]+")
+	# FFIN: local modification to check fastd@10legacy, too - not for upstream!
+	domains=$(/bin/ls /etc/systemd/system/multi-user.target.wants/fastd@* | sed -n 's/.*@\(.*\).service/\1/p')
 fi
 
 
