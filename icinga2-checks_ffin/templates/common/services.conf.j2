@@ -18,6 +18,7 @@ apply Service "borg-backup-{{ repo.name }}" {
     display_name =			"Borg: {{ repo.name }}"
     check_command =			"nrpe2"
     vars.nrpe_command =			"check_borg-{{ repo.name }}"
+    vars.nrpe_timeout =			"20"
     check_interval =			1h
     retry_interval =			10m
     assign where host.name == "{{ item }}"

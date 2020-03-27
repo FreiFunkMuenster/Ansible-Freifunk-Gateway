@@ -179,6 +179,7 @@ object Service "Check BATMAN Dom {{domaene[0]}} via IP" {
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check_batip_{{domaene[0]}}"
+  vars.nrpe_timeout = "120"
 }
 
 object Service "Check BATMAN Dom {{domaene[0]}} via IPv6" {
@@ -186,6 +187,7 @@ object Service "Check BATMAN Dom {{domaene[0]}} via IPv6" {
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check_batip6_{{domaene[0]}}"
+  vars.nrpe_timeout = "120"
 }
 {% endfor %}
 {% endif %}
