@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+
+Listen {{ icinga2.http_listener.address | default("*") }}:{{ icinga2.http_listener.port | default(80) }} http
+
+#<IfModule ssl_module>
+#       Listen {{ icinga2.https_listener.address | default("*") }}:{{ icinga2.https_listener.port | default(443) }} https
+#</IfModule>
+#
+#<IfModule mod_gnutls.c>
+#       Listen {{ icinga2.https_listener.address | default("*") }}:{{ icinga2.https_listener.port | default(443) }} https
+#</IfModule>
