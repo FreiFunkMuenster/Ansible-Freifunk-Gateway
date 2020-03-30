@@ -90,7 +90,7 @@
     state: link
   notify: reload apache2
 
-### Authentication
+### Set up Apache Authentication
 - name: Configure basic authentication in Apache
   copy:
     src: 'apache2-icingaweb2-local.conf'
@@ -123,6 +123,28 @@
     owner: 'www-data'
     group: 'icingaweb2'
     mode: '0640'
+
+### Set Apache HTTP listening port and address
+- name: Set Apache2 listening ports
+  template:
+    src: "apache2/ports.conf.j2"
+    dest: "/etc/apache2/ports.conf"
+  notify: reload apache2
+
+- name: Get all enabled non-SSL Apache2 sites
+  shell: "/usr/bin/grep -Li '^[[:space:]]*SSL' /etc/apache2/sites-enabled/*"
+  register: httpsitesenabled
+  failed_when: "httpsitesenabled.rc == 2"
+  check_mode: no
+
+- name: Set HTTP listening ports in all enabled non-SSL Apache2 sites
+  lineinfile:
+    path: "{{ item }}"
+    regexp: '(?i)<VirtualHost (.+?):(\d+)>'
+    line: "<VirtualHost {{ icinga2.http_listener.address | default('*') }}:{{ icinga2.http_listener.port | default(80) }}>"
+    backrefs: yes
+  with_items: "{{ httpsitesenabled.stdout_lines }}"
+  when: httpsitesenabled.stdout != ""
 
 ### Logging
 - name: Configure logging

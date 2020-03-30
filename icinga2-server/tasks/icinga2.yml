@@ -15,7 +15,7 @@
     src: '../features-available/command.conf'
     dest: '/etc/icinga2/features-enabled/command.conf'
     state: link
-  notify: restart icinga2
+  notify: reload icinga2
 
 ### IDO-Module
 - name: Install MariaDB and Icinga2 IDO modules
@@ -36,7 +36,7 @@
     group: 'nagios'
     mode: '0600'
   when: not icinga2_ido_db_conf.stat.exists
-  notify: restart icinga2
+  notify: reload icinga2
 
 - name: Read ido-mysql.conf
   slurp:
@@ -68,7 +68,7 @@
     state: import
     target: '/usr/share/icinga2-ido-mysql/schema/mysql.sql'
   when: icinga2_ido_db.changed
-  notify: restart icinga2
+  notify: reload icinga2
   tags: skip_ansible_lint
 
 ### Configuration
