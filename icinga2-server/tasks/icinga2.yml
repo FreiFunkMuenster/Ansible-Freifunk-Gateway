@@ -6,7 +6,7 @@
 ### Icinga2
 - name: Install Icinga2
   apt:
-    pkg: [ 'icingacli', 'icinga2', 'monitoring-plugins-basic', 'nagios-nrpe-plugin' ]
+    pkg: [ 'icingacli', 'icinga2', 'monitoring-plugins-basic', 'nagios-nrpe-plugin', 'bsd-mailx' ]
     state: present
 
 ### Command-Module
@@ -60,6 +60,7 @@
     password: '{{ icinga2_ido_db_pw }}'
     host: localhost
     priv: 'icinga2_ido.*:ALL'
+  no_log: true
 
 - name: Import IDO database schema
   mysql_db:

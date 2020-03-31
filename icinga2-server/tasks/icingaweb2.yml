@@ -136,6 +136,7 @@
   register: httpsitesenabled
   failed_when: "httpsitesenabled.rc == 2"
   check_mode: no
+  changed_when: httpsitesenabled.stdout | length > 0
 
 - name: Set HTTP listening ports in all enabled non-SSL Apache2 sites
   lineinfile:
@@ -144,7 +145,7 @@
     line: "<VirtualHost {{ icinga2.http_listener.address | default('*') }}:{{ icinga2.http_listener.port | default(80) }}>"
     backrefs: yes
   with_items: "{{ httpsitesenabled.stdout_lines }}"
-  when: httpsitesenabled.stdout != ""
+  when: httpsitesenabled.stdout | length > 0
 
 ### Logging
 - name: Configure logging
