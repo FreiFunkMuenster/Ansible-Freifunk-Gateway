@@ -28,7 +28,7 @@
 - name: Use sender email address for all users
   replace:
     path: "/etc/exim4/exim4.conf.template"
-    regexp: '^(.*\${lookup{\${local_part} })lsearch({ /etc/email-addresses }.*)$'
+    regexp: '^(.*\${lookup{\${local_part}})lsearch({\s*\/etc\/email-addresses\s*}.*)$'
     replace: '\1wildlsearch\2'
   notify: restart exim4
 
