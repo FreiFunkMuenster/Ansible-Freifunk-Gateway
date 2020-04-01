@@ -9,8 +9,10 @@ mail:
   smtp: mail.foo.bar
   user: benutzername
   pw: geheim
+  force_hostname: gandalf.example.de
 ```
 
 Als Absenderadresse wird immer "icinga2@example.com" verwendet.
 Zur Authentifizierung am SMTP-Server "mail.foo.bar" wird der Benutzername "benutzername" und das Passwort "geheim" benutzt.
 
+`force_hostname` ist optional und setzt den Hostnamen, der für das SMTP-Helo am SMTP-Server verwendet wird.
