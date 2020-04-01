@@ -3,6 +3,16 @@
 *filter
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
+{% if blocked_tcp_ports is defined %}
+{% for port in blocked_tcp_ports %}
+-A FORWARD -p tcp --dport {{port}}  -j DROP
+{% endfor %}
+{% endif %}
+{% if blocked_udp_ports is defined %}
+{% for port in blocked_udp_ports %}
+-A FORWARD -p udp --dport {{port}}  -j DROP
+{% endfor %}
+{% endif %}
 :OUTPUT ACCEPT [0:0]
 COMMIT
 *mangle
