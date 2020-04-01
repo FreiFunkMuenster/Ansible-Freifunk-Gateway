@@ -12,7 +12,7 @@
   file:
     path: '/etc/icinga2/features-enabled/api.conf'
     state: absent
-  notify: restart icinga2
+  notify: reload icinga2
 
 - import_tasks: icingaweb2.yml
   when: icinga2.icingaweb2 is defined and icinga2.icingaweb2
