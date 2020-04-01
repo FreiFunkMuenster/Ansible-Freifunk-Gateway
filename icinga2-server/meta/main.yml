@@ -1,2 +1,2 @@
-#dependencies:
-#  - role: exim4-daemon-light
+dependencies:
+  - role: exim4-daemon-light
