@@ -636,7 +636,7 @@ LoadPlugin write_graphite
 {% if "domaenenliste" in hostvars[host] %}
 	Host "{{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars[host].domaenenliste[domaene[0]].server_id) | ipaddr('address') }}"
 {% else %}
-	Host "{{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }}"
+	Host "{{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars[host].vm_id) | ipaddr('address') }}"
 {% endif %}
 {% endif %}
 {% endfor %}
