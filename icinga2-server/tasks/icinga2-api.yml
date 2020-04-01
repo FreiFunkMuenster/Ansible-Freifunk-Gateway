@@ -18,7 +18,7 @@
   loop:
     - creates: '/var/lib/icinga2/ca/ca.key'
     - creates: '/var/lib/icinga2/ca/ca.crt'
-  notify: restart icinga2
+  notify: reload icinga2
 
 - name: Generate CSR
   command:
@@ -30,7 +30,7 @@
   loop:
     - creates: '/var/lib/icinga2/certs/{{ inventory_hostname_short }}.{{ freifunk.domain }}.key'
     - creates: '/var/lib/icinga2/certs/{{ inventory_hostname_short }}.{{ freifunk.domain }}.csr'
-  notify: restart icinga2
+  notify: reload icinga2
 
 - name: Sign CSR and create certifiate
   command:
@@ -38,14 +38,14 @@
       --csr /var/lib/icinga2/certs/{{ inventory_hostname_short }}.{{ freifunk.domain }}.csr
       --cert /var/lib/icinga2/certs/{{ inventory_hostname_short }}.{{ freifunk.domain }}.crt
     creates: '/var/lib/icinga2/certs/{{ inventory_hostname_short }}.{{ freifunk.domain }}.crt'
-  notify: restart icinga2
+  notify: reload icinga2
 
 - name: Copy CA certificate
   copy:
     remote_src: yes
     src: '/var/lib/icinga2/ca/ca.crt'
     dest: '/var/lib/icinga2/certs/ca.crt'
-  notify: restart icinga2
+  notify: reload icinga2
 
 - name: Store CA certificate in keyfiles
   fetch:
@@ -57,4 +57,4 @@
   template:
     src: 'icinga2/features/api/api.conf.j2'
     dest: '/etc/icinga2/features-enabled/api.conf'
-  notify: restart icinga2
+  notify: reload icinga2
