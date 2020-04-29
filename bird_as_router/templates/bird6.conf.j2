@@ -1,0 +1,210 @@
+# {{ ansible_managed }}
+
+log syslog { debug, trace, info, remote, warning, error, auth, fatal, bug };
+router id {{ vm_id }};
+
+table ffnet;
+
+filter freifunk {
+	if net ~ {{ff_network.v6_network}} then accept;
+{% if not ffrl_tun is defined %}
+	if net ~ [::/0] then accept;
+{% endif %}
+	reject;
+}
+
+protocol kernel {
+	scan time 20;
+	import all;
+	export all;
+	table ffnet;
+	kernel table 42;
+	device routes;
+	persist;
+};
+
+{% if domaenenliste is defined %}
+protocol radv {
+{% for domaene in domaenenliste|dictsort %}
+	interface "bat{{domaene[0]}}" {
+		max ra interval 20;
+		link mtu 1280;
+		prefix {{domaenen[domaene[0]].ffv6_network}} {
+		};
+		rdnss {
+			ns {{domaenen[domaene[0]].ffv6_network | ipaddr(domaene[1].server_id) | ipaddr('address') }};
+		};
+		dnssl "{{freifunk.search_domain}}";
+	};
+{% endfor %}
+};
+{% endif %}
+
+
+protocol bfd {
+	table ffnet;
+	interface "gre*";
+	interface "bck*";
+	multihop {
+		passive;
+	};
+};
+
+protocol device {
+	scan time 10;
+};
+
+protocol ospf {
+	table ffnet;
+	import filter freifunk;
+	export all;
+	area 0.0.0.0 {
+		interface "bat*" {
+			stub;
+		};
+{% for host in groups['gateways']|default([]) %}
+{% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
+		interface "bck-{{host}}" {
+			cost 1000;
+		};
+{% endif %}
+{% endfor %}
+		interface "bck-*";
+{% if ffrl_tun is defined %}
+		interface "lo" {
+			stub;
+		};
+{% endif %}
+	};
+};
+
+function is_default() {
+	return (net ~ [::/0]);
+};
+
+filter export_to_upstream_filter {
+	if source = RTS_STATIC then accept;
+	reject;
+};
+
+protocol static static_Gesamtnetzwerk {
+	table ffnet;
+	route {{ff_network.v6_network}} reject;
+};
+
+{% if domaenenliste is defined %}
+{% for domaene in domaenenliste|dictsort %}
+protocol static static_domaene{{domaene[0]}} {
+	table ffnet;
+	route {{domaenen[domaene[0]].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject;
+};
+{% endfor %}
+{% endif %}
+{% if dhcp is defined %}
+protocol static 'static_{{inventory_hostname_short}}' {
+	table ffnet;
+	route {{ff_network.v6_network | regex_replace('..::/\d+$','00::/56')}} reject;
+};
+{% endif %}
+
+protocol kernel 'kernel_master' {
+	scan time 20;
+	table master;
+	kernel table 254;
+	import all;
+	export all;
+	persist;
+};
+
+protocol static {
+	table master;
+	import all;
+	export none;
+};
+
+protocol direct {
+	interface "lo";
+{% if ffrl_tun is defined %}
+	interface "tun-ffrl*";
+{% endif %}
+	interface "gre-*";
+	interface "bck-*";
+	interface "bat*";
+	table ffnet;
+}
+
+template bgp internal {
+	table ffnet;
+	local as {{ff_network.as_number}};
+	import filter {
+		if is_default() then
+			preference = 99;
+		else
+			preference = 160;
+		accept;
+	};
+	export filter {
+		if source = RTS_BGP then accept;
+{% if ffrl_tun is not defined %}
+		if source = RTS_STATIC then accept;
+{% endif %}
+		else reject;
+	};
+	gateway direct;
+	direct;
+	next hop self;
+};
+
+{% for host in groups['gateways']|default([]) %}
+{% if hostvars[host].vm_id != vm_id %}
+protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
+{% if hostvars[host].vm_id < vm_id %}
+	neighbor 2a03:2260:115:ffa1::{{hostvars[host].vm_id}}:{{vm_id}}:1 as {{ff_network.as_number}};
+{% else %}
+	neighbor 2a03:2260:115:ffa1::{{vm_id}}:{{hostvars[host].vm_id}}:0 as {{ff_network.as_number}};
+{% endif %}
+{% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
+	import filter {
+		preference = 50;
+		accept;
+	};
+{% endif %}
+}
+
+{% endif %}
+{% endfor %}
+
+template bgp uplink {
+	table ffnet;
+	local as {{ff_network.as_number}};
+	import where is_default();
+	export filter export_to_upstream_filter;
+	gateway recursive;
+}
+{% if ffrl_tun is defined %}
+
+{% for tun in ffrl_tun %}
+protocol bgp ffrl_{{tun.name}} from uplink {
+	description "Rheinland Backbone";
+	source address {{ tun.v6_remote | next_nth_usable(1) }};
+	neighbor {{tun.v6_remote | ipaddr('address')}} as 201701;
+};
+
+{% endfor %}
+{% endif %}
+
+{% if ffnw_tun is defined %}
+{% for tun in ffnw_tun %}
+protocol bgp ffnw_{{tun.name}} from uplink {
+        description "Nordwest Backbone";
+        neighbor {{tun.v6_remote | ipaddr('address')}}%'tun-ffnw-{{tun.name}}' as 206313;
+	import filter {
+		reject;
+	};
+	export filter {
+		reject;
+	};
+};
+
+{% endfor %}
+{% endif %}

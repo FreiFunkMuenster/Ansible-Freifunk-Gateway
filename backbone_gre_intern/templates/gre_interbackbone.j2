@@ -1,27 +1,23 @@
 # {{ ansible_managed }}
 
-{% for host in groups['gateways'] %}
+{% for host in groups['gateways']+groups['as-router'] %}
 {% if host != inventory_hostname %}
 auto bck-{{host}}
-iface bck-{{host}} inet static
+iface bck-{{host}} inet tunnel
+        mode gre 
+	local {{ansible_default_ipv4.address}} 
+	endpoint {{hostvars[host].ipv4}} 
+	ttl 255
 {% if hostvars[host].vm_id < vm_id %}
-        address 192.168.{{ hostvars[host].vm_id-1 }}.{{vm_id*2+1}}
+        address 192.168.{{ hostvars[host].vm_id-1 }}.{{vm_id*2+1}}/31
+        address {{ ipv6internalTunnelPrefix }}{{hostvars[host].vm_id}}:{{vm_id}}:0/127
 {% else %}
-        address 192.168.{{ vm_id-1 }}.{{hostvars[host].vm_id*2}}
+        address 192.168.{{ vm_id-1 }}.{{hostvars[host].vm_id*2}}/31
+        address {{ ipv6internalTunnelPrefix }}{{vm_id}}:{{hostvars[host].vm_id}}:1/127
 {% endif %}
-        netmask 31
-        pre-up ip link add $IFACE type gre local {{ansible_default_ipv4.address}} remote {{hostvars[host].ansible_ssh_host}} ttl 255
         pre-up ip link set $IFACE up multicast on
         post-up ip rule add iif $IFACE table ffnet
         pre-down ip rule del iif $IFACE table ffnet ||:
-
-iface bck-{{host}} inet6 static
-{% if hostvars[host].vm_id < vm_id %}
-        address {{ipv6backbone64prefixstr}}{{hostvars[host].vm_id}}:{{vm_id}}:0
-{% else %}
-        address {{ipv6backbone64prefixstr}}{{vm_id}}:{{hostvars[host].vm_id}}:1
-{% endif %}
-        netmask 127
         post-up ip -6 rule add iif $IFACE table ffnet
         pre-down ip -6 rule del iif $IFACE table ffnet ||:
         post-down ip link delete $IFACE
