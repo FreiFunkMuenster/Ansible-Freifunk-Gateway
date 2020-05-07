@@ -1,0 +1,46 @@
+# {{ ansible_managed }}
+
+ServerName {{ inventory_hostname_short }}.{{ freifunk.domain }}
+
+<VirtualHost {{ icinga2.http_listener.address | default("*") }}:{{ icinga2.http_listener.port | default(80) }}>
+
+    ServerAdmin {{ freifunk.email }}
+
+    DocumentRoot "/usr/share/icingaweb2/public"
+
+    <Directory "/usr/share/icingaweb2/public">
+        Options SymLinksIfOwnerMatch
+        AllowOverride None
+
+        AuthType Basic
+        AuthName "Icingaweb2"
+        AuthUserFile /etc/icingaweb2/.http-users
+        <RequireAny>
+            require valid-user
+        </RequireAny>
+
+        SetEnv ICINGAWEB_CONFIGDIR "/etc/icingaweb2"
+
+        EnableSendfile Off
+
+        <IfModule mod_rewrite.c>
+            RewriteEngine on
+            # RewriteBase /icingaweb2/
+            RewriteBase /
+            RewriteCond %{REQUEST_FILENAME} -s [OR]
+            RewriteCond %{REQUEST_FILENAME} -l [OR]
+            RewriteCond %{REQUEST_FILENAME} -d
+            RewriteRule ^.*$ - [NC,L]
+            RewriteRule ^.*$ index.php [NC,L]
+        </IfModule>
+
+        <IfModule !mod_rewrite.c>
+            DirectoryIndex error_norewrite.html
+            ErrorDocument 404 /error_norewrite.html
+        </IfModule>
+    </Directory>
+
+    ErrorLog  /var/log/apache2/error.log
+    CustomLog /var/log/apache2/access.log combined
+
+</VirtualHost>
