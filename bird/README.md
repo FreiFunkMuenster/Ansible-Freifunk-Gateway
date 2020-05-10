@@ -8,10 +8,8 @@ Das betrifft sowohl die GRE-Tunnel zwischen den Servern (siehe Rolle "backbone_g
 Außerdem sendet Bird für IPv6 Router Advertisements in das Batman-Netz, wodurch Freifunk-Clients ihre IPv6-Adresse bekommen und erfahren, welche Router es gibt.
 
 
-## Konfiguration:
-
-*TODO!*
-
+# TODO:
+Konfiguration erläutern:
 - domaenenliste 
 - more_specific_routes
 - hostvars[host].hoster

@@ -5,4 +5,4 @@ Auf den NTP-Server kann nur aus dem Freifunk-Netz zugegriffen werden.
 Als NTP-Server wird chrony verwendet.
 
 ## Konfiguration
-Keine
+Keine.

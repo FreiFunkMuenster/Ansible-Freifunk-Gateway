@@ -6,4 +6,4 @@ Diese Rolle konfiguriert MOTD ("Message of the Day") und sollte immer eingebunde
 Es werden u.a. Betriebssystem, Hostname, IP-Adressen und bei Gateways die Domänen angezeigt.
 
 ## Konfiguration
-Keine
+Keine.

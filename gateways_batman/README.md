@@ -6,3 +6,7 @@ Jedem Batman-Netzwerkinterface wird außerdem eine Netzwerkbrücke (Name: `br<Do
 Mit diesem können sich dann die L2TP- und/oder fastd-Tunnel verbinden können.
 
 Die Netzwerkbrücke ist notwendig, weil Batman mit dem häufigen Hinzufügen und Entfernen von Netzwerkschnittstellen beim Auf- und Abbau von L2TP-Verbindungen nicht gut zurecht kommt.
+
+## Konfiguration
+
+Keine.

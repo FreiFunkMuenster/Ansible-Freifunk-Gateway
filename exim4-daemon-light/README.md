@@ -4,6 +4,8 @@ Diese Rolle installiert den Mailserver exim4-daemon-light
 
 E-Mails werden nur von localhost angenommen und dann an den in der Variable "mail" angegebenen SMTP-Server weitergeleitet.
 
+## Konfiguration
+
 Die Konfiguration erfolgt durch die Variable "mail":
 
 **Beispiel:**

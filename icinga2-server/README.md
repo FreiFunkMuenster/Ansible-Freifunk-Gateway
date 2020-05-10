@@ -1,6 +1,9 @@
+# icinga2-server
+
 Diese Rolle installiert Icinga2 und optional IcingaWeb2.
 Es wird die Rolle exim4-daemon-light benötigt.
 
+## Konfiguration
 Die Konfiguration erfolgt durch Variable "icinga2":
 ```
     icinga2:
@@ -36,5 +39,5 @@ Auf die API kann, wenn nicht anders konfiguriert, über https, Port 5665, zugegr
 Das von Icinga2 dafür erzeugte CA-Zertifikat wird auf dem Ansible-Controller unter "keyfiles/icinga2/HOSTNAME-ca.crt" abgelegt.
 Auf IcingaWeb2 kann, wenn nicht anders konfiguriert, über http, Port 80, zugegriffen werden.
 
-### Kompatibilität:
+## Kompatibilität:
 Derzeit nur Debian 10
