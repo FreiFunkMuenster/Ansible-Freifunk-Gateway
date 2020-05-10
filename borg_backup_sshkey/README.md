@@ -34,7 +34,7 @@ borg_backups:
   - name: 'to-backupserver1'
     backup_server: backupserver1
     backup_server_user: borgbkp
-    backup_server_port: 23
+    backup_server_port: 22
     backup_server_path: "/borg/gw2"
     backup_server_passphrase: "34048089029052892229184979317772"
     borg_options: '-v --stats --list --filter=AME --compression lzma'
@@ -68,7 +68,7 @@ Die Rolle "borg_backup_target" trägt den SSH-Public-Key auf dem Zielrechner ein
 Der SSH-Private-Key verbleibt ausschließlich auf dem Quellrechner.
 
 * Der Zielrechner muss unter `backup_server` angegeben werden.
-* `backup_server_port` gibt den SSH-Port an (im Normalfall 23).
+* `backup_server_port` gibt den SSH-Port an (im Normalfall 22).
 * `backup_server_user` gibt den User auf dem Zielrechner an, der für die SSH-Verbindung benutzt werden soll.
 * `backup_server_path` (optional) gibt das Unterverzeichnis für das Repository auf dem Zielrechner. Wenn nicht gesetzt wird "/&lt;hostname&gt;-bkp" benutzt.
 
