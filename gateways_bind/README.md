@@ -59,5 +59,5 @@ Ergibt dann in den Zonefiles "/etc/bind/db.domaene-*.ffnet" aller Domänen folge
 ```
 Die so hinzugefügten Hosts werden in allen Domänen als "Hostname.<freifunk.kurzname>" aufgelöst, hier also "foo.ffms", "bar.ffms" und "baz.ffms".
 
-## TODO:
+# TODO:
 - is_external_nameserver
