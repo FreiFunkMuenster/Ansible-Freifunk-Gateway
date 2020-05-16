@@ -1,0 +1,61 @@
+- name: Install nginx and certbot
+  apt:
+    pkg: [ 'python-certbot-nginx', 'nginx' ]
+
+- name: Copy Nginx config files
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/nginx/conf.d/{{ item }}"
+  loop:
+    - anonymize-ip.conf
+    - hardening.conf
+  notify: reload nginx
+
+- name: Create default http config
+  template:
+    src: default-http.j2
+    dest: /etc/nginx/sites-available/default
+  notify: reload nginx
+
+- name: Enable default http config
+  file:
+    src: /etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+  notify: reload nginx
+
+- name: Create certificates
+  command: /usr/bin/certbot certonly --non-interactive --nginx --agree-tos --email {{ freifunk.email }} -d {{ item }}.{{ freifunk.domain }}
+  args:
+    creates: /etc/letsencrypt/live/{{ item }}.{{ freifunk.domain }}/cert.pem
+  loop: '{{ reverse_proxy | list | map("regex_replace", ":.*", "") | list | unique }}'
+
+- name: Get all enabled site configs
+  find:
+    paths: '/etc/nginx/sites-enabled/'
+    file_type: link
+  register: find_enabledsites
+
+- name: Disable all unneeded site configs
+  file:
+    path: /etc/nginx/sites-enabled/{{ item.path | basename }}
+    state: absent
+  loop: "{{ find_enabledsites.files }}"
+  when: item.path | basename not in (reverse_proxy | list ) and item.path | basename != "default"
+  notify: reload nginx
+
+- name: Create https site configs
+  template:
+    src: reverse-proxy-https.j2
+    dest: /etc/nginx/sites-available/{{ item.key }}
+  loop: '{{ reverse_proxy | dict2items }}'
+  notify: reload nginx
+
+- name: Enable site configs
+  file:
+    src: /etc/nginx/sites-available/{{ item }}
+    dest: /etc/nginx/sites-enabled/{{ item }}
+    state: link
+  loop: '{{ reverse_proxy | list }}'
+  notify: reload nginx
+  ignore_errors: "{{ ansible_check_mode }}"

@@ -1,0 +1,30 @@
+# {{ ansible_managed }}
+
+# catchall for all subdomains
+# redirects everything to HTTPS, except LetsEncrypt's ACME challenges
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    server_name _;
+
+    location ^~ /.well-known/acme-challenge/ {
+        allow all;
+        root /var/lib/letsencrypt/;
+        default_type "text/plain";
+        try_files $uri $uri/ =404;
+    }
+
+    location /nginx_status {
+        stub_status on;
+        access_log off;
+        allow 127.0.0.1;
+        deny all;
+    }
+
+    location / {
+        return 301 https://$server_name$request_uri;
+    }
+
+   access_log /var/log/nginx/access.log anonymized;
+}

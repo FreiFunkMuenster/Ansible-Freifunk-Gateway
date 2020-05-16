@@ -1,0 +1,32 @@
+- name: Install required packages
+  apt:
+    pkg: [ 'docker-compose', 'docker.io', 'git', 'cifs-utils' ]
+
+- name: Switch Docker logging to journald
+  copy:
+    src: "docker-daemon.json"
+    dest: "/etc/docker/daemon.json"
+  notify: restart docker
+
+- name: Mount firmware images
+  mount:
+    src: "{{ firmware.mount.src }}"
+    fstype: "{{ firmware.mount.fstype }}"
+    opts: "ro,{{ firmware.mount.opts }}"
+    path: "/mnt/firmware"
+    state: mounted
+
+- name: Clone git repository
+  git:
+    repo: "{{ mapserver_docker.repository }}"
+    dest: "/opt/mapserver-docker"
+  notify: docker-compose build and start
+
+- name: Set InfluxDB user credentials
+  template:
+    src: "{{ item }}.j2"
+    dest: "/opt/mapserver-docker/{{ item }}"
+  loop:
+    - influxdb-admin-credentials.env
+    - influxdb-write-credentials.env
+  notify: docker-compose build and start

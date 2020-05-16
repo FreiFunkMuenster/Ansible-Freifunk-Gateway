@@ -1,0 +1,10 @@
+---
+- name: restart docker
+  service:
+    name: docker
+    state: restarted
+
+- name: docker-compose build and start
+  docker_compose:
+    project_src: "/opt/mapserver-docker"
+    build: yes
