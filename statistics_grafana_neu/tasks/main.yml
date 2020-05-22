@@ -1,0 +1,40 @@
+---
+- include_vars: passwords.yml
+
+- name: install required packages for grafana
+  apt:
+    pkg: ['apt-transport-https', 'sqlite3']
+    update_cache: yes
+    cache_valid_time: 900
+    state: present
+
+- name: add repo-key for grafana
+  apt_key:
+    id: 8C8C34C524098CB6
+    url: https://packages.grafana.com/gpg.key
+    state: present
+ 
+- name: add repo for grafana
+  apt_repository:
+    repo: 'deb https://packages.grafana.com/oss/deb stable main'
+    state: present
+
+- name: install grafana
+  apt:
+    pkg: "grafana"
+    update_cache: yes
+    cache_valid_time: 900
+    state: present
+
+- name: deploy grafana.ini
+  template:
+    src: grafana.ini.j2
+    dest: /etc/grafana/grafana.ini
+  notify:
+    - restart grafana-server
+
+- name: Start and enable grafana
+  service:
+    name: grafana-server
+    state: started
+    enabled: yes

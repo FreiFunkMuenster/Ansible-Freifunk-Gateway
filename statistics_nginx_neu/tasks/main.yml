@@ -1,0 +1,26 @@
+---
+
+- name: install nginx and php
+  apt:
+    pkg: ['nginx', 'php7.3-fpm', 'php7.3-json', 'php7.3-cli', 'php7.3-common', 'php7.3-opcache']
+    update_cache: yes 
+    state: latest
+
+- name: Install default nginx site
+  template:
+    src: templates/default.j2
+    dest: /etc/nginx/sites-available/default
+  register: gendefconf
+
+- name: Activate default nginx site
+  file:
+    src: /etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+  register: actdefconf
+
+- name: Reload nginx to activate site
+  service:
+    name: nginx
+    state: restarted
+  when: gendefconf.changed or actdefconf.changed

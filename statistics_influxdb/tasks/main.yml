@@ -1,0 +1,75 @@
+---
+- include_vars: passwords.yml
+
+- name: add key for InfluxDB repo
+  apt_key:
+    url: "https://repos.influxdata.com/influxdb.key"
+
+- name: add InfluxDB repo
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items:
+    - "deb https://repos.influxdata.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
+
+- name: install InfluxDB and other required packets
+  apt:
+    pkg: ['influxdb', 'python-pip', 'python-setuptools', 'python-requests', 'python-influxdb']
+    update_cache: yes
+    cache_valid_time: 1800
+    state: present
+
+- name: copy influxdb.conf
+  template:
+    src: influxdb.conf.j2
+    dest: /etc/influxdb/influxdb.conf
+  notify:
+    - "restart influxdb"
+
+- name: Start and enable influxdb
+  service:
+    name: influxdb
+    state: started
+    enabled: yes
+
+- name: Create database telegraf
+  influxdb_database:
+    hostname: "localhost"
+    database_name: "telegraf"
+    ssl: no
+    state: present
+
+- name: Create influxdb user "{{ influxdb.telegraf_user }}" on localhost
+  influxdb_user:
+    hostname: "localhost"
+    user_name: "{{ influxdb.telegraf_user }}"
+    user_password: "{{ influxdb.telegraf_password }}"
+    ssl: no
+
+- name: setup userrights for user "{{ influxdb.telegraf_user }}"
+  influxdb_query:
+    hostname: "localhost"
+    database_name: "telegraf"
+    query: "GRANT ALL ON telegraf TO {{ influxdb.telegraf_user }}"
+    ssl: no
+
+- name: Create database ffmsl
+  influxdb_database:
+    hostname: "localhost"
+    database_name: "ffmsl"
+    ssl: no
+    state: present
+
+- name: Create influxdb user "{{ influxdb.ffmsl_user }}" on localhost
+  influxdb_user:
+    hostname: "localhost"
+    user_name: "{{ influxdb.ffmsl_user }}"
+    user_password: "{{ influxdb.ffmsl_password }}"
+    ssl: no
+
+- name: setup userrights for user "{{ influxdb.ffmsl_user }}"
+  influxdb_query:
+    hostname: "localhost"
+    database_name: "ffmsl"
+    query: "GRANT ALL ON ffmsl TO {{ influxdb.ffmsl_user }}"
+    ssl: no

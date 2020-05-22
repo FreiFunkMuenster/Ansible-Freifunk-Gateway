@@ -1,0 +1,33 @@
+---
+- include_vars: passwords.yml
+
+- name: add key for InfluxDB repo
+  apt_key:
+    url: "https://repos.influxdata.com/influxdb.key"
+
+- name: add InfluxDB repo
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items:
+    - "deb https://repos.influxdata.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
+
+- name: install Telegraf and other required packets
+  apt:
+    pkg: ['telegraf', 'hddtemp'] 
+    update_cache: yes
+    cache_valid_time: 1800
+    state: present
+
+- name: copy telegraf.conf
+  template: 
+    src: telegraf.conf.j2 
+    dest: /etc/telegraf/telegraf.conf
+  notify:
+    - "restart telegraf"
+
+- name: Start and enable telegraf
+  service:
+    name: telegraf
+    state: started
+    enabled: yes
