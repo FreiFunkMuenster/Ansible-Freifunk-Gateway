@@ -23,21 +23,15 @@ COMMIT
 :POSTROUTING ACCEPT [0:0]
 {% if ipv4_direkt_ausleiten is defined and ipv4_direkt_ausleiten %}
 {% if domaenenliste is defined %}
-{% for domaene in domaenenliste|dictsort %}
--A POSTROUTING -o {{ ansible_default_ipv4.interface }} --source {{ domaenen[domaene[0]].ffv4_network }} -j SNAT --to-source {{ ansible_default_ipv4.address }}
-{% endfor %}
+-A POSTROUTING -o {{ ansible_default_ipv4.interface }} -j SNAT --to-source {{ ansible_default_ipv4.address }}
 {% endif %}
 {% elif ffrl_tun is defined and ffrl_nat_ip is defined %}
 {% if domaenenliste is defined %}
-{% for domaene in domaenenliste|dictsort %}
--A POSTROUTING -o tun-ffrl+ --source {{ domaenen[domaene[0]].ffv4_network }} -j SNAT --to-source {{ ffrl_nat_ip | ipaddr('address') }}
-{% endfor %}
+-A POSTROUTING -o tun-ffrl+ -j SNAT --to-source {{ ffrl_nat_ip | ipaddr('address') }}
 {% endif %}
 {% elif ffnw_tun is defined and ffnw_nat_ip is defined %}
 {% if domaenenliste is defined %}
-{% for domaene in domaenenliste|dictsort %}
--A POSTROUTING -o tun-ffnw+ --source {{ domaenen[domaene[0]].ffv4_network }} -j SNAT --to-source {{ ffnw_nat_ip | ipaddr('address') }}
-{% endfor %}
+-A POSTROUTING -o tun-ffnw+ -j SNAT --to-source {{ ffnw_nat_ip | ipaddr('address') }}
 {% endif %}
 {% endif %}
 {% if ffnw_tun is not defined and ffnw_nat_ip is not defined and ffrl_tun is not defined and ffrl_nat_ip is not defined %}
