@@ -1,15 +1,10 @@
 # {{ ansible_managed }}
 
 server {
-    listen {{ item.key.split(":")[1] | default("443") }} ssl http2;
-    listen [::]:{{ item.key.split(":")[1] | default("443") }} ssl http2;
+    listen {{ item.key.split(":")[1] | default("80") }};
+    listen [::]:{{ item.key.split(":")[1] | default("80") }};
 
     server_name {{ item.key.split(":")[0] }}.{{ freifunk.domain }};
-
-    ssl_certificate /etc/letsencrypt/live/{{ item.key.split(":")[0] }}.{{ freifunk.domain }}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/{{ item.key.split(":")[0] }}.{{ freifunk.domain }}/privkey.pem;
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-    include /etc/letsencrypt/options-ssl-nginx.conf;
 
     location / {
         proxy_set_header X-Real-IP $ip_anonymized;

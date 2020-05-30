@@ -28,7 +28,7 @@
   command: /usr/bin/certbot certonly --non-interactive --nginx --agree-tos --email {{ freifunk.email }} -d {{ item }}.{{ freifunk.domain }}
   args:
     creates: /etc/letsencrypt/live/{{ item }}.{{ freifunk.domain }}/cert.pem
-  loop: '{{ reverse_proxy | list | map("regex_replace", ":.*", "") | list | unique }}'
+  loop: '{{ reverse_proxy.https | list | map("regex_replace", ":.*", "") | list | unique }}'
 
 - name: Get all enabled site configs
   find:
@@ -41,21 +41,39 @@
     path: /etc/nginx/sites-enabled/{{ item.path | basename }}
     state: absent
   loop: "{{ find_enabledsites.files }}"
-  when: item.path | basename not in (reverse_proxy | list ) and item.path | basename != "default"
+  when: item.path | basename not in (reverse_proxy.http | list | map('regex_replace','^','http_') | list) and
+        item.path | basename not in (reverse_proxy.https | list | map('regex_replace','^','https_') | list) and
+        item.path | basename != "default"
   notify: reload nginx
+
+- name: Create http site configs
+  template:
+    src: reverse-proxy-http.j2
+    dest: /etc/nginx/sites-available/http_{{ item.key }}
+  loop: '{{ reverse_proxy.http | dict2items }}'
+  notify: reload nginx
+
+- name: Enable http site configs
+  file:
+    src: /etc/nginx/sites-available/http_{{ item }}
+    dest: /etc/nginx/sites-enabled/http_{{ item }}
+    state: link
+  loop: '{{ reverse_proxy.http | list }}'
+  notify: reload nginx
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Create https site configs
   template:
     src: reverse-proxy-https.j2
-    dest: /etc/nginx/sites-available/{{ item.key }}
-  loop: '{{ reverse_proxy | dict2items }}'
+    dest: /etc/nginx/sites-available/https_{{ item.key }}
+  loop: '{{ reverse_proxy.https | dict2items }}'
   notify: reload nginx
 
-- name: Enable site configs
+- name: Enable https site configs
   file:
-    src: /etc/nginx/sites-available/{{ item }}
-    dest: /etc/nginx/sites-enabled/{{ item }}
+    src: /etc/nginx/sites-available/https_{{ item }}
+    dest: /etc/nginx/sites-enabled/https_{{ item }}
     state: link
-  loop: '{{ reverse_proxy | list }}'
+  loop: '{{ reverse_proxy.https | list }}'
   notify: reload nginx
   ignore_errors: "{{ ansible_check_mode }}"
