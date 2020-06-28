@@ -47,3 +47,11 @@ Im obigen Beispiel wird wöchentlich ("weekly") eine neue Logdatei erstellt.
 Die letzten zwei Logdateien werden aufgehoben, alle älteren werden gelöscht.
 Es existieren also Logdateien für die letzten 14 Tage.
 Journald wird automatisch so konfiguriert, dass Logs den selben Zeitraum aufbewahrt werden.
+
+### Swap
+Die Größe des minimal erforderlichen Swapspaces auf dem Server kann mit der Variable `swap_minimum_mbyte` eingestellt werden:
+```
+swap_minimum_mbyte: 4096
+```
+
+Wenn der Server über weniger MByte Swapspace verfügt als in der Variable angegeben, dann wird ein Swapfile (`/swap.img`) für die fehlenden MByte angelegt und eingebunden.

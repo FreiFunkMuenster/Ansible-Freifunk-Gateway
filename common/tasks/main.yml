@@ -25,6 +25,49 @@
     state: absent
     regexp: 'cdrom'
 
+- name: Prüfe ob ein Swapfile angelegt werden muss
+  set_fact:
+    swapfile_required: true
+  when: swap_minimum_mbyte is defined and swap_minimum_mbyte > 0 and ansible_swaptotal_mb < swap_minimum_mbyte-1
+
+- name: Prüfe ob /swap.img bereits benutzt wird
+  lineinfile:
+    dest: /proc/swaps
+    regexp: "^/swap.img\\s"
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: swapfile_in_use
+  when: swapfile_required is defined
+
+- name: Deaktiviere Swap auf /swap.img
+  command:
+    cmd: "swapoff /swap.img"
+  when: swapfile_required is defined and swapfile_in_use.found
+
+- name: Ermittle erneut die aktuelle Größe des verfügbaren Swaps
+  setup:
+    filter: ansible_swaptotal_mb
+  when: swapfile_required is defined and swapfile_in_use.found
+
+- name: Lege Swapfile an
+  command:
+    cmd: "{{ item }}"
+  args:
+    warn: false
+  with_items:
+    - dd if=/dev/zero of=/swap.img bs=1M count={{ swap_minimum_mbyte - ansible_swaptotal_mb }}
+    - chmod 600 /swap.img
+    - mkswap /swap.img
+    - swapon /swap.img
+  when: swapfile_required is defined
+
+- name: Trage Swapfile in /etc/fstab ein
+  lineinfile:
+    path: /etc/fstab
+    line: "/swap.img none swap sw 0 0"
+  when: swapfile_required is defined
+
 - name: install common packages
   apt:
     name: ['vim', 'wget', 'vnstat', 'tmux', 'pastebinit', 'htop', 'jnettop', 'iotop', 'tcpdump', 'screen', 'strace', 'socat', 'dnsutils', 'host', 'ifupdown',
