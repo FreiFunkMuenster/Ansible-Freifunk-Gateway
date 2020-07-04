@@ -123,7 +123,7 @@ apply Service "web-grafana" {
     check_command =			"http"
     vars.http_vhost =			host.vars.vhost
     vars.http_ssl =			"true"
-    vars.http_uri =			"/render/d-solo/00000002/freifunk-ingolstadt-knoten?orgId=1&refresh=5m&var-saveinterval=5m&panelId=18&width=520&height=300"	# simple rendered PNG, randomly taken from "Freifunk Ingolstadt - Gesamt" dashboard
+    vars.http_uri =			"/render/d-solo/000000001/freifunk-ingolstadt-gesamt?orgId=1&refresh=5m&var-saveinterval=5m&panelId=28&width=520&height=300"	# simple rendered PNG, randomly taken from "Freifunk Ingolstadt - Gesamt" dashboard
     vars.http_pagesize =		"5000"			# min. size in bytes
     vars.http_maxage =			"60"			# max. age of http document in seconds
     vars.http_headerstring =		"Content-Type: image/png"
