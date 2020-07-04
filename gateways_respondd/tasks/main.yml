@@ -12,6 +12,12 @@
     update: yes
   notify: restart respondd
 
+- name: patch hostname.py
+  template:
+    src: hostname.py.j2
+    dest: /opt/mesh-announce/providers/nodeinfo/hostname.py
+  notify: systemctl reload
+
 - name: create systemd file
   template:
     src: respondd.service.j2
