@@ -25,6 +25,22 @@
     state: absent
     regexp: 'cdrom'
 
+- name: Aktiviere Swapfile in /etc/fstab
+  lineinfile:
+    path: /etc/fstab
+    line: "/swapfile none swap defaults 0 0"
+  when: ansible_swaptotal_mb == 0
+
+- name: Lege Swapfile an
+  command:
+    cmd: "{{ item }}"
+  with_items:
+    - dd if=/dev/zero of=/swapfile bs=1M count=4096
+    - chmod 600 /swapfile
+    - mkswap /swapfile
+    - swapon /swapfile
+  when: ansible_swaptotal_mb == 0
+
 - name: install common packages
   apt:
     name: ['vim', 'wget', 'vnstat', 'tmux', 'pastebinit', 'htop', 'jnettop', 'iotop', 'tcpdump', 'screen', 'strace', 'socat', 'dnsutils', 'host', 'ifupdown',
