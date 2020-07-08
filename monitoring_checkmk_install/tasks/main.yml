@@ -1,0 +1,113 @@
+---
+# tasks file for install-check-mk-server
+- name: Install pre-requisites | APT
+  apt:
+    pkg:
+    - apache2
+    - apt-utils
+    - aptitude
+    - cron
+    - iproute2
+    - libfl2
+    - man
+    - python-passlib
+    - rsync
+    - xz-utils
+    state: present
+    update_cache: yes
+
+- name: acme install
+  shell: wget -O - https://get.acme.sh | sh
+  args:
+    creates: /root/.acme.sh/acme.sh
+
+- name: Create certificate
+  shell: /root/.acme.sh/acme.sh --issue --apache -d {{ ansible_hostname }}.{{ freifunk.domain }} {% for domain in domains %}{% if domain != freifunk.domain %}-d {{ ansible_hostname}}.{{ domain }} {% endif %}{% endfor %} --keypath "/etc/ssl/key.pem" --fullchainpath "/etc/ssl/fullchain.pem" --reloadcmd "systemctl reload apache2.service"
+  args:
+    creates: /root/.acme.sh/{{inventory_hostname_short}}.{{freifunk.domain}}/ca.cer
+
+- name: Make sure the man8 folder exists | FILE
+  file:
+    path: /usr/share/man/man8
+    state: directory
+    mode: 0755
+
+- name: Test if Check_MK package is on disk already | STAT
+  stat:
+    path: "/opt/check-mk-raw-{{ checkmk_version }}_0.{{ ansible_distribution_release }}_amd64.deb"
+  register: install_check_mk_server_package
+
+- name: Download Check_MK RAW | GET_URL
+  get_url:
+    dest: /opt
+    mode: 0755
+    url: "https://checkmk.de/support/{{ checkmk_version }}/check-mk-raw-{{ checkmk_version }}_0.{{ ansible_distribution_release }}_amd64.deb"
+  when: not install_check_mk_server_package.stat.exists
+
+- name: Install Check_MK RAW | APT
+  apt:
+    deb: "/opt/check-mk-raw-{{ checkmk_version }}_0.{{ ansible_distribution_release }}_amd64.deb"
+    state: present
+
+- name: Setup OMD | COMMAND
+  command: omd setup
+  args:
+    creates: /opt/omd
+
+- name: Setup Apache2 default sites | TEMPLATE
+  template:
+    src: "etc/apache2/sites-available/{{ item }}"
+    dest: "/etc/apache2/sites-available/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  loop:
+    - "000-default.conf"
+    - "default-ssl.conf"
+
+- name: Apache2 enable modules | APACHE2_MODULE
+  apache2_module:
+    state: present
+    name: "{{ item }}"
+  loop:
+    - rewrite
+    - ssl
+
+- name: Apache2 enable sites | FILE
+  file:
+    src: "../sites-available/{{ item }}"
+    dest: "/etc/apache2/sites-enabled/{{ item }}"
+    state: link
+  loop:
+    - "000-default.conf"
+    - "default-ssl.conf"
+
+- name: Create OMD site | COMMAND
+  command: omd create {{ item.name|lower }}
+  args:
+    creates: /opt/omd/sites/{{ item.name|lower }}
+  with_items: "{{ checkmk_sites }}"
+
+- name: Change OMD site admin password | HTPASSWD
+  htpasswd:
+   path: /opt/omd/sites/{{ item.name|lower }}/etc/htpasswd
+   name: cmkadmin
+   password: "{{ item.password }}"
+  become: true
+  become_user: "{{ item.name|lower }}"
+  vars:
+    ansible_ssh_pipelining: yes
+  with_items: "{{ checkmk_sites }}"
+
+- name: Start OMD site | COMMAND
+  command: omd start {{ item.name|lower }}
+  args:
+    creates: /opt/omd/sites/{{ item.name|lower }}/tmp/apache/run/apache.pid
+  with_items: "{{ checkmk_sites }}"
+
+- name: Start Apache2 | SERVICE
+  service:
+    name: "apache2"
+    state: started
+    enabled: yes
+...
