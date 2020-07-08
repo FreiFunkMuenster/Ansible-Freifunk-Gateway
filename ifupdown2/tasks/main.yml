@@ -4,7 +4,7 @@
 
  - name: install dependencies (for compilation and runtime)
    apt:
-     pkg: ['python-all', 'debhelper', 'dh-systemd', 'python-ipaddr', 'python-argcomplete']
+     pkg: ['build-essential', 'devscripts', 'dh-systemd', 'fakeroot', 'python-all', 'python-docutils', 'iproute2', 'python-ipaddr', 'python-setuptools', 'dh-python', 'python3-all', 'python3-setuptools', 'python3-docutils', 'ethtool', 'bridge-utils', 'python-gvgen', 'python-mako']
      state: present
    when: ifreload.stat.exists == False
 
@@ -12,7 +12,7 @@
    git:
      repo: 'https://github.com/CumulusNetworks/ifupdown2.git'
      dest: /opt/ifupdown2
-     version: debian-prep2
+     version: master
      update: yes
      force: yes
    when: ifreload.stat.exists == False
@@ -21,12 +21,6 @@
    shell: "dpkg-buildpackage -us -uc -rfakeroot -b"
    args:
      chdir: "/opt/ifupdown2"
-   when: ifreload.stat.exists == False
-
- - name: remove ifupdown1
-   apt:
-     pkg: ifupdown
-     state: absent
    when: ifreload.stat.exists == False
 
  - name: install created deb package
