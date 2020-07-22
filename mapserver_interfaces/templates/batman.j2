@@ -12,6 +12,7 @@ iface bat{{domaene[0]}} inet6 static
         netmask 64
         pre-up modprobe batman-adv
         pre-up ip link add bat{{domaene[0]}} type batadv
+        pre-up echo 0 > /proc/sys/net/ipv6/conf/$IFACE/accept_ra
         post-up ip link set address de:ad:be:ef:{{ '%02x' % indexer[0] }}:{{vm_id}} dev bat{{domaene[0]}}
         post-up ip link set dev bat{{domaene[0]}} up
         post-up batctl -m bat{{domaene[0]}} it 10000
