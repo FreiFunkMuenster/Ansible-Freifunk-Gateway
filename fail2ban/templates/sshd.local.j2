@@ -1,0 +1,12 @@
+[sshd]
+enabled = {{ fail2ban.sshd.enabled | default(true) }}
+port    = {{ ansible_ssh_port }}
+{% if fail2ban.sshd.bantime is defined %}
+bantime  = {{ fail2ban.sshd.bantime }}
+{% endif %}
+{% if fail2ban.sshd.findtime is defined %}
+findtime  = {{ fail2ban.sshd.findtime }}
+{% endif %}
+{% if fail2ban.sshd.maxretry is defined %}
+maxretry  = {{ fail2ban.sshd.maxretry }}
+{% endif %}
