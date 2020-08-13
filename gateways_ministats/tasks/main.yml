@@ -1,0 +1,81 @@
+- name: install vnstat, vnstati and nginx
+  apt:
+    pkg: ['nginx', 'vnstat', 'vnstati']
+    update_cache: no
+    state: latest
+
+- name: Install default nginx site 
+  template:
+    src: templates/default.j2
+    dest: /etc/nginx/sites-available/default
+  register: gendefconf
+
+- name: Activate default nginx site
+  file:
+    src: /etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+  register: actdefconf
+
+- name: Reload nginx to activate site
+  service:
+    name: nginx
+    state: restarted
+  when: gendefconf.changed or actdefconf.changed
+
+- name: Clone bootstrap and css files
+  git:
+    repo: https://github.com/FreiFunkMuenster/nodesmap-page.git
+    dest: /opt/nodesmappage
+    force: yes
+
+- name: link css
+  file:
+    src: /opt/nodesmappage/css
+    dest: /var/www/html/css
+    state: link
+
+- name: link js
+  file:
+    src: /opt/nodesmappage/js
+    dest: /var/www/html/js
+    state: link
+
+- name: link fonts
+  file:
+    src: /opt/nodesmappage/fonts
+    dest: /var/www/html/fonts
+    state: link
+
+- name: link icons
+  file:
+    src: /opt/nodesmappage/icons
+    dest: /var/www/html/icons
+    state: link
+
+- name: link logo
+  file:
+    src: /opt/nodesmappage/logo.svg
+    dest: /var/www/html/logo.svg
+    state: link
+
+- name: Generate index.html
+  template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+
+- name: copy generate_ministats Script
+  template:
+    src: generate_ministats.j2
+    dest: /usr/local/bin/generate_ministats
+    mode: a+x
+
+- name: Create cronjob
+  cron:
+    name: generate png's for Gateway Ministats
+    job: /usr/local/bin/generate_ministats 2>&1
+    day: '*'
+    hour: '*'
+    minute: '*/5'
+    state: present
+    user: root
