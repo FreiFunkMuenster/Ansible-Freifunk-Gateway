@@ -1,0 +1,79 @@
+#!/bin/bash
+
+PLUGINDIR=$(dirname "$0")
+. "${PLUGINDIR}/utils.sh"
+
+DOMAINS=()
+TIMEOUT=2
+
+while [[ $# -gt 0 ]]; do
+    opt="$1"
+    shift
+    case "${opt}" in
+	"-w" )	WARN="$1"; shift;;
+	"-c" )	CRIT="$1"; shift;;
+	"-s" )	SOURCE_IP="$1"; shift;;
+	"-t" )	TIMEOUT="$1"; shift;;
+	*)	DOMAINS+=("${opt}");;
+    esac
+done
+
+if [ -z "${CRIT}" ] || [ -z "${WARN}" ] || [ ${#DOMAINS[@]} -eq 0 ]; then
+    echo "$0 -w <WARNING> -c <CRITICAL> [-s <SOURCE_IP>] [-t TIMEOUT] DOMAIN [DOMAIN ...]"
+    echo
+    echo "    If at less than WARNING or CRITICAL percent of the domains are reachable within TIMEOUT seconds (default: 2) on HTTP, this script returns state WARNING or CRITICAL."
+    echo
+    echo "    If SOURCE_IP is set to an IP address or interface name, this is used to initiate the HTTP connections."
+    echo "    In that case a domain is skipped if it is also unreachable via the default interface."
+    echo
+    exit "${STATE_UNKNOWN}"
+fi
+
+DOMAINS_TOTAL=${#DOMAINS[@]}
+DOMAINS_OK=0
+
+PIDS=()
+for DOMAIN in "${DOMAINS[@]}"; do
+    (
+	if [ -n "${SOURCE_IP}" ]; then
+	    curl -4 --interface "${SOURCE_IP}" --max-time "${TIMEOUT}" --head --output /dev/null --silent http://"${DOMAIN}" && exit 0
+	    curl -4 --max-time "${TIMEOUT}" --head --output /dev/null --silent http://"${DOMAIN}" && exit 1
+	    exit 2
+	else
+	    curl -4 --max-time "${TIMEOUT}" --head --output /dev/null --silent http://"${DOMAIN}" && exit 0
+	    exit 1
+	fi
+    ) &
+    PIDS+=($!)
+done
+
+# Wait for all jobs to finish. The "wait" command forwards the exit state of the command that was executed in the background
+for P in ${PIDS[*]}; do
+    wait "$P"
+    RETVAL=$?
+    if [ ${RETVAL} -eq 0 ]; then
+	DOMAINS_OK=$((DOMAINS_OK+1))
+    elif [ ${RETVAL} -eq 2 ]; then
+	DOMAINS_TOTAL=$((DOMAINS_TOTAL-1))
+    fi
+done
+
+
+if [ ${DOMAINS_TOTAL} -eq 0 ]; then
+    echo "UNKNOWN: No domains to test"
+    exit "${STATE_UNKNOWN}"
+fi
+
+PERCENTAGE_OK=$((100*DOMAINS_OK/DOMAINS_TOTAL))
+PERFDATA="Domains reachable=${PERCENTAGE_OK}%;${WARN};${CRIT};0;100"
+
+if [ ${PERCENTAGE_OK} -lt "${CRIT}" ]; then
+    echo "CRITICAL: ${PERCENTAGE_OK}% of ${DOMAINS_TOTAL} domains reachable|${PERFDATA}"
+    exit "${STATE_CRITICAL}"
+elif [ ${PERCENTAGE_OK} -lt "${WARN}" ]; then
+    echo "WARNING: ${PERCENTAGE_OK}% of ${DOMAINS_TOTAL} domains reachable|${PERFDATA}"
+    exit "${STATE_WARNING}"
+else
+    echo "OK: ${PERCENTAGE_OK}% of ${DOMAINS_TOTAL} domains reachable|${PERFDATA}"
+    exit "${STATE_OK}"
+fi
