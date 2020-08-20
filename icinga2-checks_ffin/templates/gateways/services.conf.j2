@@ -172,6 +172,15 @@ object Service "Check Bird6 Sessions" {
   vars.nrpe_command = "check_bird6_sessions"
 }
 
+{% if nrpe.check_websites_ffrl_ipv4 is defined and hostvars[item].ffrl_nat_ip is defined %}
+object Service "Check selected Websites via FFRL tunnel (HTTP/IPv4) " {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_websites-ffrl-ipv4"
+}
+{% endif %}
+
 {% if hostvars[item].domaenenliste is defined %}
 {% for domaene in hostvars[item].domaenenliste|dictsort %}
 object Service "Check BATMAN Dom {{domaene[0]}} via IP" {
