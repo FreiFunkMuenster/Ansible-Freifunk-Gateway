@@ -1,0 +1,11 @@
+#!/bin/bash
+ziel="/var/www/html/"
+
+config="/etc/vnstat.conf"
+
+interface="{{ansible_default_ipv4.interface}}"
+vnstati -s -i $interface -o $ziel"vnstat_summe_.png"  --config $config # Uebersicht
+vnstati -h -i $interface -o $ziel"vnstat_stunde.png"  --config $config # stuendlich
+vnstati -d -i $interface -o $ziel"vnstat_tag___.png"  --config $config # taeglich
+vnstati -m -i $interface -o $ziel"vnstat_monat_.png"  --config $config # monatlich
+vnstati -t -i $interface -o $ziel"vnstat_top10_.png"  --config $config # top10
