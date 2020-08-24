@@ -22,13 +22,12 @@ object Service "zombie procs" {
   vars.nrpe_command = "check_zombie_procs"
 }
 
-# Abgeschalten, da wir aktuell auf GW2 Docker samt Nginx usw. am laufen haben, die sehr viele Prozesse erzeugen
-#object Service "Total Procs" {
-#  import "generic-service"
-#  host_name = "{{ item }}"
-#  check_command = "nrpe2"
-#  vars.nrpe_command = "check_total_procs"
-#}
+object Service "Total Procs" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_total_procs"
+}
 
 object Service "Disk" {
   import "generic-service"
@@ -172,12 +171,25 @@ object Service "Check Bird6 Sessions" {
   vars.nrpe_command = "check_bird6_sessions"
 }
 
-{% if nrpe.check_websites_ffrl_ipv4 is defined and hostvars[item].ffrl_nat_ip is defined %}
+{% if nrpe.check_websites_upstream_ipv4 is defined and hostvars[item].ffrl_nat_ip is defined %}
 object Service "Check selected Websites via FFRL tunnel (HTTP/IPv4) " {
   import "generic-service"
   host_name = "{{ item }}"
+  check_interval = 30m
+  retry_interval = 5m
   check_command = "nrpe2"
   vars.nrpe_command = "check_websites-ffrl-ipv4"
+}
+{% endif %}
+
+{% if nrpe.check_websites_upstream_ipv4 is defined and hostvars[item].ffnw_nat_ip is defined %}
+object Service "Check selected Websites via FFNW tunnel (HTTP/IPv4) " {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_interval = 30m
+  retry_interval = 5m
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_websites-ffnw-ipv4"
 }
 {% endif %}
 
