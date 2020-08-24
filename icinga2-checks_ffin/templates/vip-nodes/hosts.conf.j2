@@ -4,8 +4,10 @@
 
 object Host "{{ item }}" {
   import "generic-host"
-  address6 = "{{ hostvars[item].ansible_ssh_host }}"
+  address6 = "{{ hostvars[item].ipv6 }}"
   check_command = "ping6"
+  check_interval = 1h
+  retry_interval = 10m
   vars.notification["mail"] = {
     groups = ["freifunk_admins"]
   }
