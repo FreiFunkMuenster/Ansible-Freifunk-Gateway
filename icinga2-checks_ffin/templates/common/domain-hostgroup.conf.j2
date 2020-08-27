@@ -1,8 +1,0 @@
-# {{ ansible_managed }}
-
-{% for domaene in domaenen|dictsort -%}
-object HostGroup "{{domaene[1].name}}" {
-  display_name = "{{domaene[1].name}} {{domaene[1].community}}"
-}
-{% endfor %}
-
