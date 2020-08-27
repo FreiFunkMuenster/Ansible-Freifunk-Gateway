@@ -8,6 +8,7 @@ object Host "{{ item }}" {
   check_command = "ping6"
   check_interval = 1h
   retry_interval = 5m
+  groups = ["vip-nodes"]
   vars.notification["mail"] = {
     groups = ["freifunk_admins"]
   }
