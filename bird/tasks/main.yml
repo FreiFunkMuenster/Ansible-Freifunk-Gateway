@@ -5,6 +5,16 @@
     name: ['bird', 'ipcalc']
     cache_valid_time: 1800
 
+- name: Routingtabelle 44 auch internetz nennen
+  blockinfile:
+    path: "/etc/iproute2/rt_tables"
+    marker: "# {mark} Ansible managed block"
+    block: |
+      44   internetz
+  when:
+    - "'as-router' in groups" 
+    - "'as-router' in group_names" 
+
 - name: calculate more specific routes for DHCP pools
   shell: |
     set -o pipefail
