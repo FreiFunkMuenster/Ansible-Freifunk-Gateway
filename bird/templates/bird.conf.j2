@@ -56,6 +56,14 @@ protocol static {
 };
 {% endif %}
 
+{% if 'as_router' in groups and 'as_router' in groupnames %}
+protocol static generate_internetz_default {
+	table ffnet;
+	preference 1001;
+	route 0.0.0.0/0 via {{ as-ip }};
+};
+{% endif %}
+
 {% if domaenenliste is defined %}
 protocol static dhcp_Bereich {
 	table ffnet;
@@ -165,7 +173,11 @@ template bgp internal {
 		preference = 99;
 		accept;
 	};
+{% if 'as-router' in groups and 'as-router' in groupnames %}
+	export where source = RTS_STATIC;
+{% else %}
 	export where source = RTS_BGP;
+{% endif %}
 	gateway direct;
 	direct;
 	next hop self;
@@ -224,3 +236,7 @@ protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 
 {% endif %}
 {% endfor %}
+
+{% if 'as_router' in groups and 'as_router' in groupnames %}
+include bird-as.conf
+{% endif %}
