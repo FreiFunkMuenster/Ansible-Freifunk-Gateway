@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en"><!-- Mit Ansible erzeugt - änderungen werden überschrieben -->
+<head>
+  <title>{{freifunk.name}} - Gateway</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png?v=2">
+  <link rel="icon" type="image/png" href="/icons/favicon-32x32.png?v=2" sizes="32x32">
+  <link rel="icon" type="image/png" href="/icons/favicon-16x16.png?v=2" sizes="16x16">
+  <link rel="manifest" href="/icons/manifest.json?v=2">
+  <link rel="mask-icon" href="/icons/safari-pinned-tab.svg?v=2" color="#ffb400">
+  <link rel="shortcut icon" href="/icons/favicon.ico?v=2">
+  <meta name="apple-mobile-web-app-title" content="Freifunk">
+  <meta name="application-name" content="Freifunk">
+  <meta name="msapplication-config" content="/icons/browserconfig.xml?v=2">
+  <meta name="theme-color" content="#dc0067">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/ffms.css">
+</head>
+<body>
+	<div class="container">
+	  <div class="page-header">
+    <div class="row">
+      <div class="col-md-2 col-sm-3">
+        <img id="{{freifunk.kurzname}}-logo" src="logo.svg" class="img" alt="Logo {{freifunk.name}}">
+      </div>
+      <div class="col-md-10 col-sm-9">
+        <h2>{{freifunk.name}}
+    <br/><small>Gateway: {{inventory_hostname_short}}</small></h2>
+      </div>
+    </div>
+    </div>
+  </div>
+  <div class="container">
+  <div class="row">
+    <div class="col-md-4 col-sm-4 col-xs-12">
+      <h4><strong>Mini Statistiken</strong></h4>
+      <p><a class="btn-ffms-collapse visible-xs" data-toggle="collapse" data-target="#narrow-results">&#187; Mehr Freifunk Links</a></p>
+      <div id="narrow-results" class="narrow-results collapse">
+{% for host in groups['gateways']|default([]) %}
+        <p><a href="http://{{host}}.servers.{{freifunk.domain}}">Gateway: {{host}}</a></p>
+{% endfor %}
+      </div>
+      </br>
+      <h4><strong>Erweiterte Statistiken</strong></h4>
+      <p><a class="btn-ffms-collapse visible-xs" data-toggle="collapse" data-target="#narrow-results">&#187; Mehr Freifunk Links</a></p>
+      <div id="narrow-results" class="narrow-results collapse">
+{% for host in groups['gateways']|default([]) %}
+        <p><a href="https://grafana.freifunk-muensterland.de/d/000000024/multidomanen-gateways-details?orgId=1&refresh=30s&var-host={{host}}">Gateway: {{host}}</a></p>
+{% endfor %}
+      </div>
+    </div>
+    <!-- Spalte mit stats -->
+    <div class="col-md-4 col-sm-4 col-xs-6">
+        <div class="ffms-align-center">
+        <table  class="table table-list-search table-hover">
+          <thead>
+            <tr>
+              <th>
+                  <div style=text-align:center><h4>Statistik</h4></div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <img id=graph1 />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <img id=graph2 />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <img id=graph3 />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <img id=graph4 />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <img id=graph5 />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+    </div>
+  </div>
+  </div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <!-- optional via CDN: <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"  </script> -->
+    <script src="js/bootstrap.min.js"></script> 
+    <script src="js/search.js"></script>
+    <script>
+        function myScroll(my) {
+        $('html, body').animate({
+            scrollTop: $(".table").offset().top
+            }, 200);
+        }
+    </script>
+    <script>
+        var d = new Date(); 
+        var ts = d.getTime();
+        document.getElementById("graph1").src = "vnstat_summe_.png?ts=" + ts;
+        document.getElementById("graph2").src = "vnstat_stunde.png?ts=" + ts;
+        document.getElementById("graph3").src = "vnstat_tag___.png?ts=" + ts;
+        document.getElementById("graph4").src = "vnstat_monat_.png?ts=" + ts;
+        document.getElementById("graph5").src = "vnstat_top10_.png?ts=" + ts;
+    </script>
+</body>

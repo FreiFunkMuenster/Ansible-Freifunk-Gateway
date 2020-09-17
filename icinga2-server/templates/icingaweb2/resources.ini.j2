@@ -1,0 +1,13 @@
+; {{ ansible_managed }}
+
+[icinga_ido]
+type = "db"
+db = "mysql"
+host = "localhost"
+port = ""
+dbname = "icinga2_ido"
+username = "icinga2_ido"
+password = "{{ icinga2_ido_db_pw }}"
+charset = "utf8mb4"
+use_ssl = "0"
+

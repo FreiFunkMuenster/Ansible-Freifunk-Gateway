@@ -22,6 +22,7 @@ options {
 	tcp-clients 1000;
 	recursive-clients 10000;
 
+        rrset-order { order random; };
 };
 {% if collectd is defined and collectd.collect_bind %}
 statistics-channels {

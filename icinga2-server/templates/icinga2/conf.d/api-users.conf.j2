@@ -1,0 +1,15 @@
+/* {{ ansible_managed }} */
+
+/**
+ * The ApiUser objects are used for authentication against the API.
+ */
+
+{% for item in icinga2.userliste | default() | selectattr('user', 'defined') | selectattr('pw', 'defined') %}
+{% if item.user is defined and item.pw is defined %}
+object ApiUser "{{ item.user }}" {
+  password = "{{ item.pw }}"
+  permissions = [ "status/query", "objects/query/*", "actions/*" ]
+}
+
+{% endif %}
+{% endfor %}

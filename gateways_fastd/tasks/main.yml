@@ -4,7 +4,7 @@
 - name: check if fastd needs to be installed
   set_fact:
      fastd_on_this_gw: true
-  when: item.value.fastd is defined and item.value.fastd
+  when: (item.value.fastd is defined and item.value.fastd) or (item.value.fastd is undefined and item.value.fastd_key is defined)
   with_dict: "{{ domaenenliste }}"
 
 - name: install fastd (vpn daemon) and haveged (entropy daemon)
@@ -15,7 +15,11 @@
   when: fastd_on_this_gw is defined and fastd_on_this_gw
 
 - name: Get all enabled fastd instances
-  shell: '/bin/ls /etc/systemd/system/multi-user.target.wants/fastd@* | grep -oE "[0-9]+"'
+  shell: |
+    set -o pipefail
+    /bin/ls -1 /etc/systemd/system/multi-user.target.wants/fastd@* | sed -n 's/fastd@\([0-9][0-9]*\)\.service/\1/p'
+  args:
+    executable: bash
   changed_when: False
   failed_when: False
   check_mode: no
@@ -27,11 +31,13 @@
     enabled: no
     state: stopped
   with_items: "{{ _fastd_domain_instances.stdout_lines }}"
-  when: domaenenliste is defined and item not in domaenenliste or not domaenenliste[item].fastd
+  when: domaenenliste is defined and item not in domaenenliste or
+        (domaenenliste[item].fastd is defined and not domaenenliste[item].fastd) or
+        (domaenenliste[item].fastd is undefined and domaenenliste[item].fastd_key is undefined)
 
 - name: remove fastd (vpn daemon) and haveged (entropy daemon)
   apt:
-    pkg: ['fastd', 'haveged']
+    name: ['fastd', 'haveged']
     state: absent
   when: fastd_on_this_gw is not defined or not fastd_on_this_gw
 
@@ -39,25 +45,47 @@
   file:
     path: /etc/fastd/{{ item.key }}
     state: directory
-  when: item.value.fastd is defined and item.value.fastd
+  when: (item.value.fastd is defined and item.value.fastd) or (item.value.fastd is undefined and item.value.fastd_key is defined)
   with_dict: "{{ domaenenliste }}"
 
 - name: create keys directories
   file:
     path: /etc/fastd/{{ item.key }}/keys
     state: directory
-  when: item.value.fastd is defined and item.value.fastd
+  when: (item.value.fastd is defined and item.value.fastd) or (item.value.fastd is undefined and item.value.fastd_key is defined)
+  with_dict: "{{ domaenenliste }}"
+
+- name: write private key to seperate keyfiles, if fastd key is defined as host variable
+  template:
+    src: secret.key.j2
+    dest: /etc/fastd/{{ item.key }}/keys/secret.key
+    owner: root
+    group: root
+    mode: 0600
+  when: item.value.fastd_key is defined and not (item.value.fastd is defined and not item.value.fastd)
+  vars:
+    secretkey: "{{ item.value.fastd_key.secret }}"
+  with_dict: "{{ domaenenliste }}"
+
+- name: write public private key to seperate keyfiles, if fastd key is defined as host variable
+  template:
+    src: public.key.j2
+    dest: /etc/fastd/{{ item.key }}/keys/public.key
+  when: item.value.fastd_key is defined and not (item.value.fastd is defined and not item.value.fastd)
+  vars:
+    publickey: "{{ item.value.fastd_key.public }}"
   with_dict: "{{ domaenenliste }}"
 
 # generate new fastd keypair if no fastd_key file exists
 # new key will only be generated, if no secret,key file exists (public key doesn't matter)
 - name: generate fastd key (if not exists)
-  shell: fastd --generate-key
+  command: fastd --generate-key
   register: fastd_key_generated
   args:
     creates: /etc/fastd/{{ item.key }}/keys/secret.key
-  when: item.value.fastd is defined and item.value.fastd
+  when: (item.value.fastd is defined and item.value.fastd) and item.value.fastd_key is undefined
   with_dict: "{{ domaenenliste }}"
+  check_mode: no
   notify:
     - restart fastd per domain
 
@@ -69,6 +97,8 @@
     group: root
     mode: 0600
   when: item.changed
+  vars:
+    secretkey: "{{ item.stdout_lines[0]|replace('Secret: ','') }}"
   with_items: "{{ fastd_key_generated.results }}"
 
 - name: write public private key to seperate keyfiles, if new fastd key is generated
@@ -76,13 +106,15 @@
     src: public.key.j2
     dest: /etc/fastd/{{ item.item.key }}/keys/public.key
   when: item.changed
+  vars:
+    publickey: "{{ item.stdout_lines[1]|replace('Public: ','') }}"
   with_items: "{{ fastd_key_generated.results }}"
 
 - name: create dummy peer directory
   file:
     path: /etc/fastd/{{ item.key }}/peers
     state: directory
-  when: item.value.fastd is defined and item.value.fastd
+  when: (item.value.fastd is defined and item.value.fastd) or (item.value.fastd is undefined and item.value.fastd_key is defined)
   with_dict: "{{ domaenenliste }}"
 
 # create dummy peer file
@@ -90,7 +122,7 @@
   template:
     src: dummy.j2
     dest: /etc/fastd/{{ item.key }}/peers/dummy
-  when: item.value.fastd is defined and item.value.fastd
+  when: (item.value.fastd is defined and item.value.fastd) or (item.value.fastd is undefined and item.value.fastd_key is defined)
   with_dict: "{{ domaenenliste }}"
 
 # create fastd config
@@ -100,7 +132,7 @@
     dest: /etc/fastd/{{ item.key }}/fastd.conf
   notify:
     - restart fastd per domain
-  when: item.value.fastd is defined and item.value.fastd
+  when: (item.value.fastd is defined and item.value.fastd) or (item.value.fastd is undefined and item.value.fastd_key is defined)
   with_dict: "{{ domaenenliste }}"
 
 - name: create verify directory
@@ -124,7 +156,7 @@
   file:
     path: /var/freifunk/gateway-{{ freifunk.kurzname }}/fastd/blacklist
     state: touch
-  when: blacklist_file.stat.exists == False and fastd_on_this_gw is defined and fastd_on_this_gw
+  when: not blacklist_file.stat.exists and fastd_on_this_gw is defined and fastd_on_this_gw
 
 - name: status.pl nach /root kopieren
   copy:
@@ -150,7 +182,6 @@
   when: fastd_on_this_gw is defined and fastd_on_this_gw
   notify:
     - reread systemd configs
-    - restart fastd per domain
 
 - name: create folder for haveged service override file
   file:
@@ -167,14 +198,13 @@
   when: fastd_on_this_gw is defined and fastd_on_this_gw
   notify:
     - reread systemd configs
-    - restart haveged
 
 - name: enable fastd for each domain
   systemd:
     name: fastd@{{ item.key }}
     enabled: yes
     masked: no
-  when: item.value.fastd is defined and item.value.fastd
+  when: (item.value.fastd is defined and item.value.fastd) or (item.value.fastd is undefined and item.value.fastd_key is defined)
   with_dict: "{{ domaenenliste }}"
   notify:
     - restart fastd per domain

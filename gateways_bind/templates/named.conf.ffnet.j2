@@ -2,8 +2,11 @@
 
 {% if domaenenliste is defined %}
 {% for domaene in domaenenliste|dictsort -%}
-# view for (broadcast-)domain domaene-{{domaene[0]}}   
+# view for (broadcast-)domain domaene-{{domaene[0]}}
 view "domaene-{{domaene[0]}}" {
+        query-source address {{ domaenen[domaene[0]].ffv4_network | ipaddr(domaenenliste[domaene[0]].server_id) | ipaddr('address') }};
+        query-source-v6 address {{ domaenen[domaene[0]].ffv6_network | ipaddr(domaenenliste[domaene[0]].server_id) | ipaddr('address') }};
+
         match-clients {
                 {{domaenen[domaene[0]].ffv4_network}};
                 {{domaenen[domaene[0]].ffv6_network}};

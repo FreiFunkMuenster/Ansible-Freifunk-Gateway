@@ -1,0 +1,60 @@
+### API-Module
+
+- name: Create Icinga2 API CA directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: nagios
+    group: nagios
+    mode: "0700"
+  with_items:
+    - '/var/lib/icinga2/ca'
+    - '/var/lib/icinga2/certs'
+
+- name: Create Icinga2 API CA
+  command:
+    cmd: icinga2 pki new-ca
+    creates: '{{ item.creates }}'
+  loop:
+    - creates: '/var/lib/icinga2/ca/ca.key'
+    - creates: '/var/lib/icinga2/ca/ca.crt'
+  notify: reload icinga2
+
+- name: Generate CSR
+  command:
+    cmd: icinga2 pki new-cert
+      --cn {{ inventory_hostname_short }}.{{ freifunk.domain }}
+      --key /var/lib/icinga2/certs/{{ inventory_hostname_short }}.{{ freifunk.domain }}.key
+      --csr /var/lib/icinga2/certs/{{ inventory_hostname_short }}.{{ freifunk.domain }}.csr
+    creates: '{{ item.creates }}'
+  loop:
+    - creates: '/var/lib/icinga2/certs/{{ inventory_hostname_short }}.{{ freifunk.domain }}.key'
+    - creates: '/var/lib/icinga2/certs/{{ inventory_hostname_short }}.{{ freifunk.domain }}.csr'
+  notify: reload icinga2
+
+- name: Sign CSR and create certifiate
+  command:
+    cmd: icinga2 pki sign-csr
+      --csr /var/lib/icinga2/certs/{{ inventory_hostname_short }}.{{ freifunk.domain }}.csr
+      --cert /var/lib/icinga2/certs/{{ inventory_hostname_short }}.{{ freifunk.domain }}.crt
+    creates: '/var/lib/icinga2/certs/{{ inventory_hostname_short }}.{{ freifunk.domain }}.crt'
+  notify: reload icinga2
+
+- name: Copy CA certificate
+  copy:
+    remote_src: yes
+    src: '/var/lib/icinga2/ca/ca.crt'
+    dest: '/var/lib/icinga2/certs/ca.crt'
+  notify: reload icinga2
+
+- name: Store CA certificate in keyfiles
+  fetch:
+    src: '/var/lib/icinga2/ca/ca.crt'
+    dest: 'keyfiles/icinga2/{{ inventory_hostname }}-ca.crt'
+    flat: yes
+
+- name: Enable Icinga2 API module
+  template:
+    src: 'icinga2/features/api/api.conf.j2'
+    dest: '/etc/icinga2/features-enabled/api.conf'
+  notify: reload icinga2

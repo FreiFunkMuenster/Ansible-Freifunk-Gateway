@@ -1,0 +1,18 @@
+- name: install fail2ban
+  apt:
+    pkg: ['fail2ban']
+    state: present
+
+- name: generate default.local
+  template: 
+    src: default.local.j2
+    dest: /etc/fail2ban/jail.d/default.local
+  notify:
+    - "restart fail2ban"
+
+- name: generate sshd.local
+  template: 
+    src: sshd.local.j2
+    dest: /etc/fail2ban/jail.d/sshd.local
+  notify:
+    - "restart fail2ban"

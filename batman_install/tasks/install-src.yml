@@ -1,75 +1,79 @@
 - name: Abhängigkeiten installieren
   apt:
-    pkg: ['dkms', 'build-essential', 'linux-headers-{{ansible_kernel}}', 'pkg-config', 'libnl-3-dev', 'libnl-genl-3-dev']
+    name: ['dkms', 'build-essential', 'linux-headers-{{ ansible_kernel }}', 'pkg-config', 'libnl-3-dev', 'libnl-genl-3-dev']
     state: present
 
-- name: create directory for batman-adv
+- name: Verzeichnis erstellen für Quellcode von batman-adv
   file:
     name: /opt/batman-adv
     state: directory
 
-- name: Download Batman 
+- name: Batman-Quellecode herunterladen
   get_url:
-    url: "https://downloads.open-mesh.org/batman/releases/batman-adv-{{batman.version}}/batman-adv-{{batman.version}}.tar.gz"
-    dest: /opt/batman-adv/batman-adv-{{batman.version}}.tar.gz
-  register: getbatman
+    url: "https://downloads.open-mesh.org/batman/releases/batman-adv-{{ batman.version }}/batman-adv-{{ batman.version }}.tar.gz"
+    dest: /opt/batman-adv/batman-adv-{{ batman.version }}.tar.gz
 
-- name: batman-Quellen entpacken
+- name: Batman-Quellcode entpacken
   unarchive:
-    src: /opt/batman-adv/batman-adv-{{batman.version}}.tar.gz
+    src: /opt/batman-adv/batman-adv-{{ batman.version }}.tar.gz
     dest: /usr/src
     remote_src: True
-  when: 
-    - getbatman.changed
+  when: not ansible_check_mode
 
-- name: configure dkms
-  template: 
+- name: DKMS konfigurieren
+  template:
     src: dkms.conf
-    dest: /usr/src/batman-adv-{{batman.version}}/dkms.conf
-
-- stat: 
-    path: /lib/modules/{{ansible_kernel}}/updates/dkms/batman-adv.ko
-  register: batman_adv_file
+    dest: /usr/src/batman-adv-{{ batman.version }}/dkms.conf
 
 - name: Batman bauen
-  shell: "dkms add -m batman-adv -v {{batman.version}} && dkms build -m batman-adv -v {{batman.version}} && dkms install -m batman-adv -v {{batman.version}} --force"
-  when:
-    - batman_adv_file.stat.exists == False or getbatman.changed
+  command: "{{ item }}"
+  with_items:
+    - dkms add -m batman-adv -v {{ batman.version }}
+    - dkms build -m batman-adv -v {{ batman.version }}
+    - dkms install -m batman-adv -v {{ batman.version }} --force
+  notify: restart batman
+  changed_when: false
 
 # batctl
-- name: create directory for batctl
-  file:
-    name: /opt/batctl
-    state: directory
-
-- name: get batctl
-  get_url:
-    url: "https://downloads.open-mesh.org/batman/releases/batman-adv-{{batman.version}}/batctl-{{batman.version}}.tar.gz"
-    dest: /opt/batctl/batctl-{{batman.version}}.tar.gz
-  register: getbatctl
-
-- name: batctl-Quellen und entpacken
-  unarchive:
-    src: /opt/batctl/batctl-{{batman.version}}.tar.gz
-    dest: /usr/src
-    remote_src: True
-  when:
-    - getbatctl.changed
-
-- stat: path=/usr/local/sbin/batctl
+- name: Prüfe ob batctl bereits existiert
+  stat: path=/usr/local/sbin/batctl
   register: batctl
 
-- name: batctl Version prüfen
-  shell: '{{batctl.stat.path}} -v | grep -oE "batctl [0-9]+\.[0-9]+"'
-  when: 
-    - batctl.stat.exists == True
-  changed_when: False
+- name: batctl-Version prüfen
+  shell: |
+    set -o pipefail
+    {{ batctl.stat.path }} -v | grep -oE "[0-9]+\.[0-9]+(\.[0-9]+)?"
+  args:
+    executable: bash
+  when: batctl.stat.exists
+  changed_when: false
   register: batctl_version
   check_mode: no
 
-- name: batctl bauen
-  shell: "make && make install"
+- name: Verzeichnis erstellen für Quellcode von batctl
+  file:
+    name: /opt/batctl
+    state: directory
+  when: not batctl.stat.exists or batctl_version.stdout_lines[0] != batman.version
+
+- name: batctl-Quellcode herunterladen
+  get_url:
+    url: "https://downloads.open-mesh.org/batman/releases/batman-adv-{{ batman.version }}/batctl-{{ batman.version }}.tar.gz"
+    dest: /opt/batctl/batctl-{{ batman.version }}.tar.gz
+  when: not batctl.stat.exists or batctl_version.stdout_lines[0] != batman.version
+
+- name: batctl-Quellcode entpacken
+  unarchive:
+    src: /opt/batctl/batctl-{{ batman.version }}.tar.gz
+    dest: /usr/src
+    remote_src: True
+  when: not ansible_check_mode and (not batctl.stat.exists or batctl_version.stdout_lines[0] != batman.version)
+
+- name: batctl bauen und installieren
+  command: "{{ item }}"
+  with_items:
+    - make
+    - make install
   args:
-    chdir: /usr/src/batctl-{{batman.version}}
-  when:
-    - batctl.stat.exists == False or batctl_version.stdout_lines[0] != "batctl {{batman.version}}"
+    chdir: /usr/src/batctl-{{ batman.version }}
+  when: not ansible_check_mode and (not batctl.stat.exists or batctl_version.stdout_lines[0] != batman.version)

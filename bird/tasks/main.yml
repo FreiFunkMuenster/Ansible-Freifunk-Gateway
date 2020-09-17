@@ -1,38 +1,21 @@
 ---
 # Role for configure bird and bird6 for our gateway servers.
-- name: Add repo key for bird (Debian 8 only)
-  apt_key:
-    url: https://bird.network.cz/debian/apt.gpg
-  when: ansible_distribution == "Debian" and ansible_distribution_major_version == "8"
-
-- name: add bird repo (Debian 8 only)
-  apt_repository:
-    repo: "deb [trusted=yes] http://bird.network.cz/debian/ {{ ansible_distribution_release }} main"
-    state: present
-  when: ansible_distribution == "Debian" and ansible_distribution_major_version == "8"
-
-- name: install bird and other required packets (Debian 8 only)
-  apt:
-    pkg: ['bird', 'bird6', 'ipcalc']
-    update_cache: yes
-    cache_valid_time: 1800
-    state: present
-  when: ansible_distribution == "Debian" and ansible_distribution_major_version == "8"
-
 - name: install bird and other required packets
   apt:
-    pkg: ['bird', 'ipcalc']
-    update_cache: yes
+    name: ['bird', 'ipcalc']
     cache_valid_time: 1800
-    state: present
-  when: not (ansible_distribution == "Debian" and ansible_distribution_major_version == "8")
 
 - name: calculate more specific routes for DHCP pools
-  shell: ipcalc {{ domaenenliste[item].dhcp_start }} - {{ domaenenliste[item].dhcp_ende}} | grep -v "deaggregate" | sed -e 's/\(^.*$\)/route \1 via "bat{{item}}";/g'
+  shell: |
+    set -o pipefail
+    ipcalc {{ domaenenliste[item].dhcp_start }} - {{ domaenenliste[item].dhcp_ende }} | \
+    grep -v "deaggregate" | sed -e 's/\(^.*$\)/route \1 via "bat{{ item }}";/g'
+  args:
+    executable: bash
   check_mode: no
   changed_when: false
   register: more_specific_routes
-  with_items: "{{domaenenliste | default([])}}"
+  with_items: "{{ domaenenliste | default([]) }}"
   when: domaenenliste is defined
 
 - name: configure bird.conf

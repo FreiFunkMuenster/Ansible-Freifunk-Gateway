@@ -20,7 +20,6 @@ command[check_load]=/usr/lib/nagios/plugins/check_load -w 15,10,5 -c 30,25,20
 command[check_ram]=/usr/lib/nagios/plugins/check_ram -w 10 -c 5 -f -C
 command[check_zombie_procs]=/usr/lib/nagios/plugins/check_procs -w 5 -c 10 -s Z
 command[check_total_procs]=/usr/lib/nagios/plugins/check_procs -w 220 -c 240
-command[check_active_leases]=/opt/show-active-leases  | grep "Total Active Leases" | cut -d " " -f5
 command[check_disk]=/usr/lib/nagios/plugins/check_disk -w 15% -c 10% -p /
 #command[check_update]=/usr/lib/nagios/plugins/check_apt
 command[check_apt_succesful]=/usr/lib/nagios/plugins/check_file_age -w 604800 -c 1209600 -f /var/lib/apt/periodic/update-success-stamp
@@ -31,8 +30,12 @@ command[check_bird6]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C bird6
 command[check_bind]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C named
 command[check_collectd]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C collectd
 command[check_pyrespondd]=/usr/lib/nagios/plugins/check_systemd_service py-respondd
+command[check_respondd]=/usr/lib/nagios/plugins/check_systemd_service respondd
 command[check_tunneldigger]=/usr/lib/nagios/plugins/check_tunneldigger
+command[check_fastd]=/usr/lib/nagios/plugins/check_fastd
 command[check_dhcp-server]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C kea-dhcp4
+command[check_isc-dhcp-server]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -C dhcpd
+command[check_isc-dhcp-server-leases]=/usr/bin/dhcpd-pools -c /etc/dhcp/dhcpd.conf -l /var/lib/dhcp/dhcpd.leases --warning=80 --critical=90 --perfdata
 command[check_vnstat]=/usr/lib/nagios/plugins/check_vnstat.sh -i {{ansible_default_ipv4.interface}} 
 command[check-dhcp-client]=/usr/lib/nagios/plugins/check_dhcp -t 5
 command[check-dns4-client]=/usr/lib/nagios/plugins/check_dns -H ipv4.google.com -w 0.5 -c 1
@@ -66,3 +69,11 @@ command[check_batip_{{domaene[0]}}]=/usr/lib/nagios/plugins/check_batip -D {{dom
 #command[check_FFTesterV6_{{domaene[0]}}]=sudo /root/gits/tools/Freifunk-Tester/icinga_reporter.sh {{freifunk.kurzname}}d{{domaene[0]}} IPv6-ping-test-to-google.de random
 # {% endfor %}
 #{% endif %}
+
+{% if borg_backups is defined %}
+## Borg Backups
+{% for repo in borg_backups %}
+command[check_borg-{{ repo.name }}]=sudo /usr/lib/nagios/plugins/check_borg "{{ repo.name }}" "ssh://{{ repo.backup_server_user }}@{{ repo.backup_server }}:{{ repo.backup_server_port }}/./{{ repo.backup_server_path | default(ansible_hostname + "-bkp") }}" 
+{% endfor %}
+{% endif %}
+

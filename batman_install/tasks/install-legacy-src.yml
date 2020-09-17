@@ -1,0 +1,66 @@
+- name: Abhängigkeiten installieren
+  apt:
+    name: ['dkms', 'build-essential', 'linux-headers-{{ ansible_kernel }}', 'pkg-config', 'libnl-3-dev', 'libnl-genl-3-dev', 'git']
+
+- name: Gluon-verwalteten Batman-Quellcode herunterladen
+  git:
+    repo: "https://github.com/freifunk-gluon/batman-adv-legacy.git"
+    dest: "/usr/src/batman-adv-2013.4.0"
+    force: yes
+  tags:
+    - skip_ansible_lint
+
+- name: Batman bauen
+  shell: |
+    set -o pipefail
+    (dkms status -m batman-adv -v {{ batman.version }} | grep batman-adv || dkms add -m batman-adv -v {{ batman.version }}) && \
+    dkms build -m batman-adv -v {{ batman.version }} && dkms install -m batman-adv -v {{ batman.version }} --force
+  args:
+    executable: bash
+  tags:
+    - skip_ansible_lint
+  notify: restart batman
+
+# batctl
+- name: Prüfe ob batctl bereits existiert
+  stat: path=/usr/local/sbin/batctl
+  register: batctl
+
+- name: batctl-Version prüfen
+  shell: |
+    set -o pipefail
+    {{ batctl.stat.path }} -v | grep -oE "[0-9]+\.[0-9]+(\.[0-9]+)?"
+  args:
+    executable: bash
+  when: batctl.stat.exists
+  changed_when: false
+  register: batctl_version
+  check_mode: no
+
+- name: Verzeichnis erstellen für Quellcode von batctl
+  file:
+    name: /opt/batctl
+    state: directory
+  when: not batctl.stat.exists or batctl_version.stdout_lines[0] != batman.version
+
+- name: batctl-Quellcode herunterladen
+  get_url:
+    url: "https://downloads.open-mesh.org/batman/releases/batman-adv-{{ batman.version }}/batctl-{{ batman.version }}.tar.gz"
+    dest: /opt/batctl/batctl-{{ batman.version }}.tar.gz
+  when: not batctl.stat.exists or batctl_version.stdout_lines[0] != batman.version
+
+- name: batctl-Quellcode entpacken
+  unarchive:
+    src: /opt/batctl/batctl-{{ batman.version }}.tar.gz
+    dest: /usr/src
+    remote_src: True
+  when: not ansible_check_mode and (not batctl.stat.exists or batctl_version.stdout_lines[0] != batman.version)
+
+- name: batctl bauen und installieren
+  command: "{{ item }}"
+  with_items:
+    - make
+    - make install
+  args:
+    chdir: /usr/src/batctl-{{ batman.version }}
+  when: not ansible_check_mode and (not batctl.stat.exists or batctl_version.stdout_lines[0] != batman.version)

@@ -1,0 +1,23 @@
+- name: restart batman
+  shell: |
+    set -o pipefail
+    ip -br link show up type batadv | cut -d " " -f1
+  args:
+    executable: bash
+  register: batadv_interfaces
+  notify: ifdown batadv
+
+- name: ifdown batadv
+  command: ifdown --force {{ item }}
+  with_items: "{{ batadv_interfaces.stdout_lines | list }}"
+  notify: rmmod batadv
+
+- name: rmmod batadv
+  modprobe:
+    name: batman-adv
+    state: absent
+  notify: ifup batadv
+
+- name: ifup batadv
+  command: ifup {{ item }}
+  with_items: "{{ batadv_interfaces.stdout_lines | list }}"

@@ -45,6 +45,9 @@
 - name: Install check_systemd_service
   copy: "src=check_systemd_service dest='/usr/lib/nagios/plugins/check_systemd_service' owner=root group=root mode=a+x"
 
+- name: Install check_fastd
+  copy: "src=check_fastd dest='/usr/lib/nagios/plugins/check_fastd' owner=root group=root mode=a+x"
+
 - name: Install check_tunneldigger
   copy: "src=check_tunneldigger dest='/usr/lib/nagios/plugins/check_tunneldigger' owner=root group=root mode=a+x"
 
@@ -57,13 +60,16 @@
   copy: src=check_speedtest-cli.sh dest=/usr/lib/nagios/plugins/check_speedtest-cli.sh owner=root group=root mode=a+x
 
 - name: Install DHCP lease check
-  copy: "src=check_active-leases dest='/usr/lib/nagios/plugins/check_active-leases' owner=root group=root mode=a+x"
+  package:
+    name: dhcpd-pools
+    state: present
+  when: not (ansible_distribution == 'Ubuntu' and ansible_distribution_version == '16.04')
 
 - name: Install check_batip
-  copy: "src=check_batip dest='/usr/lib/nagios/plugins/check_batip' owner=root group=root mode=a+x"
+  template: "src=check_batip.j2 dest='/usr/lib/nagios/plugins/check_batip' owner=root group=root mode=a+x"
 
 - name: Install check_batip6
-  copy: "src=check_batip6 dest='/usr/lib/nagios/plugins/check_batip6' owner=root group=root mode=a+x"
+  template: "src=check_batip6.j2 dest='/usr/lib/nagios/plugins/check_batip6' owner=root group=root mode=a+x"
 
 - name: Install check_iproute
   copy: "src=check_iproute dest='/usr/lib/nagios/plugins/check_iproute' owner=root group=root mode=a+x"
@@ -76,6 +82,9 @@
 
 - name: Install check_bird6_sessions
   copy: "src=check_bird6_sessions dest='/usr/lib/nagios/plugins/check_bird6_sessions' owner=root group=root mode=a+x"
+
+- name: Install check_borg
+  copy: "src=check_borg dest='/usr/lib/nagios/plugins/check_borg' owner=root group=root mode=a+x"
 
 - name: Install sudo permissions
   template: "src=sudoers.j2 dest='/etc/sudoers.d/nrpe' owner=root group=root mode=440"

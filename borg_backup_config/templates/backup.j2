@@ -1,5 +1,8 @@
 #!/bin/sh
-REPOSITORY=ssh://{{ item.backup_server_user }}@{{ item.backup_server }}:{{ item.backup_server_port }}/./{{ ansible_hostname }}-bkp
+
+# {{ ansible_managed }}
+
+REPOSITORY=ssh://{{ item.backup_server_user }}@{{ item.backup_server }}:{{ item.backup_server_port }}/./{{ item.backup_server_path | default(ansible_hostname + "-bkp") }}
 export BORG_PASSPHRASE=$(cat /root/backup-{{ item.name }}.repokey)
 export BORG_RSH='ssh -i /root/.ssh/id_rsa_borg'
 
@@ -7,11 +10,17 @@ echo "------------------------------------------------------------------START---
 echo "Date: $(date) Backup: $(hostname) to $REPOSITORY"
 echo "-----------------------------------------------------------------------------------------------------------------------------------------"
 
+{% if item.prebackupcommands is defined %}
+{% for prebackupcommand in item.prebackupcommands %}
+{{prebackupcommand}}
+{% endfor %}
+{% endif %}
+
 {% if item.mysqldatabases is defined %}
 mkdir -p /root/mysqlbackup/
 {% for db in item.mysqldatabases %}
 echo "Dumping {{db}} mysql DB"
-mysqldump --defaults-file=/etc/mysql/debian.cnf -v {{db}} > /root/mysqlbackup/backup-{{db}}-db-{{ item.name }}.sql
+mysqldump --defaults-file=/etc/mysql/debian.cnf {% if item.mysqlparameters is defined %}{% for parameter in item.mysqlparameters %}{{parameter}}{% if not loop.last %} {% endif %}{% endfor %}{% endif %} -v {{db}} > /root/mysqlbackup/backup-{{db}}-db-{{ item.name }}.sql
 {% endfor %}
 {% endif %}
 
@@ -30,7 +39,7 @@ echo "Dumping all pgsql DBs"
 {% endif %}
 
 echo "Borg create"
-/usr/local/bin/borg create {{ item.borg_options }} \
+borg create {{ item.borg_options }} \
         $REPOSITORY::'{hostname}-{now:%Y-%m-%d-%H-%M-%S}'\
         {{ item.directories | join(' ') }}{% if item.mysqldatabases is defined or item.pgsqldatabases is defined or (item.pgsqldumpall is defined and item.pgsqldumpall) %} \{% endif %}
 {% if item.mysqldatabases is defined %}
@@ -49,12 +58,18 @@ echo "Borg create"
 
         /root/pgsqlbackup/dumpall_backup-{{ item.name }}.pgsql
 {% endif %}
+
+{% if item.postbackupcommands is defined %}
+{% for postbackupcommand in item.postbackupcommands %}
+{{postbackupcommand}}
+{% endfor %}
+{% endif %}
 {% if item.borg_prune is defined %}
 
 BORGRESULT=$?
 echo "Borg prune"
 if [ $BORGRESULT -eq 0 ] ; then
-/usr/local/bin/borg prune -v --list $REPOSITORY --prefix '{hostname}-' {{ item.borg_prune }}
+borg prune -v --list $REPOSITORY --prefix '{hostname}-' {{ item.borg_prune }}
 fi
 {% endif %}
 echo "------------------------------------------------------------------STOP-------------------------------------------------------------------"
