@@ -138,27 +138,19 @@
     dest: /var/www/html/icons
     state: link
 
+- name: link icons
+  file:
+    src: /opt/nodesmappage/logo.svg
+    dest: /var/www/html/logo.svg
+    state: link
+
 - name: Generate index.html
   template:
     src: index.html.j2
     dest: /var/www/html/index.html
 
-- name: link hopglass
+- name: link meshviewer
   file:
-    src: /opt/hopglass/client/build
+    src: /opt/meshviewer/build/
     dest: /var/www/html/map
-    state: link
-  when: mapconfig is defined
-
-- name: link hopglass
-  file:
-    src: /var/www/html/meshviewer/
-    dest: /var/www/html/map
-    state: link
-  when: meshviewer is defined
-
-- name: link hwpics
-  file:
-    src: /opt/hopglass/hwpics/nodes
-    dest: /var/www/html/hwpics
     state: link

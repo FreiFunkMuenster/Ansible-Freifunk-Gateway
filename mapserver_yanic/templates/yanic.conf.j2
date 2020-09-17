@@ -44,7 +44,7 @@ ifname = "bat{{domaene[0]}}"
 # A little build-in webserver, which statically serves a directory.
 # This is useful for testing purposes or for a little standalone installation.
 [webserver]
-enable  = true
+enable  = false
 bind    = "0.0.0.0:8080"
 webroot = "/var/www/html/meshviewer"
 
@@ -63,7 +63,7 @@ offline_after = "{{meshviewer.yanic.nodes.offline_after}}"
 # definition for the new more compressed meshviewer.json
 [[nodes.output.meshviewer-ffrgb]]
 enable   = true
-path = "/var/www/html/meshviewer/data/meshviewer.json"
+path = "/var/www/html/data/meshviewer.json"
 
 [nodes.output.meshviewer-ffrgb.filter]
 # WARNING: if it is not set, it will publish contact information of other persons
@@ -81,7 +81,7 @@ no_owner = {{meshviewer.yanic.meshviewerJson.no_owner|lower}}
 {% for domaene in domaenen|dictsort %}
 [[nodes.output.meshviewer-ffrgb]]
 enable   = true
-path = "/var/www/html/meshviewer/data_{{freifunk.kurzname}}d{{domaene[0]}}/meshviewer.json"
+path = "/var/www/html/data_{{freifunk.kurzname}}d{{domaene[0]}}/meshviewer.json"
 
 [nodes.output.meshviewer-ffrgb.filter]
 no_owner = {{meshviewer.yanic.meshviewerJson.no_owner|lower}}
@@ -93,7 +93,7 @@ sites = ["{{freifunk.kurzname}}d{{domaene[0]}}"]
 # definition for nodelist.json
 [[nodes.output.nodelist]]
 enable   = true
-path = "/var/www/html/meshviewer/data/nodelist.json"
+path = "/var/www/html/data/nodelist.json"
 
 [nodes.output.nodelist.filter]
 # WARNING: if it is not set, it will publish contact information of other persons
@@ -102,7 +102,7 @@ no_owner = {{meshviewer.yanic.nodelistJson.no_owner|lower}}
 {% for domaene in domaenen|dictsort %}
 [[nodes.output.nodelist]]
 enable   = true
-path = "/var/www/html/meshviewer/data_{{freifunk.kurzname}}d{{domaene[0]}}/nodelist.json"
+path = "/var/www/html/data_{{freifunk.kurzname}}d{{domaene[0]}}/nodelist.json"
 
 [nodes.output.nodelist.filter]
 no_owner = {{meshviewer.yanic.nodelistJson.no_owner|lower}}

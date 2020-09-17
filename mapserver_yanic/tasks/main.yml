@@ -49,21 +49,21 @@
 
 - name: Create yanic webroot directory if not existent
   file:
-    path: /var/www/html/meshviewer
+    path: /var/www/html/
     state: directory
     owner: yanic
     group: yanic
 
 - name: Create yanic data directory if not existent
   file:
-    path: /var/www/html/meshviewer/data
+    path: /var/www/html/data
     state: directory
     owner: yanic
     group: yanic
 
 - name: Create yanic data directory for each domain if not existent
   file:
-    path: /var/www/html/meshviewer/data_{{freifunk.kurzname}}d{{item}}
+    path: /var/www/html/data_{{freifunk.kurzname}}d{{item}}
     state: directory
     owner: yanic
     group: yanic
