@@ -9,6 +9,6 @@ apply Service "web-homepage" {
     vars.http_ssl =			"true"
     vars.http_onredirect =		"follow"
     vars.http_uri =			"/neuigkeiten/"
-    vars.http_string =			"Freifunk Ingolstadt - ein Projekt des"
+    vars.http_string =			"Datenschutzerklärung"
     assign where host.address && "web-homepage" in host.vars.webpage
 }
