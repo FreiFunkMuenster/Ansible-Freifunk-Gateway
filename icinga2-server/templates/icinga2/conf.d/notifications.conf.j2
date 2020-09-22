@@ -15,7 +15,7 @@ apply Notification "mail-icingaadmin" to Host {
   user_groups = host.vars.notification.mail.groups
   users = host.vars.notification.mail.users
 
-  //interval = 2h
+  interval = {{ icinga2.mail_interval | default("30m") }}
 
   //vars.notification_logtosyslog = true
 
@@ -27,7 +27,7 @@ apply Notification "mail-icingaadmin" to Service {
   user_groups = host.vars.notification.mail.groups
   users = host.vars.notification.mail.users
 
-  //interval = 2h
+  interval = {{ icinga2.mail_interval | default("30m") }}
 
   //vars.notification_logtosyslog = true
 
