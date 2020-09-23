@@ -8,12 +8,12 @@
 - name: Routingtabelle 44 auch internetz nennen
   blockinfile:
     path: "/etc/iproute2/rt_tables"
-    marker: "# {mark} Ansible managed block"
+    marker: "# {mark} Ansible managed block RT44"
     block: |
       44   internetz
   when:
-    - "'as-router' in groups" 
-    - "'as-router' in group_names" 
+    - "'as_router' in groups" 
+    - "'as_router' in group_names" 
 
 - name: calculate more specific routes for DHCP pools
   shell: |
@@ -37,14 +37,26 @@
   notify:
     - reload bird
 
-- name: configure bird6.conf
+- name: configure bird_as.conf
   template:
-    src: bird6.conf.j2
-    dest: /etc/bird/bird6.conf
+    src: bird_as.conf.j2
+    dest: /etc/bird/bird_as.conf
     owner: bird
     group: bird
   notify:
-    - reload bird6
+    - reload bird
+  when: 
+    - "'as_router' in groups" 
+    - "'as_router' in group_names" 
+
+#- name: configure bird6.conf
+#  template:
+#    src: bird6.conf.j2
+#    dest: /etc/bird/bird6.conf
+#    owner: bird
+#    group: bird
+#  notify:
+#    - reload bird6
 
 - name: create folder for bird.service file
   file:

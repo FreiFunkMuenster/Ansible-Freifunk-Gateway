@@ -1,0 +1,63 @@
+table internetz;
+
+protocol kernel 'kernel_internetz' {
+	kernel table 44;
+	table internetz;
+	scan time 20;
+	device routes;
+	import none;
+	export filter {
+		if net ~ [0.0.0.0/0] then reject;
+		krt_prefsrc = {{ as_ip }};
+		accept;
+	};
+}
+
+template bgp as_internal {
+        local as {{ as_parameters.as_number }};
+        import none;
+        export none;
+        direct;
+};
+
+protocol bgp ibgp_goldelse from as_internal {
+        neighbor 10.254.0.2 as {{ as_parameters.as_number }};
+};
+
+protocol static 'static_default' {
+	table internetz;
+        route 0.0.0.0/0 reject;
+}
+
+protocol static 'ffmsl' {
+        table internetz;
+        route {{ as_parameters.v4_network }} reject;
+}
+
+{% for exchange in exchanges %}
+template bgp {{ exchange[0] }} {
+	local as {{ as_parameters.as_number }};
+	source address {{ exchange[1].source_address }};
+	import filter {
+		{{ exchange[1].import_filter }}
+	};
+	export filter {
+		{{ exchange[1].export_filter }}
+	};
+	table internetz;
+}
+
+{% for peer in exchange[1].peers %}
+protocol bgp {{ exchange[0] }}_{{ peer[0] }} from {{ exchange[0] }} {
+	neighbor {{ peer[1].neighbor_address }} as {{ peer[1].neighbor_as_number }};
+{% if peer[1].password is defined %}
+	password {{ peer[1].password }};
+{% endif %}
+{% if peer[1].preference is defined %}
+	preference {{ peer[1].preference }};
+{% endif %}
+}
+
+{% endfor %}
+{% endfor %}
+
