@@ -14,7 +14,7 @@ view "domaene-{{domaene[0]}}" {
 	include "/etc/bind/named.conf.local";
 	include "/etc/bind/named.conf.default-zones";
 {% if is_external_nameserver is defined and is_external_nameserver %}
-	include "/etc/bind/named.conf.tld";
+#	include "/etc/bind/named.conf.tld";
 {% endif %}
 	zone "{{freifunk.kurzname}}." {
 		type master;
