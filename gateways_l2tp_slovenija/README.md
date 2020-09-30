@@ -17,7 +17,9 @@ Zur Konfiguration muss die Dictionary-Variable `tunneldigger` mit den beiden Ein
 tunneldigger:
   max_tunnels: 1024
   port_base: 20100
+  mtu: 1320
 ```
 
 - `max_tunnel` beschränkt die maximale Anzahl der verbundenen Clients auf den gesetzten Wert
 - `port_base` muss auf einen auf dem Gateway freien Port gesetzt werden und auch in der site.conf eingetragen werden.
+- `mtu` setzt die MTU für die L2TP-Tunnel. Wenn nicht gesetzt wird 1364 verwendet. Die MTU muss auch in der site.conf eingetragen werden.
