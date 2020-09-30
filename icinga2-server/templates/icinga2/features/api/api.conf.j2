@@ -10,5 +10,5 @@ object ApiListener "{{ inventory_hostname_short }}.{{ freifunk.domain }}" {
 
   ticket_salt = TicketSalt
   bind_port = "{{ icinga2.api_listener.port | default(5665) }}"
-  bind_host = "{{ icinga2.api_listener.host | default("::") }}"
+  bind_host = "{{ icinga2.api_listener.address | default("::") }}"
 }

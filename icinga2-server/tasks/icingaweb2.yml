@@ -56,6 +56,24 @@
     mode: '0660'
     directory_mode: '2770'
 
+### Logging
+- name: Configure logging
+  copy:
+    src: 'icingaweb2/config.ini'
+    dest: '/etc/icingaweb2/config.ini'
+    owner: 'www-data'
+    group: 'icingaweb2'
+    mode: '0640'
+
+### Users
+- name: Configure user roles
+  template:
+    src: 'icingaweb2/roles.ini.j2'
+    dest: '/etc/icingaweb2/roles.ini'
+    owner: 'www-data'
+    group: 'icingaweb2'
+    mode: '0640'
+
 ## Enable Apache PHP-FPM
 - name: Enable required Apache modules
   apache2_module:
@@ -83,23 +101,41 @@
   notify: reload apache2
 
 ### Enable IcingaWeb2 in Apache
-- name: Enable IcingaWeb2 in Apache
+- name: Disable default IcingaWeb2 Apache2 configuration
   file:
-    src: '/etc/apache2/conf-available/icingaweb2.conf'
-    dest: '/etc/apache2/conf-enabled/icingaweb2.conf'
+    path: '/etc/apache2/conf-enabled/icingaweb2.conf'
+    state: absent
+  notify: reload apache2
+
+- name: Add IcingaWeb2 site config to Apache2
+  template:
+    src: "apache2/site-icingaweb2.conf.j2"
+    dest: "/etc/apache2/sites-available/icingaweb2.conf"
+  notify: reload apache2
+
+- name: Enable IcingaWeb2 site config
+  file:
+    src: "/etc/apache2/sites-available/icingaweb2.conf"
+    dest: "/etc/apache2/sites-enabled/icingaweb2.conf"
     state: link
   notify: reload apache2
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: Get all enabled Apache2 sites
+  shell: "/usr/bin/grep -Li '^[[:space:]]*SSL' /etc/apache2/sites-enabled/*"
+  register: httpsitesenabled
+  failed_when: "httpsitesenabled.rc == 2"
+  check_mode: no
+  changed_when: httpsitesenabled.stdout | length > 0
+
+- name: Disable unneeded site configs
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items: "{{ httpsitesenabled.stdout_lines }}"
+  when: httpsitesenabled.stdout | length > 0 and item != "/etc/apache2/sites-enabled/icingaweb2.conf"
 
 ### Set up Apache Authentication
-- name: Configure basic authentication in Apache
-  copy:
-    src: 'apache2-icingaweb2-local.conf'
-    dest: '/etc/apache2/conf-enabled/icingaweb2-local.conf'
-    owner: 'root'
-    group: 'root'
-    mode: '0644'
-  notify: reload apache2
-
 - name: Delete old htpasswd file to force password updates and to get rid of deprecated users
   file:
     path: '/etc/icingaweb2/.http-users'
@@ -131,36 +167,3 @@
     dest: "/etc/apache2/ports.conf"
   notify: reload apache2
 
-- name: Get all enabled non-SSL Apache2 sites
-  shell: "/usr/bin/grep -Li '^[[:space:]]*SSL' /etc/apache2/sites-enabled/*"
-  register: httpsitesenabled
-  failed_when: "httpsitesenabled.rc == 2"
-  check_mode: no
-  changed_when: httpsitesenabled.stdout | length > 0
-
-- name: Set HTTP listening ports in all enabled non-SSL Apache2 sites
-  lineinfile:
-    path: "{{ item }}"
-    regexp: '(?i)<VirtualHost (.+?):(\d+)>'
-    line: "<VirtualHost {{ icinga2.http_listener.address | default('*') }}:{{ icinga2.http_listener.port | default(80) }}>"
-    backrefs: yes
-  with_items: "{{ httpsitesenabled.stdout_lines }}"
-  when: httpsitesenabled.stdout | length > 0
-
-### Logging
-- name: Configure logging
-  copy:
-    src: 'icingaweb2/config.ini'
-    dest: '/etc/icingaweb2/config.ini'
-    owner: 'www-data'
-    group: 'icingaweb2'
-    mode: '0640'
-
-### Users
-- name: Configure user roles
-  template:
-    src: 'icingaweb2/roles.ini.j2'
-    dest: '/etc/icingaweb2/roles.ini'
-    owner: 'www-data'
-    group: 'icingaweb2'
-    mode: '0640'
