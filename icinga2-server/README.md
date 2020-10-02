@@ -42,4 +42,4 @@ Das von Icinga2 dafür erzeugte CA-Zertifikat wird auf dem Ansible-Controller un
 Auf IcingaWeb2 kann, wenn nicht anders konfiguriert, über http, Port 80, zugegriffen werden.
 
 ## Kompatibilität:
-Derzeit nur Debian 10
+Debian 10, Ubuntu 18.04, Ubuntu 20.04
