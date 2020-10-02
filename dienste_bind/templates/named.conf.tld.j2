@@ -5,7 +5,7 @@ zone "{{domain}}." IN {
 	allow-transfer {
 	   localhost;
 {% for host in groups['gateways'] %}
-	   {{hostvars[host].ansible_ssh_host }};
+	   {{hostvars[host].ipv4 }};
 {% endfor %}
 	};
 };
@@ -15,7 +15,7 @@ zone "servers.{{domain}}." IN {
 	allow-transfer {
 	   localhost;
 {% for host in groups['gateways'] %}
-           {{hostvars[host].ansible_ssh_host }};
+           {{hostvars[host].ipv4 }};
 {% endfor %}
 	};
 };
@@ -25,7 +25,7 @@ zone "services.{{domain}}." IN {
 	allow-transfer {
 	   localhost;
 {% for host in groups['gateways'] %}
-           {{hostvars[host].ansible_ssh_host }};
+           {{hostvars[host].ipv4 }};
 {% endfor %}
 	};
 };
@@ -35,7 +35,7 @@ zone "knoten.{{domain}}." IN {
 	allow-transfer {
 	   localhost;
 {% for host in groups['gateways'] %}
-           {{hostvars[host].ansible_ssh_host }};
+           {{hostvars[host].ipv4 }};
 {% endfor %}
 	};
 };
