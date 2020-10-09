@@ -1,6 +1,6 @@
 - name: Install nginx and certbot
   apt:
-    pkg: [ 'python-certbot-nginx', 'nginx' ]
+    pkg: [ 'python3-certbot-nginx', 'nginx' ]
 
 - name: Copy Nginx config files
   template:
