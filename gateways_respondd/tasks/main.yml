@@ -16,7 +16,14 @@
   template:
     src: hostname.py.j2
     dest: /opt/mesh-announce/providers/nodeinfo/hostname.py
-  notify: systemctl reload
+  when: domaenenliste is defined and domaenenliste | length > 1
+  notify: restart respondd
+
+- name: create configuration
+  template:
+    src: respondd.conf.j2
+    dest: /opt/mesh-announce/respondd.conf
+  notify: restart respondd
 
 - name: create systemd file
   template:
