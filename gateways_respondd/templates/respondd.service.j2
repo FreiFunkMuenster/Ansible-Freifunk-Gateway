@@ -3,7 +3,7 @@ Description=Respondd
 After=network.target
 
 [Service]
-ExecStart=/opt/mesh-announce/respondd.py -d /opt/mesh-announce/providers {{ domaenenliste.keys() | map('regex_replace', '^(.*)$', '-i br\\1 -i bat\\1 -b bat\\1') | join(" ") }}
+ExecStart=/opt/mesh-announce/respondd.py -d /opt/mesh-announce/providers -f /opt/mesh-announce/respondd.conf
 Restart=on-failure
 Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
