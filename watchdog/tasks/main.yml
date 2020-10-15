@@ -1,0 +1,36 @@
+---
+
+# FIXME: Systemd-Watchdog? -> Nein, der pingt nur. Watchdog-Paket prüft zusätzlich RAM und Load
+
+# Hardware: /dev/watchdog existiert
+# Software: /dev/watchdog existiert nicht -> softdog-Modul instalieren, nochmal testen
+
+- name: Prüfe ob ein Watchdog-Modul geladen ist
+  stat:
+    path: /dev/watchdog
+  register: stat_watchdogdev
+
+- name: Trage Kernelmodul softdog in /etc/modules ein
+  lineinfile:
+    path: /etc/modules
+    line: softdog
+    state: present
+  when: stat_watchdogdev.stat.exists == false
+
+- name: Lade Kernelmodul softdog
+  modprobe:
+    name: softdog
+    state: present
+  when: stat_watchdogdev.stat.exists == false
+  notify: restart watchdog
+
+- name: Installiere Paket watchdog
+  apt:
+    pkg: "watchdog"
+    state: present
+
+- name: Konfiguriere Watchdog
+  template:
+    src: watchdog.conf.j2
+    dest: /etc/watchdog.conf
+  notify: restart watchdog
