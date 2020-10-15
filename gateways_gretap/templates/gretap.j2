@@ -13,14 +13,14 @@
 {% endif %}
 {% endfor %}
 {% for host in groups['gateways'] %}
-{% if ansible_ssh_host != hostvars[host].ansible_ssh_host and hostvars[host].domaenenliste is defined and domaene[0] in hostvars[host].domaenenliste and hosts.append(host) %}
+{% if ipv4 != hostvars[host].ipv4 and hostvars[host].domaenenliste is defined and domaene[0] in hostvars[host].domaenenliste and hosts.append(host) %}
 {% endif %}
 {% endfor %}
 {% for host in hosts %}
 {% if hostvars[host] is defined %}
 {% if indexer.append(indexer.pop() + 1) %}{% endif %}{# increment indexer by 1 #}
 
-# GRETAP Tunnel for domaene-{{domaene[0]}} to {{host}} ({{hostvars[host].ansible_ssh_host}})
+# GRETAP Tunnel for domaene-{{domaene[0]}} to {{host}} ({{hostvars[host].ipv4}})
 auto t{{domaene[0]}}-{{host}}
 iface t{{domaene[0]}}-{{host}} inet manual
 {% if build_tunnels_over_ipv6_if_available is defined and build_tunnels_over_ipv6_if_available and ipv6 is defined and hostvars[host].ipv6 is defined %}

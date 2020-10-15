@@ -179,11 +179,11 @@
   shell: openssl x509 -in /etc/letsencrypt/live/{{inventory_hostname_short}}.{{freifunk.domain}}/cert.pem -noout -subject | sed -e 's/.*CN=//g'
   register: openssl_out
 
-- name: Register Domains for {{ansible_ssh_host}} in /etc/hosts
+- name: Register Domains for {{ipv4}} in /etc/hosts
   lineinfile:
    path: /etc/hosts
-   regexp: '^{{ansible_ssh_host}}'
-   line: '{{ansible_ssh_host}} {{openssl_out.stdout}} {% for domain in domains %}{{inventory_hostname_short}}.{{domain}} {% endfor %}{{inventory_hostname_short}}'
+   regexp: '^{{ipv4}}'
+   line: '{{ipv4}} {{openssl_out.stdout}} {% for domain in domains %}{{inventory_hostname_short}}.{{domain}} {% endfor %}{{inventory_hostname_short}}'
 
 - name: Register Domains for 127.0.0.1 in /etc/hosts
   lineinfile:

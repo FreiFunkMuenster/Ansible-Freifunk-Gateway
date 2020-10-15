@@ -626,7 +626,7 @@ LoadPlugin write_graphite
 {% endfor %}
 {% for host in groups['gateways'] %}
 {% if "domaenenliste" in hostvars[host] %}
-{% if ansible_ssh_host != hostvars[host].ansible_ssh_host and domaene[0] in hostvars[host].domaenenliste and hosts.append(host) %}
+{% if ipv4 != hostvars[host].ipv4 and domaene[0] in hostvars[host].domaenenliste and hosts.append(host) %}
 {% endif %}
 {% endif %}
 {% endfor %}
