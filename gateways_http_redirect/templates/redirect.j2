@@ -1,0 +1,40 @@
+# {{ ansible_managed }}
+
+{% if http_redirect.public is defined %}
+server {
+    listen {{ ipv4 }}:80;
+    listen [{{ ipv6 }}]:80;
+    server_name _;
+
+    return 301 https://{{ http_redirect.public }};
+
+    access_log /var/log/nginx/access.log anonymized;
+}
+{% endif %}
+
+{% if http_redirect.per_domain is defined %}
+{% for item in domaenenliste|dictsort %}
+server {
+    listen [{{ domaenen[item[0]].ffv6_network | ipaddr(item[1].server_id) | ipaddr('address') }}]:80;
+    listen {{domaenen[item[0]].ffv4_network | ipaddr(item[1].server_id) | ipaddr('address') }}:80;
+    server_name _;
+
+{% if item[0] | length > 2 %}
+{% if item[1].server_id >= 10 %}
+    return 301 {{ http_redirect.per_domain | replace("NODEID","f2beef"+item[0][0:2]+item[0][2:]|string+item[1].server_id|string) }};
+{% else %}
+    return 301 {{ http_redirect.per_domain | replace("NODEID","f2beef"+item[0][0:2]+item[0][2:]|string+"0"+item[1].server_id|string) }};
+{% endif %}
+{% else %}
+{% if item[1].server_id >= 10 %}
+    return 301 {{ http_redirect.per_domain | replace("NODEID","f2beef00"+item[0]+item[1].server_id|string) }};
+{% else %}
+    return 301 {{ http_redirect.per_domain | replace("NODEID","f2beef00"+item[0]+"0"+item[1].server_id|string) }};
+{% endif %}
+{% endif %}
+
+    access_log /var/log/nginx/access.log anonymized;
+}
+
+{% endfor %}
+{% endif %}
