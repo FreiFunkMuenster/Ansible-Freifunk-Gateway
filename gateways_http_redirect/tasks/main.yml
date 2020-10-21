@@ -1,0 +1,40 @@
+- name: Install nginx-light
+  apt:
+    pkg: [ 'nginx-light' ]
+
+- name: Copy Nginx config files
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/nginx/conf.d/{{ item }}"
+  loop:
+    - anonymize-ip.conf
+    - hardening.conf
+  notify: restart nginx
+
+- name: Create http config
+  template:
+    src: redirect.j2
+    dest: /etc/nginx/sites-available/redirect
+  notify: restart nginx
+
+- name: Enable http config
+  file:
+    src: /etc/nginx/sites-available/redirect
+    dest: /etc/nginx/sites-enabled/redirect
+    state: link
+  notify: restart nginx
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: Get all enabled site configs
+  find:
+    paths: '/etc/nginx/sites-enabled/'
+    file_type: link
+  register: find_enabledsites
+
+- name: Disable all unneeded site configs
+  file:
+    path: /etc/nginx/sites-enabled/{{ item.path | basename }}
+    state: absent
+  loop: "{{ find_enabledsites.files }}"
+  when: item.path | basename != "redirect"
+  notify: restart nginx
