@@ -12,4 +12,22 @@ object IdoMysqlConnection "ido-mysql" {
   password = "{{ lookup('password', '/tmp/mysqlpwd-icinga2_ido.ansible length=16') }}",
   host = "localhost",
   database = "icinga2_ido"
+
+  cleanup = {
+    acknowledgements_age = 365d
+    commenthistory_age = 365d
+    contactnotifications_age = 365d
+    contactnotificationmethods_age = 365d
+    downtimehistory_age = 365d
+    eventhandlers_age = 365d
+    externalcommands_age = 365d
+    flappinghistory_age = 365d
+    hostchecks_age = 365d
+    logentries_age = 365d
+    notifications_age = 365d
+    processevents_age = 365d
+    statehistory_age = 365d
+    servicechecks_age = 365d
+    systemcommands_age = 365d
+  }
 }
