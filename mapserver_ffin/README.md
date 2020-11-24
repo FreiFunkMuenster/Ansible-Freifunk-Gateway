@@ -31,7 +31,7 @@ Von wo gemountet werden soll wird unter `firmware.mount` konfiguriert.
 ```
 firmware:
   mount:
-    src: "//hal3000.your-storagebox.de/firmwareimages') }}"
+    src: "//hal3000.your-storagebox.de/firmwareimages"
     fstype: "cifs"
     opts: "user=user0815,password=TopSecret"
 ```
