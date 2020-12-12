@@ -21,14 +21,26 @@
   with_items: "{{ _td_domain_instances.stdout_lines }}"
   when: domaenenliste is defined and item not in domaenenliste
 
-- name: Clone tunneldigger
+- name: Clone tunneldigger master
   git:
     repo: https://github.com/wlanslovenija/tunneldigger
     dest: /srv/tunneldigger
     update: yes
-    #version: 50e22df52fd66e363e9e753645ca1df0164f9925 
+  when: domaenenliste is defined and
+        (ansible_kernel is version('5.2.17', '>=') and ansible_kernel is version('5.3', '<')) or
+        (ansible_kernel is version('5.3.1', '>=') and ansible_kernel is version('5.4', '<')) or
+        ansible_kernel is version('5.4', '>=')
+  register: tunneldigger_master_install
+  tags:
+    - skip_ansible_lint
+
+- name: Clone tunneldigger legacy
+  git:
+    repo: https://github.com/wlanslovenija/tunneldigger
+    dest: /srv/tunneldigger
+    update: yes
     version: legacy
-  when: domaenenliste is defined
+  when: domaenenliste is defined and tunneldigger_master_install is skipped
   tags:
     - skip_ansible_lint
 
