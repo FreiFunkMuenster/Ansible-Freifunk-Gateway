@@ -50,10 +50,10 @@ command[check_iproute6]=/usr/lib/nagios/plugins/check_iproute6
 command[check_bird_sessions]=sudo /usr/lib/nagios/plugins/check_bird_sessions
 command[check_bird6_sessions]=sudo /usr/lib/nagios/plugins/check_bird6_sessions
 {% if nrpe.check_websites_upstream_ipv4 is defined and ffrl_nat_ip is defined %}
-command[check_websites-ffrl-ipv4]=/usr/lib/nagios/plugins/check_websites-ipv4 -t 2 -s {{ ffrl_nat_ip }} -w 99 -c 95 {{ nrpe.check_websites_upstream_ipv4 }}
+command[check_websites-ffrl-ipv4]=/usr/lib/nagios/plugins/check_websites-ipv4 -t 2 -s {{ ffrl_nat_ip }} -w 96 -c 92 {{ nrpe.check_websites_upstream_ipv4 }}
 {% endif %}
 {% if nrpe.check_websites_upstream_ipv4 is defined and ffnw_nat_ip is defined %}
-command[check_websites-ffnw-ipv4]=/usr/lib/nagios/plugins/check_websites-ipv4 -t 2 -s {{ ffnw_nat_ip }} -w 99 -c 95 {{ nrpe.check_websites_upstream_ipv4 }}
+command[check_websites-ffnw-ipv4]=/usr/lib/nagios/plugins/check_websites-ipv4 -t 2 -s {{ ffnw_nat_ip }} -w 96 -c 92 {{ nrpe.check_websites_upstream_ipv4 }}
 {% endif %}
 
 # Service VM Server
