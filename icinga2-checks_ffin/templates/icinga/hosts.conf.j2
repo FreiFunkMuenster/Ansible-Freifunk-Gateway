@@ -9,6 +9,9 @@ object Host "{{ item }}" {
   vars.notification["mail"] = {
     groups = ["freifunk_admins"]
   }
+  vars.notification["xmpp"] = {
+    groups = ["freifunk_admins"]
+  }
 }
 
 {% endfor %}

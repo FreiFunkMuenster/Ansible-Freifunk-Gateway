@@ -9,6 +9,9 @@ object Host "api.freifunk-ingolstadt.de" {
   vars.notification["mail"] = {
     groups = ["freifunk_admins"]
   }
+  vars.notification["xmpp"] = {
+    groups = ["freifunk_admins"]
+  }
 }
 
 object Host "firmware.freifunk-ingolstadt.de" {
@@ -18,6 +21,9 @@ object Host "firmware.freifunk-ingolstadt.de" {
   vars.webpage = ["web-firmware"]
   groups = ["mapserver-docker"]
   vars.notification["mail"] = {
+    groups = ["freifunk_admins"]
+  }
+  vars.notification["xmpp"] = {
     groups = ["freifunk_admins"]
   }
 }
@@ -31,6 +37,9 @@ object Host "map.freifunk-ingolstadt.de" {
   vars.notification["mail"] = {
     groups = ["freifunk_admins"]
   }
+  vars.notification["xmpp"] = {
+    groups = ["freifunk_admins"]
+  }
 }
 
 object Host "grafana.freifunk-ingolstadt.de" {
@@ -40,6 +49,9 @@ object Host "grafana.freifunk-ingolstadt.de" {
   vars.webpage = ["web-grafana"]
   groups = ["mapserver-docker"]
   vars.notification["mail"] = {
+    groups = ["freifunk_admins"]
+  }
+  vars.notification["xmpp"] = {
     groups = ["freifunk_admins"]
   }
 }
