@@ -2,7 +2,7 @@
 
 log syslog { debug, trace, info, remote, warning, error, auth, fatal, bug };
 {% if 'as_router' in groups and 'as_router' in group_names %}
-router id {{as_ip}};
+router id {{ as_ip }};
 {% else %}
 router id { vm_id }};
 {% endif %}
@@ -210,4 +210,8 @@ protocol bgp ffnw_{{tun.name}} from uplink {
 };
 
 {% endfor %}
+{% endif %}
+
+{% if 'as_router' in groups and 'as_router' in group_names %}
+include "bird6_as.conf";
 {% endif %}

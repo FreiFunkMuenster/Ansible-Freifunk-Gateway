@@ -1,11 +1,15 @@
 # {{ ansible_managed }}
 
-{% for host in groups['gateways']+groups['as-router'] %}
+{% for host in groups['gateways']+groups['as_router'] %}
 {% if host != inventory_hostname %}
 auto bck-{{host}}
 iface bck-{{host}} inet tunnel
-        mode gre 
+        mode gre
+{% if as_ip is defined %}
+        local {{as_ip}}
+{% else %} 
 	local {{ansible_default_ipv4.address}} 
+{% endif %}
 	endpoint {{hostvars[host].ipv4}} 
 	ttl 255
 {% if hostvars[host].vm_id < vm_id %}

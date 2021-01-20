@@ -40,10 +40,6 @@ COMMIT
 {% endfor %}
 {% endif %}
 {% endif %}
-{% if ffnw_tun is not defined and ffnw_nat_ip is not defined and ffrl_tun is not defined and ffrl_nat_ip is not defined %}
--A POSTROUTING -o gre+ -p tcp -m tcp --dport 53 -j SNAT --to-source 10.0.0.{{vm_id}}
--A POSTROUTING -o gre+ -p udp -m udp --dport 53 -j SNAT --to-source 10.0.0.{{vm_id}}
-{% endif %}
 COMMIT
 *mangle
 :PREROUTING ACCEPT [0:0]

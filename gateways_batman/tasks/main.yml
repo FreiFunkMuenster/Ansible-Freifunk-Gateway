@@ -45,7 +45,7 @@
 - name: Routingtabelle 42 auch ffnet nennen
   blockinfile:
     path: "/etc/iproute2/rt_tables"
-    marker: "# {mark} Ansible managed block"
+    marker: "# {mark} Ansible managed block RT42"
     block: |
       42   ffnet
   when: domaenenliste is defined

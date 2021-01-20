@@ -34,29 +34,43 @@ protocol static 'ffmsl' {
         route {{ as_parameters.v4_network }} reject;
 }
 
-{% for exchange in exchanges %}
+{% for exchange in exchanges|dictsort %}
+{% if exchange[1].source_address_v4 is defined %}
 template bgp {{ exchange[0] }} {
 	local as {{ as_parameters.as_number }};
-	source address {{ exchange[1].source_address }};
+	source address {{ exchange[1].source_address_v4 }};
 	import filter {
-		{{ exchange[1].import_filter }}
+		{{ exchange[1].import_filter_v4 }}
 	};
 	export filter {
-		{{ exchange[1].export_filter }}
+		{{ exchange[1].export_filter_v4 }}
 	};
 	table internetz;
 }
+{% endif %}
 
-{% for peer in exchange[1].peers %}
+{% for peer in exchange[1].peers|dictsort %}
+{% if peer[1].neighbor_address_v4 is defined %}
 protocol bgp {{ exchange[0] }}_{{ peer[0] }} from {{ exchange[0] }} {
-	neighbor {{ peer[1].neighbor_address }} as {{ peer[1].neighbor_as_number }};
+	neighbor {{ peer[1].neighbor_address_v4 }} as {{ peer[1].neighbor_as_number }};
+{% if peer[1].import_filter_v4 is defined %}
+	import filter {
+                {{ peer[1].import_filter_v4 }}
+        };
+{% endif %}
+{% if peer[1].export_filter_v4 is defined %}
+        export filter {
+                {{ peer[1].export_filter_v4 }}
+        };
+{% endif %}
 {% if peer[1].password is defined %}
-	password {{ peer[1].password }};
+	password "{{ peer[1].password }}";
 {% endif %}
 {% if peer[1].preference is defined %}
 	preference {{ peer[1].preference }};
 {% endif %}
 }
+{% endif %}
 
 {% endfor %}
 {% endfor %}

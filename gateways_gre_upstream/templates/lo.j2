@@ -2,6 +2,16 @@
 
 auto lo
 iface lo inet loopback
+{% if as_ip is defined %}
+       up ip addr add {{ as_ip }}/32 dev $IFACE
+       up ip rule add from {{ as_parameters.v4_network }} table 44
+       up ip rule add to {{ as_parameters.v4_network }} table 44
+{% endif %}
+{% if as_ip6 is defined %}
+       up ip -6 a a {{ as_ip6 }}/128 dev $IFACE
+       up ip -6 rule add from {{ as_parameters.v6_network }} table 44
+       up ip -6 rule add to {{ as_parameters.v6_network }} table 44
+{% endif %}
 {% if ffrl_tun is defined and ffrl_nat_ip is defined %}
         up ip address add {{ ffrl_nat_ip }} dev lo
         up ip rule add from {{ ffrl_nat_ip }} table ffnet

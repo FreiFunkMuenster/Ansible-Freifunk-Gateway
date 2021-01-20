@@ -16,17 +16,20 @@
         (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman.version)
 
 # installierte batman-Version erneut prüfen
-- name: Prüfe batman-adv-Version des Kernels
-  shell: |
-    set -o pipefail
-    modinfo -F version batman-adv | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?'
-  args:
-    executable: bash
-  register: installed_batman_version
-  when: batman.version is defined and batman.version != "kernel" and
-        (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman.version)
-  changed_when: False
-  check_mode: no
+#- name: Prüfe batman-adv-Version des Kernels
+#  shell: |
+#    set -o pipefail
+#    modinfo -F version batman-adv | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?'
+#  args:
+#    executable: bash
+#  register: installed_batman_version
+#  when: batman.version is defined and batman.version != "kernel" and
+#        (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman.version)
+#  changed_when: False
+#  check_mode: no
+
+- debug:
+    var: installed_batman_version
 
 # batman-adv-Version im Kernel passt -> nur batctl installieren
 - include: install-deb.yml
