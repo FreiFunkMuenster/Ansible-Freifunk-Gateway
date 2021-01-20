@@ -1,4 +1,4 @@
-# {{ ansible_managed }}
+ {{ ansible_managed }}
 
 log syslog { debug, trace, info, remote, warning, error, auth, fatal, bug };
 {% if 'as_router' in groups and 'as_router' in group_names %}
@@ -22,7 +22,7 @@ protocol kernel 'kernel_ffnet' {
 	import all;
 	export all;
 	table ffnet;
-	kernel table 42;
+	kernel table {% if 'as_router' not in group_names %}42{% else %}254{% endif %};
 	device routes;
 	persist;
 };
@@ -109,21 +109,6 @@ protocol static 'static_{{inventory_hostname_short}}' {
 	route {{ff_network.v6_network | regex_replace('..::/\d+$','00::/56')}} reject;
 };
 {% endif %}
-
-protocol kernel 'kernel_master' {
-	scan time 20;
-	table master;
-	kernel table 254;
-	import all;
-	export all;
-	persist;
-};
-
-protocol static {
-	table master;
-	import all;
-	export none;
-};
 
 protocol direct {
 	interface "lo";

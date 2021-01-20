@@ -1,8 +1,8 @@
-table internetz;
+table main;
 
-protocol kernel 'kernel_internetz' {
-	kernel table 44;
-	table internetz;
+protocol kernel 'kernel_main' {
+	kernel table 254;
+	table main;
 	scan time 20;
 	device routes;
 	import none;
@@ -21,12 +21,12 @@ template bgp as_internal {
 };
 
 protocol static 'static_default' {
-	table internetz;
+	table main;
         route ::/0 reject;
 }
 
 protocol static 'ffmsl' {
-        table internetz;
+        table main;
         route {{ as_parameters.v6_network }} reject;
 }
 
@@ -41,7 +41,7 @@ template bgp {{ exchange[0] }} {
 	export filter {
 		{{ exchange[1].export_filter_v6 }}
 	};
-	table internetz;
+	table main;
 }
 {% endif %}
 

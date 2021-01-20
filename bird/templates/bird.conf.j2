@@ -22,7 +22,7 @@ protocol kernel 'kernel_ffnet' {
 		accept;
 	};
         table ffnet;
-        kernel table 42;
+        kernel table {% if 'as_router' not in group_names %}42{% else %}254{% endif %};
         device routes;
 	persist;
 };
@@ -129,23 +129,6 @@ protocol ospf {
 	};
 };
 
-protocol kernel 'kernel_master' {
-        scan time 20;
-        table master;
-        kernel table 254;
-        import all;
-	export filter {
-		if net ~ [0.0.0.0/0] then reject;
-		accept;
-	};
-	persist;
-};
-
-protocol static {
-        table master;
-        import all;
-        export none;
-};
 
 filter hostroute {
 {% if ffrl_nat_ip is defined %}
