@@ -20,11 +20,14 @@ iface bck-{{host}} inet tunnel
         address {{ ipv6internalTunnelPrefix }}{{vm_id}}:{{hostvars[host].vm_id}}:1/127
 {% endif %}
         pre-up ip link set $IFACE up multicast on
+        post-down ip link delete $IFACE
+{% if 'as_router' in group_names %}
         post-up ip rule add iif $IFACE table ffnet
         pre-down ip rule del iif $IFACE table ffnet ||:
         post-up ip -6 rule add iif $IFACE table ffnet
         pre-down ip -6 rule del iif $IFACE table ffnet ||:
-        post-down ip link delete $IFACE
+{% endif %}
+
 
 {% endif %}
 {% endfor %}

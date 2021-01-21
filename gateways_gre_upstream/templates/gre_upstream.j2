@@ -12,10 +12,6 @@ iface tun-ffrl-{{tun.name}} inet tunnel
 	address {{ tun.v4_remote | next_nth_usable(1) }}/{{ tun.v4_remote | ipaddr('prefix') }}
 	address {{ tun.v6_remote | next_nth_usable(1) }}/{{ tun.v6_remote | ipaddr('prefix') }}
 	mtu 1400
-	post-up ip rule add iif $IFACE lookup ffnet
-	pre-down ip rule del iif $IFACE lookup ffnet ||:
-	post-up ip -6 rule add iif $IFACE lookup ffnet
-	pre-down ip -6 rule del iif $IFACE lookup ffnet ||:
 {% endfor %}
 {% endif %}
 
@@ -31,9 +27,5 @@ iface tun-ffnw-{{tun.name}} inet static
 	address {{ tun.v4_remote | next_nth_usable(1) }}/{{ tun.v4_remote | ipaddr('prefix') }}
 	address {{ tun.v6_remote | next_nth_usable(1) }}/{{ tun.v6_remote | ipaddr('prefix') }}
 	mtu 1400
-	post-up ip rule add iif $IFACE lookup ffnet
-	pre-down ip rule del iif $IFACE lookup ffnet ||:
-	post-up ip -6 rule add iif $IFACE lookup ffnet
-	pre-down ip -6 rule del iif $IFACE lookup ffnet ||:
 {% endfor %}
 {% endif %}
