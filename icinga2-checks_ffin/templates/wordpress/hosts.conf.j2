@@ -10,6 +10,9 @@ object Host "freifunk-ingolstadt.de" {
   vars.notification["mail"] = {
     groups = ["freifunk_admins"]
   }
+  vars.notification["xmpp"] = {
+    groups = ["freifunk_admins"]
+  }
 }
 
 object Host "ingolstadt.freifunk.net" {
@@ -18,6 +21,9 @@ object Host "ingolstadt.freifunk.net" {
   vars.vhost = "ingolstadt.freifunk.net"
   vars.webpage = ["web-homepage"]
   vars.notification["mail"] = {
+    groups = ["freifunk_admins"]
+  }
+  vars.notification["xmpp"] = {
     groups = ["freifunk_admins"]
   }
 }

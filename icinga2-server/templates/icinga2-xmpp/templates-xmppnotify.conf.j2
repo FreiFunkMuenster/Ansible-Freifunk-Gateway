@@ -1,0 +1,29 @@
+# {{ ansible_managed }}
+
+template Notification "xmpp-host-notification" {
+  command = "xmpp-host-notification"
+
+  states = [ Up, Down ]
+  types = [ Problem, Acknowledgement, Recovery, Custom ]
+
+  period = "24x7"
+  interval = 8h
+
+  vars += {
+    notification_icingaweb2url = "http://{{ inventory_hostname_short }}.{{ freifunk.domain }}"
+  }
+}
+
+template Notification "xmpp-service-notification" {
+  command = "xmpp-service-notification"
+
+  states = [ OK, Warning, Critical, Unknown ]
+  types = [ Problem, Acknowledgement, Recovery, Custom ]
+
+  period = "24x7"
+  interval = 8h
+
+  vars += {
+    notification_icingaweb2url = "http://{{ inventory_hostname_short }}.{{ freifunk.domain }}"
+  }
+}

@@ -1,0 +1,43 @@
+- name: Install dependencies for this role
+  apt:
+    pkg: ['git', 'python3-slixmpp']
+
+- name: Clone XMPPNotify
+  git:
+    repo: https://github.com/Finn10111/XMPPNotify.git
+    dest: /opt/icinga2-XMPPNotify
+    update: yes
+
+- name: Store XMPP account credentials in /etc/xmppnotify.cfg
+  template:
+    src: 'icinga2-xmpp/xmppnotify.cfg.j2'
+    dest: '/etc/xmppnotify.cfg'
+    owner: 'nagios'
+    group: 'nagios'
+    mode: '0600'
+
+- name: Symlink xmppnotify.py to /etc/icinga2/scripts/
+  file:
+    src: '/opt/icinga2-XMPPNotify/xmppnotify.py'
+    dest: '/etc/icinga2/scripts/xmppnotify.py'
+    state: link
+  notify: reload icinga2
+
+- name: Symlink commands-xmppnotify.conf to /etc/icinga2/conf.d/
+  file:
+    src: '/opt/icinga2-XMPPNotify/commands-xmppnotify.conf'
+    dest: '/etc/icinga2/conf.d/commands-xmppnotify.conf'
+    state: link
+  notify: reload icinga2
+
+- name: Create Icinga2 template for XMPP notifications
+  template:
+    src: 'icinga2-xmpp/templates-xmppnotify.conf.j2'
+    dest: '/etc/icinga2/conf.d/templates-xmppnotify.conf'
+  notify: reload icinga2
+
+- name: Attach XMPP notifications to hosts and services
+  copy:
+    src: 'icinga2-xmpp/notifications-xmppnotify.conf'
+    dest: '/etc/icinga2/conf.d/notifications-xmppnotify.conf'
+  notify: reload icinga2
