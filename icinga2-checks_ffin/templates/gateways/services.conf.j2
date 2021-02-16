@@ -179,6 +179,7 @@ object Service "Check selected Websites via FFRL tunnel (HTTP/IPv4) " {
   retry_interval = 5m
   check_command = "nrpe2"
   vars.nrpe_command = "check_websites-ffrl-ipv4"
+  vars.nrpe_timeout = "20"
 }
 {% endif %}
 
@@ -190,6 +191,7 @@ object Service "Check selected Websites via FFNW tunnel (HTTP/IPv4) " {
   retry_interval = 5m
   check_command = "nrpe2"
   vars.nrpe_command = "check_websites-ffnw-ipv4"
+  vars.nrpe_timeout = "20"
 }
 {% endif %}
 
