@@ -11,8 +11,8 @@ object User "{{ item.user | default(item.email) }}" {
 
   display_name = "{{ item.user | default(item.email) }}"
   email = "{{ item.email }}"
-{% if item.xmpp is defined %}
-  vars.xmpp = "{{ item.xmpp }}"
+{% if item.jid is defined %}
+  vars.xmpp = "{{ item.jid }}"
 {% endif %}
 }
 
