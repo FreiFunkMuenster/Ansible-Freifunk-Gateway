@@ -3,7 +3,7 @@
     - 'role::icinga2'
 
 - import_tasks: icinga2-xmpp.yml
-  when: icinga2.xmpp.user is defined and icinga2.xmpp.user and icinga2.xmpp.pw is defined and icinga2.xmpp.pw
+  when: icinga2.xmpp.jid is defined and icinga2.xmpp.jid and icinga2.xmpp.pw is defined and icinga2.xmpp.pw
   tags:
     - 'role::icinga2-xmpp'
 
