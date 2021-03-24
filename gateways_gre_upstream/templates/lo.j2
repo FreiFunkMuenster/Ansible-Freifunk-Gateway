@@ -3,15 +3,15 @@
 auto lo
 iface lo inet loopback
 {% if as_ip is defined %}
-       up ip addr add {{ as_ip }}/32 dev $IFACE
+	address {{ as_ip }}/32
 {% endif %}
 {% if as_ip6 is defined %}
-       up ip -6 a a {{ as_ip6 }}/128 dev $IFACE
+	address {{ as_ip6 }}/128
 {% endif %}
 {% if ffrl_tun is defined and ffrl_nat_ip is defined %}
-        up ip address add {{ ffrl_nat_ip }} dev lo
+	address {{ ffrl_nat_ip }}
 {% elif ffnw_tun is defined and ffnw_nat_ip is defined %}
-        up ip address add {{ ffnw_nat_ip }} dev lo
+	address {{ ffnw_nat_ip }}
 {% else %}
-        up ip address add 10.0.0.{{vm_id}} dev lo
+	address 10.0.0.{{vm_id}}
 {% endif %}
