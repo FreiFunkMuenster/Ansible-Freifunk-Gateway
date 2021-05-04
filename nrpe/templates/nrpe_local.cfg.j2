@@ -38,8 +38,8 @@ command[check_isc-dhcp-server]=/usr/lib/nagios/plugins/check_procs -c 1: -w 1: -
 command[check_isc-dhcp-server-leases]=/usr/bin/dhcpd-pools -c /etc/dhcp/dhcpd.conf -l /var/lib/dhcp/dhcpd.leases --warning=80 --critical=90 --perfdata
 command[check_vnstat]=/usr/lib/nagios/plugins/check_vnstat.sh -i {{ansible_default_ipv4.interface}} 
 command[check-dhcp-client]=/usr/lib/nagios/plugins/check_dhcp -t 5
-command[check-dns4-client]=/usr/lib/nagios/plugins/check_dns -H ipv4.google.com -w 0.5 -c 1
-command[check-dns6-client]=/usr/lib/nagios/plugins/check_dns -H ipv6.google.com -w 0.5 -c 1
+command[check-dns4-client]=/usr/lib/nagios/plugins/check_dns -H ipv4.google.com -w 0.8 -c 1
+command[check-dns6-client]=/usr/lib/nagios/plugins/check_dns -H ipv6.google.com -w 0.8 -c 1
 command[check-http4-client]=/usr/lib/nagios/plugins/check_http -H ipv4.google.com -4 -w 1 -c 2
 command[check-http6-client]=/usr/lib/nagios/plugins/check_http -H ipv6.google.com -6 -w 1 -c 2
 command[check-ping-v4]=/usr/lib/nagios/plugins/check_ping -H 8.8.8.8 -w 50,3% -c 70,7% -4 -p10
@@ -50,10 +50,10 @@ command[check_iproute6]=/usr/lib/nagios/plugins/check_iproute6
 command[check_bird_sessions]=sudo /usr/lib/nagios/plugins/check_bird_sessions
 command[check_bird6_sessions]=sudo /usr/lib/nagios/plugins/check_bird6_sessions
 {% if nrpe.check_websites_upstream_ipv4 is defined and ffrl_nat_ip is defined %}
-command[check_websites-ffrl-ipv4]=/usr/lib/nagios/plugins/check_websites-ipv4 -t 2 -s {{ ffrl_nat_ip }} -w 99 -c 95 {{ nrpe.check_websites_upstream_ipv4 }}
+command[check_websites-ffrl-ipv4]=/usr/lib/nagios/plugins/check_websites-ipv4 -t 2 -s {{ ffrl_nat_ip }} -w 96 -c 92 {{ nrpe.check_websites_upstream_ipv4 }}
 {% endif %}
 {% if nrpe.check_websites_upstream_ipv4 is defined and ffnw_nat_ip is defined %}
-command[check_websites-ffnw-ipv4]=/usr/lib/nagios/plugins/check_websites-ipv4 -t 2 -s {{ ffnw_nat_ip }} -w 99 -c 95 {{ nrpe.check_websites_upstream_ipv4 }}
+command[check_websites-ffnw-ipv4]=/usr/lib/nagios/plugins/check_websites-ipv4 -t 2 -s {{ ffnw_nat_ip }} -w 96 -c 92 {{ nrpe.check_websites_upstream_ipv4 }}
 {% endif %}
 
 # Service VM Server
