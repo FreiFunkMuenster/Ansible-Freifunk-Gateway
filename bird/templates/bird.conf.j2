@@ -122,6 +122,13 @@ protocol ospf {
 		};
 {% endif %}
 {% endfor %}
+{% if additional_ospf_interfaces is defined %}
+{% for ospf_interface in additional_ospf_interfaces %}
+		interface "{{ospf_interface.interface}}" {
+			cost {{ospf_interface.cost}};
+		};
+{% endfor %}
+{% endif %}
 		interface "bck-*";
 		interface "lo" {
 			stub;

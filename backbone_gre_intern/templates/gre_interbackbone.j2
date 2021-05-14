@@ -4,27 +4,27 @@
 {% if host != inventory_hostname %}
 auto bck-{{host}}
 iface bck-{{host}} inet tunnel
-        mode gre
+	mode gre
 {% if as_ip is defined %}
-        local {{as_ip}}
+	local {{as_ip}}
 {% else %} 
-	local {{ansible_default_ipv4.address}} 
+	local {{ansible_default_ipv4.address}}
 {% endif %}
-	endpoint {{hostvars[host].ipv4}} 
+	endpoint {{hostvars[host].ipv4}}
 	ttl 255
 {% if hostvars[host].vm_id < vm_id %}
-        address 192.168.{{ hostvars[host].vm_id-1 }}.{{vm_id*2+1}}/31
-        address {{ ipv6internalTunnelPrefix }}{{hostvars[host].vm_id}}:{{vm_id}}:0/127
+	address 192.168.{{ hostvars[host].vm_id-1 }}.{{vm_id*2+1}}/31
+	address {{ ipv6internalTunnelPrefix }}{{hostvars[host].vm_id}}:{{vm_id}}:0/127
 {% else %}
-        address 192.168.{{ vm_id-1 }}.{{hostvars[host].vm_id*2}}/31
-        address {{ ipv6internalTunnelPrefix }}{{vm_id}}:{{hostvars[host].vm_id}}:1/127
+	address 192.168.{{ vm_id-1 }}.{{hostvars[host].vm_id*2}}/31
+	address {{ ipv6internalTunnelPrefix }}{{vm_id}}:{{hostvars[host].vm_id}}:1/127
 {% endif %}
-        pre-up ip link set $IFACE up multicast on
+	pre-up ip link set $IFACE up multicast on
 {% if 'as_router' in group_names %}
-        post-up ip rule add iif $IFACE table ffnet
-        pre-down ip rule del iif $IFACE table ffnet ||:
-        post-up ip -6 rule add iif $IFACE table ffnet
-        pre-down ip -6 rule del iif $IFACE table ffnet ||:
+	post-up ip rule add iif $IFACE table ffnet
+	pre-down ip rule del iif $IFACE table ffnet ||:
+	post-up ip -6 rule add iif $IFACE table ffnet
+	pre-down ip -6 rule del iif $IFACE table ffnet ||:
 {% endif %}
 
 

@@ -27,6 +27,12 @@ COMMIT
 -A POSTROUTING -o {{ ansible_default_ipv4.interface }} --source {{ domaenen[domaene[0]].ffv4_network }} -j SNAT --to-source {{ ansible_default_ipv4.address }}
 {% endfor %}
 {% endif %}
+{% elif 'as_router' in group_names %}
+{% if domaenenliste is defined %}
+{% for domaene in domaenenliste|dictsort %}
+-A POSTROUTING -o lo --source {{ domaenen[domaene[0]].ffv4_network }} -j SNAT --to-source {{ as_ip }}
+{% endfor %}
+{% endif %}
 {% elif ffrl_tun is defined and ffrl_nat_ip is defined %}
 {% if domaenenliste is defined %}
 {% for domaene in domaenenliste|dictsort %}
