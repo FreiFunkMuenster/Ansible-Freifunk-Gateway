@@ -1,0 +1,26 @@
+- name: add backports repo
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items:
+    - "deb http://deb.debian.org/debian/ {{ ansible_distribution_release }}-backports main"
+  when: ansible_distribution == "Debian"
+  register: addrepo
+
+- name: update apt cache
+  apt:
+    update_cache: yes
+  when: addrepo.changed
+
+- name: install backports-kernel
+  apt: 
+    name: ['linux-headers-amd64', 'linux-image-amd64']
+    state: latest
+    default_release: "{{ ansible_distribution_release }}-backports"
+  when: ansible_distribution == "Debian"
+  register: aptinstall
+
+- name: reboot
+  reboot:
+    search_paths: '/lib/molly-guard'
+  when: aptinstall.changed
