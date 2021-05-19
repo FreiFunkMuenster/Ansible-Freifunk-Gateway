@@ -1,54 +1,95 @@
 - name: install bind9
-  apt: pkg=bind9 state=present
+  apt:
+    pkg: bind9
+    state: present
 
 - name: deploy named.conf.local
-  template: src=named.conf.local.j2 dest=/etc/bind/named.conf.local
+  template:
+    src: named.conf.local.j2
+    dest: /etc/bind/named.conf.local
   notify:
     - restart bind9
 
 - name: deploy named.conf.options
-  template: src=named.conf.options.j2 dest=/etc/bind/named.conf.options
+  template:
+    src=named.conf.options.j2 dest=/etc/bind/named.conf.options
   notify:
     - restart bind9
 
 - name: create named.conf.ffnet
-  template: src=named.conf.ffnet.j2 dest=/etc/bind/named.conf.ffnet
+  template:
+    src: named.conf.ffnet.j2
+    dest: /etc/bind/named.conf.ffnet
   notify:
     - restart bind9
 
 - name: create named.conf.tld
-  template: src=named.conf.tld.j2 dest=/etc/bind/named.conf.tld
+  template:
+    src: named.conf.tld.j2
+    dest: /etc/bind/named.conf.tld
   notify:
     - restart bind9
 
 - name: create named.conf
-  template: src=named.conf.j2 dest=/etc/bind/named.conf
+  template:
+    src: named.conf.j2
+    dest: /etc/bind/named.conf
   notify:
     - restart bind9
 
 - name: create own db file for gateway servers and backbone servers
-  template: src=db.servers.ffnet.j2 dest=/etc/bind/db.servers.ffnet
+  template:
+    src: db.servers.ffnet.j2
+    dest: /etc/bind/db.servers.ffnet
   notify:
     - restart bind9
 
 - name: create own db file for each domain
-  template: src=db.tld-template.j2 dest=/etc/bind/db.{{item.key}}
+  template:
+    src: db.tld-template.j2
+    dest: /etc/bind/db.{{item.key}}
   tags: debug
   with_dict: "{{domains}}"
   notify:
     - restart bind9
 
 - name: create own db.servers. file for each domain
-  template: src=db.servers.tld-template.j2 dest=/etc/bind/db.servers.{{item.key}}
+  template:
+    src: db.servers.tld-template.j2
+    dest: /etc/bind/db.servers.{{item.key}}
   tags: debug
   with_dict: "{{domains}}"
   notify:
     - restart bind9
 
 - name: create own db.services. file for each domain
-  template: src=db.services.tld-template.j2 dest=/etc/bind/db.services.{{item.key}}
+  template:
+    src: db.services.tld-template.j2
+    dest: /etc/bind/db.services.{{item.key}}
   tags: debug
   with_dict: "{{domains}}"
+  notify:
+    - restart bind9
+
+- name: create own db file for each reverse zone
+  template:
+    src: db.reverse-template.j2
+    dest: /etc/bind/db.{{ item.key }}
+  tags: debug
+  with_dict: "{{ reverse_dns }}"
+  when: reverse_dns is defined
+  notify:
+    - restart bind9
+
+- name: create own zonefiles for adittional subzones for each domain
+  template:
+    src: db.additionalsubzones.tld-template.j2
+    dest: /etc/bind/db.{{item.0}}.{{item.1}}
+  tags: debug
+  with_nested:
+    - "{{ additional_subzones_for_all_tlds }}"
+    - "{{ domains }}"
+  when: additional_subzones_for_all_tlds is defined
   notify:
     - restart bind9
 
@@ -58,7 +99,10 @@
     dest: /etc/logrotate.d/bind
 
 - name: knotendns.sh kopieren
-  template: src=knotendns.j2 dest=/etc/bind/knotendns.sh mode=0755
+  template:
+    src: knotendns.j2
+    dest: /etc/bind/knotendns.sh
+    mode: 0755
 
 - name: Cronjob anlegen, der Skript ausführt
   cron:

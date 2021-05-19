@@ -37,4 +37,28 @@ zone "knoten.{{domain}}." IN {
 {% endfor %}
 	};
 };
+{% if additional_subzones_for_all_tlds is defined %}
+{% for subzone in additional_subzones_for_all_tlds %}
+zone "{{subzone}}.{{domain}}." IN {
+        type slave;
+        file "/etc/bind/slave/db.{{subzone}}.{{domain}}";
+        masters {
+{% for master in bind.ffnet_zone_masters %}
+                {{master}};
+{% endfor %}
+        };
+};
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% for zone in reverse_dns %}
+zone "{{ zone }}." IN {
+	type slave;
+	file "/etc/bind/slave/db.{{ zone }}";
+	masters {
+{% for master in bind.ffnet_zone_masters %}
+		{{master}};
+{% endfor %}
+	};
+};
 {% endfor %}

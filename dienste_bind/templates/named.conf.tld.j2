@@ -39,4 +39,30 @@ zone "knoten.{{domain}}." IN {
 {% endfor %}
 	};
 };
+{% if additional_subzones_for_all_tlds is defined %}
+{% for subzone in additional_subzones_for_all_tlds %}
+zone "{{subzone}}.{{domain}}." IN {
+	type master;
+	file "/etc/bind/db.{{subzone}}.{{domain}}";
+	allow-transfer {
+	   localhost;
+{% for host in groups['gateways'] %}
+	   {{hostvars[host].ansible_ssh_host }};
+{% endfor %}
+	};
+};
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% for zone in reverse_dns %}
+zone "{{ zone }}." IN {
+        type master;
+        file "/etc/bind/db.{{ zone }}";
+        allow-transfer {
+           localhost;
+{% for host in groups['gateways'] %}
+           {{hostvars[host].ansible_ssh_host }};
+{% endfor %}
+        };
+};
 {% endfor %}

@@ -1,0 +1,18 @@
+$TTL    86400
+@       IN      SOA     {{bind_zonemaster.server}}. {{bind_zonemaster.email}}. (
+                     {{ansible_date_time.epoch}}         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                          86400 )       ; Negative Cache TTL
+{% set i = [1] %}
+{% for host in groups['gateways'] %}
+{% if 'is_external_nameserver' in hostvars[host] and hostvars[host].is_external_nameserver %}
+@       IN      NS      ns{{i[0]}}.{{item[1]}}.
+{% if i.append(i.pop() + 1) %}{% endif %}
+{% endif %}
+{% endfor %}
+
+{% for entry in additional_subzones_for_all_tlds.get(item[0])['dns_entries'] %}
+{{entry}}
+{% endfor %}
