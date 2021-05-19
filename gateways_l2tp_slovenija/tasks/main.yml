@@ -1,7 +1,7 @@
 - name: Install dependencies for this role
   apt:
-    pkg: ['git', 'libnetfilter-conntrack-dev', 'libnfnetlink-dev', 'python3-dev', 'python-virtualenv', 'gcc',
-      'libnl-3-dev', 'libevent-dev', 'bridge-utils', 'ebtables', 'iproute2']
+    pkg: [ 'git', 'libnetfilter-conntrack-dev', 'libnfnetlink-dev', 'python3-dev', 'python3-virtualenv',
+      'virtualenv', 'gcc', 'libnl-3-dev', 'libevent-dev', 'bridge-utils', 'ebtables', 'iproute2' ]
   when: domaenenliste is defined
 
 - name: Get all enabled tunneldigger (domain specific) instances
@@ -21,13 +21,26 @@
   with_items: "{{ _td_domain_instances.stdout_lines }}"
   when: domaenenliste is defined and item not in domaenenliste
 
-- name: Clone tunneldigger
+- name: Clone tunneldigger master
   git:
     repo: https://github.com/wlanslovenija/tunneldigger
     dest: /srv/tunneldigger
     update: yes
-#    version: 18f365f329795400f4d7a101a6d45bc859100144
-  when: domaenenliste is defined
+  when: domaenenliste is defined and
+        (ansible_kernel is version('5.2.17', '>=') and ansible_kernel is version('5.3', '<')) or
+        (ansible_kernel is version('5.3.1', '>=') and ansible_kernel is version('5.4', '<')) or
+        ansible_kernel is version('5.4', '>=')
+  register: tunneldigger_master_install
+  tags:
+    - skip_ansible_lint
+
+- name: Clone tunneldigger legacy
+  git:
+    repo: https://github.com/wlanslovenija/tunneldigger
+    dest: /srv/tunneldigger
+    update: yes
+    version: legacy
+  when: domaenenliste is defined and tunneldigger_master_install is skipped
   tags:
     - skip_ansible_lint
 

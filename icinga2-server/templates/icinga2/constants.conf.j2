@@ -5,6 +5,11 @@
  * the other configuration files.
  */
 
+{% if ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04' %}
+/* Main configuration directory */
+const ConfigDir = "/etc/icinga2"
+{% endif %}
+
 /* The directory which contains the plugins from the Monitoring Plugins project. */
 const PluginDir = "/usr/lib/nagios/plugins"
 

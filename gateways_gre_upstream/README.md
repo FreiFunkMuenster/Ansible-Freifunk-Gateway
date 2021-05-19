@@ -26,10 +26,18 @@ ffrl_tun:
   v4_remote: 100.64.0.206/31
   v6_local: 2a03:2260:0:6d::2/64
   v6_remote: 2a03:2260:0:6d::1/64
+
+ffrl_nat_ip: 185.66.193.48/32
 ```
+### ffrl_tun:
 `name` ist ein frei wählbarer Name für den Tunnel (Achtung: Keine Bindestriche oder Leerzeichen verwenden!), aus dem die Bezeichnung für die virtuelle Netzwerkschnittstelle des Tunnels gebildet wird: Tunnel "dus" wird auf das Interface "tun-ffrl-dus" gelegt, "fra" auf "tun-ffrl-fra".
 
 `gre_target` ist der Server bei Freifunk Rheinland, mit dem der Tunnel aufgebaut wird.
 
 Jeder Tunnel hat hat zwei Enden, ein GRE-Tunnel hat zusätzlich an jedem Ende je eine IPv4- und eine IPv6-Adresse:
 Die `*_local`-Adressen sind die Tunnelendpunkte auf dem Gateway, die `*_remote`-Adressen die Tunnelendpunkte bei Freifunk Rheinland.
+
+### ffrl_nat_ip:
+Die IPv4-Adresse, die dem Gateway durch Freifunk Rheinland zugewiesene wurde.
+Über diese Adresse ist das Gateway durch die Freifunk-Rheinland-Tunnel im Internet über IPv4 erreichbar.
+Da im Freifunk-Netz private IPv4-Adressen benutzt werden, wird diese Adresse auch für das nötige NAT verwendet.
