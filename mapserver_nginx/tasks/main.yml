@@ -26,6 +26,9 @@
   args:
     creates: /root/.acme.sh/acme.sh
 
+- name: Create account
+  shell: /root/.acme.sh/acme.sh --register-account -m {{freifunk.email}}
+
 - name: Create certificate
   shell: /root/.acme.sh/acme.sh --issue -d {{inventory_hostname_short}}.{{freifunk.domain}} -w /var/www/letsencrypt
   args:
