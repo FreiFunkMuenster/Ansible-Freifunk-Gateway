@@ -3,7 +3,7 @@
 - name: Generate new repokey on remote host
   shell: |
     set -o pipefail
-    date +%s | sha256sum | base64 | head -c 32 > /root/backup-{{ item.name }}.repokey
+    pwgen -C 32 1 > /root/backup-{{ item.name }}.repokey
   args:
     executable: bash
     creates: /root/backup-{{ item.name }}.repokey
