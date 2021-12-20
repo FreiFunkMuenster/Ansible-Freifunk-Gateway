@@ -25,7 +25,7 @@
     dest: "/etc/email-addresses"
   notify: restart exim4
 
-- name: Use sender email address for all local users
+- name: Set same sender email address for all local users
   replace:
     path: "/etc/exim4/exim4.conf.template"
     regexp: '^(.*\${lookup{\${local_part}})lsearch({\s*\/etc\/email-addresses\s*}.*)$'
