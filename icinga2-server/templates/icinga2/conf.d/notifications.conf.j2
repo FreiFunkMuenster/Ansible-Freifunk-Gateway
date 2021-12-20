@@ -18,7 +18,9 @@ apply Notification "mail-icingaadmin" to Host {
   interval = {{ icinga2.mail_interval | default("30m") }}
 
   //vars.notification_logtosyslog = true
-
+{% if icinga2.mail_sender is defined %}
+  vars.notification_from = "<{{ icinga2.mail_sender }}>"
+{% endif %}
   assign where host.vars.notification.mail
 }
 
@@ -30,6 +32,9 @@ apply Notification "mail-icingaadmin" to Service {
   interval = {{ icinga2.mail_interval | default("30m") }}
 
   //vars.notification_logtosyslog = true
+{% if icinga2.mail_sender is defined %}
+  vars.notification_from = "<{{ icinga2.mail_sender }}>"
+{% endif %}
 
   assign where host.vars.notification.mail
 }

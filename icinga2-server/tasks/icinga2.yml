@@ -6,7 +6,7 @@
 ### Icinga2
 - name: Install Icinga2
   apt:
-    pkg: [ 'icingacli', 'icinga2', 'monitoring-plugins-basic', 'nagios-nrpe-plugin', 'bsd-mailx' ]
+    pkg: [ 'icingacli', 'icinga2', 'monitoring-plugins-basic', 'nagios-nrpe-plugin', 'mailutils' ]
     state: present
 
 ### Command-Module
