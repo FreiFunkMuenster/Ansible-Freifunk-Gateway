@@ -3,11 +3,11 @@
 address={{ansible_default_ipv4.address}}
 ; Ports where the broker will listen on
 {% if tunneldigger.instance_per_domain == True %}
-port={{20000 + (item.key | int)}}
+port={{ tunneldigger.listening_port_base | default(20000) + (item.key | int) }}
 {% else %}
 {% set ports = [] %}
 {% for domaene in domaenenliste|dictsort %}
-{% if ports.append(20000 + (domaene[0] | int )) %}{% endif %}
+{% if ports.append(tunneldigger.listening_port_base | default(20000) + (domaene[0] | int )) %}{% endif %}
 {% endfor %}
 port={{ports|join(',')}}
 {% endif %}
