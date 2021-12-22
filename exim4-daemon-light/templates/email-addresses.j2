@@ -1,2 +1,4 @@
 # {{ ansible_managed }}
+{% if mail.senderemail is defined %}
 *: {{ mail.senderemail }}
+{% endif %}
