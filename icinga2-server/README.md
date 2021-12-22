@@ -1,7 +1,7 @@
 # icinga2-server
 
 Diese Rolle installiert Icinga2 und optional IcingaWeb2.
-Es wird die Rolle exim4-daemon-light benötigt.
+Für den E-Mail-Versand wird ein lokaler Mailserver benötigt (z.B. Rolle exim4-daemon-light).
 
 ## Konfiguration
 Die Konfiguration erfolgt durch Variable "icinga2":
@@ -16,6 +16,7 @@ Die Konfiguration erfolgt durch Variable "icinga2":
         address: "192.168.102.69"
         port: "81"
       mail_interval: "2h"
+      mail_sender: icingaserver@foo.bar
       xmpp:
         jid: icinga2@jabberexample.com
         pw: passwort0
@@ -33,6 +34,7 @@ Die Konfiguration erfolgt durch Variable "icinga2":
 - **icingaweb2:** IcingaWeb2-Weboberfläche ein- (=true) oder ausschalten (=false).
 - **http_listener:** Ändern die IP-Adresse und den Ports für IcingaWeb2. Wenn nicht gesetzt wird als "address" "*" und als "port" "80" verwendet, womit IcingaWeb2 an alle Netzwerkschnittstellen auf Port 80 verfügbar ist.
 - **mail_interval:** Icinga2 kann bei länger andauernden Alerts nicht nur einmalig, sondern regelmäßig per E-Mail informieren. Hier kann eingestellt werden, in welchen Abständen diese E-Mails versendet werden sollen (z.B. "30m" für alle 30 Minuten, "2h" für alle zwei Stunden usw., "0" für keine regelmäßigen E-Mails). Standardwert ist "30m".
+- **mail_sender:** Optional. Absenderadresse für von Icinga2 versendeten E-Mails. (Standard: nagios@hostname)
 - **xmpp:** Optional. JID ("jid") und Passwort ("pw") des XMPP-Accounts, der von Icinga2 verwenden soll um Alerts an User per XMPP zu verschicken.
 - **userliste:** Enthält eine Liste mit Benutzern. Ein Benutzer muss Benutzername und Passwort und/oder E-Mailadresse haben. Zusätzlich ist eine XMPP-Adresse möglich.
 

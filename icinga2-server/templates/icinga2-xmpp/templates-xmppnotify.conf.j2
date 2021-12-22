@@ -7,7 +7,7 @@ template Notification "xmpp-host-notification" {
   types = [ Problem, Acknowledgement, Recovery, Custom ]
 
   period = "24x7"
-  interval = 8h
+  interval = {{ icinga2.xmpp_interval | default("30m")}}
 
   vars += {
     notification_icingaweb2url = "http://{{ inventory_hostname_short }}.{{ freifunk.domain }}"
@@ -21,7 +21,7 @@ template Notification "xmpp-service-notification" {
   types = [ Problem, Acknowledgement, Recovery, Custom ]
 
   period = "24x7"
-  interval = 8h
+  interval = {{ icinga2.xmpp_interval | default("30m")}}
 
   vars += {
     notification_icingaweb2url = "http://{{ inventory_hostname_short }}.{{ freifunk.domain }}"
