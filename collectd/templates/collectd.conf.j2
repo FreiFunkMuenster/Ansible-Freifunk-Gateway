@@ -609,55 +609,55 @@ LoadPlugin write_graphite
 #		Script "script name"
 #	<View>
 #</Plugin>
-{% if collectd.collect_ping %}
-<Plugin ping>
-{% if domaenenliste is defined %}
-{% set hosts = [] %}
-{% for domaene in domaenenliste|dictsort %}
-{% for dummy in hosts %}
-{% if hosts.pop() %}
-{% endif %}
-{% endfor %}
-{% if hosts|length and hosts.pop() %}
-{% endif %}
-{% for host in groups['mapserver']|default([]) %}
-{% if hosts.append(host) %}
-{% endif %}
-{% endfor %}
-{% for host in groups['gateways'] %}
-{% if "domaenenliste" in hostvars[host] %}
-{% if ansible_ssh_host != hostvars[host].ansible_ssh_host and domaene[0] in hostvars[host].domaenenliste and hosts.append(host) %}
-{% endif %}
-{% endif %}
-{% endfor %}
-# Domaene-{{domaene[0]}}:
-{% for host in hosts %}
-{% if hostvars[host] is defined %}
-{% if "domaenenliste" in hostvars[host] %}
-	Host "{{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars[host].domaenenliste[domaene[0]].server_id) | ipaddr('address') }}"
-{% else %}
-	Host "{{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }}"
-{% endif %}
-{% endif %}
-{% endfor %}
-{% endfor %}
-{% endif %}
-{% if "ffrl_tun" in hostvars[inventory_hostname] %}
-{% for tun in ffrl_tun %}
-# FFRL tun remote {{tun.name}}:
-	Host "{{tun.v4_remote.split('/')[0]}}"
-{% endfor %}
-{% endif %}
-#	Host "host.foo.bar"
-#	Host "host.baz.qux"
-	Interval 10.0
-	Timeout 1.0
-	TTL 16
-#	SourceAddress "1.2.3.4"
-#	Device "eth0"
-#	MaxMissed -1
-</Plugin>
-{% endif %}
+#{% if collectd.collect_ping %}
+#<Plugin ping>
+#{% if domaenenliste is defined %}
+#{% set hosts = [] %}
+#{% for domaene in domaenenliste|dictsort %}
+#{% for dummy in hosts %}
+#{% if hosts.pop() %}
+#{% endif %}
+#{% endfor %}
+#{% if hosts|length and hosts.pop() %}
+#{% endif %}
+#{% for host in groups['mapserver']|default([]) %}
+#{% if hosts.append(host) %}
+#{% endif %}
+#{% endfor %}
+#{% for host in groups['gateways'] %}
+#{% if "domaenenliste" in hostvars[host] %}
+#{% if ansible_ssh_host != hostvars[host].ansible_ssh_host and domaene[0] in hostvars[host].domaenenliste and hosts.append(host) %}
+#{% endif %}
+#{% endif %}
+#{% endfor %}
+## Domaene-{{domaene[0]}}:
+#{% for host in hosts %}
+#{% if hostvars[host] is defined %}
+#{% if "domaenenliste" in hostvars[host] %}
+#	Host "{{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars[host].domaenenliste[domaene[0]].server_id) | ipaddr('address') }}"
+#{% else %}
+#	Host "{{domaenen[domaene[0]].ffv4_network | ipaddr(hostvars[host].server_id) | ipaddr('address') }}"
+#{% endif %}
+#{% endif %}
+#{% endfor %}
+#{% endfor %}
+#{% endif %}
+#{% if "ffrl_tun" in hostvars[inventory_hostname] %}
+#{% for tun in ffrl_tun %}
+## FFRL tun remote {{tun.name}}:
+#	Host "{{tun.v4_remote.split('/')[0]}}"
+#{% endfor %}
+#{% endif %}
+##	Host "host.foo.bar"
+##	Host "host.baz.qux"
+#	Interval 10.0
+#	Timeout 1.0
+#	TTL 16
+##	SourceAddress "1.2.3.4"
+##	Device "eth0"
+##	MaxMissed -1
+#</Plugin>
+#{% endif %}
 
 #<Plugin postgresql>
 #	<Query magic>
