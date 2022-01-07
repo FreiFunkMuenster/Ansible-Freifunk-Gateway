@@ -1,8 +1,15 @@
 ---
 - name: Create HopGlass directory if not existent
   file:
-    path: /opt/hopglass/client
+    path: /opt/hopglass
     state: directory
+
+- name: Create HopGlass User
+  user:
+    name: hopglass
+    system: yes
+    createhome: yes
+    home: /opt/hopglass
 
 - name: Git for HopGlass
   git:
@@ -30,7 +37,13 @@
     url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
     state: present
 
-- name: Add repo for nodejs
+- name: Add yarn repo keys
+  apt_key:
+    id: 1646B01B86E50310
+    url: "https://dl.yarnpkg.com/debian/pubkey.gpg"
+    state: present
+
+- name: Add repo for nodejs and yarn
   apt_repository:
     repo: "{{ item }}"
     state: present
@@ -38,10 +51,11 @@
   with_items:
     - "deb https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
     - "deb-src https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
+    - "deb https://dl.yarnpkg.com/debian/ stable main"
 
 - name: Install nodejs and yarn
   apt:
-    pkg: ['nodejs', 'yarnpkg']
+    pkg: ['nodejs', 'yarn']
     state: present
 
 - name: Install dependencies
