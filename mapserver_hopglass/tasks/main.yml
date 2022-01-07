@@ -36,22 +36,16 @@
     state: present
     update_cache: yes
   with_items:
-    - "deb https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
-    - "deb-src https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
+    - "deb https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
+    - "deb-src https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
 
-- name: Install nodejs
+- name: Install nodejs and yarn
   apt:
-    pkg: nodejs
+    pkg: ['nodejs', 'yarnpkg']
     state: present
 
 - name: Install dependencies
-  shell: npm install
-  args:
-    chdir: /opt/hopglass/client
-  when: hopglass_git_clone.changed
-
-- name: Install grunt-cli
-  shell: npm install grunt-cli
+  shell: yarn install
   args:
     chdir: /opt/hopglass/client
   when: hopglass_git_clone.changed
