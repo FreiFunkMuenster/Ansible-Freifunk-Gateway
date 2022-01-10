@@ -19,9 +19,38 @@ DefaultDomain: {{ freifunk.kurzname }}
 # optional, default: simple
 # supported domain types are: simple, batadv
 DomainType: batadv
+# Default fastd-public-key to use
+# optional, default is None
+#FastdPublicKey: 0000000000000000000000000000000000000000000000000000000000000000
+# Default WireGuard-public-key to use
+# optional, default is None
+#WireGuardPublicKey: 0000000000000000000000000000000000000000000=
+# Default vpn protocols to use
+# may contain csv if more than one protocol is used
+# optional, default is fastd
+# supported protocols are: fastd, wireguard, None
+VPNProtocols: None
 # Default ddhcpd IPv4 gateway address
 # optional
 #IPv4Gateway: 10.116.128.8
+# Hostname to advertise
+# optional, default is the system hostname
+#Hostname: gw01
+# Hardware used by the system
+# optional, default is None
+Hardware-Model: KVM VirtualMachine
+# Contact information of owner
+# optional, default is None
+Contact: {{ freifunk.email }} 
+# Latitude of the system
+# optional, default is None
+#Latitude: 50.478083306
+# Longitude of the system
+# optional, default is None
+#Longitude: 12.335736752
+# Is the system considered an gateway
+# optional, default is True
+VPN: True
 
 # An arbitrary number of further domains may follow here
 {% for domaene in domaenenliste|dictsort %}
@@ -29,5 +58,6 @@ DomainType: batadv
 BatmanInterface: bat{{ domaene[0] }}
 Interfaces: br{{ domaene[0] }}
 IPv4Gateway: {{ domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }}
+Hostname: {{inventory_hostname_short}}_{{ freifunk.kurzname }}d{{ domaene[0] }}
 
 {% endfor %}
