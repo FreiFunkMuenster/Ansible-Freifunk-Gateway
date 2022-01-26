@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import datetime, collectd, os.path
+import collectd
 
 def getStats():
 	stats = {
@@ -24,7 +24,7 @@ def getStats():
 	prc.close()
 	return stats
 
-def read(data=None):
+def read():
 	stats = getStats()
 	vl = collectd.Values(type='if_octets')
 	vl.plugin='ip_traffic'
@@ -36,10 +36,4 @@ def read(data=None):
 	vl.dispatch(values=[stats['v6']['rx'], stats['v6']['tx']])
 
 
-def write(vl, data=None):
-	for i in vl.values:
-		print "%s (%s): %f" % (vl.plugin, vl.type, i)
-
 collectd.register_read(read)
-#collectd.register_write(write);
-

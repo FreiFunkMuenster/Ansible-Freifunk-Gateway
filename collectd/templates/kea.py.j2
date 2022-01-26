@@ -1,21 +1,17 @@
 #!/usr/bin/python
 
-import collectd,datetime,socket,os,json,collections{% if kea.database.type == "postgresql" %},psycopg2
-{% endif %}
+import collectd,socket,json,collections,psycopg2
 
-{% if kea.database.type == "postgresql" %}
 def performPSQL():
-	conn = psycopg2.connect("host='{{kea.database.db_host}}' dbname='{{kea.database.db_name}}' user='{{kea.database.db_user}}' password='{{kea.database.db_pass}}'")
+	conn = psycopg2.connect("host='127.0.0.1' dbname='kea_leases' user='kea' password='MGy8B5axgpXC5ih1FX1A'")
 	cursor = conn.cursor()
 	cursor.execute("SELECT subnet_id, COUNT(*) FROM lease4 WHERE state=0 GROUP BY subnet_id")
 	return dict((int(x), int(y)) for x, y in cursor.fetchall())
-{% endif %}
 
-def read(data=None):
+def read():
 	resDict = {}
 	resDict[u'all_interfaces'] = collections.defaultdict(int)
 
-{% if kea.database.type == "postgresql" %}
 	active_leases = performPSQL()
 
 	for k, v in active_leases.items():
@@ -24,19 +20,18 @@ def read(data=None):
 		resDict[if_name]['active-leases'] = v
 		resDict[u'all_interfaces']['active-leases'] += v
 
-{% endif %}
 	BUFF_SIZE = 1024
 	s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 	s.connect("/var/kea/control.sock")
-	s.send('{"command":"statistic-get-all","arguments":{}}')
-	result = ""
+	s.send(b'{"command":"statistic-get-all","arguments":{}}')
+	result = []
 	part = s.recv(BUFF_SIZE)
 	while len(part) == BUFF_SIZE:
-		result += part
+		result.append(part)
 		part = s.recv(1024)
-	result += part
-	jsonData = json.loads(result)
-	for k,v in jsonData["arguments"].iteritems():
+	result.append(part)
+	jsonData = json.loads(b''.join(result))
+	for k,v in jsonData["arguments"].items():
 		k = k.split('.') 
 		interface = k[0].replace('subnet[','bat').replace(']','')
 		if len(k) != 2:
@@ -48,19 +43,10 @@ def read(data=None):
 
 	s.close()
 
-	for k,v in resDict.iteritems():
+	for k,v in resDict.items():
 		vl = collectd.Values(type='kea_leases')
 		vl.plugin='kea_leases'
 		vl.type_instance = k
-{% if kea.database.type == "postgresql" %}
 		vl.dispatch(values=[v['total-addresses'], v['assigned-addresses'], v['declined-addresses'], v['declined-reclaimed-addresses'], v['reclaimed-leases'], v['active-leases']])
-{% else %}
-		vl.dispatch(values=[v['total-addresses'], v['assigned-addresses'], v['declined-addresses'], v['declined-reclaimed-addresses'], v['reclaimed-leases'], -1])
-{% endif %}
-
-def write(vl, data=None):
-	for i in vl.values:
-		print "%s (%s): %f" % (vl.plugin, vl.type, i)
 
 collectd.register_read(read)
-#collectd.register_write(write);

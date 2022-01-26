@@ -1,5 +1,9 @@
 #!/usr/bin/python
-
+###
+#
+# This is python2 and broken. Needs syntax updates
+#
+###
 import datetime, collectd, os.path, ipaddress
 
 def parse_leases(lease_file):
@@ -67,7 +71,7 @@ def count_active_leases(all_leases, now, subnets):
 	count_active = 0
 	count_all = 0
 	subnet_counter = {}
-	for interface in subnets.iterkeys():
+	for interface in subnets.keys():
 		subnet_counter[interface] = {'count_active': 0, 'count_all': 0, 'count_touch': 0}
 
 	for lease in all_leases.itervalues():

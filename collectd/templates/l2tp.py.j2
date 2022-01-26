@@ -9,10 +9,10 @@ def getBridgeInterfaceCount():
 		ifcount[br.name] = len(br.getifs())
 	return ifcount
 
-def read(data=None):
+def read():
 	stats = getBridgeInterfaceCount()
 	globalCount = 0
-	for k,v in stats.iteritems():
+	for k,v in stats.items():
 		globalCount += v
 		vl = collectd.Values(type='if_count')
 		vl.plugin='l2tp'
@@ -23,10 +23,4 @@ def read(data=None):
 	vl.type_instance = 'all'
 	vl.dispatch(values=[globalCount])
 
-
-def write(vl, data=None):
-	for i in vl.values:
-		print "%s (%s): %f" % (vl.plugin, vl.type, i)
-
 collectd.register_read(read)
-#collectd.register_write(write);

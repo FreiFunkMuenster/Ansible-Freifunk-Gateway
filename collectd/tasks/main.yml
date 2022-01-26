@@ -9,7 +9,7 @@
 
 - name: install pip packages
   pip: 
-    name: ['ipaddress', 'pybrctl']
+    name: ['ipaddress', 'git+https://github.com/nbycomp/pybrctl.git']
     state: present 
 
 - name: enable collectd
