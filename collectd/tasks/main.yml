@@ -3,7 +3,7 @@
 
 - name: install required packages
   apt:
-    pkg: ['collectd', 'python-pip']
+    pkg: ['collectd', 'python3-pip']
     update_cache: yes
     state: present
 

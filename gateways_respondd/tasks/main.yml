@@ -13,13 +13,6 @@
     force: yes
   notify: restart respondd
 
-- name: patch hostname.py
-  template:
-    src: hostname.py.j2
-    dest: /opt/mesh-announce/providers/nodeinfo/hostname.py
-  when: domaenenliste is defined and domaenenliste | length > 1
-  notify: restart respondd
-
 - name: create configuration
   template:
     src: respondd.conf.j2

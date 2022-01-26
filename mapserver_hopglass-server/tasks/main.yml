@@ -35,32 +35,6 @@
   notify:
     - "restart hopglass"
 
-- name: Add nodejs repo keys
-  apt_key:
-    id: 1655A0AB68576280
-    url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
-    state: present
-
-- name: Add yarn repo keys
-  apt_key:
-    url: "https://dl.yarnpkg.com/debian/pubkey.gpg"
-    state: present
-
-- name: Add repo for nodejs and yarn
-  apt_repository:
-    repo: "{{ item }}"
-    state: present
-    update_cache: yes
-  with_items:
-    - "deb https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
-    - "deb-src https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
-    - "deb https://dl.yarnpkg.com/debian/ stable main"
-
-- name: Install nodejs, npm and yarn
-  apt:
-    pkg: ['nodejs', 'yarn', 'npm']
-    state: present
-
 - name: Create HopGlass-server directory if not existent
   file:
     path: /opt/hopglass
@@ -77,10 +51,33 @@
   git:
     repo: https://github.com/hopglass/hopglass-server.git
     dest: /opt/hopglass/server
-    version: 5bab4dac7eb9fc7502d1473b77d180d8c4a90241
   notify:
     - "restart hopglass"
   register: hopglass_server_git_clone
+
+- name: Add nodejs and yarn repo keys
+  apt_key:
+    id: "{{ item.id }}"
+    url: "{{ item.url }}"
+    state: present
+  loop:
+    - { id: '1655A0AB68576280', url: 'https://deb.nodesource.com/gpgkey/nodesource.gpg.key' }
+    - { id: '1646B01B86E50310', url: 'https://dl.yarnpkg.com/debian/pubkey.gpg' }
+
+- name: Add repo for nodejs and yarn
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - "deb https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
+    - "deb-src https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
+    - "deb https://dl.yarnpkg.com/debian/ stable main"
+
+- name: Install nodejs and yarn
+  apt:
+    pkg: ['nodejs', 'yarn']
+    state: present
 
 - name: Adjust permissions
   file:
@@ -91,10 +88,10 @@
   when: hopglass_server_git_clone.changed
 
 - name: install dependencies
-  shell: npm install
+  shell: yarn install
   args:
     chdir: /opt/hopglass/server
-  when: hopglass_server_git_clone.changed
+  when: not ansible_check_mode and hopglass_server_git_clone.changed
 
 - name: Create HopGlass-server Config directory if not existent
   file:

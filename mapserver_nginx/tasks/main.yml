@@ -5,7 +5,9 @@
     state: latest
 
 - name: create letsencrypt directory
-  file: name=/var/www/letsencrypt state=directory
+  file: 
+    name: /var/www/letsencrypt
+    state: directory
 
 - name: Install default nginx site for letsencrypt requests and https rewrite
   template:
@@ -14,11 +16,16 @@
   register: gendefconf
 
 - name: Activate default nginx site
-  file: src=/etc/nginx/sites-available/default dest=/etc/nginx/sites-enabled/default state=link
+  file: 
+    src: /etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-enabled/default
+    state: link
   register: actdefconf
 
 - name: Reload nginx to activate letsencrypt site
-  service: name=nginx state=restarted
+  service: 
+    name: nginx
+    state: restarted
   when: gendefconf.changed or actdefconf.changed
 
 - name: acme install
@@ -92,15 +99,23 @@
     - restart nginx
 
 - name: Aktivate default ssl nginx site
-  file: src=/etc/nginx/sites-available/default_ssl dest=/etc/nginx/sites-enabled/default_ssl state=link
+  file: 
+    src: /etc/nginx/sites-available/default_ssl
+    dest: /etc/nginx/sites-enabled/default_ssl
+    state: link
   register: actsslconf
 
 - name: Reload nginx to activate letsencrypt site
-  service: name=nginx state=restarted
+  service:
+    name: nginx
+    state: restarted
   when: actsslconf.changed
 
 - name: Clone bootstrap and css files
-  git: repo=https://github.com/FreiFunkMuenster/nodesmap-page.git dest=/opt/nodesmappage force=yes
+  git:
+    repo: https://github.com/FreiFunkMuenster/nodesmap-page.git
+    dest: /opt/nodesmappage
+    force: yes
 
 - name: link css
   file:
@@ -141,4 +156,11 @@
   file:
     src: /opt/hopglass/hwpics/nodes
     dest: /var/www/html/hwpics
+    state: link
+
+# ToDo: Prüfen ob man das logo nicht aus de Ansible Konfig Repos auf den Host schieben kann. Globaler files Ordner z.B. (corny)
+- name: link logo.svg
+  file:
+    src: /opt/nodesmappage/logo.svg
+    dest: /var/www/html/logo.svg
     state: link

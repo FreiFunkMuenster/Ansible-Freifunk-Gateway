@@ -34,6 +34,12 @@
 
 {% endfor %}
   ],
+  "domainNames": [
+{% for domain in map_domains %}
+    { "domain": "{{freifunk.kurzname}}d{{domain[0]}}", "name": "Domäne {{domain[0]}} - {{domain[1].name}}" }{% if not loop.last %},{% endif %}
+
+{% endfor %}
+  ],
 {% if mapconfig.globalInfos is defined %}
   "globalInfos": [
 {% for globalInfo in mapconfig.globalInfos %}

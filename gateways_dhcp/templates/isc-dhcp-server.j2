@@ -16,6 +16,5 @@
 
 # On what interfaces should the DHCP server (dhcpd) serve DHCP requests?
 #       Separate multiple interfaces with spaces, e.g. "eth0 eth1".
-INTERFACESv4="{% for domaene in domaenenliste|dictsort %}bat{{domaene[0]}} {% endfor %}"
+INTERFACESv4="{% for domaene in domaenenliste|dictsort %}bat{{ domaene[0] }}{% if not loop.last %} {% endif %}{% endfor %}"
 INTERFACESv6=""
-
