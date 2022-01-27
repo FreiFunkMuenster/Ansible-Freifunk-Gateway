@@ -13,5 +13,5 @@ iface lo inet loopback
 {% elif ffnw_tun is defined and ffnw_nat_ip is defined %}
 	address {{ ffnw_nat_ip }}
 {% else %}
-	address 10.0.0.{{vm_id}}
+	address 10.0.0.{{ server_id }}
 {% endif %}

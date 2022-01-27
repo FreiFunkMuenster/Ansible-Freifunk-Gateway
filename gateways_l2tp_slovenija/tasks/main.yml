@@ -26,6 +26,7 @@
     repo: https://github.com/wlanslovenija/tunneldigger
     dest: /srv/tunneldigger
     update: yes
+    force: yes
 #    version: 18f365f329795400f4d7a101a6d45bc859100144
   when: domaenenliste is defined
   tags:
