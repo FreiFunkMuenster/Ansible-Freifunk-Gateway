@@ -1,0 +1,2 @@
+- name: run apt.systemd.daily
+  command: "/usr/lib/apt/apt.systemd.daily"

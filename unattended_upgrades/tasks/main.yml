@@ -11,6 +11,7 @@
   template:
     src: 10periodic.j2
     dest: /etc/apt/apt.conf.d/10periodic
+  notify: run apt.systemd.daily
 
 - name: Configure unattended upgrades on Debian
   template:
