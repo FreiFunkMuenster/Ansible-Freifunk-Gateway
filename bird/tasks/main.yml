@@ -35,9 +35,9 @@
     group: bird
   notify:
     - reload bird
-  when: 
-    - "'as_router' in groups" 
-    - "'as_router' in group_names" 
+  when:
+    - "'as_router' in groups"
+    - "'as_router' in group_names"
 
 - name: configure bird6_as.conf
   template:
@@ -46,19 +46,19 @@
     owner: bird
     group: bird
   notify:
-    - reload bird
-  when: 
-    - "'as_router' in groups" 
-    - "'as_router' in group_names" 
+    - reload bird6
+  when:
+    - "'as_router' in groups"
+    - "'as_router' in group_names"
 
-#- name: configure bird6.conf
-#  template:
-#    src: bird6.conf.j2
-#    dest: /etc/bird/bird6.conf
-#    owner: bird
-#    group: bird
-#  notify:
-#    - reload bird6
+- name: configure bird6.conf
+  template:
+    src: bird6.conf.j2
+    dest: /etc/bird/bird6.conf
+    owner: bird
+    group: bird
+  notify:
+    - reload bird6
 
 - name: create folder for bird.service file
   file:

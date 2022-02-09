@@ -11,7 +11,10 @@ table ffnet;
 
 filter freifunk {
 	if net ~ {{ff_network.v6_network}} then accept;
-{% if not ffrl_tun is defined %}
+{% if as_parameters is defined %}
+	if net ~ [{{ as_parameters.v6_network }}+] then accept;
+{% endif %}
+{% if not ffrl_tun is defined and ('as_router' in groups and 'as_router' not in group_names) %}
 	if net ~ [::/0] then accept;
 {% endif %}
 	reject;
@@ -22,7 +25,7 @@ protocol kernel 'kernel_ffnet' {
 	import all;
 	export all;
 	table ffnet;
-	kernel table {% if 'as_router' not in group_names %}42{% else %}254{% endif %};
+	kernel table {% if 'as_router' in group_names %}42{% else %}254{% endif %};
 	device routes;
 	persist;
 };
@@ -35,6 +38,10 @@ protocol radv {
 		link mtu 1280;
 		prefix {{domaenen[domaene[0]].ffv6_network}} {
 		};
+{% for prefix in domaenen[domaene[0]].ffv6_additional_networks %}
+		prefix {{prefix}} {
+		};
+{% endfor %}
 		rdnss {
 			ns {{domaenen[domaene[0]].ffv6_network | ipaddr(domaene[1].server_id) | ipaddr('address') }};
 		};
@@ -72,12 +79,17 @@ protocol ospf {
 		};
 {% endif %}
 {% endfor %}
+{% if additional_ospf_interfaces is defined %}
+{% for ospf_interface in additional_ospf_interfaces %}
+		interface "{{ospf_interface.interface}}" {
+			cost {{ospf_interface.cost}};
+		};
+{% endfor %}
+{% endif %}
 		interface "bck-*";
-{% if ffrl_tun is defined %}
 		interface "lo" {
 			stub;
 		};
-{% endif %}
 	};
 };
 
@@ -93,13 +105,23 @@ filter export_to_upstream_filter {
 protocol static static_Gesamtnetzwerk {
 	table ffnet;
 	route {{ff_network.v6_network}} reject;
+{% if as_parameters is defined %}
+	route {{as_parameters.v6_network}} reject;
+{% endif %}
 };
 
 {% if domaenenliste is defined %}
 {% for domaene in domaenenliste|dictsort %}
 protocol static static_domaene{{domaene[0]}} {
 	table ffnet;
-	route {{domaenen[domaene[0]].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject;
+	route {{domaenen[domaene[0]].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject {
+		ra_preference = RA_PREF_HIGH;
+	};
+{% for prefix in domaenen[domaene[0]].ffv6_additional_networks %}
+	route {{prefix}} reject {
+		ra_preference = RA_PREF_MEDIUM;
+	};
+{% endfor %}
 };
 {% endfor %}
 {% endif %}
