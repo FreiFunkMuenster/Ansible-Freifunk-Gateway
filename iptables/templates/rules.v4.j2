@@ -15,6 +15,7 @@
 {% endif %}
 :OUTPUT ACCEPT [0:0]
 -A INPUT -p udp -m udp --dport 111 -j DROP
+-A OUTPUT -p icmp -m icmp --icmp-type 3 -j DROP
 COMMIT
 *nat
 :PREROUTING ACCEPT [0:0]
