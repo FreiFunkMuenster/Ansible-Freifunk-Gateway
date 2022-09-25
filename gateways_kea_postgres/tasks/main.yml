@@ -3,9 +3,10 @@
 ---
 
 - name: adding pub key for postgres repo
-  apt_key:
-    id: ACCC4CF8
+  get_url:
     url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
+    dest: /etc/apt/trusted.gpg.d/postgres.asc
+    mode: '0644'
   when: domaenenliste is defined
 
 - name: Add official postgres repo
