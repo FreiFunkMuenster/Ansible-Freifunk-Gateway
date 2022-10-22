@@ -20,10 +20,6 @@ template bgp as_internal {
         direct;
 };
 
-protocol bgp ibgp_goldelse from as_internal {
-        neighbor 10.254.0.2 as {{ as_parameters.as_number }};
-};
-
 protocol static 'static_default' {
 	table main;
         route 0.0.0.0/0 reject;
