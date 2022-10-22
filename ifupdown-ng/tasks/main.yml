@@ -1,0 +1,24 @@
+- name: Fuege den APT-Key des Repositorys hinzu
+  apt_key:
+    url: https://apt.ffho.net/ffho-buster-signing-key.asc
+    state: present
+  register: added_repo
+
+- name: Fuege das APT-Repository des Freifunk Hochstift hinzu
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items:
+    - "deb http://apt.ffho.net {{ansible_lsb.codename}} contrib non-free main"
+    - "deb-src http://apt.ffho.net {{ansible_lsb.codename}} contrib non-free main"
+
+- name: Aktualisiere apt cache
+  apt:
+    update_cache: yes
+  when: added_repo.changed
+
+- name: Installiere ifupdown-ng
+  apt:
+    name: ifupdown-ng
+    state: present
+    update_cache: yes

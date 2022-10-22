@@ -1,7 +1,11 @@
 # {{ ansible_managed }}
 
 log syslog all;
+{% if 'as_router' in groups and 'as_router' in group_names %}
+router id {{as_ip}};
+{% else %}
 router id {{ vm_id }};
+{% endif %}
 
 table ffnet;
 
@@ -9,6 +13,7 @@ protocol kernel 'kernel_ffnet' {
         scan time 20;
         import all;
 	export filter {
+		if net ~ [0.0.0.0/0] then reject;
 {% if domaenenliste is defined %}
 {% for domaene in domaenenliste|dictsort %}
 		if net ~ [{{ domaenen[domaene[0]].ffv4_network }}{ {{- domaenen[domaene[0]].ffv4_network | ipaddr('prefix') + 1 }},32}] then reject;
@@ -17,7 +22,7 @@ protocol kernel 'kernel_ffnet' {
 		accept;
 	};
         table ffnet;
-        kernel table 42;
+        kernel table {% if 'as_router' in group_names %}42{% else %}254{% endif %};
         device routes;
 	persist;
 };
@@ -56,6 +61,14 @@ protocol static {
 };
 {% endif %}
 
+{% if 'as_router' in groups and 'as_router' in group_names %}
+protocol static generate_internetz_default {
+	table ffnet;
+	preference 1001;
+	route 0.0.0.0/0 via {{ as_ip }};
+};
+{% endif %}
+
 {% if domaenenliste is defined %}
 protocol static dhcp_Bereich {
 	table ffnet;
@@ -71,6 +84,9 @@ protocol static dhcp_Bereich {
 {% endif %}
 
 filter freifunk {
+{% if as_parameters is defined %}
+	if net ~ [{{ as_parameters.v4_network }}+] then accept;
+{% endif %}
 {% if ffrl_tun is defined %}
 	# FFRL
 	if net ~ [185.66.192.0/22+] then accept;
@@ -81,7 +97,7 @@ filter freifunk {
 {% endif %}
 
 	if net ~ [10.0.0.0/8+] then accept;
-{% if not ffrl_tun is defined and not ffnw_tun is defined %}
+{% if not ffrl_tun is defined and not ffnw_tun is defined and ('as_router' in groups and 'as_router' not in group_names) %}
 	if net ~ [0.0.0.0/0] then accept;
 {% endif %}
 
@@ -109,6 +125,13 @@ protocol ospf {
 		};
 {% endif %}
 {% endfor %}
+{% if additional_ospf_interfaces is defined %}
+{% for ospf_interface in additional_ospf_interfaces %}
+		interface "{{ospf_interface.interface}}" {
+			cost {{ospf_interface.cost}};
+		};
+{% endfor %}
+{% endif %}
 		interface "bck-*";
 		interface "lo" {
 			stub;
@@ -116,20 +139,6 @@ protocol ospf {
 	};
 };
 
-protocol kernel 'kernel_master' {
-        scan time 20;
-        table master;
-        kernel table 254;
-        import all;
-        export all;
-	persist;
-};
-
-protocol static {
-        table master;
-        import all;
-        export none;
-};
 
 filter hostroute {
 {% if ffrl_nat_ip is defined %}
@@ -148,7 +157,7 @@ function is_default() {
 
 template bgp uplink {
 	table ffnet;
-	local as {{ff_network.as_number}};
+	local as {{as_parameters.as_number}};
 	import where is_default();
 	export filter hostroute;
 	next hop self;
@@ -160,12 +169,16 @@ template bgp uplink {
 
 template bgp internal {
 	table ffnet;
-	local as {{ff_network.as_number}};
+	local as {{as_parameters.as_number}};
 	import filter {
 		preference = 99;
 		accept;
 	};
+{% if 'as_router' in groups and 'as_router' in group_names %}
+	export where source = RTS_STATIC;
+{% else %}
 	export where source = RTS_BGP;
+{% endif %}
 	gateway direct;
 	direct;
 	next hop self;
@@ -206,12 +219,12 @@ protocol bgp ffnw_{{tun.name}} from uplink {
 {% endif %}
 
 {% for host in groups['gateways']|default([]) %}
-{% if hostvars[host].vm_id != vm_id %}
+{% if hostvars[host].vm_id != vm_id and not ( inventory_hostname in groups['as_router'] and host in groups['as_router'] ) %}
 protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 {% if hostvars[host].vm_id < vm_id %}
-	neighbor 192.168.{{ hostvars[host].vm_id-1 }}.{{vm_id*2}} as {{ff_network.as_number}};
+	neighbor 192.168.{{ hostvars[host].vm_id-1 }}.{{vm_id*2}} as {{as_parameters.as_number}};
 {% else %}
-	neighbor 192.168.{{ vm_id-1 }}.{{hostvars[host].vm_id*2+1}} as {{ff_network.as_number}};
+	neighbor 192.168.{{ vm_id-1 }}.{{hostvars[host].vm_id*2+1}} as {{as_parameters.as_number}};
 {% endif %}
 {% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
 	import filter {
@@ -224,3 +237,7 @@ protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 
 {% endif %}
 {% endfor %}
+
+{% if 'as_router' in groups and 'as_router' in group_names %}
+include "bird_as.conf";
+{% endif %}

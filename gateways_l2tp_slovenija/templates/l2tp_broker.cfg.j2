@@ -1,10 +1,10 @@
 [broker]
 ; IP address the broker will listen and accept tunnels on
-address={{ansible_default_ipv4.address}}
+address={{ipv4}}
 ; Ports where the broker will listen on
 port={{ tunneldigger.listening_port_base | default(20000) + (item.key | int) }}
 ; Interface with that IP address
-interface={{ansible_default_ipv4.interface}}
+interface={{tunneldigger.interface}}
 ; Maximum number of tunnels that will be allowed by the broker
 max_tunnels={{ tunneldigger.max_tunnels - 1 }}
 ; Tunnel port base. This port is not visible to clients, but must be free on the server.

@@ -1,4 +1,4 @@
-- name: batctl-Paket installieren
-  apt:
-    name: ['batctl']
-    state: present
+#- name: batctl-Paket installieren
+#  apt:
+#    name: ['batctl']
+#    state: present

@@ -1,0 +1,73 @@
+table main;
+
+protocol kernel 'kernel_main' {
+	kernel table 254;
+	table main;
+	scan time 20;
+	device routes;
+	import none;
+	export filter {
+		if net ~ [0.0.0.0/0] then reject;
+		krt_prefsrc = {{ as_ip }};
+		accept;
+	};
+}
+
+template bgp as_internal {
+        local as {{ as_parameters.as_number }};
+        import none;
+        export none;
+        direct;
+};
+
+protocol static 'static_default' {
+	table main;
+        route 0.0.0.0/0 reject;
+}
+
+protocol static 'ffmsl' {
+        table main;
+        route {{ as_parameters.v4_network }} reject;
+}
+
+{% for exchange in exchanges|dictsort %}
+{% if exchange[1].source_address_v4 is defined %}
+template bgp {{ exchange[0] }} {
+	local as {{ as_parameters.as_number }};
+	source address {{ exchange[1].source_address_v4 }};
+	import filter {
+		{{ exchange[1].import_filter_v4 }}
+	};
+	export filter {
+		{{ exchange[1].export_filter_v4 }}
+	};
+	table main;
+}
+{% endif %}
+
+{% for peer in exchange[1].peers|dictsort %}
+{% if peer[1].neighbor_address_v4 is defined %}
+protocol bgp {{ exchange[0] }}_{{ peer[0] }} from {{ exchange[0] }} {
+	neighbor {{ peer[1].neighbor_address_v4 }} as {{ peer[1].neighbor_as_number }};
+{% if peer[1].import_filter_v4 is defined %}
+	import filter {
+                {{ peer[1].import_filter_v4 }}
+        };
+{% endif %}
+{% if peer[1].export_filter_v4 is defined %}
+        export filter {
+                {{ peer[1].export_filter_v4 }}
+        };
+{% endif %}
+{% if peer[1].password is defined %}
+	password "{{ peer[1].password }}";
+{% endif %}
+{% if peer[1].preference is defined %}
+	preference {{ peer[1].preference }};
+{% endif %}
+}
+{% endif %}
+
+{% endfor %}
+{% endfor %}
+

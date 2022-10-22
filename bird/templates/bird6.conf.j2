@@ -1,24 +1,31 @@
-# {{ ansible_managed }}
+ {{ ansible_managed }}
 
 log syslog { debug, trace, info, remote, warning, error, auth, fatal, bug };
-router id {{ vm_id }};
+{% if 'as_router' in groups and 'as_router' in group_names %}
+router id {{ as_ip }};
+{% else %}
+router id { vm_id }};
+{% endif %}
 
 table ffnet;
 
 filter freifunk {
 	if net ~ {{ff_network.v6_network}} then accept;
-{% if not ffrl_tun is defined %}
+{% if as_parameters is defined %}
+	if net ~ [{{ as_parameters.v6_network }}+] then accept;
+{% endif %}
+{% if not ffrl_tun is defined and ('as_router' in groups and 'as_router' not in group_names) %}
 	if net ~ [::/0] then accept;
 {% endif %}
 	reject;
 }
 
-protocol kernel {
+protocol kernel 'kernel_ffnet' {
 	scan time 20;
 	import all;
 	export all;
 	table ffnet;
-	kernel table 42;
+	kernel table {% if 'as_router' in group_names %}42{% else %}254{% endif %};
 	device routes;
 	persist;
 };
@@ -31,6 +38,10 @@ protocol radv {
 		link mtu 1280;
 		prefix {{domaenen[domaene[0]].ffv6_network}} {
 		};
+{% for prefix in domaenen[domaene[0]].ffv6_additional_networks %}
+		prefix {{prefix}} {
+		};
+{% endfor %}
 		rdnss {
 			ns {{domaenen[domaene[0]].ffv6_network | ipaddr(domaene[1].server_id) | ipaddr('address') }};
 		};
@@ -68,12 +79,17 @@ protocol ospf {
 		};
 {% endif %}
 {% endfor %}
+{% if additional_ospf_interfaces is defined %}
+{% for ospf_interface in additional_ospf_interfaces %}
+		interface "{{ospf_interface.interface}}" {
+			cost {{ospf_interface.cost}};
+		};
+{% endfor %}
+{% endif %}
 		interface "bck-*";
-{% if ffrl_tun is defined %}
 		interface "lo" {
 			stub;
 		};
-{% endif %}
 	};
 };
 
@@ -89,13 +105,23 @@ filter export_to_upstream_filter {
 protocol static static_Gesamtnetzwerk {
 	table ffnet;
 	route {{ff_network.v6_network}} reject;
+{% if as_parameters is defined %}
+	route {{as_parameters.v6_network}} reject;
+{% endif %}
 };
 
 {% if domaenenliste is defined %}
 {% for domaene in domaenenliste|dictsort %}
 protocol static static_domaene{{domaene[0]}} {
 	table ffnet;
-	route {{domaenen[domaene[0]].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject;
+	route {{domaenen[domaene[0]].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject {
+		ra_preference = RA_PREF_HIGH;
+	};
+{% for prefix in domaenen[domaene[0]].ffv6_additional_networks %}
+	route {{prefix}} reject {
+		ra_preference = RA_PREF_MEDIUM;
+	};
+{% endfor %}
 };
 {% endfor %}
 {% endif %}
@@ -105,21 +131,6 @@ protocol static 'static_{{inventory_hostname_short}}' {
 	route {{ff_network.v6_network | regex_replace('..::/\d+$','00::/56')}} reject;
 };
 {% endif %}
-
-protocol kernel 'kernel_master' {
-	scan time 20;
-	table master;
-	kernel table 254;
-	import all;
-	export all;
-	persist;
-};
-
-protocol static {
-	table master;
-	import all;
-	export none;
-};
 
 protocol direct {
 	interface "lo";
@@ -134,7 +145,7 @@ protocol direct {
 
 template bgp internal {
 	table ffnet;
-	local as {{ff_network.as_number}};
+	local as {{as_parameters.as_number}};
 	import filter {
 		if is_default() then
 			preference = 99;
@@ -157,7 +168,7 @@ template bgp internal {
 {% for host in groups['gateways']|default([]) %}
 {% if hostvars[host].vm_id != vm_id %}
 protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
-{% if hostvars[host].vm_id < vm_id %}
+{% if hostvars[host].vm_id < vm_id and not ( inventory_hostname in groups['as_router'] and host in groups['as_router'] ) %}
 	neighbor {{ipv6backbone64prefixstr}}{{hostvars[host].vm_id}}:{{vm_id}}:1 as {{ff_network.as_number}};
 {% else %}
 	neighbor {{ipv6backbone64prefixstr}}{{vm_id}}:{{hostvars[host].vm_id}}:0 as {{ff_network.as_number}};
@@ -175,7 +186,7 @@ protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 
 template bgp uplink {
 	table ffnet;
-	local as {{ff_network.as_number}};
+	local as {{as_parameters.as_number}};
 	import where is_default();
 	export filter export_to_upstream_filter;
 	gateway recursive;
@@ -206,4 +217,8 @@ protocol bgp ffnw_{{tun.name}} from uplink {
 };
 
 {% endfor %}
+{% endif %}
+
+{% if 'as_router' in groups and 'as_router' in group_names %}
+include "bird6_as.conf";
 {% endif %}
