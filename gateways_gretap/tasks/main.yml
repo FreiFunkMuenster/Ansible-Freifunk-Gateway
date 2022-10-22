@@ -10,7 +10,7 @@
 
 #append line in interfaces file for reading additional config files
 - name: let read interfaces from interfaces
-  lineinfile: dest="/etc/network/interfaces" line="source /etc/network/interfaces.d/*"
+  lineinfile: dest="/etc/network/interfaces" line="source-directory /etc/network/interfaces.d/"
   notify:
     - restart networking
   when: domaenenliste is defined
