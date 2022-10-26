@@ -62,6 +62,15 @@
   notify:
     - restart bind9
 
+- name: create own db.backdoor. file for each domain
+  template:
+    src: db.backdoor.tld-template.j2
+    dest: /etc/bind/db.backdoor.{{item.key}}
+  tags: debug
+  with_dict: "{{domains}}"
+  notify:
+    - restart bind9
+
 - name: create own db.services. file for each domain
   template:
     src: db.services.tld-template.j2
