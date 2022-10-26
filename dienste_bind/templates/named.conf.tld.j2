@@ -5,7 +5,7 @@ zone "{{domain}}." IN {
 	allow-transfer {
 	   localhost;
 {% for host in groups['gateways'] %}
-	   {{hostvars[host].ansible_ssh_host }};
+	   {{hostvars[host].ipv4 }};
 {% endfor %}
 	};
 };
@@ -15,7 +15,17 @@ zone "servers.{{domain}}." IN {
 	allow-transfer {
 	   localhost;
 {% for host in groups['gateways'] %}
-           {{hostvars[host].ansible_ssh_host }};
+           {{hostvars[host].ipv4 }};
+{% endfor %}
+	};
+};
+zone "backdoor.{{domain}}." IN {
+	type master;
+	file "/etc/bind/db.backdoor.{{domain}}";
+	allow-transfer {
+	   localhost;
+{% for host in groups['gateways'] %}
+           {{hostvars[host].ipv4 }};
 {% endfor %}
 	};
 };
@@ -25,7 +35,7 @@ zone "services.{{domain}}." IN {
 	allow-transfer {
 	   localhost;
 {% for host in groups['gateways'] %}
-           {{hostvars[host].ansible_ssh_host }};
+           {{hostvars[host].ipv4 }};
 {% endfor %}
 	};
 };
@@ -35,7 +45,7 @@ zone "knoten.{{domain}}." IN {
 	allow-transfer {
 	   localhost;
 {% for host in groups['gateways'] %}
-           {{hostvars[host].ansible_ssh_host }};
+           {{hostvars[host].ipv4 }};
 {% endfor %}
 	};
 };
@@ -47,7 +57,7 @@ zone "{{subzone}}.{{domain}}." IN {
 	allow-transfer {
 	   localhost;
 {% for host in groups['gateways'] %}
-	   {{hostvars[host].ansible_ssh_host }};
+	   {{hostvars[host].ipv4 }};
 {% endfor %}
 	};
 };
@@ -61,7 +71,7 @@ zone "{{ zone }}." IN {
         allow-transfer {
            localhost;
 {% for host in groups['gateways'] %}
-           {{hostvars[host].ansible_ssh_host }};
+           {{hostvars[host].ipv4 }};
 {% endfor %}
         };
 };

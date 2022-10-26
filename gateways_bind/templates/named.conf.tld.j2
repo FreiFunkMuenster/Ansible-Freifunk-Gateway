@@ -19,6 +19,15 @@ zone "servers.{{domain}}." IN {
 {% endfor %}
 	};
 };
+zone "backdoor.{{domain}}." IN {
+	type slave;
+        file "/etc/bind/slave/db.backdoor.{{domain}}";
+	masters {
+{% for master in bind.ffnet_zone_masters %}
+		{{master}};
+{% endfor %}
+	};
+};
 zone "services.{{domain}}." IN {
 	type slave;
         file "/etc/bind/slave/db.services.{{domain}}";
