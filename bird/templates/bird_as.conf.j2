@@ -5,7 +5,10 @@ protocol kernel 'kernel_main' {
 	table main;
 	scan time 20;
 	device routes;
-	import none;
+        import filter {
+                if net ~ [{{ as_parameters.v4_network }}+] then accept;
+                reject;
+        };
 	export filter {
 		if net ~ [0.0.0.0/0] then reject;
 		krt_prefsrc = {{ as_ip }};
@@ -18,6 +21,43 @@ template bgp as_internal {
         import none;
         export none;
         direct;
+};
+
+protocol direct {
+        interface "lo";
+        table main;
+}
+
+protocol ospf ospf_as_intern {
+        table main;
+	table ffnet;
+        import filter {
+                if net ~ [{{ as_parameters.v4_network }}+] then accept;
+                reject;
+        };
+        export filter {
+                if net ~ [{{ as_parameters.v4_network }}+] then accept;
+                reject;
+        };
+        area 0.0.0.0 {
+{% if additional_ospf_interfaces is defined %}
+{% for ospf_interface in additional_ospf_interfaces %}
+                interface "{{ospf_interface.interface}}" {
+                        cost {{ospf_interface.cost}};
+                };
+{% endfor %}
+{% endif %}
+                interface "lo" {
+                        stub;
+                };
+{% if as_vm_bridges is defined %}
+{% for bridge in as_vm_bridges %}
+                interface "{{ bridge }}" {
+                        stub;
+                };
+{% endfor %}
+{% endif %}
+        };
 };
 
 protocol static 'static_default' {
