@@ -9,13 +9,13 @@
     install_recommends: no
   when: domaenenliste is defined
 
-- name: Clone ISC KEA git repo and checkout release Kea-1.6.0 
+- name: Clone ISC KEA git repo and checkout release
   git: 
     repo: https://github.com/isc-projects/kea.git
     dest: /srv/kea
     clone: yes
     update: no
-    version: Kea-1.6.0
+    version: Kea-2.3.2
   when: domaenenliste is defined
 
 - name: Build ISC KEA
@@ -27,8 +27,7 @@
     - "autoreconf --install"
     - "./configure --with-pgsql"
     - "make -j $(grep -ic 'model name' /proc/cpuinfo)"
-    - "make install"
-    - "ldconfig"
+    - "make install && ldconfig" 
   when: domaenenliste is defined
 
 - name: Depoly systemd files
