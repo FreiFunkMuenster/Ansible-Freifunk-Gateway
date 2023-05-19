@@ -40,6 +40,9 @@ COMMIT
 {% if domaenenliste is defined %}
 -A POSTROUTING -o tun-ffnw+ -j SNAT --to-source {{ ffnw_nat_ip | ipaddr('address') }}
 {% endif %}
+{% else %}
+-A POSTROUTING -o gre+ -p tcp -m tcp --dport 53 -j SNAT --to-source 10.0.0.{{vm_id}}
+-A POSTROUTING -o gre+ -p udp -m udp --dport 53 -j SNAT --to-source 10.0.0.{{vm_id}}
 {% endif %}
 COMMIT
 *mangle
