@@ -5,10 +5,24 @@
 
 # creating batman interface
 - name: Create interfaces - batman file
-  template: src="batman.j2" dest="/etc/network/interfaces.d/10_batman.cfg"
+  template:
+    src: batman.j2
+    dest: /etc/network/interfaces.d/10_batman.cfg
   notify:
     - restart networking
-  when: domaenenliste is defined
+  when:
+    - domaenenliste is defined
+    - not ifupdown_ng|default(false)
+
+- name: Create interfaces - batman file - ifupdown_ng
+  template:
+    src: batman_ifupdown_ng.j2
+    dest: /etc/network/interfaces.d/10_batman.cfg
+  notify:
+    - restart networking
+  when:
+    - domaenenliste is defined
+    - ifupdown_ng is defined and ifupdown_ng
 
 - name: 20_l2tp_bridge.cfg exist?
   stat:
@@ -30,17 +44,47 @@
 
 # create a br<domain> bridge interface for each domain
 - name: Create a bridge interface for each domain
-  template: src=domain_bridge.j2 dest=/etc/network/interfaces.d/20_domain_bridge.cfg
+  template:
+    src: domain_bridge.j2
+    dest: /etc/network/interfaces.d/20_domain_bridge.cfg
   notify:
     - restart networking
-  when: domaenenliste is defined
+  when:
+    - domaenenliste is defined
+    - not ifupdown_ng|default(false)
+
+- name: Create a bridge interface for each domain - ifupdown_ng
+  template:
+    src: domain_bridge_ifupdown_ng.j2
+    dest: /etc/network/interfaces.d/20_domain_bridge.cfg
+  notify:
+    - restart networking
+  when:
+    - domaenenliste is defined
+    - ifupdown_ng is defined and ifupdown_ng
+
 
 #append line in interfaces file for reading additional config files
 - name: let read interfaces from interfaces
-  lineinfile: dest="/etc/network/interfaces" line="source-directory /etc/network/interfaces.d/"
+  lineinfile:
+    dest: "/etc/network/interfaces"
+    line: "source-directory /etc/network/interfaces.d/"
   notify:
     - restart networking
-  when: domaenenliste is defined
+  when:
+    - domaenenliste is defined
+    - ifupdown_ng is defined and ifupdown_ng
+
+- name: let read interfaces from interfaces
+  lineinfile:
+    dest: "/etc/network/interfaces"
+    regexp: "^source .*\n"
+    state: absent
+  notify:
+    - restart networking
+  when:
+    - domaenenliste is defined
+    - ifupdown_ng is defined and ifupdown_ng
 
 - name: Routingtabelle 42 auch ffnet nennen
   blockinfile:

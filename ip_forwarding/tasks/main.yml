@@ -10,18 +10,29 @@
 - name: sysctl Reverse-Path-Filter all deaktivieren - Quellroute nicht prüfen
   sysctl: name="net.ipv4.conf.all.rp_filter" value=0 sysctl_set=yes state=present reload=yes sysctl_file=/etc/sysctl.d/ff-ip_forwarding.conf
 
-- name: Routingtabelle 10 auch hoster nennen
+- name: Routingtabelle 10 hoster nennen
   blockinfile:
     path: "/etc/iproute2/rt_tables"
-    marker: "# {mark} Ansible managed block RT44"
+    marker: "# {mark} Ansible managed block RT10"
     block: |
       10   hoster
+  when:
+    - "'as_router' in group_names" 
 
-- name: Routingtabelle 42 auf AS-Routern auch ffnet nennen
+- name: Routingtabelle 42 auf reinen Gateways ffnet nennen
   blockinfile:
     path: "/etc/iproute2/rt_tables"
-    marker: "# {mark} Ansible managed block RT44"
+    marker: "# {mark} Ansible managed block"
+    block: |
+      42   ffnet
+  when:
+    - "'as_router' not in group_names" 
+
+- name: Routingtabelle 42 auf AS-Routern internetz nennen
+  blockinfile:
+    path: "/etc/iproute2/rt_tables"
+    marker: "# {mark} Ansible managed block"
     block: |
       42   internetz
   when:
-    - "'as_router' not in group_names" 
+    - "'as_router' in group_names" 
