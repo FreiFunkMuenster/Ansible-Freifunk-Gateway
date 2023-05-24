@@ -1,0 +1,39 @@
+- name: install gluon dependencies
+  apt:
+    name: ['ca-certificates', 'file', 'git', 'subversion', 'python3', 'build-essential', 'gawk', 'unzip', 'libncurses5-dev', 'zlib1g-dev', 'libssl-dev', 'libelf-dev', 'wget', 'rsync', 'time', 'qemu-utils', 'ecdsautils', 'lua-check', 'shellcheck']
+    update_cache: true
+    install_recommends: false
+
+- name: Create gits directory
+  file:
+    path: /root/gits
+    state: directory
+
+- name: Clone tools repo
+  git:
+    repo: git@github.com:FreiFunkMuenster/tools.git
+    dest: /root/gits/tools
+    accept_hostkey: true
+    update: false
+
+- name: Clone gluon repo
+  git:
+    repo: git@github.com:freifunk-gluon/gluon.git
+    dest: /root/gits/gluon
+    accept_hostkey: true
+    update: false
+
+- name: Clone site repo
+  git:
+    repo: git@github.com:FreiFunkMuenster/site-ffmsl.git
+    dest: /root/gits/site
+    version: MultiDom2023
+    accept_hostkey: true
+    update: false
+
+- name: Deploy domainspecific site config
+  template:
+    src: dom.conf.j2
+    dest: "/root/gits/site/domains/dom{{item[0]}}.conf"
+  with_items:
+    - "{{domaenen|dictsort}}"
