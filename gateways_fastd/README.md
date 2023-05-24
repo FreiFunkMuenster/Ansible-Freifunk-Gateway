@@ -34,11 +34,41 @@ Fastd benötigt pro Domäne und pro Server ein Schlüsselpaar. Ein Schlüsselpaa
 Der Secret-Key wird vom fastd-Prozess auf dem Server benötigt.
 Der Public-Key wird in der `site.conf` veröffentlicht und von den Access Points benutzt, um sich mit dem fastd-Prozess auf dem Gateway zu verbinden. 
 
-Das Schlüsselpaar kann im Ansible Inventory in `host_vars/<servername>` in der Variable `domaenenliste.<Domänennummer>.fastd_key.secret` bzw. `domaenenliste.<Domänennummer>.fastd_key.public` gesetzt werden.
-Wird dies nicht getan und es existiert auf dem Server für die jeweilige Domäne noch kein Schlüsselpaar, so wird ein Secret- und Public-Key direkt auf dem Server erzeugt und verwendet. 
+Das Schlüsselpaar wird aus einer Ansible-Vault verschlüsselten Variablendatei gelesen (fastd_keys.yml) . Diese muss folgende Struktur enthalten.
+
+**Beispiel:**
+```
+fastd_keys:
+  "01":
+    gateway_a:
+      secret: "16091b4c32c2a6414b9ffe8f4c43df0569e40da964bf38f03c107eccf89842ae"
+      public: "16091b4c32c2a6414b9ffe8f4c43df0569e40da964bf38f03c107eccf89842ae"
+    gateway_b:
+      secret: "16091b4c32c2a6414b9ffe8f4c43df0569e40da964bf38f03c107eccf89842ae"
+      public: "16091b4c32c2a6414b9ffe8f4c43df0569e40da964bf38f03c107eccf89842ae"
+    gateway_c:
+      secret: "16091b4c32c2a6414b9ffe8f4c43df0569e40da964bf38f03c107eccf89842ae"
+      public: "16091b4c32c2a6414b9ffe8f4c43df0569e40da964bf38f03c107eccf89842ae"
+    gateway_d:
+      secret: "16091b4c32c2a6414b9ffe8f4c43df0569e40da964bf38f03c107eccf89842ae"
+      public: "16091b4c32c2a6414b9ffe8f4c43df0569e40da964bf38f03c107eccf89842ae"
+  "02":
+    gateway_a:
+      secret: "16091b4c32c2a6414b9ffe8f4c43df0569e40da964bf38f03c107eccf89842ae"
+      public: "16091b4c32c2a6414b9ffe8f4c43df0569e40da964bf38f03c107eccf89842ae"
+    gateway_b:
+      secret: "16091b4c32c2a6414b9ffe8f4c43df0569e40da964bf38f03c107eccf89842ae"
+      public: "16091b4c32c2a6414b9ffe8f4c43df0569e40da964bf38f03c107eccf89842ae"
+    gateway_c:
+      secret: "16091b4c32c2a6414b9ffe8f4c43df0569e40da964bf38f03c107eccf89842ae"
+      public: "16091b4c32c2a6414b9ffe8f4c43df0569e40da964bf38f03c107eccf89842ae"
+    gateway_d:
+      secret: "16091b4c32c2a6414b9ffe8f4c43df0569e40da964bf38f03c107eccf89842ae"
+      public: "16091b4c32c2a6414b9ffe8f4c43df0569e40da964bf38f03c107eccf89842ae"
+```
 
 ### Aktivierung
-Damit fastd auf einem Gateway für eine Domäne gestartet wird, muss entweder das für diese Domäne zu verwendende Schlüsselpaar im Inventory des Gateways in der Variable `domaenenliste.<Domänennummer>.fastd_key` gesetzt sein, oder alternativ die Variable `domaenenliste.<Domänennummer>.fastd` auf "true" gesetzt werden. Ansonsten wird kein fastd-Prozess gestartet.
+Damit fastd auf einem Gateway für eine Domäne gestartet wird, muss die Variable `domaenenliste.<Domänennummer>.fastd` auf "true" gesetzt werden. Ansonsten wird kein fastd-Prozess gestartet.
 
 **Beispiel:**
 ```
@@ -46,17 +76,11 @@ domaenenliste:
   "10":
      dhcp_start: 10.10.10.0
      dhcp_ende: 10.10.19.255
-     fastd_key:
-       secret: 16091b4c32c2a6414b9ffe8f4c43df0569e40da964bf38f03c107eccf89842ae
-       public: 13ec900257659ebe6eb071a1135a8bd840e29339d881e1176d64cd2c6076fb0a
+     fastd: false
    "20":
      dhcp_start: 10.10.30.0
      dhcp_ende: 10.10.39.255
      fastd: true
-   "30":
-     dhcp_start: 10.10.20.0
-     dhcp_ende: 10.10.29.255
 ```
-- Domäne 10: fastd wird gestartet, dabei wird der angegebene fastd_key benutzt.
-- Domäne 20: fastd wird gestartet. Wenn auf dem Gateway bereits ein fastd-Key für diese Domäne existiert dann wird dieser benutzt, ansonsten wird ein neuer fastd-Key erzeugt.
-- Domäne 30: fastd wird nicht gestartet weil weder die Variable `fastd_key` mit den Schlüsseln existiert noch die Variable `fastd` auf "true" gesetzt ist.
+- Domäne 10: fastd wird NICHT gestartet, Fastd wird auf dem Gateway für diese Domäne deaktiviert.
+- Domäne 20: fastd wird gestartet.
