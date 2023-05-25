@@ -60,6 +60,8 @@
     owner: root
     group: root
     mode: 0600
+  notify:
+    - restart fastd per domain
   when: (item.value.fastd is defined and item.value.fastd) 
   vars:
     secretkey:  "{% if item.value.server_id == 2 %}{{ fastd_keys[item.key].gateway_a.secret }}{% elif item.value.server_id == 3 %}{{ fastd_keys[item.key].gateway_b.secret }}{% elif item.value.server_id == 4 %}{{ fastd_keys[item.key].gateway_c.secret }}{% elif item.value.server_id == 5 %}{{ fastd_keys[item.key].gateway_d.secret }}{% endif %}"
