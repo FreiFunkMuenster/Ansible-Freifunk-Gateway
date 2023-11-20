@@ -17,5 +17,22 @@
 
 - name: Clone gluon repo
   git:
-    repo: https://github.com/freifunk-gluon/gluon.git
+    repo: git@github.com:freifunk-gluon/gluon.git
     dest: /root/gits/gluon
+    accept_hostkey: true
+    update: false
+
+- name: Clone site repo
+  git:
+    repo: git@github.com:FreiFunkMuenster/site-ffmsl.git
+    dest: /root/gits/site
+    version: MultiDom2023
+    accept_hostkey: true
+    update: false
+
+- name: Deploy domainspecific site config
+  template:
+    src: dom.conf.j2
+    dest: "/root/gits/site/domains/dom{{item[0]}}.conf"
+  with_items:
+    - "{{domaenen|dictsort}}"
