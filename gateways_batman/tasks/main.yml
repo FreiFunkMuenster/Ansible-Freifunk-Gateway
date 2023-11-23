@@ -1,7 +1,7 @@
 # install package bridge-utils
 - name: bridge-utils-Paket installieren
   apt:
-    pkg: ['bridge-utils']
+    pkg: ['bridge-utils', 'batctl']
 
 # creating batman interface
 - name: Create interfaces - batman file
