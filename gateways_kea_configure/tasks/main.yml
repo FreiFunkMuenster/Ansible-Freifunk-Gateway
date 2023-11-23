@@ -36,7 +36,7 @@
 - name: create /etc/kea/kea.conf
   template:
     src: keav4.conf.j2
-    dest: /etc/kea/kea.conf
+    dest: /etc/kea/kea-dhcp4.conf
   notify:
     - reload-or-restart isc-kea-dhcp4-server.service
   when: domaenenliste is defined

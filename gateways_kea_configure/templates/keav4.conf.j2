@@ -82,19 +82,4 @@
 {% endfor %}
         ]
     },
-
-    "Logging": {
-        "loggers": [
-{% for logger in kea.loggers %}
-            {
-                "name": "{{logger.name}}",
-                "output_options": [ {
-                    "output": "{{logger.file}}"
-                } ],
-                "severity": "{{logger.level}}"
-            }{% if not loop.last %},{% endif %}
-
-{% endfor %}
-        ]
-    }
 }

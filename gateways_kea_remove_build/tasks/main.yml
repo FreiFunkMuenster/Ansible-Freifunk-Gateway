@@ -6,14 +6,12 @@
   failed_when:  False
   changed_when: False
   check_mode: no
-  when: domaenenliste is defined
 
 - name: stop builded kea-dhcp
   service:
     name: kea-dhcp4.service
     state: stopped
   when:
-    - domaenenliste is defined
     - _builded_kea_dhcp_enabled.rc == 0
 
 - name: disable builded kea-dhcp
@@ -21,7 +19,6 @@
     name: kea-dhcp4.service
     enabled: no
   when:
-    - domaenenliste is defined
     - _builded_kea_dhcp_enabled.rc == 0
 
 - name: Remove systemd files
@@ -35,7 +32,6 @@
   notify:
     - reload systemd
   when:
-    - domaenenliste is defined
     - _builded_kea_dhcp_enabled.rc == 0
 
 - name: Remove KEA binary
@@ -43,7 +39,6 @@
     path: "/usr/local/sbin/kea-dhcp4"
     state: absent
   when:
-    - domaenenliste is defined
     - _builded_kea_dhcp_enabled.rc == 0
 
 - name: Remove KEA folder
@@ -51,7 +46,13 @@
     path: "/srv/kea"
     state: absent
   when:
-    - domaenenliste is defined
+    - _builded_kea_dhcp_enabled.rc == 0
+
+- name: Remove KEA config
+  file:
+    path: "/etc/kea/kea.conf"
+    state: absent
+  when:
     - _builded_kea_dhcp_enabled.rc == 0
 
 - name: Remove KEA logrotate file
@@ -59,7 +60,11 @@
     path: "/etc/logrotate.d/kea-dhcp4"
     state: absent
   when:
-    - domaenenliste is defined
     - _builded_kea_dhcp_enabled.rc == 0
 
-
+- name: Remove PostgreSQL
+  apt:
+    name: ['postgresql-9.5']
+    state: absent
+      #  when:
+      #    - _builded_kea_dhcp_enabled.rc == 0
