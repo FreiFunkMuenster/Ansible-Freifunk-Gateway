@@ -12,7 +12,8 @@
 
     "lease-database": {
         "type": "memfile",
-        "lfc-interval": {{kea.database.lfc_interval}}
+        "lfc-interval": 3600,
+        "name": "/var/lib/kea/kea-leases4.csv"
     },
 
     "expired-leases-processing": {
