@@ -1,0 +1,17 @@
+# This role install ISC KEA
+---
+- name: add ISC - Internet Systems Consortium / kea repository key
+  shell: "wget -qO - https://dl.cloudsmith.io/public/isc/kea-2-4/gpg.0D9D9A1439E23DB9.key | gpg --dearmor --output /usr/share/keyrings/isc-kea-2-4-archive-keyring.gpg"
+  args:
+    creates: "/usr/share/keyrings/isc-kea-2-4-archive-keyring.gpg"
+
+- name: add ISC - Internet Systems Consortium / kea repository 
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/isc-kea-2-4-archive-keyring.gpg] https://dl.cloudsmith.io/public/isc/kea-2-4/deb/debian {{ ansible_distribution_release }} main"
+
+- name: Install ISC KEA DHCP
+  apt:
+    name: ['isc-kea-dhcp4-server']
+    update_cache: yes
+    cache_valid_time: 1800
+    state: present
