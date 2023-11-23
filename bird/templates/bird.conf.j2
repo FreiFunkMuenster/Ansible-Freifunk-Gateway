@@ -71,9 +71,6 @@ protocol static dhcp_Bereich {
 {% endif %}
 
 filter freifunk {
-{% if as_parameters is defined %}
-	if net ~ [{{ as_parameters.v4_network }}+] then accept;
-{% endif %}
 {% if ffrl_tun is defined %}
 	# FFRL
 	if net ~ [185.66.192.0/22+] then accept;
@@ -84,9 +81,6 @@ filter freifunk {
 {% endif %}
 
 	if net ~ [10.0.0.0/8+] then accept;
-{% if not ffrl_tun is defined and not ffnw_tun is defined and ('as_router' in groups and 'as_router' not in group_names) %}
-	if net ~ [0.0.0.0/0] then accept;
-{% endif %}
 
 	# interne Tunnel-IPs
 	if net ~ [192.168.0.0/16+] then accept;

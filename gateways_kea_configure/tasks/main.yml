@@ -33,12 +33,6 @@
     - domaenenliste is defined
     - _isc_dhcp_enabled.rc == 0
 
-- name: enable isc-kea-dhcp4-server.service
-  service:
-    name: isc-kea-dhcp4-server.service
-    enabled: yes
-  when: domaenenliste is defined
-
 - name: create /etc/kea/kea.conf
   template:
     src: keav4.conf.j2
