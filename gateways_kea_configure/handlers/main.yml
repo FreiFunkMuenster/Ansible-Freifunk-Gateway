@@ -1,2 +1,2 @@
-- name: reload-or-restart kea-dhcp4.service
-  shell: systemctl reload-or-restart kea-dhcp4.service
+- name: reload-or-restart isc-kea-dhcp4-server.service
+  shell: systemctl reload-or-restart isc-kea-dhcp4-server.service

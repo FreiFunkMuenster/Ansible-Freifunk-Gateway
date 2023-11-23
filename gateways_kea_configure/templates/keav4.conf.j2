@@ -7,22 +7,12 @@
 
     "control-socket": {
         "socket-type": "unix",
-        "socket-name": "/var/kea/control.sock"
+        "socket-name": "/tmp/kea4-ctrl-socket"
     },
 
     "lease-database": {
-{% if kea.database.type == "memfile" %}
         "type": "memfile",
-        "persist": {{kea.database.persistent | lower}},
-        "name": "{{kea.database.location}}",
         "lfc-interval": {{kea.database.lfc_interval}}
-{% elif kea.database.type == "postgresql" %}
-        "type": "postgresql",
-        "name": "{{kea.database.db_name}}",
-        "user": "{{kea.database.db_user}}",
-        "password": "{{kea.database.db_pass}}",
-        "host": "{{kea.database.db_host}}"
-{% endif %}
     },
 
     "expired-leases-processing": {
