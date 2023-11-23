@@ -7,9 +7,14 @@
     update_cache: yes
     state: present
 
+- name: remove EXTERNALLY-MANAGED geraffel
+  file:
+    path: /usr/lib/python3.11/EXTERNALLY-MANAGED
+    state: absent
+
 - name: install pip packages
   pip: 
-    name: ['ipaddress', 'git+https://github.com/nbycomp/pybrctl.git']
+    name: ['ipaddress', 'pybrctl']
     state: present 
 
 - name: enable collectd

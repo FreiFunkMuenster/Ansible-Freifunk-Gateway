@@ -681,7 +681,7 @@ LoadPlugin write_graphite
 {% if 'gateways' in group_names %}
 	Process "rsyslogd"
 {% if domaenenliste is defined %}
-	Process "kea-dhcp4"
+#	Process "kea-dhcp4"
 {% endif %}
 	Process "bird"
 	Process "bird6"
@@ -704,7 +704,7 @@ LoadPlugin write_graphite
 {% if collectd.collect_dhcp%}
 #	Import "dhcp"
 {% if "dhcp_type" in hostvars[inventory_hostname] and dhcp_type == "kea" and domaenenliste is defined %}
-	Import "kea"
+#	Import "kea"
 {% endif %}
 {% endif %}
 {% if collectd.collect_ipv4ipv6 %}
