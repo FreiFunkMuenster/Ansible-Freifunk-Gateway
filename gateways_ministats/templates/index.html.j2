@@ -64,27 +64,32 @@
           <tbody>
             <tr>
               <td>
-                <img id=graph1 />
+		      <!-- <center><img id=graph1 /></center> -->
               </td>
             </tr>
             <tr>
               <td>
-                <img id=graph2 />
+		      <center><img id=graph2 /></center>
               </td>
             </tr>
             <tr>
               <td>
-                <img id=graph3 />
+		      <center><img id=graph3 /></center>
               </td>
             </tr>
             <tr>
               <td>
-                <img id=graph4 />
+		      <center><img id=graph4 /></center>
               </td>
             </tr>
             <tr>
               <td>
-                <img id=graph5 />
+		      <center><img id=graph5 /></center>
+              </td>
+            </tr>
+            <tr>
+              <td>
+		      <center><img id=graph6 /></center>
               </td>
             </tr>
           </tbody>
@@ -109,10 +114,11 @@
     <script>
         var d = new Date(); 
         var ts = d.getTime();
-        document.getElementById("graph1").src = "vnstat_summe_.png?ts=" + ts;
-        document.getElementById("graph2").src = "vnstat_stunde.png?ts=" + ts;
-        document.getElementById("graph3").src = "vnstat_tag___.png?ts=" + ts;
-        document.getElementById("graph4").src = "vnstat_monat_.png?ts=" + ts;
-        document.getElementById("graph5").src = "vnstat_top10_.png?ts=" + ts;
+//        document.getElementById("graph1").src = "vnstat_5mins_.png?ts=" + ts;
+        document.getElementById("graph2").src = "vnstat_summe_.png?ts=" + ts;
+        document.getElementById("graph3").src = "vnstat_stunde.png?ts=" + ts;
+        document.getElementById("graph4").src = "vnstat_tag___.png?ts=" + ts;
+        document.getElementById("graph5").src = "vnstat_monat_.png?ts=" + ts;
+        document.getElementById("graph6").src = "vnstat_top10_.png?ts=" + ts;
     </script>
 </body>
