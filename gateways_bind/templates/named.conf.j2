@@ -10,3 +10,7 @@
 include "/etc/bind/named.conf.log";
 include "/etc/bind/named.conf.options";
 include "/etc/bind/named.conf.ffnet";
+
+statistics-channels {
+inet 127.0.0.1 port 8053;
+};

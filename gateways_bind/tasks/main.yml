@@ -14,7 +14,7 @@
 
 - name: create folder for named slave zonefiles
   file:
-    path: /etc/bind/slave
+    path: /var/lib/bind/slave
     state: directory
     owner: bind
     group: root

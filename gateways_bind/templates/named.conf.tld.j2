@@ -3,7 +3,7 @@
 {% for domain in domains %}
 zone "{{domain}}" IN {
 	type slave;
-        file "/etc/bind/slave/db.{{domain}}";
+        file "/var/lib/bind/slave/db.{{domain}}";
 	masters {
 {% for master in bind.ffnet_zone_masters %}
 		{{master}};
@@ -12,7 +12,7 @@ zone "{{domain}}" IN {
 };
 zone "servers.{{domain}}." IN {
 	type slave;
-        file "/etc/bind/slave/db.servers.{{domain}}";
+        file "/var/lib/bind/slave/db.servers.{{domain}}";
 	masters {
 {% for master in bind.ffnet_zone_masters %}
 		{{master}};
@@ -21,7 +21,7 @@ zone "servers.{{domain}}." IN {
 };
 zone "backdoor.{{domain}}." IN {
 	type slave;
-        file "/etc/bind/slave/db.backdoor.{{domain}}";
+        file "/var/lib/bind/slave/db.backdoor.{{domain}}";
 	masters {
 {% for master in bind.ffnet_zone_masters %}
 		{{master}};
@@ -30,7 +30,7 @@ zone "backdoor.{{domain}}." IN {
 };
 zone "services.{{domain}}." IN {
 	type slave;
-        file "/etc/bind/slave/db.services.{{domain}}";
+        file "/var/lib/bind/slave/db.services.{{domain}}";
 	masters {
 {% for master in bind.ffnet_zone_masters %}
 		{{master}};
@@ -39,7 +39,7 @@ zone "services.{{domain}}." IN {
 };
 zone "knoten.{{domain}}." IN {
 	type slave;
-        file "/etc/bind/slave/db.knoten.{{domain}}";
+        file "/var/lib/bind/slave/db.knoten.{{domain}}";
 	masters {
 {% for master in bind.ffnet_zone_masters %}
 		{{master}};
@@ -50,7 +50,7 @@ zone "knoten.{{domain}}." IN {
 {% for subzone in additional_subzones_for_all_tlds %}
 zone "{{subzone}}.{{domain}}." IN {
         type slave;
-        file "/etc/bind/slave/db.{{subzone}}.{{domain}}";
+        file "/var/lib/bind/slave/db.{{subzone}}.{{domain}}";
         masters {
 {% for master in bind.ffnet_zone_masters %}
                 {{master}};
@@ -63,7 +63,7 @@ zone "{{subzone}}.{{domain}}." IN {
 {% for zone in reverse_dns %}
 zone "{{ zone }}." IN {
 	type slave;
-	file "/etc/bind/slave/db.{{ zone }}";
+	file "/var/lib/bind/slave/db.{{ zone }}";
 	masters {
 {% for master in bind.ffnet_zone_masters %}
 		{{master}};
