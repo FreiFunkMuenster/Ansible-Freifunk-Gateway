@@ -677,15 +677,11 @@ LoadPlugin write_graphite
 #	Process "name"
 {% if 'gateways' in group_names %}
 	Process "named"
-{% endif %}
-{% if 'gateways' in group_names %}
 	Process "rsyslogd"
-{% if domaenenliste is defined %}
-#	Process "kea-dhcp4"
-{% endif %}
 	Process "bird"
 	Process "bird6"
 {% if domaenenliste is defined %}
+	Process "isc-kea-dhcp4-server"
 	ProcessMatch "tunneldigger" "tunneldigger"
 {% endif %}
 {% endif %}
