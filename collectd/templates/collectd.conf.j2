@@ -681,7 +681,7 @@ LoadPlugin write_graphite
 	Process "bird"
 	Process "bird6"
 {% if domaenenliste is defined %}
-	Process "isc-kea-dhcp4-server"
+	Process "kea-dhcp4"
 	ProcessMatch "tunneldigger" "tunneldigger"
 {% endif %}
 {% endif %}
