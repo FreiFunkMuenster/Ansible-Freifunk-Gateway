@@ -1,0 +1,15 @@
+---
+# SSH Konfigurationen für alle Server
+
+- name: SSH-Schlüsseldatei generieren
+  template:
+    src: authorized_keys.j2
+    dest: /root/.ssh/authorized_keys
+  when: administratorenteam is defined
+
+- name: SSH-Dämon Passwortanmeldung abschalten
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^[#]?PasswordAuthentication"
+    line: "PasswordAuthentication no"
+  notify: reload sshd

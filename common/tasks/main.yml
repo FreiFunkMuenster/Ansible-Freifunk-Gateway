@@ -80,19 +80,6 @@
     update_cache: yes
     state: absent
 
-- name: SSH-Schlüsseldatei generieren
-  template:
-    src: authorized_keys.j2
-    dest: /root/.ssh/authorized_keys
-  when: administratorenteam is defined
-
-- name: SSH-Dämon Passwortanmeldung abschalten
-  lineinfile:
-    dest: /etc/ssh/sshd_config
-    regexp: "^[#]?PasswordAuthentication"
-    line: "PasswordAuthentication no"
-  notify: reload sshd
-
 - name: Unterstützung für deutsche Sprache aktivieren
   locale_gen: name=de_DE.UTF-8 state=present
 
