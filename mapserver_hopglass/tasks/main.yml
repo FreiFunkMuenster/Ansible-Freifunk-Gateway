@@ -15,7 +15,8 @@
   git:
     repo: https://github.com/FreiFunkMuenster/hopglass.git
     dest: /opt/hopglass/client
-    force: yes
+    force: no
+    update: no
     version: ffms
   register: hopglass_git_clone
 
