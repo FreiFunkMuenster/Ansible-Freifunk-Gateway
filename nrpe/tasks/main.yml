@@ -12,6 +12,13 @@
   package:
     name: nagios-plugins-standard
     state: latest
+  when: (ansible_distribution == 'Debian' and ansible_distribution_version < '11')
+
+- name: Install Nagios Plugins
+  package:
+    name: monitoring-plugins-standard
+    state: latest
+  when: not (ansible_distribution == 'Debian' and ansible_distribution_version < '11')
 
 - name: Install bc
   package:
