@@ -10,7 +10,7 @@
 #########################################################################
 
 BGPSTATUSLIST=$(birdc6 show proto | grep BGP | sed -e 's/.* BGP .*[0-9][0-9]* *//g')
-if [ $? -gt 0 ] ; then
+if [ ${PIPESTATUS[0]} -gt 0 ] ; then
   echo "CRITICAL: 'birdc show proto' exits with errorcode"
   exit 2
 fi
