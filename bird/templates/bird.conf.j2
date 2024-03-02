@@ -219,7 +219,7 @@ protocol bgp ffnw_{{tun.name}} from uplink {
 {% endif %}
 
 {% for host in groups['gateways']|default([]) %}
-{% if hostvars[host].vm_id != vm_id and not ( inventory_hostname in groups['as_router'] and host in groups['as_router'] ) %}
+{% if hostvars[host].vm_id != vm_id and not ( 'as_router' in groups and inventory_hostname in groups['as_router'] and host in groups['as_router'] ) %}
 protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 {% if hostvars[host].vm_id < vm_id %}
 	neighbor 192.168.{{ hostvars[host].vm_id-1 }}.{{vm_id*2}} as {{as_parameters.as_number}};
