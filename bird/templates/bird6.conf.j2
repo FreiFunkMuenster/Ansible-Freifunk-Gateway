@@ -1,10 +1,10 @@
- {{ ansible_managed }}
+# {{ ansible_managed }}
 
 log syslog { debug, trace, info, remote, warning, error, auth, fatal, bug };
 {% if 'as_router' in groups and 'as_router' in group_names %}
 router id {{ as_ip }};
 {% else %}
-router id { vm_id }};
+router id {{ vm_id }};
 {% endif %}
 
 table ffnet;
@@ -38,7 +38,7 @@ protocol radv {
 		link mtu 1280;
 		prefix {{domaenen[domaene[0]].ffv6_network}} {
 		};
-{% for prefix in domaenen[domaene[0]].ffv6_additional_networks %}
+{% for prefix in domaenen[domaene[0]].ffv6_additional_networks | default([]) %}
 		prefix {{prefix}} {
 		};
 {% endfor %}
@@ -117,7 +117,7 @@ protocol static static_domaene{{domaene[0]}} {
 	route {{domaenen[domaene[0]].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject {
 		ra_preference = RA_PREF_HIGH;
 	};
-{% for prefix in domaenen[domaene[0]].ffv6_additional_networks %}
+{% for prefix in domaenen[domaene[0]].ffv6_additional_networks | default([]) %}
 	route {{prefix}} reject {
 		ra_preference = RA_PREF_MEDIUM;
 	};
@@ -168,7 +168,7 @@ template bgp internal {
 {% for host in groups['gateways']|default([]) %}
 {% if hostvars[host].vm_id != vm_id %}
 protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
-{% if hostvars[host].vm_id < vm_id and not ( inventory_hostname in groups['as_router'] and host in groups['as_router'] ) %}
+{% if hostvars[host].vm_id < vm_id and not ( 'as_router' in groups and inventory_hostname in groups['as_router'] and host in groups['as_router'] ) %}
 	neighbor {{ipv6backbone64prefixstr}}{{hostvars[host].vm_id}}:{{vm_id}}:1 as {{ff_network.as_number}};
 {% else %}
 	neighbor {{ipv6backbone64prefixstr}}{{vm_id}}:{{hostvars[host].vm_id}}:0 as {{ff_network.as_number}};

@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 
-{% for host in groups['gateways']+groups['as_router'] %}
-{% if host != inventory_hostname and not ( inventory_hostname in groups['as_router'] and host in groups['as_router'] ) %}
+{% for host in groups['gateways'] | default([]) + groups['as_router'] | default([]) %}
+{% if host != inventory_hostname and not ('as_router' in groups and inventory_hostname in groups['as_router'] and host in groups['as_router'] ) %}
 auto bck-{{host}}
 iface bck-{{host}} inet tunnel
 	mode gre
