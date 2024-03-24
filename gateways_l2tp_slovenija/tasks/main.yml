@@ -21,44 +21,43 @@
   with_items: "{{ _td_domain_instances.stdout_lines }}"
   when: domaenenliste is defined and item not in domaenenliste
 
-- name: Clone tunneldigger master
+- name: Clone tunneldigger
   git:
-    repo: https://github.com/wlanslovenija/tunneldigger
+    repo: https://github.com/wlanslovenija/tunneldigger.git
     dest: /srv/tunneldigger
     update: yes
-  when: domaenenliste is defined and
-        (ansible_kernel is version('5.2.17', '>=') and ansible_kernel is version('5.3', '<')) or
-        (ansible_kernel is version('5.3.1', '>=') and ansible_kernel is version('5.4', '<')) or
-        ansible_kernel is version('5.4', '>=')
-  register: tunneldigger_master_install
+  when: domaenenliste is defined
   tags:
     - skip_ansible_lint
 
-- name: Clone tunneldigger legacy
-  git:
-    repo: https://github.com/wlanslovenija/tunneldigger
-    dest: /srv/tunneldigger
-    update: yes
-    version: legacy
-  when: domaenenliste is defined and tunneldigger_master_install is skipped
-  tags:
-    - skip_ansible_lint
-
-- name: generate virtualenv.
+- name: Get new tags from remote
   command:
-    "virtualenv -p /usr/bin/python3 env_tunneldigger"
-  args:
-    chdir: /srv/tunneldigger/
-    creates: "/srv/tunneldigger/env_tunneldigger/bin/python3"
-  when: domaenenliste is defined
-  ignore_errors: "{{ ansible_check_mode }}"
+    cmd: "git fetch --tags"
+    chdir: "/srv/tunneldigger"
+  when: domaenenliste is defined and not ansible_check_mode
 
-- name: Install python dependencies
-  command: "/srv/tunneldigger/env_tunneldigger/bin/python setup.py install"
-  args:
-    chdir: /srv/tunneldigger/broker
+- name: Get latest release name from tags
+  shell:
+    cmd: "git describe --tags `git rev-list --tags --max-count=1`"
+    chdir: "/srv/tunneldigger"
+  when: domaenenliste is defined and not ansible_check_mode
+  register: latest_tag
+
+- name: Switch to latest release
+  git:
+    repo: https://github.com/wlanslovenija/tunneldigger.git
+    dest: /srv/tunneldigger
+    version: "{{ latest_tag.stdout }}"
+  when: domaenenliste is defined and not ansible_check_mode
+  tags:
+    - skip_ansible_lint
+
+- name: Install python dependencies for tunneldigger
+  pip:
+    chdir: /srv
+    virtualenv: /srv/tunneldigger/env_tunneldigger
+    name: tunneldigger/broker
   when: domaenenliste is defined
-  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Deploy addif.sh for each domain
   template: src=addif.sh.j2 dest="/srv/tunneldigger/broker/scripts/addif_domain{{ item.key }}.sh" mode=0755
