@@ -1,6 +1,9 @@
 [sshd]
 enabled = {{ fail2ban.sshd.enabled | default(true) }}
 port    = {{ ansible_ssh_port }}
+{% if backend_systemd %}
+backend = systemd
+{% endif %}
 {% if fail2ban.sshd.bantime is defined %}
 bantime  = {{ fail2ban.sshd.bantime }}
 {% endif %}

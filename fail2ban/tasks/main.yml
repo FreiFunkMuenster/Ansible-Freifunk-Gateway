@@ -10,6 +10,15 @@
   notify:
     - "restart fail2ban"
 
+- name: check if rsyslog is installed
+  command: which rsyslogd
+  register: rsyslog_check
+  ignore_errors: true
+
+- name: set fail2ban lookup-method by setting fact for backend_systemd
+  set_fact:
+    backend_systemd: "{{ rsyslog_check.rc != 0 }}"
+
 - name: generate sshd.local
   template: 
     src: sshd.local.j2
