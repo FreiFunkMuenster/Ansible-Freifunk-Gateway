@@ -38,8 +38,7 @@ server {
     location /content/ {
         alias /usr/share/graphite-web/static/;
     }
-{% endif %}
-{% if ansible_distribution_version == '18.04' %}
+{% else %}
     # Proxy for graphite content
     location /static/ {
         alias /usr/share/graphite-web/static/;
