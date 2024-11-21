@@ -19,7 +19,7 @@ iface tun-ffrl-{{tun.name}} inet tunnel
 {% for tun in ffnw_tun %}
 
 auto tun-ffnw-{{tun.name}}
-iface tun-ffnw-{{tun.name}} inet static
+iface tun-ffnw-{{tun.name}} inet tunnel
  	mode gre
 	local {{ansible_default_ipv4.address}}
 	endpoint {{tun.gre_target | ipaddr('address') }}
