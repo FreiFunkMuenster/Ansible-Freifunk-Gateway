@@ -42,19 +42,21 @@
 
 - name: Copy CA certificate
   copy:
-    remote_src: yes
+    remote_src: true
     src: '/var/lib/icinga2/ca/ca.crt'
     dest: '/var/lib/icinga2/certs/ca.crt'
+    mode: "0644"
   notify: reload icinga2
 
 - name: Store CA certificate in keyfiles
   fetch:
     src: '/var/lib/icinga2/ca/ca.crt'
     dest: 'keyfiles/icinga2/{{ inventory_hostname }}-ca.crt'
-    flat: yes
+    flat: true
 
 - name: Enable Icinga2 API module
   template:
     src: 'icinga2/features/api/api.conf.j2'
     dest: '/etc/icinga2/features-enabled/api.conf'
+    mode: "0644"
   notify: reload icinga2

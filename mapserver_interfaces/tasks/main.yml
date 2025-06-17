@@ -8,5 +8,6 @@
   template:
     src: "batman.j2"
     dest: "/etc/network/interfaces.d/30_batman.cfg"
+    mode: "0644"
   notify:
     - restart networking

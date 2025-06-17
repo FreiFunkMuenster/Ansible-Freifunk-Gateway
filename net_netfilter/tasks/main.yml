@@ -3,12 +3,14 @@
 - name: Install conntrack cli (for debugging purposes)
   apt:
     pkg: "conntrack"
-    update_cache: yes
+    update_cache: true
     cache_valid_time: 1800
     state: present
 
 - name: Enable nf_conntrack_ipv4 module
-  modprobe: name=nf_conntrack_ipv4 state=present
+  modprobe:
+    name: nf_conntrack_ipv4
+    state: present
   when: ansible_kernel is version_compare('4.19', '<')
 
 - name: Enable nf_conntrack_ipv4 on system startup
@@ -20,7 +22,9 @@
   when: ansible_kernel is version_compare('4.19', '<')
 
 - name: Enable nf_conntrack module
-  modprobe: name=nf_conntrack state=present
+  modprobe:
+    name: nf_conntrack
+    state: present
   when: ansible_kernel is version_compare('4.19', '>=')
 
 - name: Enable nf_conntrack on system startup
@@ -33,20 +37,38 @@
 
 
 - name: Set nf_conntrack_max to a higher value
-  sysctl: name="net.netfilter.nf_conntrack_max" value=524288 sysctl_set=yes state=present reload=yes sysctl_file=/etc/sysctl.d/ff-netfilter.conf
+  sysctl:
+    name: "net.netfilter.nf_conntrack_max"
+    value: 524288
+    sysctl_set: true
+    state: present
+    reload: true
+    sysctl_file: /etc/sysctl.d/ff-netfilter.conf
 
 - name: Set nf_conntrack_tcp_timeout_established to 86400 (one day)
-  sysctl: name="net.netfilter.nf_conntrack_tcp_timeout_established" value=86400 sysctl_set=yes state=present reload=yes sysctl_file=/etc/sysctl.d/ff-netfilter.conf
+  sysctl:
+    name: "net.netfilter.nf_conntrack_tcp_timeout_established"
+    value: 86400
+    sysctl_set: true
+    state: present
+    reload: true
+    sysctl_file: /etc/sysctl.d/ff-netfilter.conf
 
 - name: Set nf_conntrack_tcp_timeout_time_wait to 60
-  sysctl: name="net.netfilter.nf_conntrack_tcp_timeout_time_wait" value=60 sysctl_set=yes state=present reload=yes sysctl_file=/etc/sysctl.d/ff-netfilter.conf
+  sysctl:
+    name: "net.netfilter.nf_conntrack_tcp_timeout_time_wait"
+    value: 60
+    sysctl_set: true
+    state: present
+    reload: true
+    sysctl_file: /etc/sysctl.d/ff-netfilter.conf
 
 - name: Get current nf_conntrack hashsize
-  shell: "cat /sys/module/nf_conntrack/parameters/hashsize"
+  command: "cat /sys/module/nf_conntrack/parameters/hashsize"
   register: nf_conntrack_hashsize
   changed_when: false
-  check_mode: no
+  check_mode: false
 
 - name: Set nf_conntrack hashsize to a higher value
-  shell: "echo 32768 > /sys/module/nf_conntrack/parameters/hashsize"
+  command: "echo 32768 > /sys/module/nf_conntrack/parameters/hashsize"
   when: "nf_conntrack_hashsize.stdout != '32768'"

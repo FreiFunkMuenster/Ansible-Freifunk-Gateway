@@ -4,9 +4,9 @@
 
 - name: Clone XMPPNotify
   git:
-    repo: https://github.com/Finn10111/XMPPNotify.git
+    repo: http://git.bingo-ev.de/xmpp/XMPPNotify.git
     dest: /opt/icinga2-XMPPNotify
-    update: yes
+    update: true
 
 - name: Store XMPP account credentials in /etc/xmppnotify.cfg
   template:
@@ -34,10 +34,12 @@
   template:
     src: 'icinga2-xmpp/templates-xmppnotify.conf.j2'
     dest: '/etc/icinga2/conf.d/templates-xmppnotify.conf'
+    mode: "0644"
   notify: reload icinga2
 
 - name: Attach XMPP notifications to hosts and services
   copy:
     src: 'icinga2-xmpp/notifications-xmppnotify.conf'
     dest: '/etc/icinga2/conf.d/notifications-xmppnotify.conf'
+    mode: "0644"
   notify: reload icinga2

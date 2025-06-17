@@ -7,23 +7,26 @@
   file:
     name: /opt/batman-adv
     state: directory
+    mode: "0755"
 
 - name: Batman-Quellecode herunterladen
   get_url:
     url: "https://downloads.open-mesh.org/batman/releases/batman-adv-{{ batman.version }}/batman-adv-{{ batman.version }}.tar.gz"
     dest: /opt/batman-adv/batman-adv-{{ batman.version }}.tar.gz
+    mode: "0644"
 
 - name: Batman-Quellcode entpacken
   unarchive:
     src: /opt/batman-adv/batman-adv-{{ batman.version }}.tar.gz
     dest: /usr/src
-    remote_src: True
+    remote_src: true
   when: not ansible_check_mode
 
 - name: DKMS konfigurieren
   template:
     src: dkms.conf
     dest: /usr/src/batman-adv-{{ batman.version }}/dkms.conf
+    mode: "0644"
 
 - name: Batman bauen
   command: "{{ item }}"
@@ -36,7 +39,8 @@
 
 # batctl
 - name: Prüfe ob batctl bereits existiert
-  stat: path=/usr/local/sbin/batctl
+  stat:
+    path: /usr/local/sbin/batctl
   register: batctl
 
 - name: batctl-Version prüfen
@@ -48,25 +52,27 @@
   when: batctl.stat.exists
   changed_when: false
   register: batctl_version
-  check_mode: no
+  check_mode: false
 
 - name: Verzeichnis erstellen für Quellcode von batctl
   file:
     name: /opt/batctl
     state: directory
+    mode: "0755"
   when: not batctl.stat.exists or batctl_version.stdout_lines[0] != batman.version
 
 - name: batctl-Quellcode herunterladen
   get_url:
     url: "https://downloads.open-mesh.org/batman/releases/batman-adv-{{ batman.version }}/batctl-{{ batman.version }}.tar.gz"
     dest: /opt/batctl/batctl-{{ batman.version }}.tar.gz
+    mode: "0644"
   when: not batctl.stat.exists or batctl_version.stdout_lines[0] != batman.version
 
 - name: batctl-Quellcode entpacken
   unarchive:
     src: /opt/batctl/batctl-{{ batman.version }}.tar.gz
     dest: /usr/src
-    remote_src: True
+    remote_src: true
   when: not ansible_check_mode and (not batctl.stat.exists or batctl_version.stdout_lines[0] != batman.version)
 
 - name: batctl bauen und installieren

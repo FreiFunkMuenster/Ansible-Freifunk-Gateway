@@ -1,7 +1,7 @@
 - name: Create a 2048-bit SSH key for user root in /root/.ssh/id_rsa_borg
   user:
     name: root
-    generate_ssh_key: yes
+    generate_ssh_key: true
     ssh_key_bits: 2048
     ssh_key_file: /root/.ssh/id_rsa_borg
 
@@ -9,4 +9,4 @@
   fetch:
     src: /root/.ssh/id_rsa_borg.pub
     dest: keyfiles/borg/{{ inventory_hostname }}.pub
-    flat: yes
+    flat: true

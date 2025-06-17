@@ -1,12 +1,13 @@
 - name: Install exim4-daemon-light
   apt:
-    pkg: [ "exim4-daemon-light" ]
+    pkg: ["exim4-daemon-light"]
     state: present
 
 - name: Configure exim4
   template:
     src: "update-exim4.conf.conf.j2"
     dest: "/etc/exim4/update-exim4.conf.conf"
+    mode: "0644"
   notify:
     - update-exim4.conf
     - restart exim4
@@ -23,6 +24,7 @@
   template:
     src: "email-addresses.j2"
     dest: "/etc/email-addresses"
+    mode: "0644"
   notify: restart exim4
 
 - name: Set same sender email address for all local users

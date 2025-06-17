@@ -4,7 +4,7 @@
   systemd:
     name: systemd-timesyncd
     state: stopped
-    masked: yes
+    masked: true
 
 - name: Uninstall ntp
   apt:
@@ -19,17 +19,19 @@
   template:
     src: chrony.conf.j2
     dest: /etc/chrony/chrony.conf
+    mode: "0644"
   notify: Restart chrony
 
 - name: create folder for chrony service override file
   file:
     path: /etc/systemd/system/chrony.service.d
     state: directory
-    mode: 0755
+    mode: "0755"
 
 - name: override chrony service
   template:
     src: chrony.service.override.j2
     dest: /etc/systemd/system/chrony.service.d/ansible-managed.conf
+    mode: "0644"
   notify:
     - reread systemd configs

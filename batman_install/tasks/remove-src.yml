@@ -5,8 +5,8 @@
   stat:
     path: /usr/sbin/dkms
   register: stat_dkms
-  changed_when: False
-  check_mode: no
+  changed_when: false
+  check_mode: false
 
 # Evtl. vorhandenes batman-adv-DKMS-Modul deinstallieren
 - name: Prüfe ob batman-adv als DKMS-Modul installiert wurde
@@ -17,8 +17,8 @@
     executable: bash
   register: dkms_version_batman
   when: stat_dkms.stat.exists
-  changed_when: False
-  check_mode: no
+  changed_when: false
+  check_mode: false
 
 - name: DKMS-Modul batman-adv entfernen
   shell: "dkms remove batman-adv/{{ dkms_version_batman.stdout }} -k {{ ansible_kernel }} || rm -rf /var/lib/dkms/batman-adv/{{ dkms_version_batman.stdout }}"

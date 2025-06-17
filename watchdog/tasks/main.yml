@@ -15,13 +15,13 @@
     path: /etc/modules
     line: softdog
     state: present
-  when: stat_watchdogdev.stat.exists == false
+  when: not stat_watchdogdev.stat.exists
 
 - name: Lade Kernelmodul softdog
   modprobe:
     name: softdog
     state: present
-  when: stat_watchdogdev.stat.exists == false
+  when: not stat_watchdogdev.stat.exists
   notify: restart watchdog
 
 - name: Installiere Paket watchdog
@@ -33,4 +33,5 @@
   template:
     src: watchdog.conf.j2
     dest: /etc/watchdog.conf
+    mode: "0644"
   notify: restart watchdog

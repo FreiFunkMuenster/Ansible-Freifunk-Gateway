@@ -12,7 +12,7 @@
     grep -v "deaggregate" | sed -e 's/\(^.*$\)/route \1 via "bat{{ item }}";/g'
   args:
     executable: bash
-  check_mode: no
+  check_mode: false
   changed_when: false
   register: more_specific_routes
   with_items: "{{ domaenenliste | default([]) }}"
@@ -24,6 +24,7 @@
     dest: /etc/bird/bird.conf
     owner: bird
     group: bird
+    mode: "0644"
   notify:
     - reload bird
 
@@ -33,6 +34,7 @@
     dest: /etc/bird/bird6.conf
     owner: bird
     group: bird
+    mode: "0644"
   notify:
     - reload bird6
 
@@ -40,12 +42,13 @@
   file:
     path: /etc/systemd/system/bird.service.d
     state: directory
-    mode: 0755
+    mode: "0755"
 
 - name: bird.service kopieren
   copy:
     src: bird.service
     dest: /etc/systemd/system/bird.service.d/override.conf
+    mode: "0644"
   notify:
     - reread systemd configs
 
@@ -53,11 +56,12 @@
   file:
     path: /etc/systemd/system/bird6.service.d
     state: directory
-    mode: 0755
+    mode: "0755"
 
 - name: bird6.service kopieren
   copy:
     src: bird6.service
     dest: /etc/systemd/system/bird6.service.d/override.conf
+    mode: "0644"
   notify:
     - reread systemd configs

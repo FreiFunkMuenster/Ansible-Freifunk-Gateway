@@ -1,8 +1,10 @@
 ---
-# Einrichtung von IP Forwarding 
+# Einrichtung von IP Forwarding
 
 - name: deploy tunearpcache.conf
-  template: src=tunearpcache.conf.j2 dest=/etc/sysctl.d/ff-tunearpcache.conf
+  template:
+    src: tunearpcache.conf.j2
+    dest: /etc/sysctl.d/ff-tunearpcache.conf
+    mode: "0644"
   notify:
     - restart sysctl
-

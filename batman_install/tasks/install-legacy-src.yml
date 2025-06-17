@@ -23,7 +23,8 @@
 
 # batctl
 - name: Prüfe ob batctl bereits existiert
-  stat: path=/usr/local/sbin/batctl
+  stat:
+    path: /usr/local/sbin/batctl
   register: batctl
 
 - name: batctl-Version prüfen
@@ -41,12 +42,14 @@
   file:
     name: /opt/batctl
     state: directory
+    mode: "0755"
   when: not batctl.stat.exists or batctl_version.stdout_lines[0] != batman.version
 
 - name: batctl-Quellcode herunterladen
   get_url:
     url: "https://downloads.open-mesh.org/batman/releases/batman-adv-{{ batman.version }}/batctl-{{ batman.version }}.tar.gz"
     dest: /opt/batctl/batctl-{{ batman.version }}.tar.gz
+    mode: "0644"
   when: not batctl.stat.exists or batctl_version.stdout_lines[0] != batman.version
 
 - name: batctl-Quellcode entpacken

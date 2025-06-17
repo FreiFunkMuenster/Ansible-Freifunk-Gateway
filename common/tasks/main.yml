@@ -8,13 +8,14 @@
     line: 'syntax on'
     owner: root
     group: root
-    mode: 0644
-    create: yes
+    mode: "0644"
+    create: true
 
 - name: Update .bash_profile file
   template:
     src: bash_profile.j2
     dest: ~/.bash_profile
+    mode: "0644"
 
 - name: Flush all handlers
   meta: flush_handlers
@@ -35,7 +36,7 @@
     dest: /proc/swaps
     regexp: "^/swap.img\\s"
     state: absent
-  check_mode: yes
+  check_mode: true
   changed_when: false
   register: swapfile_in_use
   when: swapfile_required is defined
@@ -70,24 +71,29 @@
 
 - name: install common packages
   apt:
-    name: ['vim', 'wget', 'vnstat', 'tmux', 'pastebinit', 'htop', 'jnettop', 'iotop', 'tcpdump', 'screen', 'strace', 'socat', 'dnsutils', 'host', 'ifupdown',
-      'apt-transport-https', 'tshark', 'dwdiff', 'molly-guard', 'git', 'iperf3', 'mtr-tiny', 'dhcpdump', 'dhcping', 'irqbalance', 'build-essential', 'ethtool']
-    update_cache: yes
+    name: ['vim', 'wget', 'vnstat', 'tmux', 'pastebinit', 'htop', 'jnettop',
+           'iotop', 'tcpdump', 'screen', 'strace', 'socat', 'dnsutils', 'host',
+           'ifupdown', 'apt-transport-https', 'tshark', 'dwdiff', 'molly-guard',
+           'git', 'iperf3', 'mtr-tiny', 'dhcpdump', 'dhcping', 'irqbalance',
+           'build-essential', 'ethtool']
+    update_cache: true
 
 - name: uninstall unneeded packages
   apt:
     pkg: ['rpcbind']
-    update_cache: yes
+    update_cache: true
     state: absent
 
 - name: Unterstützung für deutsche Sprache aktivieren
-  locale_gen: name=de_DE.UTF-8 state=present
+  locale_gen:
+    name: de_DE.UTF-8
+    state: present
 
 - name: "Get all files in /etc/logrotate.d/"
   raw: find /etc/logrotate.d/ -type f
   register: logrotate_files
-  check_mode: no
-  changed_when: False
+  check_mode: false
+  changed_when: false
 
 - name: "Update logrotate cycle in /etc/logrotate.d/"
   replace:
@@ -107,18 +113,21 @@
   template:
     src: logrotate.conf.j2
     dest: /etc/logrotate.conf
+    mode: "0644"
   when: logrotate is defined
 
 - name: Logrotate konfigurieren für btmp
   template:
     src: logrotate-btmp.j2
     dest: /etc/logrotate.d/btmp
+    mode: "0644"
   when: logrotate is defined
 
 - name: Logrotate konfigurieren für wtmp
   template:
     src: logrotate-wtmp.j2
     dest: /etc/logrotate.d/wtmp
+    mode: "0644"
   when: logrotate is defined
 
 - name: Prüfe ob journald benutzt wird

@@ -45,16 +45,16 @@ iface tun-ffnw-{{tun.name}} inet6 static
 
 auto tun-ffi-{{tun.name}}
 iface tun-ffi-{{tun.name}} inet static
-        address {{tun.v4_remote | ipaddr( tun.v4_remote.split('.')[3] | int + 1) | ipaddr('address') }}
-        netmask {{tun.v4_remote | ipaddr('netmask')}}
-        pre-up ip tunnel add $IFACE mode ip6gre local {{ansible_default_ipv6.address}} remote {{tun.gre6_target | ipaddr('address') }} ttl 255
+        address {{tun.v4_remote | ansible.utils.ipaddr( tun.v4_remote.split('.')[3] | int + 1) | ansible.utils.ipaddr('address') }}
+        netmask {{tun.v4_remote | ansible.utils.ipaddr('netmask')}}
+        pre-up ip tunnel add $IFACE mode ip6gre local {{ansible_default_ipv6.address}} remote {{tun.gre6_target | ansible.utils.ipaddr('address') }} ttl 255
         post-up ip link set $IFACE mtu 1400
         post-down ip tunnel del $IFACE
         post-up ip rule add iif $IFACE lookup ffnet
         pre-down ip rule del iif $IFACE lookup ffnet ||:
 iface tun-ffi-{{tun.name}} inet6 static
         address {{tun.v6_remote | next_nth_usable(1) }}
-        netmask {{tun.v6_remote | ipaddr('prefix')}}
+        netmask {{tun.v6_remote | ansible.utils.ipaddr('prefix')}}
         post-up ip -6 rule add iif $IFACE lookup ffnet
         pre-down ip -6 rule del iif $IFACE lookup ffnet ||:
 {% endfor %}

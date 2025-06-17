@@ -1,25 +1,26 @@
 ---
 - name: install figlet and lsb-release
   apt:
-    pkg: [ 'figlet', 'lsb-release' ]
+    pkg: ['figlet', 'lsb-release']
     state: present
 
 - name: check figlet
-  stat: 
+  stat:
     path: /usr/bin/figlet
   register: figlet_stat
 
 - name: figlet name
   command: /usr/bin/figlet -c -w 50 {{ freifunk.kurzname }}
   register: figlethost
-  check_mode: no
+  check_mode: false
   when: figlet_stat.stat.exists
-  changed_when: False
+  changed_when: false
 
 - name: Create /etc/update-motd.d/ directory if not existent
   file:
     path: /etc/update-motd.d
     state: directory
+    mode: "0755"
 
 - name: Disable default motd if necessary
   file:
@@ -30,13 +31,13 @@
     - 10-help-text
 
 - name: create motd update script
-  template: 
-    src: 99-custom.j2 
+  template:
+    src: 99-custom.j2
     dest: /etc/update-motd.d/99-custom
     mode: "u+rwx,g+rx,o+rx"
 
 - name: get /etc/motd state
-  stat: 
+  stat:
     path: /etc/motd
   register: motd_stat
 
@@ -44,4 +45,4 @@
   file:
     path: /etc/motd
     state: absent
-  when: motd_stat.stat.exists and motd_stat.stat.islnk == False
+  when: motd_stat.stat.exists and not motd_stat.stat.islnk

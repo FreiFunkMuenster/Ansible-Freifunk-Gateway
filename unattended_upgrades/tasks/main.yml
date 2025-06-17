@@ -4,30 +4,33 @@
   apt:
     pkg: "unattended-upgrades"
     state: present
-    update_cache: yes
+    update_cache: true
     cache_valid_time: 1800
 
 - name: Enable unattended upgrades
   template:
     src: 10periodic.j2
     dest: /etc/apt/apt.conf.d/10periodic
+    mode: "0644"
 
 - name: Configure unattended upgrades on Debian
   template:
     src: 50unattended-upgrades-debian.j2
     dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    mode: "0644"
   when: ansible_distribution == 'Debian'
 
 - name: Configure unattended upgrades on Ubuntu
   template:
     src: 50unattended-upgrades-ubuntu.j2
     dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    mode: "0644"
   when: ansible_distribution == 'Ubuntu'
 
 - name: Let restart server once a week but not all at the same time
   cron:
     name: weekly restart
-    weekday: "{{(vm_id-2)%7}}"
+    weekday: "{{ (vm_id - 2) % 7 }}"
     hour: "3"
-    minute: "{{(vm_id*2)%30+30}}"
+    minute: "{{ (vm_id * 2) % 30 + 30 }}"
     job: "if [ -f /var/run/reboot-required ]; then /sbin/shutdown -r +5; fi"

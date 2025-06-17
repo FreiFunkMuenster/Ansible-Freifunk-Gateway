@@ -1,12 +1,12 @@
 ### Ansible Prerequisites
 - name: Install python3-passlib (required by Ansible)
   apt:
-    pkg: [ 'python3-passlib' ]
+    pkg: ['python3-passlib']
 
 ### IcingaWeb2
 - name: Install IcingaWeb2
   apt:
-    pkg: [ 'icingaweb2', 'apache2', 'php-mysql', 'php-curl', 'php-gd', 'php-imagick', 'php-intl', 'php-fpm' ]
+    pkg: ['icingaweb2', 'apache2', 'php-mysql', 'php-curl', 'php-gd', 'php-imagick', 'php-intl', 'php-fpm']
     state: present
 
 ### IDO
@@ -30,7 +30,7 @@
 ### Monitoring Module
 - name: Install IcingaWeb2 monitoring module
   apt:
-    pkg: [ 'icingaweb2-module-monitoring' ]
+    pkg: ['icingaweb2-module-monitoring']
     state: present
 
 - name: Create enabledModules directory
@@ -88,7 +88,7 @@
   find:
     paths: '/etc/apache2/conf-available/'
     file_type: file
-    use_regex: yes
+    use_regex: true
     patterns: '^php[0-9\.]+\-fpm\.conf'
   register: find_phpfpmconf
 
@@ -111,6 +111,7 @@
   template:
     src: "apache2/site-icingaweb2.conf.j2"
     dest: "/etc/apache2/sites-available/icingaweb2.conf"
+    mode: "0644"
   notify: reload apache2
 
 - name: Enable IcingaWeb2 site config
@@ -125,7 +126,7 @@
   shell: "/usr/bin/grep -Li '^[[:space:]]*SSL' /etc/apache2/sites-enabled/*"
   register: httpsitesenabled
   failed_when: "httpsitesenabled.rc == 2"
-  check_mode: no
+  check_mode: false
   changed_when: httpsitesenabled.stdout | length > 0
 
 - name: Disable unneeded site configs
@@ -165,5 +166,11 @@
   template:
     src: "apache2/ports.conf.j2"
     dest: "/etc/apache2/ports.conf"
-  notify: reload apache2
+    mode: "0644"
+  register: apache_listening_ports
 
+- name: Reload Apache2 now to avoid interference with later roles
+  service:
+    name: apache2
+    state: reloaded
+  when: apache_listening_ports.changed

@@ -10,6 +10,7 @@
   template:
     src: "lo.j2"
     dest: "/etc/network/interfaces.d/00_lo.cfg"
+    mode: "0644"
   notify:
     - restart networking
 
@@ -29,6 +30,7 @@
   template:
     src: "gre_upstream.j2"
     dest: "/etc/network/interfaces.d/40_gre_upstream.cfg"
+    mode: "0644"
   notify:
     - restart networking
   when: ffrl_tun is defined or ffnw_tun or ffi_tun is defined

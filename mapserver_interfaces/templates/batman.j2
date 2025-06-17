@@ -8,7 +8,7 @@
 # BATMAN Interface für Domäne-{{domaene[0]}}
 auto bat{{domaene[0]}}
 iface bat{{domaene[0]}} inet6 static
-        address {{domaene[1].ffv6_network | ipaddr(vm_id) | ipaddr('address')}}/64
+        address {{domaene[1].ffv6_network | ansible.utils.ipaddr(vm_id) | ansible.utils.ipaddr('address')}}/64
         netmask 64
         pre-up modprobe batman-adv
         pre-up ip link add bat{{domaene[0]}} type batadv

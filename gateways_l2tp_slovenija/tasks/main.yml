@@ -1,7 +1,7 @@
 - name: Install dependencies for this role
   apt:
-    pkg: [ 'git', 'libnetfilter-conntrack-dev', 'libnfnetlink-dev', 'python3-dev', 'python3-virtualenv',
-      'virtualenv', 'gcc', 'libnl-3-dev', 'libevent-dev', 'bridge-utils', 'ebtables', 'iproute2' ]
+    pkg: ['git', 'libnetfilter-conntrack-dev', 'libnfnetlink-dev', 'python3-dev', 'python3-virtualenv',
+          'virtualenv', 'gcc', 'libnl-3-dev', 'libevent-dev', 'bridge-utils', 'ebtables', 'iproute2']
   when: domaenenliste is defined
 
 - name: Get all enabled tunneldigger (domain specific) instances
@@ -10,14 +10,17 @@
     /bin/ls /etc/systemd/system/multi-user.target.wants/tunneldigger@* | grep -oE "[0-9]+"
   args:
     executable: bash
-  changed_when: False
-  failed_when: False
-  check_mode: no
+  changed_when: false
+  failed_when: false
+  check_mode: false
   register: _td_domain_instances
   when: domaenenliste is defined
 
 - name: Stop and disable obsolete td instances
-  service: name="tunneldigger@{{ item }}.service" enabled=no state=stopped
+  service:
+    name: "tunneldigger@{{ item }}.service"
+    enabled: false
+    state: stopped
   with_items: "{{ _td_domain_instances.stdout_lines }}"
   when: domaenenliste is defined and item not in domaenenliste
 
@@ -48,12 +51,18 @@
   ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Deploy addif.sh for each domain
-  template: src=addif.sh.j2 dest="/srv/tunneldigger/broker/scripts/addif_domain{{ item.key }}.sh" mode=0755
+  template:
+    src: addif.sh.j2
+    dest: "/srv/tunneldigger/broker/scripts/addif_domain{{ item.key }}.sh"
+    mode: "0755"
   with_dict: "{{ domaenenliste }}"
   when: domaenenliste is defined
 
 - name: Deploy delif.sh for each domain
-  template: src=delif.sh.j2 dest="/srv/tunneldigger/broker/scripts/delif_domain{{ item.key }}.sh" mode=0755
+  template:
+    src: delif.sh.j2
+    dest: "/srv/tunneldigger/broker/scripts/delif_domain{{ item.key }}.sh"
+    mode: "0755"
   with_dict: "{{ domaenenliste }}"
   when:
     - domaenenliste is defined
@@ -65,19 +74,28 @@
   when: domaenenliste is defined
 
 - name: Deploy tunneldigger.conf to /etc/modules-load.d/
-  copy: src=tunneldigger.conf dest=/etc/modules-load.d/tunneldigger.conf
+  copy:
+    src: tunneldigger.conf
+    dest: /etc/modules-load.d/tunneldigger.conf
+    mode: "0644"
   notify: load kernel modules
   when: domaenenliste is defined
 
 - name: Deploy l2tp_broker.cfg for each domain
-  template: src="l2tp_broker.cfg.j2" dest="/srv/tunneldigger/broker/l2tp_broker_domain{{ item.key }}.cfg"
+  template:
+    src: "l2tp_broker.cfg.j2"
+    dest: "/srv/tunneldigger/broker/l2tp_broker_domain{{ item.key }}.cfg"
+    mode: "0644"
   notify: restart tunneldigger per domain
   with_dict: "{{ domaenenliste }}"
   when:
     - domaenenliste is defined
 
 - name: Deploy tunneldigger@.service template file
-  copy: src=tunneldigger@.service dest=/etc/systemd/system/tunneldigger@.service
+  copy:
+    src: tunneldigger@.service
+    dest: /etc/systemd/system/tunneldigger@.service
+    mode: "0644"
   register: _domain_td_systemd
   notify:
     - restart tunneldigger per domain
@@ -92,7 +110,9 @@
     - _domain_td_systemd.changed
 
 - name: enable all tunneldigger instances
-  systemd: name="tunneldigger@{{ item.key }}.service" enabled=yes
+  systemd:
+    name: "tunneldigger@{{ item.key }}.service"
+    enabled: true
   with_dict: "{{ domaenenliste }}"
   when:
     - domaenenliste is defined
@@ -101,5 +121,6 @@
   template:
     src: logrotate-tunneldigger.j2
     dest: /etc/logrotate.d/tunneldigger
+    mode: "0644"
   when:
     - domaenenliste is defined

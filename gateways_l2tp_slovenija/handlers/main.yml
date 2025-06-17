@@ -2,5 +2,7 @@
   shell: /etc/init.d/kmod start || true
 
 - name: restart tunneldigger per domain
-  systemd: name="tunneldigger@{{ item.key }}.service" state=restarted
+  systemd:
+    name: "tunneldigger@{{ item.key }}.service"
+    state: restarted
   with_dict: "{{ domaenenliste }}"

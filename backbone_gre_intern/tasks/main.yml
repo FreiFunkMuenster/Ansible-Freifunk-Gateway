@@ -1,6 +1,9 @@
 ---
 - name: Tunnels between backbones
-  template: src="gre_interbackbone.j2" dest="/etc/network/interfaces.d/42_gre_interbackbone.cfg"
+  template:
+    src: "gre_interbackbone.j2"
+    dest: "/etc/network/interfaces.d/42_gre_interbackbone.cfg"
+    mode: "0644"
   notify: restart networking
 
 - name: Routingtabelle 42 auch ffnet nennen
@@ -10,7 +13,9 @@
     block: |
       42   ffnet
 
-#append line in interfaces file for reading additional config files
+# append line in interfaces file for reading additional config files
 - name: let read interfaces.d from interfaces
-  lineinfile: dest="/etc/network/interfaces" line="source /etc/network/interfaces.d/*"
+  lineinfile:
+    dest: "/etc/network/interfaces"
+    line: "source /etc/network/interfaces.d/*"
   notify: restart networking

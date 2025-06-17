@@ -47,7 +47,7 @@ iface bat{{item[0]}} inet6 static
         address {{domaenen[item[0]].ffv6_network | ipaddr(item[1].server_id) | ipaddr('address') }}
         netmask {{domaenen[item[0]].ffv6_network | ipaddr('prefix')}}
 {% for v6_ad_network in domaenen[item[0]].ffv6_additional_networks %}
-	up ip -6 addr add {{v6_ad_network | ipaddr(item[1].server_id) | ipaddr('address') }}/{{v6_ad_network | ipaddr('prefix')}} dev bat{{item[0]}} ||:
+	up ip -6 addr add {{v6_ad_network | ansible.utils.ipaddr(item[1].server_id) | ansible.utils.ipaddr('address') }}/{{v6_ad_network | ansible.utils.ipaddr('prefix')}} dev bat{{item[0]}} ||:
 {% endfor %}
         post-up ip -6 rule add from all fwmark 0x1 table ffnet pref 16000 ||:
         post-up ip -6 rule add iif bat{{item[0]}} table ffnet pref 16000 ||:
@@ -57,7 +57,7 @@ iface bat{{item[0]}} inet6 static
         post-up ip -6 rule add from {{ v6_ad_network }} lookup ffnet pref 16000 ||:
 {% endfor %}
 {% for v6_ad_network in domaenen[item[0]].ffv6_additional_networks %}
-	down ip -6 addr del {{v6_ad_network | ipaddr(item[1].server_id) | ipaddr('address') }}/{{v6_ad_network | ipaddr('prefix')}} dev bat{{item[0]}} ||:
+	down ip -6 addr del {{v6_ad_network | ansible.utils.ipaddr(item[1].server_id) | ansible.utils.ipaddr('address') }}/{{v6_ad_network | ansible.utils.ipaddr('prefix')}} dev bat{{item[0]}} ||:
 {% endfor %}
         post-down ip -6 rule del from all fwmark 0x1 table ffnet ||:
         post-down ip -6 rule del iif bat{{item[0]}} table ffnet ||:
