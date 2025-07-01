@@ -39,5 +39,14 @@ freifunk			IN      AAAA    {{domaenen[item].ffv6_network | ipaddr(1) | ipaddr('a
 {% endfor %}
 {% endif %}
 {% endif %}
+{% if freifunk.ffnet_dns_entries_for_internal_tld[entry].CNAME is defined %}
+{% if freifunk.ffnet_dns_entries_for_internal_tld[entry].CNAME is string %}
+{{entry}}	IN	CNAME	{{ freifunk.ffnet_dns_entries_for_internal_tld[entry].CNAME }}
+{% elif freifunk.ffnet_dns_entries_for_internal_tld[entry].CNAME is iterable %}
+{% for subentry in freifunk.ffnet_dns_entries_for_internal_tld[entry].CNAME %}
+{{entry}}	IN	CNAME	{{subentry}}
+{% endfor %}
+{% endif %}
+{% endif %}
 {% endfor %}
 {% endif -%}
