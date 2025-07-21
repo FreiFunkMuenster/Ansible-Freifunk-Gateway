@@ -119,6 +119,6 @@
      job: /etc/bind/knotendns.sh
      day: '*' 
      hour: '*'
-     minute: '*/3'
+     minute: '*/5'
      state: present
      user: root

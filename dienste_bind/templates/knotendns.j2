@@ -1,24 +1,74 @@
 #!/bin/bash
-LINK="https://karte.{{freifunk.domain}}/data/nodes.zone"
+set -euo pipefail
 
-function update_dns {
-	mv nodes.zone nodes.alt	
+RAW_JSON_URL="https://meshviewer.freifunk-muensterland.de/data/raw.json"
+TMP_ZONE="/tmp/knoten.zone"
+VIEW="external-view"
+
+DOMAIN_LIST=(
 {% for domain in domains %}
-	sed -e 's/{{freifunk.domain}}/{{domain}}/g;s/\(\([0-9]\)\{10\}\)[0-9]*/\1/' nodes.alt > db.knoten.{{domain}}
+  "{{domain}}"
 {% endfor %}
-	systemctl reload bind9.service	
-}
+)
 
-function download_nodes_file {
-	wget $LINK
-}
+DOMAIN_PLACEHOLDER="platzhalter.domain"
+SERIAL_PLACEHOLDER="__SERIAL__"
 
-cd /etc/bind
-download_nodes_file
-diff -I 'serial number' nodes.alt nodes.zone
-if [[ $? != "0" ]]
-then
-	update_dns
-else
-	rm nodes.zone
-fi
+echo "Lade JSON-Daten..."
+raw=$(/usr/bin/curl -sf "$RAW_JSON_URL")
+
+echo "Erzeuge Basis-Zonefile..."
+cat > "$TMP_ZONE" <<EOF
+\$ORIGIN knoten.$DOMAIN_PLACEHOLDER.
+\$TTL 86400
+
+@ IN SOA dnsmaster.$DOMAIN_PLACEHOLDER. dnsmaster.$DOMAIN_PLACEHOLDER. (
+ $SERIAL_PLACEHOLDER ; serial number
+ 86400       ; Refresh
+ 7200        ; Retry
+ 2419200     ; Expire
+ 86400       ; Min TTL
+)
+@ IN NS ns1.$DOMAIN_PLACEHOLDER.
+@ IN NS ns2.$DOMAIN_PLACEHOLDER.
+@ IN NS ns3.$DOMAIN_PLACEHOLDER.
+@ IN NS ns4.$DOMAIN_PLACEHOLDER.
+
+EOF
+
+# Einträge hinzufügen
+echo "$raw" | /usr/bin/jq -r '
+  .nodes[] |
+  .nodeinfo as $ni |
+  $ni.node_id as $id |
+  ($ni.hostname // "unknown") as $host |
+  ($host | ascii_downcase | gsub("[^a-z0-9]"; "")) as $sanitized_host |
+  $ni.network.addresses[] |
+  select(startswith("2")) |
+  "\($id) IN AAAA \(.)
+\($id) IN TXT \"https://meshviewer.freifunk-muensterland.de/map/#!/de/map/\($id)\"
+\($sanitized_host) IN AAAA \(.)
+\($sanitized_host) IN TXT \"https://meshviewer.freifunk-muensterland.de/map/#!/de/map/\($id)\""
+' >> "$TMP_ZONE"
+
+echo "Verarbeite Ziel-Domains..."
+for DOMAIN in "${DOMAIN_LIST[@]}"; do
+  TARGET="/etc/bind/db.knoten.$DOMAIN"
+  TMP_DOMAIN_ZONE="/tmp/db.knoten.$DOMAIN"
+
+  echo "Domain: $DOMAIN"
+
+  # ersetze Base-Domain
+  sed "s/$DOMAIN_PLACEHOLDER/$DOMAIN/g" "$TMP_ZONE" > "$TMP_DOMAIN_ZONE"
+
+  # Serial einsetzen
+  new_serial=$(date +%s)
+  sed -i "s/$SERIAL_PLACEHOLDER/$new_serial/" "$TMP_DOMAIN_ZONE"
+
+  # Datei übernehmen
+  mv "$TMP_DOMAIN_ZONE" "$TARGET"
+
+  # Zone reload
+  echo "Zone wird neu geladen"
+  /usr/sbin/rndc reload "knoten.$DOMAIN" in "$VIEW"
+done
