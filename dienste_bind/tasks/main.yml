@@ -116,7 +116,7 @@
 - name: Cronjob anlegen, der Skript ausführt
   cron:
      name: run-dns-skript
-     job: /etc/bind/knotendns.sh
+     job: "/etc/bind/knotendns.sh > /dev/null"
      day: '*' 
      hour: '*'
      minute: '*/5'
