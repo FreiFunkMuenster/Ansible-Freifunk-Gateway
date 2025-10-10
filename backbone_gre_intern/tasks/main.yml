@@ -3,12 +3,42 @@
   template: src="gre_interbackbone.j2" dest="/etc/network/interfaces.d/42_gre_interbackbone.cfg"
   notify: restart networking
 
+- name: Ensure /etc/iproute2/rt_tables exists (copy from /usr/share if missing)
+  block:
+    - name: Check if /etc/iproute2/rt_tables already exists
+      ansible.builtin.stat:
+        path: /etc/iproute2/rt_tables
+      register: etc_rt_tables
+
+    - name: Check if /usr/share/iproute2/rt_tables exists
+      ansible.builtin.stat:
+        path: /usr/share/iproute2/rt_tables
+      register: share_rt_tables
+
+    - name: Ensure /etc/iproute2 directory exists
+      ansible.builtin.file:
+        path: /etc/iproute2
+        state: directory
+        mode: '0755'
+
+    - name: Copy default rt_tables if /etc/iproute2/rt_tables missing
+      ansible.builtin.copy:
+        src: /usr/share/iproute2/rt_tables
+        dest: /etc/iproute2/rt_tables
+        remote_src: true
+        mode: '0644'
+      when:
+        - not etc_rt_tables.stat.exists
+        - share_rt_tables.stat.exists
+      ignore_errors: "{{ ansible_check_mode }}"
+
 - name: Routingtabelle 42 auch ffnet nennen
   blockinfile:
     path: "/etc/iproute2/rt_tables"
     marker: "# {mark} Ansible managed block"
     block: |
       42   ffnet
+  ignore_errors: "{{ ansible_check_mode }}"
 
 #append line in interfaces file for reading additional config files
 - name: let read interfaces.d from interfaces
