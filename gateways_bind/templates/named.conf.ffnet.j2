@@ -11,8 +11,6 @@ view "domaene-{{domaene[0]}}" {
                 {{domaenen[domaene[0]].ffv4_network}};
                 {{domaenen[domaene[0]].ffv6_network}};
         };
-	include "/etc/bind/named.conf.local";
-	include "/etc/bind/named.conf.default-zones";
 {% if is_external_nameserver is defined and is_external_nameserver %}
 #	include "/etc/bind/named.conf.tld";
 {% endif %}
@@ -31,14 +29,10 @@ view "external" {
                 !{{domaenen[domaene[0]].ffv6_network}};
 {% endfor %}
 	};
-	include "/etc/bind/named.conf.local";
-	include "/etc/bind/named.conf.default-zones";
 	include "/etc/bind/named.conf.tld";
 };
 {% endif %}
 {% else %}
 # Slaveserver configuration
-include "/etc/bind/named.conf.local";
-include "/etc/bind/named.conf.default-zones";
 include "/etc/bind/named.conf.tld";
 {% endif %}
