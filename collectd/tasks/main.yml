@@ -1,102 +1,101 @@
 ---
-# Collectd-Daemon fuer Gateway Server
+# Collectd-Daemon für Gateway-Server
 
-- name: install required packages
+- name: Install required packages
   apt:
-    pkg: ['collectd', 'python3-pip']
-    update_cache: yes
+    name:
+      - collectd
+      - python3-pyroute2
     state: present
+    update_cache: yes
+    cache_valid_time: 3600
 
-- name: remove EXTERNALLY-MANAGED geraffel
+- name: Enable collectd
+  service:
+    name: collectd
+    enabled: yes
+  notify: restart collectd
+
+- name: Create config directory
   file:
-    path: /usr/lib/python3.11/EXTERNALLY-MANAGED
-    state: absent
+    path: /etc/collectd
+    state: directory
+  notify: restart collectd
 
-- name: install pip packages
-  pip: 
-    name: ['ipaddress', 'pybrctl']
-    state: present 
+- name: Deploy collectd.conf
+  template:
+    src: collectd.conf.j2
+    dest: /etc/collectd/collectd.conf
+  notify: restart collectd
 
-- name: enable collectd
-  service: name=collectd enabled=yes    
-  notify:
-    - restart collectd 
+- name: Deploy collection.conf
+  template:
+    src: collection.conf.j2
+    dest: /etc/collectd/collection.conf
+  notify: restart collectd
 
-- name: create config directory
-  file: path=/etc/collectd state=directory
-  notify:
-    - restart collectd
+- name: Deploy filters.conf
+  template:
+    src: filters.conf.j2
+    dest: /etc/collectd/filters.conf
+  notify: restart collectd
 
-- name: deploy collectd.conf 
-  template: src=collectd.conf.j2 dest=/etc/collectd/collectd.conf 
-  notify:
-    - restart collectd
+- name: Deploy thresholds.conf
+  template:
+    src: thresholds.conf.j2
+    dest: /etc/collectd/thresholds.conf
+  notify: restart collectd
 
-- name: deploy collection.conf
-  template: src=collection.conf.j2 dest=/etc/collectd/collection.conf
-  notify:
-    - restart collectd
+- name: Create plugins directory
+  file:
+    path: /opt/collectd-python
+    state: directory
+  notify: restart collectd
 
-- name: deploy filters.conf
-  template: src=filters.conf.j2 dest=/etc/collectd/filters.conf
-  notify:
-    - restart collectd
+- name: Add type for Kea DHCP stats to types.db
+  lineinfile:
+    dest: /usr/share/collectd/types.db
+    regexp: "^kea_leases"
+    line: "kea_leases             total-addresses:GAUGE:0:U, assigned-addresses:GAUGE:0:U, declined-addresses:GAUGE:0:U, declined-reclaimed-addresses:GAUGE:0:U, reclaimed-leases:GAUGE:0:U, active-leases:GAUGE:0:U"
+  notify: restart collectd
 
-- name: deploy thresholds.conf
-  template: src=thresholds.conf.j2 dest=/etc/collectd/thresholds.conf
-  notify:
-    - restart collectd
+- name: Add type for L2TP stats to types.db
+  lineinfile:
+    dest: /usr/share/collectd/types.db
+    regexp: "^if_count"
+    line: "if_count                value:GAUGE:0:U"
+  notify: restart collectd
 
-- name: create plugins directory
-  file: path=/opt/collectd-python state=directory
-  notify:
-    - restart collectd
-
-- name: Add type for dhcp stats to types.db
-  lineinfile: dest=/usr/share/collectd/types.db regexp="^dhcp_leases" line="dhcp_leases             active:GAUGE:0:U, touched:GAUGE:0:U"
-  notify:
-    - restart collectd
-
-- name: Add type for kea dhcp stats to types.db
-  lineinfile: dest=/usr/share/collectd/types.db regexp="^kea_leases" line="kea_leases             total-addresses:GAUGE:0:U, assigned-addresses:GAUGE:0:U, declined-addresses:GAUGE:0:U, declined-reclaimed-addresses:GAUGE:0:U, reclaimed-leases:GAUGE:0:U, active-leases:GAUGE:0:U"
-  notify:
-    - restart collectd
-
-- name: Add type for l2tp stats to types.db
-  lineinfile: dest=/usr/share/collectd/types.db regexp="^if_count" line="if_count                value:GAUGE:0:U"
-  notify:
-    - restart collectd
-
-- name: deploy l2tp.py
-  template: src=l2tp.py.j2 dest=/opt/collectd-python/l2tp.py
-  notify:
-    - restart collectd
+- name: Deploy l2tp.py (collectd plugin)
+  template:
+    src: l2tp.py.j2
+    dest: /opt/collectd-python/l2tp.py
   when: collectd.collect_l2tp and domaenenliste is defined
+  notify: restart collectd
 
-- name: deploy fastd.py
-  template: src=fastd.py.j2 dest=/opt/collectd-python/fastd.py
-  notify:
-    - restart collectd
+- name: Deploy fastd.py
+  template:
+    src: fastd.py.j2
+    dest: /opt/collectd-python/fastd.py
   when: collectd.collect_fastd
+  notify: restart collectd
 
-- name: deploy dhcp.py
-  template: src=dhcp.py.j2 dest=/opt/collectd-python/dhcp.py
-  notify:
-    - restart collectd
+- name: Deploy kea.py
+  template:
+    src: kea.py.j2
+    dest: /opt/collectd-python/kea.py
   when: collectd.collect_dhcp and domaenenliste is defined
+  notify: restart collectd
 
-- name: deploy kea.py
-  template: src=kea.py.j2 dest=/opt/collectd-python/kea.py
-  notify:
-    - restart collectd
-  when: collectd.collect_dhcp and domaenenliste is defined
+- name: Deploy ipv4ipv6.py
+  template:
+    src: ipv4ipv6.py.j2
+    dest: /opt/collectd-python/ipv4ipv6.py
+  notify: restart collectd
 
-- name: deploy ipv4ipv6.py
-  template: src=ipv4ipv6.py.j2 dest=/opt/collectd-python/ipv4ipv6.py
-  notify:
-    - restart collectd
+- name: Deploy sysctl.py
+  template:
+    src: sysctl.py.j2
+    dest: /opt/collectd-python/sysctl.py
+  notify: restart collectd
 
-- name: deploy sysctl.py
-  template: src=sysctl.py.j2 dest=/opt/collectd-python/sysctl.py
-  notify:
-    - restart collectd

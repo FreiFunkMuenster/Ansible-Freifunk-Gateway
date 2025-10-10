@@ -1,26 +1,74 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import collectd
-from pybrctl import BridgeController
+from pyroute2 import IPRoute
 
-def getBridgeInterfaceCount():
-	ifcount = {}
-	brctl = BridgeController()
-	for br in brctl.showall():
-		ifcount[br.name] = len(br.getifs())
-	return ifcount
+def get_bridge_interface_count():
+    counts = {}
+    ipr = IPRoute()
+    try:
+        links = ipr.get_links()
+
+        # Maps bauen
+        ifindex_to_name = {}
+        bridge_ifindex_to_name = {}
+        ifindex_to_master = {}
+
+        for msg in links:
+            attrs = dict(msg.get('attrs', []))
+            ifindex = msg['index']
+            ifname = attrs.get('IFLA_IFNAME')
+            ifindex_to_name[ifindex] = ifname
+
+            # Master-IF (Bridge) merken
+            master = attrs.get('IFLA_MASTER')
+            if master is not None:
+                ifindex_to_master[ifindex] = master
+
+            # Kind aus LINKINFO lesen -> 'bridge'?
+            linkinfo = attrs.get('IFLA_LINKINFO')
+            kind = None
+            if isinstance(linkinfo, dict):
+                kind = linkinfo.get('attrs_dict', {}).get('IFLA_INFO_KIND')
+            # Fallback: ältere pyroute2-Versionen liefern LISTE
+            if kind is None and isinstance(linkinfo, list):
+                linkinfo_attrs = dict(linkinfo)
+                kind = None
+                if 'IFLA_INFO_KIND' in linkinfo_attrs:
+                    kind = linkinfo_attrs['IFLA_INFO_KIND']
+
+            if kind == 'bridge':
+                bridge_ifindex_to_name[ifindex] = ifname
+
+        # Zähler initialisieren
+        for bname in bridge_ifindex_to_name.values():
+            counts[bname] = 0
+
+        # Ports je Bridge zählen (alle Links, deren MASTER = Bridge-Ifindex)
+        for ifindex, master in ifindex_to_master.items():
+            bname = bridge_ifindex_to_name.get(master)
+            if bname:
+                # die Bridge selbst ist kein Port; nur Slaves zählen
+                counts[bname] += 1
+
+        return counts
+
+    finally:
+        ipr.close()
 
 def read():
-	stats = getBridgeInterfaceCount()
-	globalCount = 0
-	for k,v in stats.items():
-		globalCount += v
-		vl = collectd.Values(type='if_count')
-		vl.plugin='l2tp'
-		vl.type_instance = k
-		vl.dispatch(values=[v])
-	vl = collectd.Values(type='if_count')
-	vl.plugin='l2tp'
-	vl.type_instance = 'all'
-	vl.dispatch(values=[globalCount])
+    stats = get_bridge_interface_count()
+    total = 0
+    for br_name, port_count in stats.items():
+        total += port_count
+        vl = collectd.Values(type='if_count')
+        vl.plugin = 'l2tp'
+        vl.type_instance = br_name
+        vl.dispatch(values=[port_count])
+
+    vl = collectd.Values(type='if_count')
+    vl.plugin = 'l2tp'
+    vl.type_instance = 'all'
+    vl.dispatch(values=[total])
 
 collectd.register_read(read)
+

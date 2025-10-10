@@ -99,7 +99,7 @@ LoadPlugin nginx
 #LoadPlugin powerdns
 LoadPlugin processes
 LoadPlugin protocols
-{% if collectd.collect_dhcp or collectd.collect_fastd or collectd.collect_l2tp or collectd.collect_ipv4ipv6 or collectd.collect_sysctl %}
+{% if collectd.collect_fastd or collectd.collect_l2tp or collectd.collect_ipv4ipv6 or collectd.collect_sysctl %}
 <LoadPlugin python>
 	Globals true
 </LoadPlugin>
@@ -692,16 +692,13 @@ LoadPlugin write_graphite
 #	Value "/^Tcp:/"
 #	IgnoreSelected false
 #</Plugin>
-{% if collectd.collect_dhcp or collectd.collect_fastd or collectd.collect_l2tp or collectd.collect_ipv4ipv6 or collectd.collect_sysctl %}
+{% if collectd.collect_fastd or collectd.collect_l2tp or collectd.collect_ipv4ipv6 or collectd.collect_sysctl %}
 <Plugin python>
 	ModulePath "/opt/collectd-python/"
 	LogTraces true
 	Interactive false
-{% if collectd.collect_dhcp%}
-#	Import "dhcp"
 {% if "dhcp_type" in hostvars[inventory_hostname] and dhcp_type == "kea" and domaenenliste is defined %}
 #	Import "kea"
-{% endif %}
 {% endif %}
 {% if collectd.collect_ipv4ipv6 %}
 	Import "ipv4ipv6"
