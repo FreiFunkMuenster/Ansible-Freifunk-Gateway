@@ -1,24 +1,32 @@
 #!/bin/sh
-# {{ ansible_managed }}
-
 cat << 'EOF'
  This system is managed by Ansible.
-
 {% if figlethost.stdout is defined %} {{ figlethost.stdout }} {% endif %}
 
  {{ freifunk.name }}
 EOF
-
+echo " "
 echo " OS          : $(lsb_release -d -s) $(lsb_release -c -s)"
 echo " Hostname    : $(hostname)"
+echo " FQDN        : $(hostname --fqdn)"
 echo " IP address  : $(hostname -I | cut -d' ' -f1){% if ansible_default_ipv6.address is defined %} / {{ ansible_default_ipv6.address }}{% endif %}"
+echo " DNS         : $(cat /etc/resolv.conf | grep ^nameserver | awk '{print $2}' | tr '\r\n' ' ')"
+echo " Gateway     : $(ip -o -4 route show to default | awk '{print $3}')"
 echo " System type : $(uname -s) $(uname -m)"
 echo " Kernel      : $(uname -r)"
+echo " Uptime      : $(uptime -p)"
 echo " "
-{% if server_besitzer is defined %}
-echo " Besitzer    : {{ server_besitzer }}"
+{% if server_aufgabe is defined %}
+echo " Aufgabe     : {{ server_aufgabe }}"
+{% else %}
+echo " " 
 {% endif %}
-
+echo " Besitzer    : {{ server_besitzer }}"
+{% if hoster is defined %}
+echo " Hoster      : {{ hoster }}"
+{% else %}
+echo " " 
+{% endif %}
 cat << 'EOF'
 
 {% if ffnw_nat_ip is defined %}
@@ -39,7 +47,5 @@ cat << 'EOF'
  Freifunk IP:     {{ff_network.v4_network | ipaddr(vm_id) | ipaddr('address') }} / {{ff_network.v6_network | ipaddr(vm_id) | ipaddr('address') }}
 
  Domäne: {{ group_names | last }}
-{% else %}
- Aufgabe: {{ group_names | last }}
 {% endif %}
 EOF
