@@ -1,5 +1,10 @@
 ---
 # Role for configure bird and bird6 for our gateway servers.
+
+- name: workaround für Trixi mit Bird 1.6
+  import_tasks: trixie_bird16.yml
+  when: ansible_distribution_release == 'trixie'
+
 - name: install bird and other required packets
   apt:
     name: ['bird', 'ipcalc']

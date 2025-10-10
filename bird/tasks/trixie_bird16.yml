@@ -1,0 +1,52 @@
+# roles/bird/tasks/trixie_bird16.yml
+- name: Ensure no conflicting bird2/bird3 packages on trixie
+  apt:
+    name:
+      - bird2
+      - bird3
+    state: absent
+  when: ansible_distribution_release == 'trixie'
+
+- name: Create cache dir for legacy bird debs
+  file:
+    path: /var/cache/ffm-bird16
+    state: directory
+    mode: '0755'
+  when: ansible_distribution_release == 'trixie'
+
+# URLs aus Debian-Pool (bookworm/bullseye) – amd64 Beispiel
+- name: Download bird 1.6.8 debs (amd64)
+  get_url:
+    url: "{{ item.url }}"
+    dest: "/var/cache/ffm-bird16/{{ item.dest }}"
+    mode: '0644'
+  loop:
+    - { url: "https://ftp.debian.org/debian/pool/main/b/bird/bird_1.6.8-2.1+b1_amd64.deb", dest: "bird_1.6.8-2.1+b1_amd64.deb" }
+    - { url: "https://ftp.debian.org/debian/pool/main/b/bird/bird-bgp_1.6.8-2.1_all.deb",    dest: "bird-bgp_1.6.8-2.1_all.deb" }
+  when: ansible_distribution_release == 'trixie'
+  register: bird16_downloads
+  retries: 3
+  delay: 2
+  until: bird16_downloads is succeeded
+
+# Installation direkt aus den .deb-Dateien (Abhängigkeiten via apt auflösen)
+- name: Install bird 1.6.8 from local debs
+  apt:
+    deb: "/var/cache/ffm-bird16/{{ item }}"
+    state: present
+  loop:
+    - bird_1.6.8-2.1+b1_amd64.deb
+    - bird-bgp_1.6.8-2.1_all.deb
+  when: ansible_distribution_release == 'trixie'
+
+# Optional, aber empfohlen: pinnen/“hold”, damit apt nicht auf bird2/bird3 hochzieht
+- name: Pin bird 1.6.8 to keep it from upgrades
+  copy:
+    dest: /etc/apt/preferences.d/bird16.pref
+    mode: '0644'
+    content: |
+      Package: bird bird-bgp
+      Pin: version 1.6.8-2.1*
+      Pin-Priority: 1001
+  when: ansible_distribution_release == 'trixie'
+
