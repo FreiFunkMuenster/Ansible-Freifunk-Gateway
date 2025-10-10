@@ -1,5 +1,14 @@
 # This role install ISC KEA
 ---
+- name: Install gpg and wget
+  apt:
+    name:
+      - 'gpg'
+      - 'wget'
+    update_cache: yes
+    cache_valid_time: 1800
+    state: present
+
 - name: add ISC - Internet Systems Consortium / kea repository key
   shell: "wget -qO - https://dl.cloudsmith.io/public/isc/kea-3-0/gpg.B16C44CD45514C3C.key | gpg --dearmor --output /usr/share/keyrings/isc-kea-3-0-archive-keyring.gpg"
   args:
@@ -11,7 +20,8 @@
 
 - name: Install ISC KEA DHCP
   apt:
-    name: ['isc-kea-dhcp4-server']
+    name: 
+      - 'isc-kea-dhcp4-server'
     update_cache: yes
     cache_valid_time: 1800
     state: present
