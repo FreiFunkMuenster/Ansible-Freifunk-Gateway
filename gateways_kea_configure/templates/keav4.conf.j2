@@ -38,7 +38,7 @@
 
     "control-socket": {
         "socket-type": "unix",
-        "socket-name": "/tmp/kea4-ctrl-socket"
+        "socket-name": "/var/run/kea/kea4-ctrl-socket"
     },
 
     "lease-database": {
@@ -125,5 +125,5 @@
             }{% if not loop.last %},{% endif %}
 {% endfor %}
         ]
-    },
+    }
 }
