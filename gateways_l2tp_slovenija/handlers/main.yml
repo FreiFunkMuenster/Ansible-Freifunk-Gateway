@@ -1,6 +1,14 @@
-- name: load kernel modules
-  shell: /etc/init.d/kmod start || true
+- name: reload modules-load
+  ansible.builtin.systemd:
+    name: systemd-modules-load
+    state: restarted
+    daemon_reload: yes
 
 - name: restart tunneldigger per domain
-  systemd: name="tunneldigger@{{ item.key }}.service" state=restarted
-  with_dict: "{{ domaenenliste }}"
+  ansible.builtin.systemd:
+    name: "tunneldigger@{{ item.key }}.service"
+    state: restarted
+    enabled: yes
+  loop: "{{ domaenenliste | dict2items }}"
+  loop_control:
+    label: "tunneldigger@{{ item.key }}.service"
