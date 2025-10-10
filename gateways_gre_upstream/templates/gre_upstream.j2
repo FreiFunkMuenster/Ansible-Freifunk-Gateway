@@ -7,7 +7,7 @@ auto tun-ffrl-{{tun.name}}
 iface tun-ffrl-{{tun.name}} inet static
         address {{tun.v4_remote | ipaddr( tun.v4_remote.split('.')[3] | int + 1) | ipaddr('address') }}
         netmask {{tun.v4_remote | ipaddr('netmask')}}
-        pre-up ip tunnel add $IFACE mode gre local {{ansible_default_ipv4.address}} remote {{tun.gre_target | ipaddr('address') }} ttl 255
+        pre-up ip tunnel add $IFACE mode gre local {{ipv4}} remote {{tun.gre_target | ipaddr('address') }} ttl 255
         post-up ip link set $IFACE mtu 1400
         post-down ip tunnel del $IFACE
         post-up ip rule add iif $IFACE lookup ffnet
@@ -27,7 +27,7 @@ auto tun-ffnw-{{tun.name}}
 iface tun-ffnw-{{tun.name}} inet static
         address {{tun.v4_remote | ipaddr( tun.v4_remote.split('.')[3] | int + 1) | ipaddr('address') }}
         netmask {{tun.v4_remote | ipaddr('netmask')}}
-        pre-up ip tunnel add $IFACE mode gre local {{ansible_default_ipv4.address}} remote {{tun.gre_target | ipaddr('address') }} ttl 255
+        pre-up ip tunnel add $IFACE mode gre local {{ipv4}} remote {{tun.gre_target | ipaddr('address') }} ttl 255
         post-up ip link set $IFACE mtu 1400
         post-down ip tunnel del $IFACE
         post-up ip rule add iif $IFACE lookup ffnet
@@ -47,7 +47,7 @@ auto tun-ffi-{{tun.name}}
 iface tun-ffi-{{tun.name}} inet static
         address {{tun.v4_remote | ipaddr( tun.v4_remote.split('.')[3] | int + 1) | ipaddr('address') }}
         netmask {{tun.v4_remote | ipaddr('netmask')}}
-        pre-up ip tunnel add $IFACE mode ip6gre local {{ansible_default_ipv6.address}} remote {{tun.gre6_target | ipaddr('address') }} ttl 255
+        pre-up ip tunnel add $IFACE mode ip6gre local {{ipv6}} remote {{tun.gre6_target | ipaddr('address') }} ttl 255
         post-up ip link set $IFACE mtu 1400
         post-down ip tunnel del $IFACE
         post-up ip rule add iif $IFACE lookup ffnet
