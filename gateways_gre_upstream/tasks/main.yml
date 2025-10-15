@@ -31,4 +31,4 @@
     dest: "/etc/network/interfaces.d/40_gre_upstream.cfg"
   notify:
     - restart networking
-  when: ffrl_tun is defined or ffnw_tun or ffi_tun is defined
+  when: ffrl_tun is defined or ffnw_tun is defined or ffi_tun is defined

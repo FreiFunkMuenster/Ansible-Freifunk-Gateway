@@ -79,7 +79,7 @@ protocol ospf {
 {% endif %}
 {% endfor %}
 		interface "bck-*";
-{% if ffrl_tun or ffi_tun is defined %}
+{% if ffrl_tun is defined or ffi_tun is defined %}
 		interface "lo" {
 			stub;
 		};
