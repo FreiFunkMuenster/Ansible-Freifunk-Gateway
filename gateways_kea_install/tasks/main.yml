@@ -43,3 +43,8 @@
   notify:
     - Reload systemd
     - Restart isc-kea-dhcp4-server
+
+- name: Enable isc-kea-dhcp4-server service
+  service:
+    name: isc-kea-dhcp4-server
+    enabled: yes
