@@ -5,7 +5,6 @@
   apt:
     name:
       - collectd
-      - python3-pyroute2
     state: present
     update_cache: yes
     cache_valid_time: 3600
