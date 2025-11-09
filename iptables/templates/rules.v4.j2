@@ -34,6 +34,10 @@ COMMIT
 {% if domaenenliste is defined %}
 -A POSTROUTING -o tun-ffnw+ -j SNAT --to-source {{ ffnw_nat_ip | ipaddr('address') }}
 {% endif %}
+{% elif ffi_tun is defined and ffi_nat_ip is defined %}
+{% if domaenenliste is defined %}
+-A POSTROUTING -o tun-ffi+ -j SNAT --to-source {{ ffi_nat_ip | ipaddr('address') }}
+{% endif %}
 {% endif %}
 {% if ffnw_tun is not defined and ffnw_nat_ip is not defined and ffrl_tun is not defined and ffrl_nat_ip is not defined %}
 -A POSTROUTING -o gre+ -p tcp -m tcp --dport 53 -j SNAT --to-source 10.0.0.{{vm_id}}

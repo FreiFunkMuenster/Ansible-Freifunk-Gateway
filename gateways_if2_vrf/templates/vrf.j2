@@ -1,0 +1,13 @@
+# {{ ansible_managed }}
+
+auto ffnet
+iface ffnet
+{% if ffi_tun is defined and ffi_nat_ip is defined %}
+	address {{ ffi_nat_ip }}
+{% else %}
+	address 10.0.0.{{vm_id}}
+{% endif %}
+{% if ffi_tun is defined and ffi_v6_loopback is defined %}
+	address {{ ffi_v6_loopback }}
+{% endif %}
+	vrf-table 1042

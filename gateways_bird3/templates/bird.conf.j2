@@ -1,0 +1,323 @@
+# Configure logging
+log syslog all;
+
+{% if ffi_nat_ip is defined %}
+router id {{ ffi_nat_ip | ansible.utils.ipaddr('address') }};
+{% else %}
+router id {{ vm_id }};
+{% endif %}
+
+ipv4 table ffnet4;
+ipv6 table ffnet6;
+
+
+protocol device {
+}
+
+protocol bfd {
+	vrf "ffnet";
+}
+
+protocol direct {
+	vrf "ffnet";
+	ipv4 {
+		table ffnet4;
+	};
+	ipv6 {
+		table ffnet6;
+	};
+	interface "ffnet", "bat*", "gre-*", "bck-*";
+{% if ffi_tun is defined %}
+	interface "tun-ffi*";
+{% endif %}
+}
+
+protocol kernel {
+	vrf "ffnet";
+	ipv4 {
+		table ffnet4;
+		import all;
+		export filter {
+                	krt_prefsrc = {{ ffi_nat_ip | ansible.utils.ipaddr('address') }};
+                	accept;
+        	};
+	};
+	learn;
+	kernel table 1042;
+}
+
+protocol kernel {
+	vrf "ffnet";
+	ipv6 {
+		table ffnet6;
+		import all;
+		export filter {
+                	krt_prefsrc = {{ ffi_v6_loopback  | ansible.utils.ipaddr('address')}};
+                	accept;
+        	};
+	};
+	learn;
+	kernel table 1042;
+}
+
+
+
+protocol static static_4 {
+	ipv4 {
+		table ffnet4;
+	};
+{% if ipv4_direkt_ausleiten is defined and ipv4_direkt_ausleiten %}
+        route 0.0.0.0/0 via "{{ ansible_default_ipv4.interface }}";
+{% endif %}
+
+}
+
+protocol static static_6 {
+	ipv6 {
+		table ffnet6;
+	};
+{% if ffrl_tun is defined or ffi_tun is defined %}
+	route {{ff_network.v6_network}} reject;
+{% endif %}
+}
+
+{% if ffrl_tun is defined %}
+
+#     _____ _____ ____  _
+#    |  ___|  ___|  _ \| |
+#    | |_  | |_  | |_) | |
+#    |  _| |  _| |  _ <| |___
+#    |_|   |_|   |_| \_|_____|
+#
+# IPv6 only
+# BEGIN
+
+filter from_ffrl {
+	# Default Routen ::/0 0.0.0.0/0
+	preference = 190;
+	if ( net ~ [0.0.0.0/0] || net ~ [::/0]) then accept;
+	reject;
+};
+
+filter to_ffrl {
+	# Alle FFRLv6 Prefix
+	if net ~ {{ ff_network.v6_network }} then accept;
+	reject;
+};
+
+template bgp uplink_ffrl {
+	vrf "ffnet";
+	ipv6 {
+		next hop self;
+		import filter from_ffrl;
+		export filter to_ffrl;
+		table ffnet6;
+	};
+	default bgp_local_pref 200;
+};
+
+{% for tun in ffrl_tun %}
+protocol bgp ffrl_{{tun.name|replace('-','_')}}_v6 from uplink_ffrl {
+	local {{ tun.v6_remote | ansible.utils.next_nth_usable(1) }} as {{ff_network.as_number}};
+	neighbor {{tun.v6_remote | ansible.utils.ipaddr('address') }} as 201701;
+{% if "bgp_local_pref" in tun %}
+	default bgp_local_pref {{tun.bgp_local_pref}};
+{% endif %}
+};
+
+{% endfor %}
+# END
+{% endif %}
+
+{% if ffi_tun is defined %}
+
+#    _____ _____ ___
+#   |  ___|  ___|_ _|
+#   | |_  | |_   | |
+#   |  _| |  _|  | |
+#   |_|   |_|   |___|
+#
+# BEGIN
+
+filter from_ffi {
+	# Default Routen ::/0 0.0.0.0/0
+	preference = 190;
+	if ( net ~ [0.0.0.0/0] || net ~ [::/0]) then accept;
+	reject;
+};
+
+filter to_ffi {
+	# ALLE Host-Routen /32 /128
+	# Alle FFNET v6 Routen oder morespecific
+	if ( net ~ [0.0.0.0/0{32,32}] || net ~ [::/0{128,128}]) then accept;
+	if ( net ~ [::/0{65,127}]) then reject;
+	if net ~ [{{ ff_network.v6_network }}+] then accept;
+	reject;
+};
+
+template bgp uplink_ffi {
+	vrf "ffnet";
+	bfd;
+	ipv4 {
+		next hop self;
+		import filter from_ffi;
+		export filter to_ffi;
+		table ffnet4;
+	};
+	ipv6 {
+		next hop self;
+		import filter from_ffi;
+		export filter to_ffi;
+		table ffnet6;
+	};
+{% if ff_network.as_number is 209894 %}
+	rr client;
+{% endif %}
+	default bgp_local_pref 200;
+};
+
+{% for tun in ffi_tun %}
+protocol bgp ffi_{{tun.name|replace('-','_')}}_v4 from uplink_ffi {
+	local {{ tun.v4_remote | ansible.utils.ipaddr( tun.v4_remote.split('.')[3] | int + 1) | ansible.utils.ipaddr('address') }} as {{ff_network.as_number}};
+	neighbor {{ tun.v4_remote | ansible.utils.ipaddr('address') }} as 209894;
+{% if "bgp_local_pref" in tun %}
+	default bgp_local_pref {{tun.bgp_local_pref}};
+{% endif %}
+};
+
+protocol bgp ffi_{{tun.name|replace('-','_')}}_v6 from uplink_ffi {
+	local {{ tun.v6_remote | ansible.utils.next_nth_usable(1) }} as {{ff_network.as_number}};
+	neighbor {{tun.v6_remote | ansible.utils.ipaddr('address') }} as 209894;
+{% if "bgp_local_pref" in tun %}
+	default bgp_local_pref {{tun.bgp_local_pref}};
+{% endif %}
+};
+
+{% endfor %}
+# END
+{% endif %}
+
+#      _____ _____ _   _ _____ _____
+#     |  ___|  ___| \ | | ____|_   _|
+#     | |_  | |_  |  \| |  _|   | |
+#     |  _| |  _| | |\  | |___  | |
+#     |_|   |_|   |_| \_|_____| |_|
+#
+# BEGIN
+
+filter from_intern_ffnet {
+	if ( net ~ [0.0.0.0/0] || net ~ [::/0]) then {
+		preference = 90;
+		accept;
+	}
+	if ( net ~ [0.0.0.0/0{32,32}] || net ~ [::/0{128,128}]) then accept;
+	if ( net ~ [::/0{65,127}]) then reject;
+	if net ~ [{{ ff_network.v4_network }}+] then accept;
+	if net ~ [{{ ff_network.v6_network }}+] then accept;
+	reject;
+	# Default Routen ::/0 0.0.0.0/0 mit niedriegerer Preferenz
+	# Alle FFNET v4 und v6 Routen oder morespecific
+};
+
+filter from_intern_ffnet_low_pref {
+	if ( net ~ [0.0.0.0/0] || net ~ [::/0]) then {
+		preference = 50;
+		accept;
+	}
+	if ( net ~ [0.0.0.0/0{32,32}] || net ~ [::/0{128,128}]) then accept;
+	if ( net ~ [::/0{65,127}]) then reject;
+	if net ~ [{{ ff_network.v4_network }}+] then accept;
+	if net ~ [{{ ff_network.v6_network }}+] then accept;
+	reject;
+	# Default Routen ::/0 0.0.0.0/0 mit noch niedriegerer Preferenz
+	# Alle FFNET v4 und v6 Routen oder morespecific
+};
+
+
+filter to_intern_ffnet {
+	if ( net ~ [0.0.0.0/0] || net ~ [::/0]) then accept;
+	if ( net ~ [0.0.0.0/0{32,32}] || net ~ [::/0{128,128}]) then accept;
+	if ( net ~ [::/0{65,127}]) then reject;
+	if net ~ [{{ ff_network.v4_network }}+] then accept;
+	if net ~ [{{ ff_network.v6_network }}+] then accept;
+	reject;
+	# Default Routen ::/0 0.0.0.0/0 mit niedriegerer Preferenz
+	# Alle FFNET v4 und v6 Routen oder morespecific
+};
+
+template bgp internal_ffnet {
+	vrf "ffnet";
+	local as {{ff_network.as_number}};
+	direct;
+	bfd;
+	ipv4 {
+		next hop self;
+		import filter from_intern_ffnet;
+		export filter to_intern_ffnet;
+		table ffnet4;
+	};
+	ipv6 {
+		next hop self;
+		import filter from_intern_ffnet;
+		export filter to_intern_ffnet;
+		table ffnet6;
+	};
+};
+
+{% for host in groups['gateways']|default([]) %}
+{% if hostvars[host].vm_id != vm_id %}
+protocol bgp ibgp_{{host|regex_replace('-','_')}}_v4 from internal_ffnet {
+{% if hostvars[host].vm_id < vm_id %}
+	neighbor 192.168.{{ hostvars[host].vm_id-1 }}.{{vm_id*2}} as {{ff_network.as_number}};
+{% else %}
+	neighbor 192.168.{{ vm_id-1 }}.{{hostvars[host].vm_id*2+1}} as {{ff_network.as_number}};
+{% endif %}
+{% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
+	ipv4 {
+		import filter from_intern_ffnet_low_pref;
+	};
+{% endif %}
+}
+
+protocol bgp ibgp_{{host|regex_replace('-','_')}}_v6 from internal_ffnet {
+{% if hostvars[host].vm_id < vm_id %}
+	neighbor {{ipv6backbone64prefixstr}}{{hostvars[host].vm_id}}:{{vm_id}}:1 as {{ff_network.as_number}};
+{% else %}
+	neighbor {{ipv6backbone64prefixstr}}{{vm_id}}:{{hostvars[host].vm_id}}:0 as {{ff_network.as_number}};
+{% endif %}
+{% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
+	ipv6 {
+		import filter from_intern_ffnet_low_pref;
+	};
+{% endif %}
+}
+
+{% endif %}
+{% endfor %}
+
+# END
+
+{% if domaenenliste is defined %}
+#      ____     _    ____
+#     |  _ \   / \  |  _ \__   __
+#     | |_) | / _ \ | | | \ \ / /
+#     |  _ < / ___ \| |_| |\ V /
+#     |_| \_/_/   \_|____/  \_/
+#
+# BEGIN
+protocol radv {
+	vrf "ffnet";
+	ipv6 {
+		table ffnet6;
+	};
+{% for domaene in domaenenliste|dictsort %}
+        interface "bat{{domaene[0]}}" {
+                max ra interval 20;
+                link mtu 1280;
+                rdnss {{domaenen[domaene[0]].ffv6_network | ipaddr(domaene[1].server_id) | ipaddr('address') }};
+        };
+{% endfor %}
+}
+# END
+{% endif %}
+

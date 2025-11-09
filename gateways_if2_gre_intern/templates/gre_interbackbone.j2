@@ -1,0 +1,24 @@
+# {{ ansible_managed }}
+
+{% for host in groups['gateways'] %}
+{% if host != inventory_hostname %}
+auto bck-{{host}}
+iface bck-{{host}}
+{% if hostvars[host].vm_id < vm_id %}
+	address 192.168.{{ hostvars[host].vm_id-1 }}.{{vm_id*2+1}}/31
+{% else %}
+	address 192.168.{{ vm_id-1 }}.{{hostvars[host].vm_id*2}}/31
+{% endif %}
+{% if hostvars[host].vm_id < vm_id %}
+	address {{ipv6backbone64prefixstr}}{{hostvars[host].vm_id}}:{{vm_id}}:0/127
+{% else %}
+	address {{ipv6backbone64prefixstr}}{{vm_id}}:{{hostvars[host].vm_id}}:1/127
+{% endif %}
+	tunnel-mode gre
+	tunnel-endpoint {{ hostvars[host].ansible_ssh_host }}
+	tunnel-local {{ ansible_default_ipv4.address }}
+	tunnel-ttl 255
+	vrf ffnet
+
+{% endif %}
+{% endfor %}

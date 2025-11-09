@@ -1,0 +1,23 @@
+# {{ ansible_managed }}
+
+# Batman Interface
+# - Erstellt das virtuelle Interface fuer das Batman-Modul und bindet dieses, falls L2TP oder Fastd benutzt wird, an die Netzwerkbruecke
+# - Die unten angelegte Routing-Tabelle wird spaeter fuer das Routing innerhalb von Freifunk (Router/VPN) verwendet
+
+{% for item in domaenenliste|dictsort %}
+# Domaene {{item[0]}}
+
+auto bat{{item[0]}}
+iface bat{{item[0]}}
+	address {{domaenen[item[0]].ffv4_network | ansible.utils.ipaddr(item[1].server_id) | ansible.utils.ipaddr('address') }}/{{domaenen[item[0]].ffv4_network | ansible.utils.ipaddr('prefix')}}
+	address {{domaenen[item[0]].ffv6_network | ansible.utils.ipaddr(item[1].server_id) | ansible.utils.ipaddr('address') }}/{{domaenen[item[0]].ffv6_network | ansible.utils.ipaddr('prefix')}}
+	vrf ffnet
+{% if item[0] | length > 2 %}
+	hwaddress f2:be:ef:{{item[0][0:2]}}:{{item[0][2:]}}:{{ "{:02}".format(item[1].server_id) }}
+{% else %}
+	hwaddress f2:be:ef:00:{{item[0]}}:{{ "{:02}".format(item[1].server_id) }}
+{% endif %}
+	batman-gw-mode server
+	batman-ifaces {% if tunneldigger is defined or fastd is defined %} br{{item[0]}}{% endif %}{% for host in groups['gateways'] %}{% if host != inventory_hostname %}{% if hostvars[host].domaenenliste is defined %}{% for item2 in hostvars[host].domaenenliste|dictsort %}{% if item[0] == item2[0] %} t{{item[0]}}-{{host}}{% endif %}{% endfor %}{% endif %}{% endif %}{% endfor %}
+
+{% endfor %}

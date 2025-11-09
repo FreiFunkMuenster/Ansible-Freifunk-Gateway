@@ -1,0 +1,14 @@
+---
+- name: let read interfaces from interfaces
+  lineinfile:
+    dest: "/etc/network/interfaces"
+    line: "source /etc/network/interfaces.d/*"
+  notify:
+    - restart networking
+
+- name: Konfig für die nat-Schnittstelle
+  template:
+    src: "vrf.j2"
+    dest: "/etc/network/interfaces.d/00_vrf.cfg"
+  notify:
+    - restart networking

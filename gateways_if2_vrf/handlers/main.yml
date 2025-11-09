@@ -1,0 +1,3 @@
+---
+- name: restart networking
+  shell: systemctl restart networking; if systemctl -q is-active isc-dhcp-server; then systemctl restart isc-dhcp-server; fi; if systemctl -q is-active kea-dhcp4.service; then systemctl restart kea-dhcp4.service; fi; if systemctl -q is-active tunneldigger; then systemctl restart tunneldigger; fi

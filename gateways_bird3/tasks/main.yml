@@ -1,0 +1,17 @@
+---
+
+- name: Install bird3
+  apt:
+    name: bird3
+    state: present
+
+
+- name: configure bird.conf
+  template:
+    src: bird.conf.j2
+    dest: /etc/bird/bird.conf
+    owner: bird
+    group: bird
+  notify:
+    - reload bird
+

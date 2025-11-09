@@ -1,0 +1,15 @@
+---
+- name: let read interfaces from interfaces
+  lineinfile:
+    dest: "/etc/network/interfaces"
+    line: "source /etc/network/interfaces.d/*"
+  notify:
+    - restart networking
+
+- name: Create interfaces - gretap to ffi
+  template:
+    src: "gre_upstream.j2"
+    dest: "/etc/network/interfaces.d/40_gre_upstream.cfg"
+  notify:
+    - restart networking
+  when: ffi_tun is defined

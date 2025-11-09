@@ -1,0 +1,29 @@
+# install package bridge-utils
+- name: bridge-utils-Paket installieren
+  apt:
+    pkg: ['bridge-utils', 'batctl']
+
+# creating batman interface
+- name: Create interfaces - batman file
+  template: src="batman.j2" dest="/etc/network/interfaces.d/30_batman.cfg"
+  notify:
+    - restart networking
+  when: domaenenliste is defined
+
+# create a br<domain> bridge interface for each domain
+- name: Create a bridge interface for each domain
+  template: src=domain_bridge.j2 dest=/etc/network/interfaces.d/20_domain_bridge.cfg
+  notify:
+    - restart networking
+  when: domaenenliste is defined
+
+#append line in interfaces file for reading additional config files
+- name: let read interfaces from interfaces
+  lineinfile: dest="/etc/network/interfaces" line="source /etc/network/interfaces.d/*"
+  notify:
+    - restart networking
+  when: domaenenliste is defined
+
+- name: Drei Sekunden nach Kernelpanik automatisch neu starten
+  sysctl: name="kernel.panic" value=3 sysctl_set=yes state=present reload=yes sysctl_file=/etc/sysctl.d/ff-kernelpanic.conf
+  when: domaenenliste is defined

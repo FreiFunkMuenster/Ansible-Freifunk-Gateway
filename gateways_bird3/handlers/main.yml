@@ -1,0 +1,5 @@
+---
+- name: reload bird
+  systemd:
+    name: bird
+    state: reloaded
