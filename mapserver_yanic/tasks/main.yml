@@ -1,0 +1,30 @@
+---
+
+- name: Config Yanic
+  template:
+    src: yanic.toml.j2
+    dest: /etc/yanic/config.toml
+  notify:
+    - "restart yanic"
+
+- name: Create yanic webroot directory if not existent
+  file:
+    path: /var/www/html/
+    state: directory
+    owner: yanic
+    group: yanic
+
+- name: Create yanic data directory if not existent
+  file:
+    path: /var/www/html/data
+    state: directory
+    owner: yanic
+    group: yanic
+
+#- name: Create yanic data directory for each domain if not existent
+#  file:
+#    path: /var/www/html/data_{{freifunk.kurzname}}d{{item}}
+#    state: directory
+#    owner: yanic
+#    group: yanic
+#  with_items: "{{domaenen}}"

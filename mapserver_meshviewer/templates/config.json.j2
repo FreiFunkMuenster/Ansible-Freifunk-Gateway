@@ -1,0 +1,60 @@
+{
+  "dataPath": ["https://{{inventory_hostname_short}}.{{freifunk.domain}}/map/meshviewer.json"],
+  "siteName": "{{freifunk.name}}",
+  "maxAge": 21,
+  "nodeZoom": 19,
+  "mapLayers": [
+{% for layer in meshviewer.layers %}
+    {
+      "name": "{{layer.name}}",
+      "url": "{{layer.url}}",
+      "config": {
+{% for k,v in layer.config|dictsort %}
+        "{{k}}": {% if v is number %}{{v}}{% else %}"{{v}}"{% endif %}{% if not loop.last %},{% endif %}
+
+{% endfor %}
+      }
+    }{% if not loop.last %},{% endif %}
+
+{% endfor %}
+
+  ],
+  "fixedCenter": [
+    [52.4928, 7.3031],
+    [51.3306, 7.2509]
+  ],
+  "domainNames": [
+{% for domaene in domaenen|dictsort %}
+    { "domain": "{{freifunk.kurzname}}d{{domaene[0]}}", "name": "Domäne {{domaene[0]}} - {{domaene[1].name}}" }{% if not loop.last %},{% endif %}
+
+{% endfor %}
+  ],
+  "nodeInfos": [
+    {
+      "name": "Clientstatistik",
+      "href": "https://grafana.{{freifunk.domain}}/d/000000021/advanced-node-stats?orgId=1&var-node={NODE_ID}",
+      "image": "https://grafana.{{freifunk.domain}}/render/d-solo/000000021/advanced-node-stats?var-node={NODE_ID}&panelId=1&theme=light&from=now-24h&to=now&width=650&height=350",
+      "title": "Knoten {NODE_ID} - weiteren Statistiken"
+    },
+    {
+      "name": "Trafficstatistik",
+      "href": "https://grafana.{{freifunk.domain}}/d/000000021/advanced-node-stats?orgId=1&var-node={NODE_ID}",
+      "image": "https://grafana.{{freifunk.domain}}/render/d-solo/000000021/advanced-node-stats?var-node={NODE_ID}&panelId=2&theme=light&from=now-24h&to=now&width=650&height=350",
+      "title": "Knoten {NODE_ID} - weiteren Statistiken"
+    }
+  ],
+  "globalInfos": [
+    {
+      "name": "Wochenstatistik",
+      "href": "https://freifunk.fail/dashboard/db/deck?from=now-7d&to=now",
+      "image": "https://freifunk.fail/render/dashboard-solo/db/deck?&panelId=22&from=now-7d&to=now&width=600&height=300&theme=light&_t={TIME}",
+      "title": "Bild der Wochenstatistik"
+    }
+  ],
+  "devicePictures": "https://{{inventory_hostname_short}}.{{freifunk.domain}}/pictures-svg/{MODEL_NORMALIZED}.svg",
+  "devicePicturesSource": "<a href='https://github.com/freifunk/device-pictures'>https://github.com/freifunk/device-pictures</a>",
+  "devicePicturesLicense": "CC-BY-NC-SA 4.0",
+  "node_custom": "/[^a-z0-9\\-\\.]/ig",
+  "deprecation_text": "Warnung: Dieser Knoten ist veraltet, und wird nicht mehr unterstützt. Es gibt auch keine Sicherheitsupdates mehr!<br><br>Mehr Infos unter: <a href=\"https://freifunkrouter-veraltet.ffmsl.de/\" target=\"_blank\" rel=\"noopener noreferrer\">freifunkrouter-veraltet.ffmsl.de</a>.<br><br>Wenn du der Eigentümer des Gerätes bist bitten wir dich das Gerät zu ersetzen um weiterhin am Netz teilnehmen zu können.",
+  "deprecation_enabled": true
+}

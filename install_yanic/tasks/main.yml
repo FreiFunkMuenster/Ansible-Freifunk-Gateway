@@ -1,0 +1,77 @@
+---
+
+- name: Ensure dependencies are installed.
+  ansible.builtin.apt:
+    name:
+      - golang 
+      - sudo
+    state: present
+
+- name: Create yanic user
+  ansible.builtin.user:
+    name: yanic
+    home: /var/lib/yanic
+    shell: /usr/sbin/nologin
+    system: true
+    create_home: true
+
+- name: Clone Yanic repository
+  ansible.builtin.git:
+    repo: "https://github.com/FreifunkBremen/yanic"
+    dest: "/var/lib/yanic/go/src/github.com/FreifunkBremen/yanic"
+#    version: "4261ad22882b9fa4b340b1bce51e39d916394303"
+    version: "fca254efea479a5636d8137d7aa28fa8eb9df111"
+    force: true
+    update: true
+  become: true
+  become_user: yanic
+
+- name: Check if yanic binary already exists
+  ansible.builtin.stat:
+    path: /var/lib/yanic/go/bin/yanic
+  register: yanic_bin
+
+- name: Build yanic binary
+  ansible.builtin.command: go build -o /var/lib/yanic/go/bin/yanic
+  args:
+    chdir: "/var/lib/yanic/go/src/github.com/FreifunkBremen/yanic"
+  environment:
+    GOPATH: "/var/lib/yanic/go"
+    GOCACHE: /tmp/GOCACHE/
+    GO111MODULE: "on"
+  become: true
+  become_user: yanic
+  when: not yanic_bin.stat.exists
+
+- name: Setup systemd service
+  template:
+    src: yanic.service.j2
+    dest: /lib/systemd/system/yanic.service
+  register: yanicservice
+
+- name: daemon-reload to activate yanic service
+  systemd:
+    daemon_reload: yes
+  when: yanicservice.changed
+
+- name: enable service yanic and ensure it is not masked
+  systemd:
+    enabled: yes
+    masked: no
+    name: yanic
+
+- name: Create /var/log/yanic
+  ansible.builtin.file:
+    path: /var/log/yanic
+    state: directory
+    owner: yanic
+    group: adm
+    mode: '2750'
+
+- name: Create /etc/yanic
+  ansible.builtin.file:
+    path: /etc/yanic
+    state: directory
+    owner: root
+    group: yanic
+    mode: '0755'
