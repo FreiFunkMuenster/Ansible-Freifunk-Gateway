@@ -52,11 +52,11 @@ domains = [{% for domaene in domaenen|dictsort %}"{{freifunk.kurzname}}d{{domaen
 # if not set or set to 0 the kernel will use a random free port at its own
 #port = 10001
 
+{% for domaene in domaenen|dictsort %}
 [[respondd.interfaces]]
-ifname = "{{ ansible_default_ipv6.interface }}"
-ip_address = "{{ ansible_default_ipv6.address }}"
-send_no_request = true
-port = {{ yanic.database.mapserver.port }}
+ifname = "bat{{domaene[0]}}"
+
+{% endfor %}
 
 # A little build-in webserver, which statically serves a directory.
 # This is useful for testing purposes or for a little standalone installation.
