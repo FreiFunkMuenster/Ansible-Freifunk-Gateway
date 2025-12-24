@@ -11,7 +11,12 @@ options {
 {% if domaenenliste is defined %}
 {% for domaene in domaenenliste|dictsort %}
 		{{domaenen[domaene[0]].ffv4_network}};
-		{{domaenen[domaene[0]].ffv6_network}};
+{% if domaenen[domaene[0]].ffv6_ffrl_network is defined %}
+		{{domaenen[domaene[0]].ffv6_ffrl_network}};
+{% endif %}
+{% if domaenen[domaene[0]].ffv6_ffi_network is defined %}
+		{{domaenen[domaene[0]].ffv6_ffi_network}};
+{% endif %}
 {% endfor %}
 {% endif %}
 	};

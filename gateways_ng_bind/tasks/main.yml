@@ -1,0 +1,69 @@
+# install bind9 service 
+# ---
+- name: install bind9
+  apt:
+    pkg: bind9
+    state: present
+
+- name: create folder for named logging
+  file:
+    path: /var/log/named/
+    state: directory
+    owner: bind
+    group: root
+
+- name: create folder for named slave zonefiles
+  file:
+    path: /var/lib/bind/slave
+    state: directory
+    owner: bind
+    group: root
+
+- name: deploy named.conf.log
+  template: src=named.conf.log.j2 dest=/etc/bind/named.conf.log
+  notify:
+    - restart bind9
+
+- name: deploy named.conf.options
+  template: src=named.conf.options.j2 dest=/etc/bind/named.conf.options
+  notify:
+    - restart bind9
+
+- name: create named.conf.ffnet
+  template: src=named.conf.ffnet.j2 dest=/etc/bind/named.conf.ffnet
+  notify:
+    - restart bind9
+
+- name: create named.conf.tld
+  template: src=named.conf.tld.j2 dest=/etc/bind/named.conf.tld
+  notify:
+    - restart bind9
+  when: is_external_nameserver is defined and is_external_nameserver
+
+- name: create named.conf
+  template: src=named.conf.j2 dest=/etc/bind/named.conf
+  notify:
+    - restart bind9
+
+- name: create own db file for each subdomaene
+  template: src=db.ffnet.j2 dest=/etc/bind/db.domaene-{{item}}.ffnet
+  notify:
+    - restart bind9
+  with_items: "{{domaenenliste | default([])}}"
+  when: domaenenliste is defined
+
+- name: create folder for bind9.service file
+  file: path=/etc/systemd/system/bind9.service.d state=directory mode=0755
+
+- name: copy bind9.service
+  copy: src=bind9.service dest=/etc/systemd/system/bind9.service.d/override.conf
+  notify:
+    - reread systemd configs
+
+- name: Deploy logrotate template file
+  template:
+    src: logrotate-bind.j2
+    dest: /etc/logrotate.d/bind
+  when:
+    - domaenenliste is defined
+

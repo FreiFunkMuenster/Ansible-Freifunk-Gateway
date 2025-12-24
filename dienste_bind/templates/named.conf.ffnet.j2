@@ -4,7 +4,8 @@
 view "domaene-{{domaene[0]}}" {
 	match-clients {
 		{{domaene[1].ffv4_network}};
-		{{domaene[1].ffv6_network}};
+		{{domaene[1].ffv6_ffrl_network}};
+		{{domaene[1].ffv6_ffi_network}};
 	};
 	include "/etc/bind/named.conf.tld";
 	include "/etc/bind/named.conf.local";
@@ -32,7 +33,8 @@ view "external-view" {
 		any;
 {% for domaene in domaenen|dictsort %}
 		!{{domaene[1].ffv4_network}};
-		!{{domaene[1].ffv6_network}};
+		!{{domaene[1].ffv6_ffrl_network}};
+		!{{domaene[1].ffv6_ffi_network}};
 {% endfor %}
 	};
         include "/etc/bind/named.conf.tld";

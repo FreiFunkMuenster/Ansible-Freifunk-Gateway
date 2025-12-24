@@ -1,0 +1,54 @@
+// {{ ansible_managed }}
+
+options {
+	directory "/var/cache/bind";
+
+	dnssec-validation auto;
+
+	listen-on {
+{% if ffi_tun is defined and ffi_nat_ip is defined %}
+		{{ ffi_nat_ip | ansible.utils.ipaddr('address') }};
+{% else %}
+		10.0.0.{{vm_id}};
+{% endif %}
+{% for item in domaenenliste|dictsort %}
+		{{domaenen[item[0]].ffv4_network | ansible.utils.ipaddr(item[1].server_id) | ansible.utils.ipaddr('address') }};
+{% endfor %}
+	};
+	listen-on-v6 {
+{% if ffi_tun is defined and ffi_v6_loopback is defined %}
+		{{ ffi_v6_loopback | ansible.utils.ipaddr('address') }};
+{% endif %}
+{% for item in domaenenliste|dictsort %}
+{% if domaenen[item[0]].ffv6_ffi_network is defined %}
+		{{domaenen[item[0]].ffv6_ffi_network | ansible.utils.ipaddr(item[1].server_id) | ansible.utils.ipaddr('address') }};
+{% endif %}
+{% if domaenen[item[0]].ffv6_ffrl_network is defined %}
+		{{domaenen[item[0]].ffv6_ffrl_network | ansible.utils.ipaddr(item[1].server_id) | ansible.utils.ipaddr('address') }};
+{% endif %}
+{% endfor %}
+	};
+
+	recursion yes;
+	allow-recursion {
+		localhost; 
+{% if domaenenliste is defined %}
+{% for domaene in domaenenliste|dictsort %}
+		{{domaenen[domaene[0]].ffv4_network}};
+		{{domaenen[domaene[0]].ffv6_ffrl_network}};
+		{{domaenen[domaene[0]].ffv6_ffi_network}};
+{% endfor %}
+{% endif %}
+	};
+
+	auth-nxdomain no;    # conform to RFC1035
+	minimal-responses yes;
+	tcp-clients 1000;
+	recursive-clients 10000;
+	rrset-order { order random; };
+};
+{% if collectd is defined and collectd.collect_bind %}
+statistics-channels {
+	inet 127.0.0.1 port 8053 allow { 127.0.0.1; };
+};
+{% endif %}

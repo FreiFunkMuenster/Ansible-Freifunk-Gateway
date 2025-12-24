@@ -7,7 +7,7 @@
 	domain_seed = 'ff481430000000000000000000000000000000000000000000000000000000{{item[0]}}',
 
 	prefix4 = '{{item[1].ffv4_network}}',
-	prefix6 = '{{item[1].ffv6_network}}',
+	prefix6 = '{{item[1].ffv6_ffrl_network}}',
 	extra_prefixes6 = { 
 {% for v6item in item[1].ffv6_additional_networks %}
 		'{{ v6item }}'{% if not loop.last %}, {% endif %}
@@ -18,7 +18,7 @@
 	next_node = {
 		name = { 'knoten', },
 		ip4 = '{{ item[1].ffv4_network | ansible.utils.ipv4('1') | ansible.utils.ipv4('address') }}',
-		ip6 = '{{ item[1].ffv6_network | ansible.utils.ipv6('1') | ansible.utils.ipv6('address') }}',
+		ip6 = '{{ item[1].ffv6_ffrl_network | ansible.utils.ipv6('1') | ansible.utils.ipv6('address') }}',
 		mac = 'de:ad:be:ef:08:01',
 	},
 
@@ -50,8 +50,8 @@
         dns = {
                 -- cacheentries = 20000,
 		servers = { 
-			'{{ item[1].ffv6_network | ansible.utils.ipv6('2') | ansible.utils.ipv6('address') }}',
-			'{{ item[1].ffv6_network | ansible.utils.ipv6('3') | ansible.utils.ipv6('address') }}', 
+			'{{ item[1].ffv6_ffrl_network | ansible.utils.ipv6('2') | ansible.utils.ipv6('address') }}',
+			'{{ item[1].ffv6_ffrl_network | ansible.utils.ipv6('3') | ansible.utils.ipv6('address') }}', 
 {% for v6dns in item[1].ffv6_additional_networks %}
 			'{{ v6dns | ansible.utils.ipv6('2') | ansible.utils.ipv6('address') }}',
 			'{{ v6dns | ansible.utils.ipv6('3') | ansible.utils.ipv6('address') }}'{% if not loop.last %}, {% endif %}

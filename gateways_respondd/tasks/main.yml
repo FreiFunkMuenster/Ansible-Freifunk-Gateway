@@ -6,11 +6,12 @@
 
 - name: Clone mesh-announce repo
   git:
-    repo: https://github.com/ffnord/mesh-announce.git
+    repo: https://github.com/FreiFunkMuenster/mesh-announce.git
     dest: /opt/mesh-announce
     clone: yes
     update: yes
     force: yes
+    version: "vrf"
   notify: restart respondd
 
 - name: create configuration

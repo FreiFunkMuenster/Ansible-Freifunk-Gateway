@@ -3,7 +3,8 @@ Description=Respondd
 After=network.target
 
 [Service]
-ExecStart=/opt/mesh-announce/respondd.py -d /opt/mesh-announce/providers -f /opt/mesh-announce/respondd.conf
+AmbientCapabilities=CAP_NET_BIND_SERVICE CAP_NET_RAW CAP_BPF CAP_DAC_OVERRIDE CAP_NET_ADMIN
+ExecStart=/usr/sbin/ip vrf exec ffnet /opt/mesh-announce/respondd.py -d /opt/mesh-announce/providers -f /opt/mesh-announce/respondd.conf
 Restart=on-failure
 Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 

@@ -1,0 +1,53 @@
+# This role install ISC KEA
+---
+- name: Install gpg and wget
+  apt:
+    name:
+      - 'gpg'
+      - 'wget'
+    update_cache: yes
+    cache_valid_time: 1800
+    state: present
+
+- name: add ISC - Internet Systems Consortium / kea repository key
+  shell: "wget -qO - https://dl.cloudsmith.io/public/isc/kea-3-0/gpg.B16C44CD45514C3C.key | gpg --dearmor --output /usr/share/keyrings/isc-kea-3-0-archive-keyring.gpg"
+  args:
+    creates: "/usr/share/keyrings/isc-kea-3-0-archive-keyring.gpg"
+
+- name: add ISC - Internet Systems Consortium / kea repository 
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/isc-kea-3-0-archive-keyring.gpg] https://dl.cloudsmith.io/public/isc/kea-3-0/deb/debian {{ ansible_distribution_release }} main"
+
+- name: Install ISC KEA DHCP
+  apt:
+    name: 
+      - 'isc-kea-dhcp4-server'
+    update_cache: yes
+    cache_valid_time: 1800
+    state: present
+
+- name: Create systemd override directory for isc-kea-dhcp4-server
+  file:
+    path: /etc/systemd/system/isc-kea-dhcp4-server.service.d
+    state: directory
+    mode: '0755'
+
+- name: Configure systemd override to restart isc-kea-dhcp4-server on failure
+  copy:
+    dest: /etc/systemd/system/isc-kea-dhcp4-server.service.d/override.conf
+    content: |
+      [Service]
+      AmbientCapabilities=CAP_NET_BIND_SERVICE CAP_NET_RAW CAP_BPF CAP_DAC_OVERRIDE CAP_NET_ADMIN
+      ExecStart=
+      ExecStart=/bin/ip vrf exec ffnet /usr/sbin/kea-dhcp4 -c /etc/kea/kea-dhcp4.conf
+      Restart=on-failure
+      RestartSec=10
+    mode: '0644'
+  notify:
+    - Reload systemd
+    - Restart isc-kea-dhcp4-server
+
+- name: Enable isc-kea-dhcp4-server service
+  service:
+    name: isc-kea-dhcp4-server
+    enabled: yes

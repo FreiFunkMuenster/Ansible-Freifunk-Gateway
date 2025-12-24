@@ -1,0 +1,7 @@
+# {{ ansible_managed }}
+
+/var/log/named/bind.log {
+    {{logrotate.cycle}}
+    rotate {{logrotate.count}}
+    copytruncate
+}

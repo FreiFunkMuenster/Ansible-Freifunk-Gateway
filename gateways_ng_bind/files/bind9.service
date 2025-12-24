@@ -1,0 +1,4 @@
+[Service]
+ExecStart=
+ExecStart=/bin/ip vrf exec ffnet /usr/sbin/named -f $OPTIONS
+Restart=on-failure

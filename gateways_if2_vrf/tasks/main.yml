@@ -12,3 +12,10 @@
     dest: "/etc/network/interfaces.d/00_vrf.cfg"
   notify:
     - restart networking
+
+- name: Konfig für vrfs im sysctl
+  template:
+    src: "sysctl.conf.j2"
+    dest: "/etc/sysctl.d/ff-vrf.conf"
+  notify:
+    - reload sysctl
