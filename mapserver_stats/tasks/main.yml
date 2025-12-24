@@ -5,18 +5,12 @@
   git:
     repo: https://github.com/FreiFunkMuenster/node-stats.git
     dest: /opt/node-stats
-    version: respondd
+    version: glass_link
     force: yes
-
-- name: Deploy update.sh script
-  template:
-    src: update.sh.j2
-    dest: /opt/node-stats/update.sh
-    mode: "u+x,g+x"
 
 - name: Define cron for node-stats.
   cron:
     name: "node-stats"
     minute: "*"
-    job: "/opt/node-stats/update.sh >/dev/null 2>&1"
+    job: "/opt/node-stats/main.py -g /var/www/html/data/raw.json --yanic-raw -c /opt/node-stats/config.json >/dev/null 2>&1"
 
