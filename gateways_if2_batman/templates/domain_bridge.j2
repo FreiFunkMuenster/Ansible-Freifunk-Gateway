@@ -4,6 +4,7 @@
 auto br{{item[0]}}
 iface br{{item[0]}}
 	bridge-ports none
+	bridge-ports-condone-regex l2tp.*
 {% if item[0] | length > 2 %}
 	hwaddress 02:ca:ff:{{item[0][0:2]}}:{{item[0][2:]}}:{{item[1].server_id}}
 {% else %}
