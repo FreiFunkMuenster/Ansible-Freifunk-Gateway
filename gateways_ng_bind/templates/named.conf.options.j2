@@ -14,6 +14,7 @@ options {
 {% for item in domaenenliste|dictsort %}
 		{{domaenen[item[0]].ffv4_network | ansible.utils.ipaddr(item[1].server_id) | ansible.utils.ipaddr('address') }};
 {% endfor %}
+		{{ ansible_default_ipv4.address }};
 	};
 	listen-on-v6 {
 {% if ffi_tun is defined and ffi_v6_loopback is defined %}
@@ -27,6 +28,7 @@ options {
 		{{domaenen[item[0]].ffv6_ffrl_network | ansible.utils.ipaddr(item[1].server_id) | ansible.utils.ipaddr('address') }};
 {% endif %}
 {% endfor %}
+		{{ ansible_default_ipv6.address }};
 	};
 
 	recursion yes;

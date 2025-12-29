@@ -19,3 +19,10 @@
     dest: "/etc/sysctl.d/ff-vrf.conf"
   notify:
     - reload sysctl
+
+- name: Create /etc/iproute2/rt_tables.d/ directory if it does not exist
+  ansible.builtin.file:
+    path: /etc/iproute2/rt_tables.d/
+    state: directory
+    mode: '0755'
+

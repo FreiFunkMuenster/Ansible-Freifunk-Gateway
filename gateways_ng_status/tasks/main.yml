@@ -1,0 +1,7 @@
+---
+
+- name: status-script
+  copy:
+    src: "status"
+    dest: "/usr/local/bin/status"
+    mode: '0700'

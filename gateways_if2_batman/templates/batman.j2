@@ -9,24 +9,39 @@
 
 auto bat{{item[0]}}
 iface bat{{item[0]}}
-	address {{domaenen[item[0]].ffv4_network | ansible.utils.ipaddr(item[1].server_id) | ansible.utils.ipaddr('address') }}/{{domaenen[item[0]].ffv4_network | ansible.utils.ipaddr('prefix')}}
-{% if domaenen[item[0]].ffv6_ffi_network is defined %}
-	address {{domaenen[item[0]].ffv6_ffi_network | ansible.utils.ipaddr(item[1].server_id) | ansible.utils.ipaddr('address') }}/{{domaenen[item[0]].ffv6_ffi_network | ansible.utils.ipaddr('prefix')}}
-{% endif %}
-{% if domaenen[item[0]].ffv6_ffrl_network is defined %}
-	address {{domaenen[item[0]].ffv6_ffrl_network | ansible.utils.ipaddr(item[1].server_id) | ansible.utils.ipaddr('address') }}/{{domaenen[item[0]].ffv6_ffrl_network | ansible.utils.ipaddr('prefix')}}
-{% endif %}
 	vrf ffnet
 {% if item[0] | length > 2 %}
 	hwaddress f2:be:ef:{{item[0][0:2]}}:{{item[0][2:]}}:{{ "{:02}".format(item[1].server_id) }}
 {% else %}
 	hwaddress f2:be:ef:00:{{item[0]}}:{{ "{:02}".format(item[1].server_id) }}
 {% endif %}
-	batman-gw-mode server
+	pre-up modprobe batman-adv
+	pre-up ip link add $IFACE type batadv
+	post-up ip address add {{domaenen[item[0]].ffv4_network | ansible.utils.ipaddr(item[1].server_id) | ansible.utils.ipaddr('address') }}/{{domaenen[item[0]].ffv4_network | ansible.utils.ipaddr('prefix')}} dev $IFACE
+{% if domaenen[item[0]].ffv6_ffi_network is defined %}
+	post-up ip -6 address add {{domaenen[item[0]].ffv6_ffi_network | ansible.utils.ipaddr(item[1].server_id) | ansible.utils.ipaddr('address') }}/{{domaenen[item[0]].ffv6_ffi_network | ansible.utils.ipaddr('prefix')}} dev $IFACE
+{% endif %}
+{% if domaenen[item[0]].ffv6_ffrl_network is defined %}
+	post-up ip -6 address add {{domaenen[item[0]].ffv6_ffrl_network | ansible.utils.ipaddr(item[1].server_id) | ansible.utils.ipaddr('address') }}/{{domaenen[item[0]].ffv6_ffrl_network | ansible.utils.ipaddr('prefix')}} dev $IFACE
+{% endif %}
+	post-up ip link set dev $IFACE up
 	post-up batctl meshif $IFACE it 10000
 	post-up batctl meshif $IFACE gw server {{batman.downstream}}/{{batman.upstream}}
 	post-up batctl meshif $IFACE mm 0
 	post-up batctl meshif $IFACE if add br{{item[0]}}
-	batman-ifaces {% if tunneldigger is defined or fastd is defined %} br{{item[0]}}{% endif %}{% for host in groups['gateways'] %}{% if host != inventory_hostname %}{% if hostvars[host].domaenenliste is defined %}{% for item2 in hostvars[host].domaenenliste|dictsort %}{% if item[0] == item2[0] %} t{{item[0]}}-{{host}}{% endif %}{% endfor %}{% endif %}{% endif %}{% endfor %}
+{% if tunneldigger is defined or fastd is defined %}
+	post-up batctl meshif bat{{item[0]}} if add br{{item[0]}} ||:
+{% endif %}
+{% for host in groups['gateways'] %}
+{% if host != inventory_hostname %}
+{% if hostvars[host].domaenenliste is defined %}
+{% for item2 in hostvars[host].domaenenliste|dictsort %}
+{% if item[0] == item2[0] %}
+	post-up batctl meshif bat{{item[0]}} if add t{{item[0]}}-{{host}} ||:
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endfor %}
 
 {% endfor %}

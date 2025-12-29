@@ -77,6 +77,11 @@ protocol static static_ffnet6 {
 {% if ffrl_tun is defined or ffi_tun is defined %}
 	route {{ff_network.v6_network}} reject;
 {% endif %}
+{% if domaenenliste is defined %}
+{% for domaene in domaenenliste|dictsort %}
+	route {{domaenen[domaene[0]].ffv6_ffi_network}} reject;
+{% endfor %}
+{% endif %}
 }
 
 {% if ffi_tun is defined or (ffi_on_physical_uplink is defined and ffi_on_physical_uplink) %}
@@ -99,7 +104,7 @@ filter from_ffi {
 filter to_ffi {
 	# ALLE Host-Routen /32 /128
 	# Alle FFNET v6 Routen oder morespecific
-	if (source != RTS_DEVICE) then bgp_path.prepend(65000);
+	if (source ~ [RTS_OSPF, RTS_BGP]) then bgp_path.prepend(65000);
 	if ( net ~ [0.0.0.0/0{32,32}] || net ~ [::/0{128,128}]) then accept;
 	if ( net ~ [::/0{65,127}]) then reject;
 	if net ~ [{{ ff_network.v6_network }}+] then accept;

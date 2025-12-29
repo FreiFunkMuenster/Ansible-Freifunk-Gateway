@@ -1,9 +1,13 @@
 # {{ ansible_managed }}
 
 {% for item in domaenenliste|dictsort %}
+auto dummy-dom{{item[0]}}
+iface dummy-dom{{item[0]}}
+        link-type dummy
+
 auto br{{item[0]}}
 iface br{{item[0]}}
-	bridge-ports none
+	bridge-ports dummy-dom{{item[0]}}
 	bridge-ports-condone-regex l2tp.*
 {% if item[0] | length > 2 %}
 	hwaddress 02:ca:ff:{{item[0][0:2]}}:{{item[0][2:]}}:{{item[1].server_id}}
@@ -11,6 +15,7 @@ iface br{{item[0]}}
 	hwaddress 02:ca:ff:ee:{{item[0]}}:{{item[1].server_id}}
 {% endif %}
 	mtu 1364
+	post-up batctl meshif bat{{item[0]}} if add $IFACE ||:
 	post-up ebtables -A FORWARD --logical-in $IFACE -j DROP
 	pre-down ebtables -D FORWARD --logical-in $IFACE -j DROP
 

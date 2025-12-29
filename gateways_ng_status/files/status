@@ -1,0 +1,171 @@
+#!/bin/bash
+if [[ $1 == 'mono' || $2 == 'mono' ]] ; then
+	red=''
+	green=''
+	reset=''
+else
+	red=`tput setaf 1`
+	green=`tput setaf 2`
+	reset=`tput sgr0`
+fi
+
+if [ -e /etc/systemd/system/tunneldigger@.service ] ; then
+	domains=$(/bin/ls /etc/systemd/system/multi-user.target.wants/tunneldigger@* | grep -oE "[0-9]+")
+fi
+#vnstat -tr
+
+echo "=====================================";
+echo "Hostname: $(hostname)"
+
+ip -6 r s t 42 | grep default
+ip r s t 42 | grep default
+echo "L2TP Tunnel: $(brctl show | grep l2tp | wc -l)"
+
+echo "=====================================";
+
+if [ -e /lib/systemd/system/bird.service ] ; then
+	systemctl status bird.service >> /dev/null
+	if [ $? -eq 0 ] ; then
+		echo "[${green} RUNNING ${reset}] Bird";
+	else
+		if [ $(systemctl is-enabled bird.service) = 'enabled' ] ; then
+			echo "[${red} NOT RUNNING ${reset}] Bird";
+		else
+			echo "[ DISABLED ] Bird";
+		fi
+	fi
+fi
+
+if [ -e /lib/systemd/system/bird6.service ] ; then
+	systemctl status bird6.service >> /dev/null
+	if [ $? -eq 0 ] ; then
+	        echo "[${green} RUNNING ${reset}] Bird6";
+	else
+		if [ $(systemctl is-enabled bird6.service) = 'enabled' ] ; then
+			echo "[${red} NOT RUNNING ${reset}] Bird6";
+		else
+			echo "[ DISABLED ] Bird6";
+		fi
+	fi
+fi
+
+if [ -e /lib/systemd/system/named.service ] ; then
+	systemctl status named.service >> /dev/null
+	if [ $? -eq 0 ] ; then
+	        echo "[${green} RUNNING ${reset}] Bind9";
+	else
+		if [ $(systemctl is-enabled bind9.service) = 'enabled' ] ; then
+			echo "[${red} NOT RUNNING ${reset}] Bind9";
+		else
+			echo "[ DISABLED ] Bind9";
+		fi
+	fi
+fi
+
+if [ -e /lib/systemd/system/isc-kea-dhcp4-server.service ] ; then
+	systemctl status isc-kea-dhcp4-server.service >> /dev/null
+	if [ $? -eq 0 ] ; then
+	        echo "[${green} RUNNING ${reset}] kea-dhcp4";
+	else
+		if [ $(systemctl is-enabled isc-kea-dhcp4-server.service) = 'enabled' ] ; then
+			echo "[${red} NOT RUNNING ${reset}] kea-dhcp4";
+		else
+			echo "[ DISABLED ] kea-dhcp4";
+		fi
+	fi
+fi
+
+if [ -e /lib/systemd/system/postgresql@.service ] ; then
+	systemctl status postgresql@*.service >> /dev/null
+	if [ $? -eq 0 ] ; then
+	        echo "[${green} RUNNING ${reset}] postgresql";
+	else
+		if [ $(systemctl is-enabled postgresql@*.service) = 'enabled' ] ; then
+			echo "[${red} NOT RUNNING ${reset}] postgresql";
+		else
+			echo "[ DISABLED ] postgresql";
+		fi
+	fi
+fi
+
+if [ -e /etc/systemd/system/tunneldigger.service ] ; then
+	systemctl status tunneldigger.service >> /dev/null
+	if [ $? -eq 0 ] ; then
+	        echo "[${green} RUNNING ${reset}] tunneldigger (global)";
+	else
+		if [ $(systemctl is-enabled tunneldigger.service) = 'enabled' ] ; then
+			echo "[${red} NOT RUNNING ${reset}] tunneldigger";
+		else
+			echo "[ DISABLED ] tunneldigger";
+		fi
+	fi
+fi
+
+if [ -e /etc/systemd/system/tunneldigger@.service ] ; then
+	for domain in $domains ; do
+		systemctl status tunneldigger@${domain}.service >> /dev/null
+		if [ $? -eq 0 ] ; then
+			echo "[${green} RUNNING ${reset}] tunneldigger (Domäne $domain)";
+		else
+			if [ $(systemctl is-enabled tunneldigger@${domain}.service) = 'enabled' ] ; then
+				echo "[${red} NOT RUNNING ${reset}] tunneldigger (Domäne $domain)";
+			else
+				echo "[ DISABLED ] tunneldigger (Domäne $domain)";
+			fi
+		fi
+	done
+fi
+
+if [ -e /etc/init.d/collectd ] ; then
+	systemctl status collectd.service >> /dev/null
+	if [ $? -eq 0 ] ; then
+	        echo "[${green} RUNNING ${reset}] collectd";
+	else
+		if [ $(systemctl is-enabled collectd.service) = 'enabled' ] ; then
+			echo "[${red} NOT RUNNING ${reset}] collectd";
+		else
+			echo "[ DISABLED ] collectd";
+		fi
+	fi
+fi
+
+if [ -e /etc/systemd/system/py-respondd.service ] ; then
+	systemctl status py-respondd.service >> /dev/null
+	if [ $? -eq 0 ] ; then
+	        echo "[${green} RUNNING ${reset}] py-respondd";
+	else
+		if [ $(systemctl is-enabled py-respondd.service) = 'enabled' ] ; then
+			echo "[${red} NOT RUNNING ${reset}] py-respondd";
+		else
+			echo "[ DISABLED ] py-respondd";
+		fi
+	fi
+fi
+
+if [ -e /etc/systemd/system/respondd.service ] ; then
+        systemctl status respondd.service >> /dev/null
+        if [ $? -eq 0 ] ; then
+                echo "[${green} RUNNING ${reset}] respondd";
+        else
+		if [ $(systemctl is-enabled respondd.service) = 'enabled' ] ; then
+			echo "[${red} NOT RUNNING ${reset}] respondd";
+		else
+			echo "[ DISABLED ] respondd";
+		fi
+        fi
+fi
+
+echo "=====================================";
+
+if [[ $1 == '-tr' || $1 == '-trd' ]] ; then
+	vnstat -tr -i eth0
+fi
+
+if [ -e /lib/systemd/system/tunneldigger@.service ] ; then
+	if [[ $1 == '-trd' ]] ; then
+		for domain in $domains ; do
+			vnstat -tr -i bat${domain}
+		done
+	fi
+fi
+

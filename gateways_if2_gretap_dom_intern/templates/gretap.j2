@@ -8,6 +8,10 @@
 {% endfor %}
 {% if hosts|length and hosts.pop() %}
 {% endif %}
+{% for host in groups['map']|default([]) %}
+{% if hosts.append(host) %}
+{% endif %}
+{% endfor %}
 {% for host in groups['mapserver']|default([]) %}
 {% if hosts.append(host) %}
 {% endif %}

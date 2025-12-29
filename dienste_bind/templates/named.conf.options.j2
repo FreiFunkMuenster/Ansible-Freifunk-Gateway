@@ -9,7 +9,10 @@ options {
         notify yes;
 	also-notify {
 {% for host in groups['gateways'] %}
-        {{ hostvars[host]['ansible_ssh_host'] }};
+           {{ hostvars[host]['ansible_ssh_host'] }};
+{% if hostvars[host].ffi_nat_ip is defined %}
+           {{hostvars[host].ffi_nat_ip | ansible.utils.ipaddr('address')}};
+{% endif %}
 {% endfor %}
 	};
         

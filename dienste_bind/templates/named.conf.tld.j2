@@ -6,6 +6,9 @@ zone "{{domain}}." IN {
 	   localhost;
 {% for host in groups['gateways'] %}
 	   {{hostvars[host].ipv4 }};
+{% if hostvars[host].ffi_nat_ip is defined %}
+           {{hostvars[host].ffi_nat_ip | ansible.utils.ipaddr('address')}};
+{% endif %}
 {% endfor %}
 	};
 	notify yes;
@@ -17,6 +20,9 @@ zone "servers.{{domain}}." IN {
 	   localhost;
 {% for host in groups['gateways'] %}
            {{hostvars[host].ipv4 }};
+{% if hostvars[host].ffi_nat_ip is defined %}
+           {{hostvars[host].ffi_nat_ip | ansible.utils.ipaddr('address')}};
+{% endif %}
 {% endfor %}
 	};
 	notify yes;
@@ -28,6 +34,9 @@ zone "backdoor.{{domain}}." IN {
 	   localhost;
 {% for host in groups['gateways'] %}
            {{hostvars[host].ipv4 }};
+{% if hostvars[host].ffi_nat_ip is defined %}
+           {{hostvars[host].ffi_nat_ip | ansible.utils.ipaddr('address')}};
+{% endif %}
 {% endfor %}
 	};
 	notify yes;
@@ -39,6 +48,9 @@ zone "services.{{domain}}." IN {
 	   localhost;
 {% for host in groups['gateways'] %}
            {{hostvars[host].ipv4 }};
+{% if hostvars[host].ffi_nat_ip is defined %}
+           {{hostvars[host].ffi_nat_ip | ansible.utils.ipaddr('address')}};
+{% endif %}
 {% endfor %}
 	};
 	notify yes;
@@ -50,6 +62,9 @@ zone "knoten.{{domain}}." IN {
 	   localhost;
 {% for host in groups['gateways'] %}
            {{hostvars[host].ipv4 }};
+{% if hostvars[host].ffi_nat_ip is defined %}
+           {{hostvars[host].ffi_nat_ip | ansible.utils.ipaddr('address')}};
+{% endif %}
 {% endfor %}
 	};
 	notify yes;
@@ -63,6 +78,9 @@ zone "{{subzone}}.{{domain}}." IN {
 	   localhost;
 {% for host in groups['gateways'] %}
 	   {{hostvars[host].ipv4 }};
+{% if hostvars[host].ffi_nat_ip is defined %}
+           {{hostvars[host].ffi_nat_ip | ansible.utils.ipaddr('address')}};
+{% endif %}
 {% endfor %}
 	};
 	notify yes;
@@ -78,6 +96,9 @@ zone "{{ zone }}." IN {
            localhost;
 {% for host in groups['gateways'] %}
            {{hostvars[host].ipv4 }};
+{% if hostvars[host].ffi_nat_ip is defined %}
+           {{hostvars[host].ffi_nat_ip | ansible.utils.ipaddr('address')}};
+{% endif %}
 {% endfor %}
         };
 	notify yes;
