@@ -17,8 +17,8 @@ fi
 echo "=====================================";
 echo "Hostname: $(hostname)"
 
-ip -6 r s t 42 | grep default
-ip r s t 42 | grep default
+ip -6 r s t 1042 | grep default
+ip r s t 1042 | grep default
 echo "L2TP Tunnel: $(brctl show | grep l2tp | wc -l)"
 
 echo "=====================================";
@@ -156,10 +156,6 @@ if [ -e /etc/systemd/system/respondd.service ] ; then
 fi
 
 echo "=====================================";
-
-if [[ $1 == '-tr' || $1 == '-trd' ]] ; then
-	vnstat -tr -i eth0
-fi
 
 if [ -e /lib/systemd/system/tunneldigger@.service ] ; then
 	if [[ $1 == '-trd' ]] ; then
