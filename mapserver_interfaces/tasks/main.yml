@@ -10,3 +10,8 @@
     dest: "/etc/network/interfaces.d/30_batman.cfg"
   notify:
     - restart networking
+
+- name: Patch TUNNEL-Executor
+  ansible.posix.patch:
+    src: tunnel.patch
+    dest: /usr/libexec/ifupdown-ng/tunnel

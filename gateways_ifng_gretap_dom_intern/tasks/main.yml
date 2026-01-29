@@ -1,16 +1,22 @@
 ---
-# Tasks for getap network interfaces
+# Tasks for vxlan network interfaces
 
 # create file for gre interfaces
-- name: Create interfaces - inter_gre file
+- name: Create interfaces - inter_gretap file
   template: src="gretap.j2" dest="/etc/network/interfaces.d/25_gretap.cfg"
+  register: templating_result
   notify:
     - restart networking
   when: domaenenliste is defined
 
 #append line in interfaces file for reading additional config files
 - name: let read interfaces from interfaces
-  lineinfile: dest="/etc/network/interfaces" line="source /etc/network/interfaces.d/*"
+  lineinfile: dest="/etc/network/interfaces" line="source-directory /etc/network/interfaces.d/"
   notify:
     - restart networking
   when: domaenenliste is defined
+
+- name: Patch TUNNEL-Executor
+  ansible.posix.patch:
+    src: tunnel.patch
+    dest: /usr/libexec/ifupdown-ng/tunnel

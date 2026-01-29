@@ -42,6 +42,7 @@ protocol kernel kernel_ffnet4 {
 			accept;
 		};
 	};
+	merge paths yes limit 8;
 	learn;
 	kernel table 1042;
 }
@@ -56,6 +57,7 @@ protocol kernel kernel_ffnet6 {
 			accept;
 		};
 	};
+	merge paths yes limit 8;
 	learn;
 	kernel table 1042;
 }
@@ -80,11 +82,14 @@ protocol static static_ffnet6 {
 {% if domaenenliste is defined %}
 {% for domaene in domaenenliste|dictsort %}
 	route {{domaenen[domaene[0]].ffv6_ffi_network}} reject;
+{% if domaenen[domaene[0]].ffv6_ffrl_nat66_network is defined %}
+	#route {{domaenen[domaene[0]].ffv6_ffrl_nat66_network}} reject;
+{% endif %}
 {% endfor %}
 {% endif %}
 }
 
-{% if ffi_tun is defined or (ffi_on_physical_uplink is defined and ffi_on_physical_uplink) %}
+{% if ffi_tun is defined %}
 
 #    _____ _____ ___
 #   |  ___|  ___|_ _|
@@ -104,7 +109,8 @@ filter from_ffi {
 filter to_ffi {
 	# ALLE Host-Routen /32 /128
 	# Alle FFNET v6 Routen oder morespecific
-	if (source ~ [RTS_OSPF, RTS_BGP]) then bgp_path.prepend(65000);
+	if (source != RTS_DEVICE) then bgp_local_pref = 1;
+	if (source = RTS_DEVICE) then bgp_local_pref = 100;
 	if ( net ~ [0.0.0.0/0{32,32}] || net ~ [::/0{128,128}]) then accept;
 	if ( net ~ [::/0{65,127}]) then reject;
 	if net ~ [{{ ff_network.v6_network }}+] then accept;
@@ -113,6 +119,7 @@ filter to_ffi {
 
 template bgp uplink_ffi {
 	bfd;
+	allow bgp_local_pref;
 	ipv4 {
 		next hop self;
 		import filter from_ffi;
@@ -152,17 +159,6 @@ protocol bgp ffi_{{tun.name|replace('-','_')}}_v6 from uplink_ffi {
 };
 
 {% endfor %}
-{% endif %}
-{% if ffi_on_physical_uplink is defined and ffi_on_physical_uplink %}
-protocol bgp ffi_on_uplink_v4 from uplink_ffi {
-	local {{ ansible_default_ipv4.address }} as {{ff_network.as_number}};
-	neighbor {{ ansible_default_ipv4.gateway }} as 209894;
-};
-
-protocol bgp ffi_on_uplink_v6 from uplink_ffi {
-	local {{ ansible_default_ipv6.address }} as {{ff_network.as_number}};
-	neighbor {{ ansible_default_ipv6.gateway }} as 209894;
-};
 {% endif %}
 # END
 {% endif %}

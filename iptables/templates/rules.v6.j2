@@ -21,7 +21,7 @@ COMMIT
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
 :POSTROUTING ACCEPT [0:0]
-{% if ffrl_tun is defined %}
+{% if ffrl_tun is defined or ffi_tun is defined %}
 -A POSTROUTING -o tun-+ -p tcp -m tcp --tcp-flags SYN,RST SYN -m tcpmss ! --mss 0:1220 -j TCPMSS --set-mss 1220
 {% endif %}
 COMMIT

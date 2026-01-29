@@ -1,0 +1,18 @@
+--- tunnel	2026-01-29 19:04:46.549490853 +0000
++++ /usr/libexec/ifupdown-ng/tunnel	2026-01-29 19:02:39.330426435 +0000
+@@ -37,6 +37,7 @@
+ 
+ 	# Strip possible "ip6" from tunnel mode
+ 	TUNNEL_MODE="gretap"
++	unset IF_TUNNEL_MODE
+ 	;;
+ 
+ *)
+@@ -99,7 +100,6 @@
+ 	unset IF_TUNNEL_PMTUDISC
+ fi
+ 
+-
+ # Mangle residual IF_TUNNEL_* params into single string
+ PARAMS=$(set | sed -E '
+ 	s/^IF_TUNNEL_([A-Z0-9_]+)=(.+)/\1\n\2/

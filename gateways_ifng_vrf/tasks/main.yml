@@ -2,7 +2,7 @@
 - name: let read interfaces from interfaces
   lineinfile:
     dest: "/etc/network/interfaces"
-    line: "source /etc/network/interfaces.d/*"
+    line: "source-directory /etc/network/interfaces.d/"
   notify:
     - restart networking
 
@@ -26,3 +26,7 @@
     state: directory
     mode: '0755'
 
+- name: Patch VRF-Executor
+  ansible.posix.patch:
+    src: vrf_exit.patch
+    dest: /usr/libexec/ifupdown-ng/vrf

@@ -15,7 +15,7 @@ iface bck-{{host}}
 	address {{ipv6backbone64prefixstr}}{{vm_id}}:{{hostvars[host].vm_id}}:1/127
 {% endif %}
 	tunnel-mode gre
-	tunnel-endpoint {{ hostvars[host].ansible_ssh_host }}
+	tunnel-remote {{ hostvars[host].ansible_ssh_host }}
 	tunnel-local {{ ansible_default_ipv4.address }}
 	tunnel-ttl 255
 	vrf ffnet
