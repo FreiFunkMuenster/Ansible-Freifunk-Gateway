@@ -8,8 +8,8 @@
 # BATMAN Interface für Domäne-{{domaene[0]}}
 auto bat{{domaene[0]}}
 iface bat{{domaene[0]}}
-	address {{domaene[1].ffv6_ffi_network | ipaddr(vm_id) | ipaddr('address')}}/64
-	address {{domaene[1].ffv4_network | ipaddr(vm_id) | ipaddr('address') }}/{{domaene[1].ffv4_network | ipaddr(vm_id) | ipaddr('prefix') }}
+	address {{domaene[1].ffv6_ffi_network | ansible.utils.ipaddr(vm_id) | ansible.utils.ipaddr('address')}}/64
+	address {{domaene[1].ffv4_network | ansible.utils.ipaddr(vm_id) | ansible.utils.ipaddr('address') }}/{{domaene[1].ffv4_network | ansible.utils.ipaddr(vm_id) | ansible.utils.ipaddr('prefix') }}
 	ipv6-accept-ra 0
 	hwaddress de:ad:be:{{ '%02x' % (indexer[0] // 256) }}:{{ '%02x' % (indexer[0] % 256) }}:{{vm_id}} 
 {% set batman_ifs = [] %}{% for host in groups["gateways"] %}{% if domaene[0] in hostvars[host].domaenenliste %}{{ batman_ifs.append("t"+domaene[0]+"-"+host) }}{% endif %}{% endfor %}

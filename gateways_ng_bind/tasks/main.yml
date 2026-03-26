@@ -49,7 +49,8 @@
   template: src=db.ffnet.j2 dest=/etc/bind/db.domaene-{{item}}.ffnet
   notify:
     - restart bind9
-  with_items: "{{domaenenliste | default([])}}"
+    #  with_items: "{{domaenenliste | default([])}}"
+  loop: "{{ domaenenliste.keys() | list }}"
   when: domaenenliste is defined
 
 - name: create folder for bind9.service file

@@ -4,8 +4,8 @@
 {% for domaene in domaenenliste|dictsort -%}
 # view for (broadcast-)domain domaene-{{domaene[0]}}
 view "domaene-{{domaene[0]}}" {
-        query-source address {{ domaenen[domaene[0]].ffv4_network | ipaddr(domaenenliste[domaene[0]].server_id) | ipaddr('address') }};
-        query-source-v6 address {{ domaenen[domaene[0]].ffv6_ffrl_network | ipaddr(domaenenliste[domaene[0]].server_id) | ipaddr('address') }};
+        query-source address {{ domaenen[domaene[0]].ffv4_network | ansible.utils.ipaddr(domaenenliste[domaene[0]].server_id) | ansible.utils.ipaddr('address') }};
+        query-source-v6 address {{ domaenen[domaene[0]].ffv6_ffrl_network | ansible.utils.ipaddr(domaenenliste[domaene[0]].server_id) | ansible.utils.ipaddr('address') }};
 
         match-clients {
                 {{domaenen[domaene[0]].ffv4_network}};

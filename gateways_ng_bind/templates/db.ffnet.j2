@@ -10,15 +10,15 @@ $TTL    86400
                           86400 )       ; Negative Cache TTL
 ;
 @			IN      NS      ns01.{{freifunk.kurzname}}.
-ns01			IN      A       {{domaenen[item].ffv4_network | ipaddr(domaenenliste[item].server_id) | ipaddr('address') }}
-node			IN      A       {{domaenen[item].ffv4_network | ipaddr(1) | ipaddr('address')}}
-node			IN      AAAA    {{domaenen[item].ffv6_ffrl_network | ipaddr(1) | ipaddr('address')}}
-router			IN      A       {{domaenen[item].ffv4_network | ipaddr(1) | ipaddr('address')}}
-router			IN      AAAA    {{domaenen[item].ffv6_ffrl_network | ipaddr(1) | ipaddr('address')}}
-knoten			IN      A       {{domaenen[item].ffv4_network | ipaddr(1) | ipaddr('address')}}
-knoten			IN      AAAA    {{domaenen[item].ffv6_ffrl_network | ipaddr(1) | ipaddr('address')}}
-freifunk			IN      A       {{domaenen[item].ffv4_network | ipaddr(1) | ipaddr('address')}}
-freifunk			IN      AAAA    {{domaenen[item].ffv6_ffrl_network | ipaddr(1) | ipaddr('address')}}
+ns01			IN      A       {{domaenen[item].ffv4_network | ansible.utils.ipaddr(domaenenliste[item].server_id) | ansible.utils.ipaddr('address') }}
+node			IN      A       {{domaenen[item].ffv4_network | ansible.utils.ipaddr(1) | ansible.utils.ipaddr('address')}}
+node			IN      AAAA    {{domaenen[item].ffv6_ffrl_network | ansible.utils.ipaddr(1) | ansible.utils.ipaddr('address')}}
+router			IN      A       {{domaenen[item].ffv4_network | ansible.utils.ipaddr(1) | ansible.utils.ipaddr('address')}}
+router			IN      AAAA    {{domaenen[item].ffv6_ffrl_network | ansible.utils.ipaddr(1) | ansible.utils.ipaddr('address')}}
+knoten			IN      A       {{domaenen[item].ffv4_network | ansible.utils.ipaddr(1) | ansible.utils.ipaddr('address')}}
+knoten			IN      AAAA    {{domaenen[item].ffv6_ffrl_network | ansible.utils.ipaddr(1) | ansible.utils.ipaddr('address')}}
+freifunk			IN      A       {{domaenen[item].ffv4_network | ansible.utils.ipaddr(1) | ansible.utils.ipaddr('address')}}
+freifunk			IN      AAAA    {{domaenen[item].ffv6_ffrl_network | ansible.utils.ipaddr(1) | ansible.utils.ipaddr('address')}}
 {% if freifunk.ffnet_dns_entries_for_internal_tld is defined -%}
 {% for entry in freifunk.ffnet_dns_entries_for_internal_tld %}
 {% if freifunk.ffnet_dns_entries_for_internal_tld[entry].A is defined %}

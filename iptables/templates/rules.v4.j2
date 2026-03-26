@@ -28,15 +28,15 @@ COMMIT
 {% endif %}
 {% elif ffrl_tun is defined and ffrl_nat_ip is defined %}
 {% if domaenenliste is defined %}
--A POSTROUTING -o tun-ffrl+ -j SNAT --to-source {{ ffrl_nat_ip | ipaddr('address') }}
+-A POSTROUTING -o tun-ffrl+ -j SNAT --to-source {{ ffrl_nat_ip | ansible.utils.ipaddr('address') }}
 {% endif %}
 {% elif ffnw_tun is defined and ffnw_nat_ip is defined %}
 {% if domaenenliste is defined %}
--A POSTROUTING -o tun-ffnw+ -j SNAT --to-source {{ ffnw_nat_ip | ipaddr('address') }}
+-A POSTROUTING -o tun-ffnw+ -j SNAT --to-source {{ ffnw_nat_ip | ansible.utils.ipaddr('address') }}
 {% endif %}
 {% elif ffi_tun is defined and ffi_nat_ip is defined %}
 {% if domaenenliste is defined %}
--A POSTROUTING -s {{ff_network.v4_network}}  -o tun-ffi+ -j SNAT --to-source {{ ffi_nat_ip | ipaddr('address') }}
+-A POSTROUTING -s {{ff_network.v4_network}}  -o tun-ffi+ -j SNAT --to-source {{ ffi_nat_ip | ansible.utils.ipaddr('address') }}
 {% endif %}
 {% endif %}
 {% if ffnw_tun is not defined and ffnw_nat_ip is not defined and ffrl_tun is not defined and ffrl_nat_ip is not defined and ffi_tun is not defined and ffi_nat_ip is not defined %}

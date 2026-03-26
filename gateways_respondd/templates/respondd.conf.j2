@@ -57,7 +57,7 @@ VPN: True
 [{{ freifunk.kurzname }}d{{ domaene[0] }}]
 BatmanInterface: bat{{ domaene[0] }}
 Interfaces: br{{ domaene[0] }}
-IPv4Gateway: {{ domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }}
+IPv4Gateway: {{ domaenen[domaene[0]].ffv4_network | ansible.utils.ipaddr(domaene[1].server_id) | ansible.utils.ipaddr('address') }}
 Hostname: {{inventory_hostname_short}}_{{ freifunk.kurzname }}d{{ domaene[0] }}
 
 {% endfor %}

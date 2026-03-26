@@ -14,14 +14,14 @@ view "domaene-{{domaene[0]}}" {
 		type master;
 		file "/etc/bind/db.servers.ffnet";
 		allow-transfer {
-			{{domaene[1].ffv4_network | ipsubnet(28,0)}};
+			{{domaene[1].ffv4_network | ansible.utils.ipsubnet(28,0)}};
 		};
 	};
 	zone "services.{{freifunk.kurzname}}." {
 		type master;
 		file "/etc/bind/db.services.ffnet";
 		allow-transfer {
-			{{domaene[1].ffv4_network | ipsubnet(28,0)}};
+			{{domaene[1].ffv4_network | ansible.utils.ipsubnet(28,0)}};
 		};
 	};
 };
