@@ -6,11 +6,8 @@ bind {{ ansible_default_ipv4.address }}:{{ domaenen[item.key].fastd_port_forced 
 bind [{{ ansible_default_ipv6.address }}]:{{ domaenen[item.key].fastd_port_forced | default(fastd.port_base + (item.key | int)) }} interface "{{ ansible_default_ipv6.interface }}";
 {% endif %}
 
-# Set the user, fastd will work as
-user "nobody";
-
 # Set the interface
-interface "fastd{{ item.key }}";
+interface "fastd{{ item.key }}-%k";
 persist interface no;
 mode multitap;
 offload l2tp yes;
@@ -30,10 +27,10 @@ include "/etc/fastd/{{ item.key }}/keys/secret.key";
 log to syslog level warn;
 
 # Hide IP addresses in log output
-hide ip addresses no;
+hide ip addresses yes;
 
 # Hide MAC addresses in log output
-hide mac addresses no;
+hide mac addresses yes;
 
 # Include peers from our git-repos
 include peers from "/etc/fastd/{{ item.key }}/peers/";
@@ -49,6 +46,10 @@ on verify "
 
 # Configure a shell command that is run when fastd comes up
 on up "
-  # Add fastd interface to bridge, then enable it
-  ip link set dev $INTERFACE master br{{ item.key }} && ip link set dev $INTERFACE up
+  ip link set dev $INTERFACE up
+  ip link set dev $INTERFACE master br{{ item.key }}
+";
+
+on down "
+  ip link set dev $INTERFACE nomaster || true
 ";
