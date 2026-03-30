@@ -13,7 +13,7 @@ $TTL    3600
 {% if i.append(i.pop() + 1) %}{% endif %}
 {% endif %}
 {% endfor %}
-{% for host in groups['gateways']+groups['hypervisors'] %}
+{% for host in groups['gateways'] %}
 {{host}}	IN      A       {{hostvars[host].ipv4}};
 {{host}}	IN      AAAA       {{hostvars[host].ipv6}};
 {% endfor %}
