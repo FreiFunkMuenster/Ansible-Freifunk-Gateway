@@ -1,0 +1,154 @@
+---
+- name: install fastd (vpn daemon) and haveged (entropy daemon)
+  apt:
+    pkg: ['fastd', 'haveged']
+    update_cache: yes
+    state: present
+
+- name: Get all enabled fastd instances
+  shell: |
+    set -o pipefail
+    /bin/ls -1 /etc/systemd/system/multi-user.target.wants/fastd@*.service | sed 's/.*fastd@\([0-9]*\)\.service/\1/'
+  args:
+    executable: bash
+  changed_when: False
+  failed_when: False
+  check_mode: no
+  register: _fastd_domain_instances
+
+- name: Get all fastd configs
+  shell: |
+    set -o pipefail
+    /bin/ls -1 /etc/fastd/
+  args:
+    executable: bash
+  changed_when: False
+  failed_when: False
+  check_mode: no
+  register: _fastd_domain_configs
+
+- name: Stop and disable obsolete fastd instances
+  service:
+    name: "fastd@{{ item }}.service"
+    enabled: no
+    state: stopped
+  with_items: "{{ _fastd_domain_instances.stdout_lines }}"
+  when: domaenenliste is defined and item not in domaenenliste
+
+- name: remove obsolete fastd configs
+  file:
+    path: /etc/fastd/{{ item }}
+    state: absent
+  with_items: "{{ _fastd_domain_configs.stdout_lines }}"
+  when: domaenenliste is defined and item not in domaenenliste
+
+- name: create config directories
+  file:
+    path: /etc/fastd/{{ item.key }}
+    state: directory
+  with_dict: "{{ domaenenliste }}"
+
+- name: create keys directories
+  file:
+    path: /etc/fastd/{{ item.key }}/keys
+    state: directory
+  with_dict: "{{ domaenenliste }}"
+
+- name: write private key to keyfile
+  template:
+    src: secret.key.j2
+    dest: /etc/fastd/{{ item.key }}/keys/secret.key
+    owner: root
+    group: root
+    mode: 0600
+  notify:
+    - restart fastd per domain
+  vars:
+    secretkey:  "{% if item.value.server_id == 2 %}{{ fastd_keys[item.key].gateway_a.secret }}{% elif item.value.server_id == 3 %}{{ fastd_keys[item.key].gateway_b.secret }}{% elif item.value.server_id == 4 %}{{ fastd_keys[item.key].gateway_c.secret }}{% elif item.value.server_id == 5 %}{{ fastd_keys[item.key].gateway_d.secret }}{% endif %}"
+  with_dict: "{{ domaenenliste }}"
+
+- name: create dummy peer directory
+  file:
+    path: /etc/fastd/{{ item.key }}/peers
+    state: directory
+  with_dict: "{{ domaenenliste }}"
+
+- name: create dummy peer
+  template:
+    src: dummy.j2
+    dest: /etc/fastd/{{ item.key }}/peers/dummy
+  with_dict: "{{ domaenenliste }}"
+
+- name: create config
+  template:
+    src: fastd.conf.j2
+    dest: /etc/fastd/{{ item.key }}/fastd.conf
+  notify:
+    - restart fastd per domain
+  with_dict: "{{ domaenenliste }}"
+
+- name: create verify directory
+  file:
+    path: /var/freifunk/gateway-{{ freifunk.kurzname }}/fastd/
+    state: directory
+
+- name: create verify script (blacklisting)
+  template:
+    src: blacklist.sh.j2
+    dest: /var/freifunk/gateway-{{ freifunk.kurzname }}/fastd/blacklist.sh
+
+- name: check if global blacklist exists
+  stat:
+    path: /var/freifunk/gateway-{{ freifunk.kurzname }}/fastd/blacklist
+  register: blacklist_file
+
+- name: create global blacklist file (if not exists)
+  file:
+    path: /var/freifunk/gateway-{{ freifunk.kurzname }}/fastd/blacklist
+    state: touch
+  when: not blacklist_file.stat.exists
+
+- name: status.pl nach /root kopieren
+  copy:
+    src: status.pl
+    dest: /root/status.pl
+    owner: root
+    group: root
+    mode: 0755
+
+- name: create folder for fastd@ service file
+  file:
+    path: /etc/systemd/system/fastd@.service.d
+    state: directory
+    mode: 0755
+
+- name: override fastd@ service
+  template:
+    src: fastd@.service.override.j2
+    dest: /etc/systemd/system/fastd@.service.d/ansible-managed.conf
+  register: _domain_fastd_systemd
+  notify:
+    - reread systemd configs
+
+- name: create folder for haveged service override file
+  file:
+    path: /etc/systemd/system/haveged.service.d
+    state: directory
+    mode: 0755
+
+- name: override haveged service
+  template:
+    src: haveged.service.override.j2
+    dest: /etc/systemd/system/haveged.service.d/ansible-managed.conf
+  register: _domain_fastd_systemd
+  notify:
+    - reread systemd configs
+
+- name: enable fastd for each domain
+  systemd:
+    name: fastd@{{ item.key }}
+    enabled: yes
+    masked: no
+  with_dict: "{{ domaenenliste }}"
+  notify:
+    - restart fastd per domain

@@ -12,6 +12,11 @@ fi
 if [ -e /etc/systemd/system/tunneldigger@.service ] ; then
 	domains=$(/bin/ls /etc/systemd/system/multi-user.target.wants/tunneldigger@* | grep -oE "[0-9]+")
 fi
+
+if [ -e /usr/lib/systemd/system/fastd@.service ] ; then
+	fastd_domains=$(/bin/ls /etc/systemd/system/multi-user.target.wants/fastd@* | grep -oE "[0-9]+")
+fi
+
 #vnstat -tr
 
 echo "=====================================";
@@ -20,6 +25,7 @@ echo "Hostname: $(hostname)"
 ip -6 r s t 1042 | grep default
 ip r s t 1042 | grep default
 echo "L2TP Tunnel: $(brctl show | grep l2tp | wc -l)"
+echo "fastd Tunnel: $(brctl show | grep fastd | wc -l)"
 
 echo "=====================================";
 
@@ -111,6 +117,21 @@ if [ -e /etc/systemd/system/tunneldigger@.service ] ; then
 				echo "[${red} NOT RUNNING ${reset}] tunneldigger (Domäne $domain)";
 			else
 				echo "[ DISABLED ] tunneldigger (Domäne $domain)";
+			fi
+		fi
+	done
+fi
+
+if [ -e /usr/lib/systemd/system/fastd@.service ] ; then
+	for fastd_domain in $fastd_domains ; do
+		systemctl status fastd@${fastd_domain}.service >> /dev/null
+		if [ $? -eq 0 ] ; then
+			echo "[${green} RUNNING ${reset}] fastd (Domäne $fastd_domain)";
+		else
+			if [ $(systemctl is-enabled fastd@${fastd_domain}.service) = 'enabled' ] ; then
+				echo "[${red} NOT RUNNING ${reset}] fastd (Domäne $fastd_domain)";
+			else
+				echo "[ DISABLED ] fastd (Domäne $fastd_domain)";
 			fi
 		fi
 	done
