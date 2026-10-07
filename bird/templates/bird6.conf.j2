@@ -33,7 +33,7 @@ table radv_routes;                      # Manually configured routes go here
 protocol radv {
 {% for domaene in domaenenliste|dictsort %}
 	interface "bat{{domaene[0]}}" {
-		max ra interval 20;
+		max ra interval 60;
 		link mtu 1280;
 		prefix {{domaenen[domaene[0]].ffv6_ffrl_network}} {
 		};
