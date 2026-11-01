@@ -1,0 +1,49 @@
+- name: install curl
+  apt:
+    pkg: ['curl']
+    state: present
+
+- name: check if patchmon-agent is already enrolled
+  stat:
+    path: /etc/patchmon/credentials.yml
+  register: patchmon_credentials
+
+- name: read machine-id
+  slurp:
+    src: /etc/machine-id
+  register: patchmon_machine_id
+  when: not patchmon_credentials.stat.exists
+
+- name: enroll host at patchmon server
+  uri:
+    url: "{{ patchmon.server }}/api/v1/auto-enrollment/enroll"
+    method: POST
+    headers:
+      X-Auto-Enrollment-Key: "{{ passwords.patchmon.token_key }}"
+      X-Auto-Enrollment-Secret: "{{ passwords.patchmon.token_secret }}"
+    body_format: json
+    body:
+      friendly_name: "{{ inventory_hostname }}"
+      machine_id: "{{ patchmon_machine_id.content | b64decode | trim }}"
+    status_code: 201
+  register: patchmon_enroll
+  no_log: true
+  when: not patchmon_credentials.stat.exists and not ansible_check_mode
+
+- name: install patchmon-agent
+  shell: >
+    curl -s "{{ patchmon.server }}/api/v1/hosts/install"
+    -H "X-API-ID: {{ patchmon_enroll.json.host.api_id }}"
+    -H "X-API-KEY: {{ patchmon_enroll.json.host.api_key }}"
+    | sh
+  args:
+    creates: /etc/patchmon/credentials.yml
+  no_log: true
+  when: not patchmon_credentials.stat.exists and not ansible_check_mode
+
+- name: start and enable patchmon-agent
+  service:
+    name: patchmon-agent
+    state: started
+    enabled: yes
+  when: not ansible_check_mode
