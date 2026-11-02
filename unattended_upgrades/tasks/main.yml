@@ -3,7 +3,6 @@
   tags: always
 
 - import_tasks: install.yml
-- import_tasks: migrate.yml
 - import_tasks: apt_conf.yml
 - import_tasks: timers.yml
 - import_tasks: reboot.yml

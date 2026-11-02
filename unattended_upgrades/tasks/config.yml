@@ -19,14 +19,6 @@
       reboot_mode: {{ _uu_allowed_reboot_modes }}, mail_report: {{ _uu_allowed_mail_reports }}.
     quiet: yes
 
-- name: Warn if no update source is enabled
-  debug:
-    msg: "Keine Quelle aktiv (include_*/origins_pattern), unattended-upgrades installiert nichts."
-  when:
-    - _uu.enabled
-    - not (_uu.include_security or _uu.include_updates or _uu.include_point_releases)
-    - _uu.origins_pattern | length == 0
-
 # Seed für gestaffelte Zeiten: vm_id, sonst stabiler Hash des Hostnamens
 - name: Warn about missing vm_id
   debug:
