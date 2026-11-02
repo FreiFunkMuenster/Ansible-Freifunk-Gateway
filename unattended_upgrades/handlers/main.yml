@@ -1,0 +1,13 @@
+---
+- name: reload apt timers
+  systemd:
+    daemon_reload: yes
+
+- name: restart apt timers
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+  loop:
+    - apt-daily.timer
+    - apt-daily-upgrade.timer
+  when: _uu.enabled

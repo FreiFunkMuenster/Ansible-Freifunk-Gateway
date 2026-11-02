@@ -1,0 +1,5 @@
+// {{ ansible_managed }}
+APT::Periodic::Update-Package-Lists "{{ '1' if _uu.enabled else '0' }}";
+APT::Periodic::Download-Upgradeable-Packages "{{ '1' if _uu.enabled else '0' }}";
+APT::Periodic::AutocleanInterval "{{ _uu.autoclean_interval }}";
+APT::Periodic::Unattended-Upgrade "{{ '1' if _uu.enabled else '0' }}";

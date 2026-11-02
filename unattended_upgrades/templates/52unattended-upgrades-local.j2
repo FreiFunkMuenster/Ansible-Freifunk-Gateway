@@ -1,0 +1,67 @@
+// {{ ansible_managed }}
+//
+// Lokale Einstellungen, werden nach der Paketdatei 50unattended-upgrades gelesen.
+// Einfache Werte überschreiben, Listen werden angehängt ("#clear" ersetzt sie).
+{% if ansible_distribution == 'Ubuntu' %}
+{% set origin_list = 'Allowed-Origins' %}
+{% else %}
+{% set origin_list = 'Origins-Pattern' %}
+{% endif %}
+
+{% if _uu.security_only %}
+#clear Unattended-Upgrade::{{ origin_list }};
+{% endif %}
+Unattended-Upgrade::{{ origin_list }} {
+{% if ansible_distribution == 'Ubuntu' %}
+{% if _uu.security_only %}
+        "${distro_id}:${distro_codename}-security";
+        "${distro_id}ESM:${distro_codename}";
+{% endif %}
+{% if _uu.include_updates %}
+        "${distro_id}:${distro_codename}-updates";
+{% endif %}
+{% else %}
+{% if _uu.security_only %}
+        "origin=Debian,codename=${distro_codename},label=Debian-Security";
+        "origin=Debian,codename=${distro_codename}-security,label=Debian-Security";
+{% endif %}
+{% if _uu.include_updates %}
+        "origin=Debian,codename=${distro_codename}-updates";
+{% endif %}
+{% endif %}
+{% for item in _uu.origins_pattern %}
+        "{{ item }}";
+{% endfor %}
+};
+
+{% if _uu.package_blacklist %}
+Unattended-Upgrade::Package-Blacklist {
+{% for item in _uu.package_blacklist %}
+        "{{ item }}";
+{% endfor %}
+};
+
+{% endif %}
+Unattended-Upgrade::MinimalSteps "{{ 'true' if _uu.minimal_steps else 'false' }}";
+Unattended-Upgrade::Remove-Unused-Dependencies "{{ 'true' if _uu.remove_unused_dependencies else 'false' }}";
+Unattended-Upgrade::Remove-Unused-Kernel-Packages "{{ 'true' if _uu.remove_unused_kernel_packages else 'false' }}";
+{% if _uu.dpkg_force_confold %}
+
+Dpkg::Options {
+        "--force-confdef";
+        "--force-confold";
+};
+{% endif %}
+{% if _uu.mail | length > 0 %}
+
+Unattended-Upgrade::Mail "{{ _uu.mail }}";
+Unattended-Upgrade::MailReport "{{ _uu.mail_report }}";
+{% endif %}
+
+{% if _uu.reboot_mode == 'unattended' %}
+Unattended-Upgrade::Automatic-Reboot "true";
+Unattended-Upgrade::Automatic-Reboot-WithUsers "{{ 'true' if _uu.reboot_with_users else 'false' }}";
+Unattended-Upgrade::Automatic-Reboot-Time "{{ _uu_reboot_time }}";
+{% else %}
+Unattended-Upgrade::Automatic-Reboot "false";
+{% endif %}

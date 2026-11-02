@@ -1,0 +1,54 @@
+---
+- name: Create timer drop-in directories
+  file:
+    path: "/etc/systemd/system/{{ item }}.timer.d"
+    state: directory
+    mode: "0755"
+  loop:
+    - apt-daily
+    - apt-daily-upgrade
+  when: _uu.enabled
+
+- name: Configure apt-daily.timer
+  template:
+    src: apt-timer-override.conf.j2
+    dest: /etc/systemd/system/apt-daily.timer.d/override.conf
+    mode: "0644"
+  vars:
+    _uu_timer_calendar: "{{ _uu.timer_update }}"
+  when: _uu.enabled
+  notify:
+    - reload apt timers
+    - restart apt timers
+
+- name: Configure apt-daily-upgrade.timer
+  template:
+    src: apt-timer-override.conf.j2
+    dest: /etc/systemd/system/apt-daily-upgrade.timer.d/override.conf
+    mode: "0644"
+  vars:
+    _uu_timer_calendar: "{{ _uu.timer_upgrade }}"
+  when: _uu.enabled
+  notify:
+    - reload apt timers
+    - restart apt timers
+
+- name: Remove timer drop-ins
+  file:
+    path: "/etc/systemd/system/{{ item }}.timer.d/override.conf"
+    state: absent
+  loop:
+    - apt-daily
+    - apt-daily-upgrade
+  when: not _uu.enabled
+  notify: reload apt timers
+
+- name: Make sure apt timers are enabled and running
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  loop:
+    - apt-daily.timer
+    - apt-daily-upgrade.timer
+  when: _uu.enabled

@@ -1,0 +1,37 @@
+---
+- name: Dump effective unattended-upgrades apt config
+  shell: set -o pipefail; apt-config dump | grep -i unattended
+  args:
+    executable: /bin/bash
+  register: _uu_aptconfig
+  changed_when: false
+  check_mode: no
+
+- name: Show effective apt config
+  debug:
+    var: _uu_aptconfig.stdout_lines
+    verbosity: 1
+
+- name: Dry-run unattended-upgrade
+  command: unattended-upgrade --dry-run --debug
+  register: _uu_dryrun
+  changed_when: false
+  check_mode: no
+  tags: [never, uu_test]
+
+- name: Show dry-run output
+  debug:
+    var: _uu_dryrun.stdout_lines
+  tags: [never, uu_test]
+
+- name: List apt timers
+  command: systemctl list-timers 'apt-daily*'
+  register: _uu_timers
+  changed_when: false
+  check_mode: no
+  tags: [never, uu_test, uu_timers]
+
+- name: Show apt timers
+  debug:
+    var: _uu_timers.stdout_lines
+  tags: [never, uu_test, uu_timers]

@@ -1,0 +1,15 @@
+---
+- name: Let restart server once a week but not all at the same time
+  cron:
+    name: weekly restart
+    weekday: "{{ (_uu_seed | int - 2) % 7 }}"
+    hour: "3"
+    minute: "{{ (_uu_seed | int * 2) % 30 + 30 }}"
+    job: "if [ -f /var/run/reboot-required ]; then /sbin/shutdown -r +5; fi"
+  when: _uu.enabled and _uu.reboot_mode == 'cron_weekly'
+
+- name: Remove weekly restart cronjob
+  cron:
+    name: weekly restart
+    state: absent
+  when: not (_uu.enabled and _uu.reboot_mode == 'cron_weekly')

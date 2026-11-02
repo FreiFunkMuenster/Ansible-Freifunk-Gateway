@@ -1,0 +1,9 @@
+---
+- name: Install unattended-upgrades packages
+  apt:
+    pkg:
+      - unattended-upgrades
+      - apt-listchanges
+    state: present
+    update_cache: yes
+    cache_valid_time: 1800
