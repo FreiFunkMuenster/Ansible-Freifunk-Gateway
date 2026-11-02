@@ -1,0 +1,35 @@
+---
+- name: Merge unattended_upgrades config with defaults
+  set_fact:
+    _uu: "{{ unattended_upgrades_defaults | combine(unattended_upgrades | default({}), recursive=True) }}"
+
+- name: Check unattended_upgrades config
+  assert:
+    that:
+      - (unattended_upgrades | default({})) is mapping
+      - (unattended_upgrades | default({})).keys() | list | difference(unattended_upgrades_defaults.keys() | list) | length == 0
+      - _uu.reboot_mode in _uu_allowed_reboot_modes
+      - _uu.mail_report in _uu_allowed_mail_reports
+      - _uu.origins_pattern is sequence and _uu.origins_pattern is not string
+      - _uu.package_blacklist is sequence and _uu.package_blacklist is not string
+    fail_msg: >-
+      Ungültige Konfiguration in unattended_upgrades.
+      Unbekannte Keys: {{ (unattended_upgrades | default({})).keys() | list | difference(unattended_upgrades_defaults.keys() | list) }}.
+      Erlaubte Keys: {{ unattended_upgrades_defaults.keys() | list | sort }}.
+      reboot_mode: {{ _uu_allowed_reboot_modes }}, mail_report: {{ _uu_allowed_mail_reports }}.
+    quiet: yes
+
+# Seed für gestaffelte Zeiten: vm_id, sonst stabiler Hash des Hostnamens
+- name: Warn about missing vm_id
+  debug:
+    msg: "vm_id ist nicht definiert, Reboot-Zeiten werden aus dem Hostnamen abgeleitet."
+  when:
+    - vm_id is not defined
+    - _uu.reboot_mode != 'none'
+
+- name: Set staggering seed and reboot time
+  set_fact:
+    _uu_seed: "{{ vm_id | int if vm_id is defined else (inventory_hostname | hash('md5'))[:4] | int(base=16) }}"
+    _uu_reboot_time: >-
+      {{ _uu.reboot_time if _uu.reboot_time | length > 0
+         else ('04:%02d' | format((vm_id | int * 2) % 30 + 30) if vm_id is defined else '04:00') }}

@@ -1,0 +1,11 @@
+---
+_uu_allowed_reboot_modes:
+  - none
+  - unattended
+  - cron_weekly
+_uu_allowed_mail_reports:
+  - always
+  - on-change
+  - only-on-error
+# sha1 der von der alten Rolle erzeugten /etc/apt/apt.conf.d/10periodic
+_uu_old_10periodic_sha1: d5b871141f9693c8e5c016ea33aea0067aace77b

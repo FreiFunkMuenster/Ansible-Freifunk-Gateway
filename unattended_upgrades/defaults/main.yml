@@ -1,0 +1,45 @@
+---
+# Nutzer setzen nur die zu ändernden Keys in "unattended_upgrades"
+# (host_vars/group_vars). Gemergt wird in tasks/config.yml nach "_uu".
+unattended_upgrades: {}
+
+unattended_upgrades_defaults:
+  # Hauptschalter. false = unattended-upgrades aktiv deaktivieren
+  # (20auto-upgrades auf "0", Drop-ins/Cron entfernen), Paket bleibt installiert.
+  enabled: true
+
+  # --- Quellen ---
+  # true  = nur Security (Default-Liste aus 50er per #clear verwerfen, Security-Patterns neu setzen)
+  # false = Paket-Default (Security + Point-Releases label=Debian)
+  security_only: true
+  # zusätzlich ${distro_codename}-updates
+  include_updates: false
+  # weitere Origins, z. B. "site=ftp.ripe.net" oder "origin=deb.nodesource.com"
+  origins_pattern: []
+  # Python-Regex, Pakete die nie automatisch aktualisiert werden
+  package_blacklist: []
+
+  # --- Verhalten ---
+  minimal_steps: true
+  dpkg_force_confold: true
+  remove_unused_dependencies: true
+  remove_unused_kernel_packages: true
+  autoclean_interval: 7
+
+  # --- Mail (leer = aus) ---
+  mail: ""
+  mail_report: "only-on-error"   # always | on-change | only-on-error
+
+  # --- Reboot ---
+  # none        = nie automatisch rebooten (nur /run/reboot-required wird gesetzt)
+  # unattended  = Unattended-Upgrade::Automatic-Reboot zur Uhrzeit reboot_time
+  # cron_weekly = wöchentlicher Cron, Wochentag/Minute aus vm_id gestaffelt
+  reboot_mode: "none"
+  reboot_with_users: true
+  # leer = automatisch gestaffelt nach vm_id: '04:%02d' | format((vm_id*2)%30+30)
+  reboot_time: ""
+
+  # --- Timer (systemd OnCalendar) ---
+  timer_update: "*-*-* 02:30"
+  timer_upgrade: "*-*-* 03:30"
+  timer_randomized_delay: "0"
