@@ -13,9 +13,9 @@ unattended_upgrades_defaults:
   # Security-Updates (Debian-Security bzw. Ubuntu -security/ESM)
   include_security: true
   # zusätzlich ${distro_codename}-updates
-  include_updates: false
+  include_updates: true
   # Point-Releases (Debian label=Debian bzw. Ubuntu Hauptarchiv ${distro_codename})
-  include_point_releases: false
+  include_point_releases: true
   # weitere Origins, z. B. "site=ftp.ripe.net" oder "origin=deb.nodesource.com"
   origins_pattern: []
   # Python-Regex, Pakete die nie automatisch aktualisiert werden
@@ -36,7 +36,7 @@ unattended_upgrades_defaults:
   # none        = nie automatisch rebooten (nur /run/reboot-required wird gesetzt)
   # unattended  = Unattended-Upgrade::Automatic-Reboot zur Uhrzeit reboot_time
   # cron_weekly = wöchentlicher Cron, Wochentag/Minute aus vm_id gestaffelt
-  reboot_mode: "none"
+  reboot_mode: "unattended"
   reboot_with_users: true
   # leer = automatisch gestaffelt nach vm_id: '04:%02d' | format((vm_id*2)%30+30)
   reboot_time: ""

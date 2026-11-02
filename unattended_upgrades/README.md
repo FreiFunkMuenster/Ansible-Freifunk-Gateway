@@ -25,8 +25,8 @@ Alles über **ein Dict `unattended_upgrades`**. Es müssen nur die Keys angegebe
 |---|---|---|
 | `enabled` | `true` | `false` = deaktivieren (`20auto-upgrades` auf `0`, Timer-Drop-ins und Cronjob entfernt). Paket bleibt installiert. |
 | `include_security` | `true` | Security-Updates (Debian-Security bzw. Ubuntu `-security` und ESM) |
-| `include_updates` | `false` | `${distro_codename}-updates` |
-| `include_point_releases` | `false` | Point-Releases (Debian `label=Debian`, Ubuntu Hauptarchiv) |
+| `include_updates` | `true` | `${distro_codename}-updates` |
+| `include_point_releases` | `true` | Point-Releases (Debian `label=Debian`, Ubuntu Hauptarchiv) |
 | `origins_pattern` | `[]` | weitere Origins, z. B. `"site=ftp.ripe.net"` |
 | `package_blacklist` | `[]` | Python-Regex, diese Pakete werden nie automatisch aktualisiert |
 | `minimal_steps` | `true` | Upgrade in kleinsten Schritten (unterbrechbar) |
@@ -36,7 +36,7 @@ Alles über **ein Dict `unattended_upgrades`**. Es müssen nur die Keys angegebe
 | `autoclean_interval` | `7` | `APT::Periodic::AutocleanInterval` (Tage) |
 | `mail` | `""` | Empfänger, leer = keine Mail. Ein funktionierender MTA mit `mailx` wird vorausgesetzt. |
 | `mail_report` | `only-on-error` | `always` \| `on-change` \| `only-on-error` |
-| `reboot_mode` | `none` | `none`, `unattended` oder `cron_weekly` (siehe unten) |
+| `reboot_mode` | `unattended` | `none`, `unattended` oder `cron_weekly` (siehe unten) |
 | `reboot_with_users` | `true` | Reboot auch bei angemeldeten Benutzern (nur `unattended`) |
 | `reboot_time` | `""` | Uhrzeit für `unattended`. Leer = `04:xx`, `xx = (vm_id*2)%30+30`. Ohne `vm_id`: `04:00` plus Warnung. |
 | `timer_update` | `*-*-* 02:30` | `OnCalendar` von `apt-daily.timer` |
@@ -51,27 +51,21 @@ Alles über **ein Dict `unattended_upgrades`**. Es müssen nur die Keys angegebe
 
 ## Beispiele (host_vars)
 
+Nur abweichende Werte angeben. Die Defaults sind: alle Quellen an, Reboot `unattended` zur gestaffelten Uhrzeit.
+
 ```yaml
-# Gateway: nur Security (Default), Reboot wöchentlich gestaffelt
+# Gateway: nur Security, Reboot wöchentlich gestaffelt per Cron
 unattended_upgrades:
-  include_security: true
   include_updates: false
   include_point_releases: false
   reboot_mode: cron_weekly
 
-# Dienst-Host: alles inkl. -updates, nächtlicher Reboot bei Bedarf
+# Dienst-Host: Defaults, aber Reboot um 04:00
 unattended_upgrades:
-  include_security: true
-  include_updates: true
-  include_point_releases: true
-  reboot_mode: unattended
   reboot_time: "04:00"
 
 # Host mit Fremdrepo, kein Auto-Reboot, Mail bei Fehlern
 unattended_upgrades:
-  include_security: true
-  include_updates: false
-  include_point_releases: false
   origins_pattern:
     - "site=ftp.ripe.net"
   reboot_mode: none
@@ -96,8 +90,8 @@ Dienste mit eigenen systemd-Units neben paketierten Units (z. B. eine zweite BIN
 
 ## Verhaltensänderungen gegenüber der alten Rolle
 
-- Die alte Rolle hat effektiv nur Security installiert. Das bleibt mit den Defaults so. Point-Releases und `-updates` gibt es erst mit `include_point_releases: true` bzw. `include_updates: true`. Der frühere Key `security_only` entfällt (Fehlermeldung mit Hinweis). In host_vars sollten immer alle drei `include_*` explizit stehen (Reihenfolge security, updates, point_releases), damit man sieht, was gesetzt ist.
-- **Der wöchentliche Reboot-Cronjob ist nicht mehr Default** (`reboot_mode: none`). Wer ihn behalten will, setzt `reboot_mode: cron_weekly`. Bei allen anderen Hosts wird der bestehende Cronjob `weekly restart` beim ersten Lauf entfernt.
+- Die alte Rolle hat effektiv nur Security installiert. Mit den neuen Defaults kommen Point-Releases (`include_point_releases`) und `-updates` (`include_updates`) dazu. Wer nur Security will, setzt beide auf `false`. Der frühere Key `security_only` entfällt (Fehlermeldung mit Hinweis).
+- **Default ist jetzt `reboot_mode: unattended`.** Ohne weitere Angabe rebootet ein Host bei Bedarf nachts per `Unattended-Upgrade::Automatic-Reboot`. Der alte Cronjob `weekly restart` wird beim ersten Lauf entfernt, außer bei `reboot_mode: cron_weekly`. Wer nie automatisch rebooten will, setzt `reboot_mode: none`.
 - Der Zeitpunkt richtet sich nach den systemd-Timern statt nach apt-Periodic.
 
 ## Migration bestehender Hosts
