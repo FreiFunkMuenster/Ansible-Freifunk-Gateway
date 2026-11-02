@@ -78,7 +78,7 @@ unattended_upgrades:
 
 - Origins ermitteln: `apt-cache policy`
 - Wirksame Konfiguration: `apt-config dump | grep -i unattended`
-- Trockenlauf: `unattended-upgrade --dry-run --debug` (oder per Ansible mit dem Tag `uu_test`)
+- Trockenlauf: `unattended-upgrade --dry-run --debug` (oder per Ansible mit dem Tag `uu_test` und `-v`)
 - Timer: `systemctl list-timers 'apt-daily*'` (Tag `uu_timers` bzw. `uu_test`)
 - Anstehende Reboots (v. a. bei `reboot_mode: none`): `ls /run/reboot-required`
 
