@@ -2,7 +2,7 @@
 
 Installiert `unattended-upgrades` und `apt-listchanges` und konfiguriert automatische Updates.
 
-Die Paketdatei `/etc/apt/apt.conf.d/50unattended-upgrades` wird **nicht** mehr angefasst. Eigene Einstellungen liegen in `/etc/apt/apt.conf.d/52unattended-upgrades-local`. Apt liest die Dateien alphabetisch, die 52 kommt also nach der 50: einfache Werte überschreiben, Listen (z. B. `Origins-Pattern`) werden *angehängt*. Soll eine Liste ersetzt werden, steht davor ein `#clear` (macht die Rolle bei `security_only: true`).
+Die Paketdatei `/etc/apt/apt.conf.d/50unattended-upgrades` wird **nicht** mehr angefasst. Eigene Einstellungen liegen in `/etc/apt/apt.conf.d/52unattended-upgrades-local`. Apt liest die Dateien alphabetisch, die 52 kommt also nach der 50: einfache Werte überschreiben, Listen (z. B. `Origins-Pattern`) werden *angehängt*. Soll eine Liste ersetzt werden, steht davor ein `#clear`. Die Rolle macht das **immer** und listet alle Quellen anhand der `include_*`-Schalter explizit auf. Die 52 ist damit die vollständige Liste der erlaubten Quellen, unabhängig vom Inhalt der Paketdatei.
 
 Was die Rolle verwaltet:
 
@@ -24,8 +24,9 @@ Alles über **ein Dict `unattended_upgrades`**. Es müssen nur die Keys angegebe
 | Key | Default | Bedeutung |
 |---|---|---|
 | `enabled` | `true` | `false` = deaktivieren (`20auto-upgrades` auf `0`, Timer-Drop-ins und Cronjob entfernt). Paket bleibt installiert. |
-| `security_only` | `true` | `true` = nur Security. `false` = Paket-Default (Security + Point-Releases `label=Debian`). |
-| `include_updates` | `false` | zusätzlich `${distro_codename}-updates` |
+| `include_security` | `true` | Security-Updates (Debian-Security bzw. Ubuntu `-security` und ESM) |
+| `include_updates` | `false` | `${distro_codename}-updates` |
+| `include_point_releases` | `false` | Point-Releases (Debian `label=Debian`, Ubuntu Hauptarchiv) |
 | `origins_pattern` | `[]` | weitere Origins, z. B. `"site=ftp.ripe.net"` |
 | `package_blacklist` | `[]` | Python-Regex, diese Pakete werden nie automatisch aktualisiert |
 | `minimal_steps` | `true` | Upgrade in kleinsten Schritten (unterbrechbar) |
@@ -53,17 +54,24 @@ Alles über **ein Dict `unattended_upgrades`**. Es müssen nur die Keys angegebe
 ```yaml
 # Gateway: nur Security (Default), Reboot wöchentlich gestaffelt
 unattended_upgrades:
+  include_security: true
+  include_updates: false
+  include_point_releases: false
   reboot_mode: cron_weekly
 
 # Dienst-Host: alles inkl. -updates, nächtlicher Reboot bei Bedarf
 unattended_upgrades:
-  security_only: false
+  include_security: true
   include_updates: true
+  include_point_releases: true
   reboot_mode: unattended
   reboot_time: "04:00"
 
 # Host mit Fremdrepo, kein Auto-Reboot, Mail bei Fehlern
 unattended_upgrades:
+  include_security: true
+  include_updates: false
+  include_point_releases: false
   origins_pattern:
     - "site=ftp.ripe.net"
   reboot_mode: none
@@ -88,7 +96,7 @@ Dienste mit eigenen systemd-Units neben paketierten Units (z. B. eine zweite BIN
 
 ## Verhaltensänderungen gegenüber der alten Rolle
 
-- Die alte Rolle hat effektiv nur Security installiert. Das bleibt mit den Defaults so. Point-Releases und `-updates` gibt es erst mit `security_only: false` bzw. `include_updates: true`.
+- Die alte Rolle hat effektiv nur Security installiert. Das bleibt mit den Defaults so. Point-Releases und `-updates` gibt es erst mit `include_point_releases: true` bzw. `include_updates: true`. Der frühere Key `security_only` entfällt (Fehlermeldung mit Hinweis). In host_vars sollten immer alle drei `include_*` explizit stehen (Reihenfolge security, updates, point_releases), damit man sieht, was gesetzt ist.
 - **Der wöchentliche Reboot-Cronjob ist nicht mehr Default** (`reboot_mode: none`). Wer ihn behalten will, setzt `reboot_mode: cron_weekly`. Bei allen anderen Hosts wird der bestehende Cronjob `weekly restart` beim ersten Lauf entfernt.
 - Der Zeitpunkt richtet sich nach den systemd-Timern statt nach apt-Periodic.
 

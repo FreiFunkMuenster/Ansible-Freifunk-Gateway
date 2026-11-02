@@ -9,11 +9,13 @@ unattended_upgrades_defaults:
   enabled: true
 
   # --- Quellen ---
-  # true  = nur Security (Default-Liste aus 50er per #clear verwerfen, Security-Patterns neu setzen)
-  # false = Paket-Default (Security + Point-Releases label=Debian)
-  security_only: true
+  # Die 52er verwirft die Paketliste immer (#clear) und listet die Quellen explizit auf.
+  # Security-Updates (Debian-Security bzw. Ubuntu -security/ESM)
+  include_security: true
   # zusätzlich ${distro_codename}-updates
   include_updates: false
+  # Point-Releases (Debian label=Debian bzw. Ubuntu Hauptarchiv ${distro_codename})
+  include_point_releases: false
   # weitere Origins, z. B. "site=ftp.ripe.net" oder "origin=deb.nodesource.com"
   origins_pattern: []
   # Python-Regex, Pakete die nie automatisch aktualisiert werden
