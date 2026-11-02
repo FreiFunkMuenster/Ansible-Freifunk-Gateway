@@ -3,16 +3,6 @@
   set_fact:
     _uu: "{{ unattended_upgrades_defaults | combine(unattended_upgrades | default({}), recursive=True) }}"
 
-- name: Check for removed security_only key
-  assert:
-    that: "'security_only' not in (unattended_upgrades | default({}))"
-    fail_msg: >-
-      unattended_upgrades.security_only gibt es nicht mehr. Stattdessen
-      include_security, include_updates und include_point_releases setzen
-      (security_only: true = include_security: true, include_point_releases: false;
-      security_only: false = include_security: true, include_point_releases: true).
-    quiet: yes
-
 - name: Check unattended_upgrades config
   assert:
     that:

@@ -7,6 +7,3 @@
 - import_tasks: apt_conf.yml
 - import_tasks: timers.yml
 - import_tasks: reboot.yml
-
-- import_tasks: validate.yml
-  when: _uu.enabled

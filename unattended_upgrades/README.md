@@ -1,6 +1,6 @@
 # unattended_upgrades
 
-Installiert `unattended-upgrades` und `apt-listchanges` und konfiguriert automatische Updates.
+Installiert `unattended-upgrades` und konfiguriert automatische Updates.
 
 Die Paketdatei `/etc/apt/apt.conf.d/50unattended-upgrades` wird **nicht** mehr angefasst. Eigene Einstellungen liegen in `/etc/apt/apt.conf.d/52unattended-upgrades-local`. Apt liest die Dateien alphabetisch, die 52 kommt also nach der 50: einfache Werte überschreiben, Listen (z. B. `Origins-Pattern`) werden *angehängt*. Soll eine Liste ersetzt werden, steht davor ein `#clear`. Die Rolle macht das **immer** und listet alle Quellen anhand der `include_*`-Schalter explizit auf. Die 52 ist damit die vollständige Liste der erlaubten Quellen, unabhängig vom Inhalt der Paketdatei.
 
@@ -80,8 +80,8 @@ unattended_upgrades:
 
 - Origins ermitteln: `apt-cache policy`
 - Wirksame Konfiguration: `apt-config dump | grep -i unattended`
-- Trockenlauf: `unattended-upgrade --dry-run --debug` (oder per Ansible mit dem Tag `uu_test` und `-v`)
-- Timer: `systemctl list-timers 'apt-daily*'` (Tag `uu_timers` bzw. `uu_test`)
+- Trockenlauf: `unattended-upgrade --dry-run --debug`
+- Timer: `systemctl list-timers 'apt-daily*'`
 - Anstehende Reboots (v. a. bei `reboot_mode: none`): `ls /run/reboot-required`
 
 ## Hinweis zu eigenen systemd-Units
@@ -90,7 +90,7 @@ Dienste mit eigenen systemd-Units neben paketierten Units (z. B. eine zweite BIN
 
 ## Verhaltensänderungen gegenüber der alten Rolle
 
-- Die alte Rolle hat effektiv nur Security installiert. Mit den neuen Defaults kommen Point-Releases (`include_point_releases`) und `-updates` (`include_updates`) dazu. Wer nur Security will, setzt beide auf `false`. Der frühere Key `security_only` entfällt (Fehlermeldung mit Hinweis).
+- Die alte Rolle hat effektiv nur Security installiert. Mit den neuen Defaults kommen Point-Releases (`include_point_releases`) und `-updates` (`include_updates`) dazu. Wer nur Security will, setzt beide auf `false`. Der frühere Key `security_only` entfällt.
 - **Default ist jetzt `reboot_mode: unattended`.** Ohne weitere Angabe rebootet ein Host bei Bedarf nachts per `Unattended-Upgrade::Automatic-Reboot`. Der alte Cronjob `weekly restart` wird beim ersten Lauf entfernt, außer bei `reboot_mode: cron_weekly`. Wer nie automatisch rebooten will, setzt `reboot_mode: none`.
 - Der Zeitpunkt richtet sich nach den systemd-Timern statt nach apt-Periodic.
 
