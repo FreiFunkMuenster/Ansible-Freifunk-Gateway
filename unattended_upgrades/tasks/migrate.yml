@@ -15,6 +15,7 @@
 
 - name: Restore package version of 50unattended-upgrades
   command: apt-get install -y --reinstall -o Dpkg::Options::=--force-confmiss unattended-upgrades
+  changed_when: true
   when: _uu_old50.rc == 0 and not ansible_check_mode
 
 # Alt: 10periodic aus dem alten Template (nur entfernen, wenn unverändert und von keinem Paket besessen)
