@@ -5,6 +5,7 @@
     executable: /bin/bash
   register: _uu_aptconfig
   changed_when: false
+  failed_when: _uu_aptconfig.rc > 1
   check_mode: no
 
 - name: Dry-run unattended-upgrade
