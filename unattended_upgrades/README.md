@@ -8,7 +8,7 @@ Was die Rolle verwaltet:
 
 | Datei | Zweck |
 |---|---|
-| `/etc/apt/apt.conf.d/20auto-upgrades` | Aktivierung (wie `dpkg-reconfigure -plow unattended-upgrades`) |
+| `/etc/apt/apt.conf.d/20auto-upgrades` | Aktivierung (wie `dpkg-reconfigure -plow unattended-upgrades`). Die Intervalle stehen auf `always`, weil die Timer mehrmals täglich laufen. Bei `1` würde apt nur den ersten Lauf pro Tag ausführen. |
 | `/etc/apt/apt.conf.d/52unattended-upgrades-local` | Quellen, Verhalten, Mail, Reboot |
 | `/etc/systemd/system/apt-daily{,-upgrade}.timer.d/override.conf` | Zeitpunkt von Update und Upgrade |
 | Cronjob `weekly restart` | nur bei `reboot_mode: cron_weekly` |
@@ -39,15 +39,15 @@ Alles über **ein Dict `unattended_upgrades`**. Es müssen nur die Keys angegebe
 | `reboot_mode` | `unattended` | `none`, `unattended` oder `cron_weekly` (siehe unten) |
 | `reboot_with_users` | `true` | Reboot auch bei angemeldeten Benutzern (nur `unattended`) |
 | `reboot_time` | `""` | Uhrzeit für `unattended`. Leer = `04:xx`, `xx = (vm_id*2)%30+30`. Ohne `vm_id`: `04:00` plus Warnung. |
-| `timer_update` | `*-*-* 02:30` | `OnCalendar` von `apt-daily.timer` |
-| `timer_upgrade` | `*-*-* 03:30` | `OnCalendar` von `apt-daily-upgrade.timer` |
+| `timer_update` | `*-*-* 23,05,11,17:00` | `OnCalendar` von `apt-daily.timer` |
+| `timer_upgrade` | `*-*-* 00/6:00` | `OnCalendar` von `apt-daily-upgrade.timer` |
 | `timer_randomized_delay` | `"0"` | `RandomizedDelaySec` beider Timer |
 
 ### Reboot-Modi
 
 - `none`: kein automatischer Reboot. Anstehende Reboots stehen in `/run/reboot-required` und müssen selbst geprüft werden.
 - `unattended`: `Unattended-Upgrade::Automatic-Reboot` zur Uhrzeit `reboot_time`.
-- `cron_weekly`: Cronjob `weekly restart`, einmal pro Woche zwischen 03:30 und 03:59, wenn `/var/run/reboot-required` existiert. Wochentag und Minute werden aus `vm_id` gestaffelt. Ohne `vm_id` wird ein stabiler Wert aus dem Hostnamen abgeleitet (mit Warnung). Der Upgrade-Timer läuft standardmäßig um 03:30, ein Reboot kann also in ein noch laufendes Upgrade fallen. `shutdown -r +5`, `MinimalSteps` und `unattended-upgrade-shutdown` fangen das ab. Wer sicher gehen will, setzt `timer_upgrade` früher.
+- `cron_weekly`: Cronjob `weekly restart`, einmal pro Woche zwischen 03:30 und 03:59, wenn `/var/run/reboot-required` existiert. Wochentag und Minute werden aus `vm_id` gestaffelt. Ohne `vm_id` wird ein stabiler Wert aus dem Hostnamen abgeleitet (mit Warnung). Der Upgrade-Timer läuft standardmäßig um 0, 6, 12 und 18 Uhr, ein Reboot um 03:30 bis 03:59 fällt also normalerweise nicht in ein laufendes Upgrade. `shutdown -r +5`, `MinimalSteps` und `unattended-upgrade-shutdown` fangen das ab. Wer sicher gehen will, setzt `timer_upgrade` früher.
 
 ## Beispiele (host_vars)
 

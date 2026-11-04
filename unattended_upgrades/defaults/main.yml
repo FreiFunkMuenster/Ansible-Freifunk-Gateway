@@ -41,7 +41,7 @@ unattended_upgrades_defaults:
   # leer = automatisch gestaffelt nach vm_id: '04:%02d' | format((vm_id*2)%30+30)
   reboot_time: ""
 
-  # --- Timer (systemd OnCalendar) ---
-  timer_update: "*-*-* 02:30"
-  timer_upgrade: "*-*-* 03:30"
+  # --- Timer (systemd OnCalendar): Upgrade um 0, 6, 12, 18 Uhr, Update 60 Min. vorher ---
+  timer_update: "*-*-* 23,05,11,17:00"
+  timer_upgrade: "*-*-* 00/6:00"
   timer_randomized_delay: "0"
